@@ -58,9 +58,9 @@ Das Script erkennt automatisch die Distribution und installiert alle Abhängigke
 ### Manueller Build
 
 ```bash
-cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -G Ninja
-cmake --build build --parallel $(nproc)
-sudo cmake --install build
+cmake -B build-release -S . -DCMAKE_BUILD_TYPE=Release -G Ninja
+cmake --build build-release --parallel $(nproc)
+sudo cmake --install build-release
 ```
 
 ### Abhängigkeiten
@@ -124,9 +124,9 @@ The script automatically detects your distribution and installs all required dep
 ### Manual build
 
 ```bash
-cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -G Ninja
-cmake --build build --parallel $(nproc)
-sudo cmake --install build
+cmake -B build-release -S . -DCMAKE_BUILD_TYPE=Release -G Ninja
+cmake --build build-release --parallel $(nproc)
+sudo cmake --install build-release
 ```
 
 ### Dependencies
