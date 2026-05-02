@@ -59,8 +59,8 @@ const QList<FPColDef>& FilePane::colDefs() {
         {FP_EIGENTUEMER,  "Eigentümer",          "Weitere",  false, 70 },
         {FP_GRUPPE,       "Benutzergruppe",      "Weitere",  false, 80 },
         {FP_PFAD,         "Pfad",                "Weitere",  false, 120},
-        {FP_ERWEITERUNG,  "Dateierweiterung",    "Weitere",  false, 50 },
-        {FP_TAGS,         "Tags",                "",         false, 80 },
+        {FP_ERWEITERUNG,  "Dateierweiterung",    "Weitere",  false, 80 },
+        {FP_TAGS,         "Tags",                "",         false, 50 },
         {FP_IMG_DATUM,    "Datum der Aufnahme",  "Bild",     false, 80 },
         {FP_IMG_ABMESS,   "Abmessungen",         "Bild",     false, 80 },
         {FP_IMG_BREITE,   "Breite",              "Bild",     false, 50 },
@@ -489,7 +489,7 @@ FilePane::FilePane(QWidget *parent) : QWidget(parent) {
     hdr->setSortIndicatorShown(true);
     hdr->setSortIndicator(0, Qt::AscendingOrder);
     m_proxy->sort(0, Qt::AscendingOrder);
-    hdr->setStretchLastSection(true);
+    hdr->setStretchLastSection(false);
     hdr->setDefaultAlignment(Qt::AlignLeft|Qt::AlignVCenter);
     hdr->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(hdr, &QHeaderView::customContextMenuRequested, this, &FilePane::showHeaderMenu);
@@ -529,6 +529,7 @@ FilePane::FilePane(QWidget *parent) : QWidget(parent) {
         "QScrollBar::handle:vertical:hover{background:rgba(136,192,208,140);}"
         "QScrollBar::add-line:vertical,QScrollBar::sub-line:vertical{height:0px;}"
         "QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical{background:transparent;}");
+    m_overlayBar->hide();
     m_overlayBar->raise();
 
     // Overlay mit nativer Scrollbar synchronisieren
@@ -662,7 +663,7 @@ void FilePane::setColumnVisible(int colId, bool visible) {
     int vi=0;
     for(const auto &d : colDefs()) {
         if(!m_colVisible[d.id]) continue;
-        hdr->setSectionResizeMode(vi, d.id==FP_NAME ? QHeaderView::Stretch : QHeaderView::Fixed);
+        hdr->setSectionResizeMode(vi, d.id == FP_NAME ? QHeaderView::Stretch : QHeaderView::Interactive);
         if(d.id!=FP_NAME) hdr->resizeSection(vi, d.defaultWidth);
         vi++;
     }
