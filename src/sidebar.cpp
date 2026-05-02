@@ -401,14 +401,27 @@ void Sidebar::buildLogo(QVBoxLayout *parent)
 
     // ── Icon ──
     auto *iconLabel = new QLabel();
-    QString iconPath = QCoreApplication::applicationDirPath() + "/../src/splitcommander_64.png";
-    if (!QFile::exists(iconPath))
-        iconPath = QCoreApplication::applicationDirPath() + "/splitcommander_64.png";
-    QPixmap pix(iconPath);
-    if (!pix.isNull())
-        iconLabel->setPixmap(pix.scaled(32, 32, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    else
-        iconLabel->setPixmap(QIcon::fromTheme("system-file-manager").pixmap(32, 32));
+    QPixmap pix;
+
+    // 1. System-Theme (funktioniert nach sc-install)
+    QIcon themeIcon = QIcon::fromTheme("splitcommander");
+    if (!themeIcon.isNull()) {
+        pix = themeIcon.pixmap(32, 32);
+    }
+
+    // 2. Fallback: Pfad relativ zum Binary (Dev-Build)
+    if (pix.isNull()) {
+        QString iconPath = QCoreApplication::applicationDirPath() + "/../src/splitcommander_64.png";
+        if (!QFile::exists(iconPath))
+            iconPath = QCoreApplication::applicationDirPath() + "/splitcommander_64.png";
+        pix = QPixmap(iconPath);
+    }
+
+    // 3. Letzter Fallback: generisches Icon
+    if (pix.isNull())
+        pix = QIcon::fromTheme("system-file-manager").pixmap(32, 32);
+
+    iconLabel->setPixmap(pix.scaled(32, 32, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     iconLabel->setFixedSize(32, 32);
     iconLabel->setStyleSheet("background:transparent; border:none;");
     lay->addWidget(iconLabel);
