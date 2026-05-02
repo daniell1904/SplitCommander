@@ -30,6 +30,7 @@ add_executable(splitcommander
     src/jobprogresswidget.cpp
     src/fileoperations.cpp
     src/settingsdialog.cpp
+    src/thememanager.cpp
 )
 
 target_link_libraries(splitcommander

@@ -2,6 +2,9 @@
 #define SIDEBAR_H
 
 #include <QWidget>
+#include <QScrollBar>
+#include <QScrollArea>
+#include <QResizeEvent>
 #include <QListWidget>
 #include <QStyledItemDelegate>
 #include <QVBoxLayout>
@@ -79,6 +82,9 @@ signals:
     void settingsChanged();
     void hiddenFilesChanged(bool show);
 
+protected:
+    void resizeEvent(QResizeEvent *e) override;
+
 private:
     // ── UI-Aufbau ──────────────────────────────────────────────────────────────
     void buildLogo(QVBoxLayout *parent);
@@ -115,6 +121,8 @@ private:
     QListWidget *m_driveList     = nullptr;
     QStringList  m_gdriveAccounts;
 
+    QScrollArea *m_scrollArea    = nullptr;
+    QScrollBar  *m_overlayBar    = nullptr;
     QVBoxLayout *m_contentLayout = nullptr;
     QWidget     *m_newGroupBox   = nullptr;
     QListWidget *m_favList       = nullptr;

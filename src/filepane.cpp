@@ -1,7 +1,9 @@
 #include "filepane.h"
+#include "thememanager.h"
 #include "settingsdialog.h"
 #include "tagmanager.h"
 #include <QScrollBar>
+#include <QResizeEvent>
 #include <QTimer>
 #include <QDir>
 #include <QSettings>
@@ -28,11 +30,11 @@
 #include <KIO/PasteJob>
 #include <KIO/JobUiDelegateFactory>
 
-static const QString menuStyle =
-    "QMenu{background:#2e3440;color:#eceff4;border:1px solid #434c5e;}"
+static QString menuStyle() {
+    return TM().ssMenu() +
     "QMenu::item{padding:6px 20px;}"
-    "QMenu::item:selected{background:#434c5e;}"
     "QMenu::separator{background:rgba(236,239,244,120);height:1px;margin:4px 8px;}";
+}
 
 static void fp_applyMenuShadow(QMenu *menu) {
     if (!menu) return;
@@ -114,14 +116,13 @@ QString FilePaneDelegate::formatAge(qint64 s) const {
 }
 
 QColor FilePaneDelegate::ageColor(qint64 s) const {
-    // Sekunden → Farbe aus Einstellungen (Index 0..5 = heute/<7d/<30d/<180d/<1y/>1y)
-    if(s < 3600)          return SettingsDialog::ageBadgeColor(0);
-    if(s < 86400)         return SettingsDialog::ageBadgeColor(0);
-    if(s < 86400*7)       return SettingsDialog::ageBadgeColor(1);
-    if(s < 86400*30)      return SettingsDialog::ageBadgeColor(2);
-    if(s < 86400*90)      return SettingsDialog::ageBadgeColor(3);
-    if(s < 86400*365)     return SettingsDialog::ageBadgeColor(4);
-    return SettingsDialog::ageBadgeColor(5);
+    // Index 0=<1Tag, 1=<7Tage, 2=<30Tage, 3=<6Monate, 4=<1Jahr, 5=>1Jahr
+    if(s < 86400)           return SettingsDialog::ageBadgeColor(0);   // < 1 Tag
+    if(s < 86400*7)         return SettingsDialog::ageBadgeColor(1);   // < 7 Tage
+    if(s < 86400*30)        return SettingsDialog::ageBadgeColor(2);   // < 30 Tage
+    if(s < 86400*180)       return SettingsDialog::ageBadgeColor(3);   // < 6 Monate
+    if(s < 86400*365)       return SettingsDialog::ageBadgeColor(4);   // < 1 Jahr
+    return SettingsDialog::ageBadgeColor(5);                            // > 1 Jahr
 }
 
 void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QModelIndex &idx) const
@@ -134,15 +135,16 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const
     QColor bg, bgAlt;
 
     // Hintergrundfarben basierend auf Fokus-Status
+    // In FilePaneDelegate::paint (ca. Zeile 111):
     if (focused) {
-        bg = QColor("#2e3440");
-        bgAlt = QColor("#343d4a");
+        bg    = QColor(TM().colors().bgList);
+        bgAlt = QColor(TM().colors().bgAlternate); // Geändert von bgHover
     } else {
-        bg = QColor("#252b36");
-        bgAlt = QColor("#2a3040");
+        bg    = QColor(TM().colors().bgDeep);
+        bgAlt = QColor(TM().colors().bgBox);
     }
 
-    QColor bgFinal = sel ? QColor("#4c566a") : hov ? QColor("#3b4252") : (idx.row() % 2 ? bgAlt : bg);
+    QColor bgFinal = sel ? QColor(TM().colors().bgSelect) : hov ? QColor(TM().colors().bgHover) : (idx.row() % 2 ? bgAlt : bg);
     p->fillRect(o.rect, bgFinal);
 
     int col = idx.data(Qt::UserRole + 99).toInt(); // logische Spalten-ID
@@ -151,8 +153,8 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const
     f.setPointSize(10);
     p->setFont(f);
 
-    QColor tc = sel ? Qt::white : QColor("#d8dee9");
-    QColor dc = sel ? Qt::white : QColor("#6272a4");
+    QColor tc = (sel || hov) ? QColor(TM().colors().textLight) : QColor(TM().colors().textPrimary);
+    QColor dc = (sel || hov) ? QColor(TM().colors().textLight) : QColor(TM().colors().textMuted);
 
     if (col == FP_NAME) {
         QIcon icon = qvariant_cast<QIcon>(idx.data(Qt::DecorationRole));
@@ -188,7 +190,7 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const
         QString tagName = idx.data().toString();
         if (!tagName.isEmpty()) {
             QString colorStr = TagManager::instance().tagColor(tagName);
-            QColor tagCol = colorStr.isEmpty() ? QColor("#5e81ac") : QColor(colorStr);
+            QColor tagCol = colorStr.isEmpty() ? QColor(TM().colors().accent) : QColor(colorStr);
             int textW = o.fontMetrics.horizontalAdvance(tagName);
             int BW = qMin(textW + 12, r.width()), BH = 16;
             QRect br(r.left() + (r.width() - BW) / 2, r.top() + (r.height() - BH) / 2, BW, BH);
@@ -220,7 +222,7 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const
         p->setFont(f);
     }
 
-    p->setPen(QColor("#3b4252"));
+    p->setPen(QColor(TM().colors().bgHover));
     p->drawLine(o.rect.bottomLeft(), o.rect.bottomRight());
 }
 
@@ -299,7 +301,7 @@ void FilePane::buildRow(const QFileInfo &fi, QList<QStandardItem*> &items) {
             it->setData(secs, Qt::UserRole+1); // für Sortierung
             break;
         case FP_DATUM:
-            it->setText(fi.lastModified().toString("yyyy-MM-dd"));
+            it->setText(fi.lastModified().toString(SettingsDialog::dateFormat()));
             it->setData(fi.lastModified(), Qt::UserRole);
             break;
         case FP_ERSTELLT:
@@ -458,7 +460,16 @@ FilePane::FilePane(QWidget *parent) : QWidget(parent) {
     m_view->setAlternatingRowColors(false);
     m_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_view->setMouseTracking(true);
+
+    // WICHTIG: Diese 4 Zeilen müssen exakt so dort stehen
+    m_view->setFrameStyle(QFrame::NoFrame);
+    m_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_view->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    // Das hier zwingt den Header, den Scrollbar-Platz zu ignorieren:
+    m_view->header()->setMinimumSectionSize(0);
+
+    m_view->setAttribute(Qt::WA_MacShowFocusRect, false);
     m_view->setModel(m_proxy);
     m_view->setItemDelegate(new FilePaneDelegate(this));
 
@@ -473,43 +484,62 @@ FilePane::FilePane(QWidget *parent) : QWidget(parent) {
         if(d.id!=FP_NAME) hdr->resizeSection(visIdx, d.defaultWidth);
         visIdx++;
     }
-    hdr->setDefaultAlignment(Qt::AlignCenter);
     m_model->horizontalHeaderItem(0)->setTextAlignment(Qt::AlignLeft|Qt::AlignVCenter);
     hdr->setSectionsClickable(true);
     hdr->setSortIndicatorShown(true);
     hdr->setSortIndicator(0, Qt::AscendingOrder);
     m_proxy->sort(0, Qt::AscendingOrder);
-    hdr->setStretchLastSection(false);
+    hdr->setStretchLastSection(true);
+    hdr->setDefaultAlignment(Qt::AlignLeft|Qt::AlignVCenter);
     hdr->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(hdr, &QHeaderView::customContextMenuRequested, this, &FilePane::showHeaderMenu);
     connect(hdr, &QHeaderView::sectionDoubleClicked, this, [this](int col) {
         m_view->resizeColumnToContents(col);
     });
 
-    m_view->setStyleSheet(
-        "QTreeView{background:#2e3440;border:none;color:#d8dee9;outline:none;font-size:10px;}"
+    m_view->setStyleSheet(QString(
+        "QTreeView{background:%1;border:none;color:%2;outline:none;font-size:10px;}"
         "QTreeView::item{padding:2px 4px;}"
-        "QTreeView::item:hover{background:#3b4252;}"
-        "QTreeView::item:selected{background:#4c566a;color:#eceff4;}"
-        "QHeaderView::section{background:#272c38;color:#88c0d0;border:none;"
-        "border-bottom:1px solid #3b4252;border-right:1px solid #3b4252;"
-        "padding:3px 6px;font-size:10px;}"
-        "QHeaderView{background:#272c38;}"
-        "QTreeView QScrollBar:vertical{width:4px;background:transparent;border:none;}"
-        "QTreeView QScrollBar::handle:vertical{background:rgba(255,255,255,0);border-radius:2px;min-height:20px;}"
-        "QTreeView:hover QScrollBar::handle:vertical{background:rgba(255,255,255,40);}"
-        "QTreeView QScrollBar::add-line:vertical,QTreeView QScrollBar::sub-line:vertical{height:0;}"
-        "QTreeView QScrollBar::add-page:vertical,QTreeView QScrollBar::sub-page:vertical{background:#272c38;}");
+        "QTreeView::item:hover{background:%3;}"
+        "QTreeView::item:selected{background:%4;color:%5;}"
 
-    // margin-top des Scrollbars nach erstem Paint auf echte Header-Höhe setzen
-    QTimer::singleShot(0, this, [this]() {
-        int hh = m_view->header()->height();
-        if (hh <= 0) hh = 24;
-        QString ss = m_view->styleSheet();
-        ss.replace("QTreeView QScrollBar:vertical{width:4px;background:transparent;border:none;}",
-                   QString("QTreeView QScrollBar:vertical{width:4px;background:#272c38;border:none;margin-top:%1px;}").arg(hh));
-        m_view->setStyleSheet(ss);
+        /* Fix für Header bis zum Rand */
+        "QHeaderView{background:%6;border:none;margin:0px;padding:0px;}"
+        "QHeaderView::section{background:%6;color:%7;border:none;"
+        "border-bottom:1px solid %3;"
+        "padding:3px 6px;font-size:10px;}"
+
+        /* Fix für Scrollbar Overlay */
+        "QTreeView QScrollBar:vertical{background:transparent;width:0px;margin:0px;border:none;}"
+        "QTreeView QScrollBar::handle:vertical{background:rgba(136,192,208,40);border-radius:5px;min-height:20px;margin:2px;}"
+        "QTreeView QScrollBar::handle:vertical:hover{background:rgba(136,192,208,100);}"
+        "QTreeView QScrollBar::add-line:vertical,QTreeView QScrollBar::sub-line:vertical{height:0px;}"
+        "QTreeView QScrollBar::add-page:vertical,QTreeView QScrollBar::sub-page:vertical{background:transparent;}")
+        .arg(TM().colors().bgList, TM().colors().textPrimary,
+             TM().colors().bgHover, TM().colors().bgSelect, TM().colors().textLight,
+             TM().colors().bgBox,   TM().colors().textAccent));
+    m_view->viewport()->setStyleSheet("background:transparent;");
+    m_view->viewport()->setAttribute(Qt::WA_TranslucentBackground);
+
+    // Overlay-Scrollbar: schwebt über dem Viewport, reserviert keinen Platz
+    m_overlayBar = new QScrollBar(Qt::Vertical, this);
+    m_overlayBar->setStyleSheet(
+        "QScrollBar:vertical{background:transparent;width:8px;margin:0px;border:none;}"
+        "QScrollBar::handle:vertical{background:rgba(136,192,208,60);border-radius:4px;min-height:20px;margin:1px;}"
+        "QScrollBar::handle:vertical:hover{background:rgba(136,192,208,140);}"
+        "QScrollBar::add-line:vertical,QScrollBar::sub-line:vertical{height:0px;}"
+        "QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical{background:transparent;}");
+    m_overlayBar->raise();
+
+    // Overlay mit nativer Scrollbar synchronisieren
+    auto *native = m_view->verticalScrollBar();
+    connect(native, &QScrollBar::rangeChanged, m_overlayBar, &QScrollBar::setRange);
+    connect(native, &QScrollBar::valueChanged, m_overlayBar, &QScrollBar::setValue);
+    connect(native, &QScrollBar::rangeChanged, this, [this](int, int max) {
+        m_overlayBar->setVisible(max > 0);
     });
+    connect(m_overlayBar, &QScrollBar::valueChanged, native, &QScrollBar::setValue);
+
 
     m_iconView = new QListView(this);
     m_iconView->setModel(m_proxy);
@@ -521,15 +551,16 @@ FilePane::FilePane(QWidget *parent) : QWidget(parent) {
     m_iconView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     m_iconView->verticalScrollBar()->setSingleStep(26);
     m_iconView->setWordWrap(true);
-    m_iconView->setStyleSheet(
-        "QListView{background:#2e3440;alternate-background-color:#343d4a;border:none;color:#d8dee9;outline:none;font-size:11px;}"
+    m_iconView->setStyleSheet(QString(
+        "QListView{background:%1;border:none;color:%2;outline:none;font-size:11px;}"
         "QListView::item{padding:4px;border-radius:4px;}"
-        "QListView::item:hover{background:#3b4252;}"
-        "QListView::item:selected{background:#4c566a;color:#eceff4;}"
-        "QListView QScrollBar:vertical{width:4px;background:transparent;border:none;}"
+        "QListView::item:hover{background:%3;}"
+        "QListView::item:selected{background:%4;color:%5;}"
+        "QListView QScrollBar:vertical{width:0px;background:transparent;border:none;}"
         "QListView QScrollBar::handle:vertical{background:rgba(255,255,255,0);border-radius:2px;min-height:20px;}"
         "QListView:hover QScrollBar::handle:vertical{background:rgba(255,255,255,40);}"
-    );
+        ).arg(TM().colors().bgList, TM().colors().textPrimary,
+              TM().colors().bgHover, TM().colors().bgSelect, TM().colors().textLight));
 
     m_stack->addWidget(m_view);
     m_stack->addWidget(m_iconView);
@@ -581,6 +612,17 @@ FilePane::FilePane(QWidget *parent) : QWidget(parent) {
     });
 
     setRootPath(QDir::homePath());
+}
+
+void FilePane::resizeEvent(QResizeEvent *e)
+{
+    QWidget::resizeEvent(e);
+    if (m_overlayBar) {
+        const int w = 8;
+        const int hdrH = m_view->header()->height();
+        m_overlayBar->setGeometry(m_view->width() - w, m_view->y() + hdrH,
+                                  w, m_view->height() - hdrH);
+    }
 }
 
 void FilePane::setFoldersFirst(bool on) {
@@ -739,9 +781,8 @@ void FilePane::showHeaderMenu(const QPoint &pos) {
     QMenu menu;
     fp_applyMenuShadow(&menu);
     menu.setStyleSheet(
-        "QMenu{background:#2e3440;color:#eceff4;border:1px solid #434c5e;font-size:10px;}"
+        TM().ssMenu() +
         "QMenu::item{padding:5px 20px 5px 8px;}"
-        "QMenu::item:selected{background:#434c5e;}"
         "QMenu::separator{background:rgba(236,239,244,120);height:1px;margin:3px 8px;}"
         "QMenu::indicator{width:14px;height:14px;}");
 
@@ -828,7 +869,7 @@ void FilePane::showContextMenu(const QPoint &pos) {
 
     QMenu menu(this);
     fp_applyMenuShadow(&menu);
-    menu.setStyleSheet(menuStyle);
+    menu.setStyleSheet(menuStyle());
 
     // ── Öffnen / Öffnen mit ───────────────────────────────────────────────
     if (hasItem) {
@@ -854,7 +895,7 @@ void FilePane::showContextMenu(const QPoint &pos) {
 
         // "Öffnen mit" Untermenü
         auto *openWithMenu = menu.addMenu(QIcon::fromTheme("document-open"), tr("Öffnen mit"));
-        openWithMenu->setStyleSheet(menuStyle);
+        openWithMenu->setStyleSheet(menuStyle());
         for (const KService::Ptr &svc : apps) {
             if (svc->noDisplay()) continue;
             QString desktop = svc->desktopEntryName();
@@ -926,7 +967,7 @@ void FilePane::showContextMenu(const QPoint &pos) {
 
     // ── Neu ───────────────────────────────────────────────────────────────
     auto *newMenu = menu.addMenu(QIcon::fromTheme("folder-new"), tr("Neu"));
-    newMenu->setStyleSheet(menuStyle);
+    newMenu->setStyleSheet(menuStyle());
     newMenu->addAction(QIcon::fromTheme("folder-new"), tr("Ordner …"), this,
         [this, dirPath]() {
             QString name = QInputDialog::getText(this, tr("Neuer Ordner"), tr("Name:"));
@@ -971,7 +1012,7 @@ void FilePane::showContextMenu(const QPoint &pos) {
 
     // ── Aktionen Untermenü ────────────────────────────────────────────────
     auto *actMenu = menu.addMenu(QIcon::fromTheme("system-run"), tr("Aktionen"));
-    actMenu->setStyleSheet(menuStyle);
+    actMenu->setStyleSheet(menuStyle());
 
     actMenu->addAction(QIcon::fromTheme("utilities-terminal"),
         tr("Terminal hier öffnen"), this, [dirPath]() {
@@ -1023,7 +1064,7 @@ void FilePane::showContextMenu(const QPoint &pos) {
     // ── Tag ───────────────────────────────────────────────────────────────
     if (hasItem) {
         auto *tagMenu = menu.addMenu(QIcon::fromTheme("tag"), tr("Tag"));
-        tagMenu->setStyleSheet(menuStyle);
+        tagMenu->setStyleSheet(menuStyle());
         QString currentTag = TagManager::instance().fileTag(path);
         for (const auto &t : TagManager::instance().tags()) {
             QPixmap dot(14, 14);

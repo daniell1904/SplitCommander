@@ -15,6 +15,7 @@
 #include <QPushButton>
 #include <QStackedWidget>
 #include "sidebar.h"
+#include "thememanager.h"
 #include "filepane.h"
 
 // ── Toolbar über der Dateiliste ───────────────────────────────────────────────
@@ -50,6 +51,7 @@ public:
     void populateDrives();
     void populateDir(const QString &path);
     void setActive(bool active);
+    void refreshStyle();
     QString path() const { return m_path; }
     QListWidget *list()  { return m_list; }
 signals:

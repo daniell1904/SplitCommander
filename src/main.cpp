@@ -3,6 +3,7 @@
 #include <QDir>
 #include <iostream>
 #include "mainwindow.h"
+#include "thememanager.h"
 
 int main(int argc, char *argv[])
 {
@@ -11,6 +12,9 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     app.setApplicationName("SplitCommander");
     app.setOrganizationName("SplitCommander");
+
+    // Theme vor MainWindow laden — Sidebar liest Farben beim Aufbau
+    TM().apply();
 
     std::cout << "Erstelle MainWindow..." << std::endl;
     MainWindow w;

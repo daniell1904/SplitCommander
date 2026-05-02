@@ -4,6 +4,7 @@
 
 #include "mainwindow.h"
 #include "settingsdialog.h"
+#include "thememanager.h"
 
 #include <KIO/DeleteOrTrashJob>
 #include <KIO/JobUiDelegateFactory>
@@ -40,48 +41,6 @@
 
 // ─────────────────────────────────────────────────────────────────────────────
 // StyleSheet-Konstanten
-// ─────────────────────────────────────────────────────────────────────────────
-static const char *SS_TOOL_BTN =
-    "QToolButton{color:#4c566a;background:transparent;border:none;border-radius:3px;padding:3px;}"
-    "QToolButton:hover{color:#ccd4e8;background:#2e3440;}";
-
-static const char *SS_ACTION_BTN =
-    "QToolButton{color:#d8dee9;background:transparent;border:1px solid #2c3245;border-radius:4px;padding:4px;margin:0 1px;}"
-    "QToolButton:hover{background:#2e3440;border-color:#434c5e;}"
-    "QToolButton:checked{background:#3b4252;border-color:#5e81ac;color:#88c0d0;}";
-
-static const char *SS_COL_ACTIVE =
-    "QListWidget{background:#2e3440;border:none;color:#ccd4e8;outline:none;}"
-    "QListWidget::item{padding:3px 8px;border-bottom:1px solid #1e2330;}"
-    "QListWidget::item:selected{background:#3b4252;color:#88c0d0;}"
-    "QListWidget::item:hover{background:#2e3440;}"
-    "QListWidget QScrollBar:vertical{width:4px;background:transparent;border:none;}"
-    "QListWidget QScrollBar::handle:vertical{background:rgba(255,255,255,0);border-radius:2px;min-height:20px;}"
-    "QListWidget:hover QScrollBar::handle:vertical{background:rgba(255,255,255,40);}"
-    "QListWidget QScrollBar::add-line:vertical,QListWidget QScrollBar::sub-line:vertical{height:0;}"
-    "QListWidget QScrollBar:horizontal{height:0;}";
-
-static const char *SS_COL_INACTIVE =
-    "QListWidget{background:#2e3440;border:none;color:#8a94a8;outline:none;}"
-    "QListWidget::item{padding:3px 8px;border-bottom:1px solid #161a22;}"
-    "QListWidget::item:selected{background:#2e3440;color:#ccd4e8;}"
-    "QListWidget::item:hover{background:#1e2330;}"
-    "QListWidget QScrollBar:vertical{width:4px;background:transparent;border:none;}"
-    "QListWidget QScrollBar::handle:vertical{background:rgba(255,255,255,0);border-radius:2px;min-height:20px;}"
-    "QListWidget:hover QScrollBar::handle:vertical{background:rgba(255,255,255,25);}"
-    "QListWidget QScrollBar::add-line:vertical,QListWidget QScrollBar::sub-line:vertical{height:0;}"
-    "QListWidget QScrollBar:horizontal{height:0;}";
-
-static const char *SS_COL_DRIVES =
-    "QListWidget{background:#2e3440;border:none;color:#ccd4e8;outline:none;}"
-    "QListWidget::item{padding:5px 8px;border-bottom:1px solid #0f1218;}"
-    "QListWidget::item:selected{background:#3b4252;color:#88c0d0;}"
-    "QListWidget::item:hover{background:#1e2330;}"
-    "QListWidget QScrollBar:vertical{width:4px;background:transparent;border:none;}"
-    "QListWidget QScrollBar::handle:vertical{background:rgba(255,255,255,0);border-radius:2px;min-height:20px;}"
-    "QListWidget:hover QScrollBar::handle:vertical{background:rgba(255,255,255,25);}"
-    "QListWidget QScrollBar::add-line:vertical,QListWidget QScrollBar::sub-line:vertical{height:0;}"
-    "QListWidget QScrollBar:horizontal{height:0;}";
 
 static void mw_applyMenuShadow(QMenu *menu)
 {
@@ -114,13 +73,13 @@ signals:
 protected:
     void paintEvent(QPaintEvent *) override {
         QPainter p(this);
-        p.fillRect(rect(), m_hovered ? QColor("#1a1f29") : QColor("#161a22"));
-        p.setPen(QColor("#2c3245"));
+        p.fillRect(rect(), QColor(m_hovered ? TM().colors().bgBox : TM().colors().bgPanel));
+        p.setPen(QColor(TM().colors().borderAlt));
         p.drawLine(width() - 1, 0, width() - 1, height());
         p.save();
         p.translate(width() / 2 + 4, height() - 8);
         p.rotate(-90);
-        p.setPen(m_hovered ? QColor("#d8dee9") : QColor("#88c0d0"));
+        p.setPen(QColor(m_hovered ? TM().colors().textPrimary : TM().colors().textAccent));
         QFont f = p.font(); f.setPointSize(8); p.setFont(f);
         p.drawText(0, 0, p.fontMetrics().elidedText(m_label, Qt::ElideRight, height() - 16));
         p.restore();
@@ -142,7 +101,7 @@ class PaneSplitterHandle : public QSplitterHandle {
 public:
     PaneSplitterHandle(Qt::Orientation o, QSplitter *parent)
         : QSplitterHandle(o, parent) {
-        setStyleSheet("background:#0a0d14;");
+        setStyleSheet(QString("background:%1;").arg(TM().colors().splitter));
         connect(parent, &QSplitter::splitterMoved, this, [this](int, int) { update(); });
     }
 
@@ -159,7 +118,7 @@ protected:
     void paintEvent(QPaintEvent *) override {
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing);
-        p.fillRect(rect(), QColor("#0a0d14"));
+        p.fillRect(rect(), QColor(TM().colors().splitter));
 
         const int cx    = width() / 2;
         const int cy    = height() / 2;
@@ -173,25 +132,12 @@ protected:
                 p.drawLine(cx - 2, y, cx + 2, y);
             }
             // Pfeil oben (<)
-            p.setPen(QPen(QColor(255, 255, 255, m_hovered ? 220 : 100), 1.5,
-                          Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-            const int topY = cy - 34;
-            p.drawLine(cx + 2, topY - 4, cx - 2, topY);
-            p.drawLine(cx - 2, topY,     cx + 2, topY + 4);
-            // Pfeil unten (>)
-            const int botY = cy + 34;
-            p.drawLine(cx - 2, botY - 4, cx + 2, botY);
-            p.drawLine(cx + 2, botY,     cx - 2, botY + 4);
+            QIcon::fromTheme("go-previous").paint(&p, cx - 7, cy - 34 - 7, 14, 14);
+            QIcon::fromTheme("go-next").paint(&p, cx - 7, cy + 34 - 7, 14, 14);
         } else {
             p.setPen(QPen(QColor(255, 255, 255, m_hovered ? 240 : 150), 2.0,
                           Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-            if (state == 1) {
-                p.drawLine(cx - 3, cy - 6, cx + 3, cy);
-                p.drawLine(cx + 3, cy,     cx - 3, cy + 6);
-            } else {
-                p.drawLine(cx + 3, cy - 6, cx - 3, cy);
-                p.drawLine(cx - 3, cy,     cx + 3, cy + 6);
-            }
+            QIcon::fromTheme(state == 1 ? "go-next" : "go-previous").paint(&p, cx - 7, cy - 7, 14, 14);
         }
     }
 
@@ -272,7 +218,7 @@ protected:
     void paintEvent(QPaintEvent *) override {
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing);
-        p.fillRect(rect(), QColor("#0a0d14"));
+        p.fillRect(rect(), QColor(TM().colors().splitter));
 
         const int cx = width() / 2;
         const int cy = height() / 2;
@@ -287,11 +233,7 @@ protected:
                 const int y = cy + 10 + i * 4;
                 p.drawLine(cx - 2, y, cx + 2, y);
             }
-            p.setPen(QPen(QColor(255, 255, 255, m_hov ? 200 : 80), 1.5,
-                          Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-            const int topY = cy - 34;
-            p.drawLine(cx + 2, topY - 4, cx - 2, topY);
-            p.drawLine(cx - 2, topY,     cx + 2, topY + 4);
+            QIcon::fromTheme("go-previous").paint(&p, cx - 7, cy - 34 - 7, 14, 14);
         } else {
             // ── Eingeklappt: Text + Grip-Striche + Pfeil rechts + Icons ──
 
@@ -303,17 +245,17 @@ protected:
             f.setPointSize(9);
             f.setWeight(QFont::Light);
             p.setFont(f);
-            p.setPen(QColor("#ccd4e8"));
+            p.setPen(QColor(TM().colors().textPrimary));
             p.drawText(0, 0, "Split");
             const int x1 = p.fontMetrics().horizontalAdvance("Split");
             f.setWeight(QFont::Medium);
             p.setFont(f);
-            p.setPen(QColor("#88c0d0"));
+            p.setPen(QColor(TM().colors().textAccent));
             p.drawText(x1, 0, "Commander");
             const int x2 = x1 + p.fontMetrics().horizontalAdvance("Commander");
             f.setPointSize(7); f.setWeight(QFont::Light);
             p.setFont(f);
-            p.setPen(QColor("#4c566a"));
+            p.setPen(QColor(TM().colors().textMuted));
             p.drawText(x2 + 4, 0, "| Dateimanager");
             p.restore();
 
@@ -325,11 +267,7 @@ protected:
             }
 
             // Pfeil rechts
-            p.setPen(QPen(QColor(255, 255, 255, m_hov ? 200 : 80), 1.5,
-                          Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-            const int botY = cy + 44;
-            p.drawLine(cx - 2, botY - 4, cx + 2, botY);
-            p.drawLine(cx + 2, botY,     cx - 2, botY + 4);
+            QIcon::fromTheme("go-next").paint(&p, cx - 7, cy + 44 - 7, 14, 14);
 
             // Footer-Icons
             const int iconSize = 16;
@@ -342,7 +280,7 @@ protected:
                 const bool hov = m_hovIcon == i;
                 if (hov) {
                     p.setPen(Qt::NoPen);
-                    p.setBrush(QColor("#2e3440"));
+                    p.setBrush(QColor(TM().colors().bgList));
                     p.drawRoundedRect(ix - 4, iy - 3, iconSize + 8, iconSize + 6, 4, 4);
                 }
                 p.setOpacity(hov ? 1.0 : (m_hov ? 0.7 : 0.4));
@@ -456,7 +394,7 @@ public:
 
     explicit FooterWidget(QWidget *parent) : QWidget(parent) {
         setAttribute(Qt::WA_StyledBackground, true);
-        setStyleSheet("background:#2e3440; border-top:1px solid #12151b;");
+        setStyleSheet(QString("background:%1;border-top:1px solid %2;").arg(TM().colors().bgList,TM().colors().bgDeep));
         setFixedHeight(CLOSED_H);
 
         m_mainLay = new QVBoxLayout(this);
@@ -467,19 +405,19 @@ public:
         m_barRow = new QFrame();
         m_barRow->setFixedHeight(CLOSED_H);
         m_barRow->setStyleSheet(
-            "QFrame { border:none; background: qlineargradient(x1:0,y1:0,x2:0,y2:1,"
-            "stop:0 rgba(10,13,20,100), stop:0.4 #2e3440, stop:1 #2e3440); }");
+            QString("QFrame { border:none; background: qlineargradient(x1:0,y1:0,x2:0,y2:1,"
+            "stop:0 rgba(10,13,20,100), stop:0.4 %1, stop:1 %1); }").arg(TM().colors().bgList));
         auto *barLay = new QHBoxLayout(m_barRow);
         barLay->setContentsMargins(8, 0, 8, 0);
         barLay->setSpacing(4);
 
         countLbl = new QLabel("0 Elemente");
-        countLbl->setStyleSheet("color:#d8dee9;font-size:10px;background:transparent;");
+        countLbl->setStyleSheet(QString("color:%1;font-size:10px;background:transparent;").arg(TM().colors().textPrimary));
         selectedLbl = new QLabel();
-        selectedLbl->setStyleSheet("color:#88c0d0;font-size:10px;background:transparent;");
+        selectedLbl->setStyleSheet(QString("color:%1;font-size:10px;background:transparent;").arg(TM().colors().textAccent));
         selectedLbl->hide();
         sizeLbl = new QLabel();
-        sizeLbl->setStyleSheet("color:#d8dee9;font-size:10px;background:transparent;");
+        sizeLbl->setStyleSheet(QString("color:%1;font-size:10px;background:transparent;").arg(TM().colors().textPrimary));
 
         barLay->addWidget(countLbl);
         barLay->addWidget(selectedLbl);
@@ -498,7 +436,7 @@ public:
         cLay->setSpacing(0);
 
         auto *pvSide = new QWidget();
-        pvSide->setStyleSheet("background:#2e3440;");
+        pvSide->setStyleSheet(TM().ssPane());
         auto *pvLay = new QVBoxLayout(pvSide);
         pvLay->setContentsMargins(8, 8, 8, 8);
         pvLay->setSpacing(0);
@@ -515,16 +453,16 @@ public:
         auto *divContainer = new QWidget();
         auto *divLay = new QVBoxLayout(divContainer);
         divLay->setContentsMargins(0, 12, 0, 12);
-        auto *div = new QWidget(); div->setFixedWidth(1); div->setStyleSheet("background:#161a22;");
+        auto *div = new QWidget(); div->setFixedWidth(1); div->setStyleSheet(QString("background:%1;").arg(TM().colors().bgDeep));
         divLay->addWidget(div);
 
         auto *infoSide = new QWidget();
-        infoSide->setStyleSheet("background:#2e3440;");
+        infoSide->setStyleSheet(TM().ssPane());
         auto *infoLay = new QVBoxLayout(infoSide);
         infoLay->setContentsMargins(8, 8, 8, 8);
         infoLay->setSpacing(4);
         previewInfo = new QLabel();
-        previewInfo->setStyleSheet("color:#ccd4e8;font-size:10px;background:transparent;border:none;");
+        previewInfo->setStyleSheet(QString("color:%1;font-size:10px;background:transparent;border:none;").arg(TM().colors().textPrimary));
         previewInfo->setAlignment(Qt::AlignTop | Qt::AlignLeft);
         previewInfo->setWordWrap(true);
         previewInfo->setFrameShape(QFrame::NoFrame);
@@ -565,13 +503,7 @@ protected:
             p.setPen(QPen(QColor(255, 255, 255, m_arrowHov ? 220 : 100), 1.5,
                           Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
             const int arrowX = cx + 24;
-            if (!m_expanded) {
-                p.drawLine(arrowX - 4, cy + 2, arrowX, cy - 2);
-                p.drawLine(arrowX,     cy - 2, arrowX + 4, cy + 2);
-            } else {
-                p.drawLine(arrowX - 4, cy - 2, arrowX, cy + 2);
-                p.drawLine(arrowX,     cy + 2, arrowX + 4, cy - 2);
-            }
+            QIcon::fromTheme(m_expanded ? "go-down" : "go-up").paint(&p, arrowX - 7, cy - 7, 14, 14);
         }
         if (ev->type() == QEvent::MouseButtonPress) {
             auto *e = static_cast<QMouseEvent *>(ev);
@@ -637,7 +569,7 @@ PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent)
     setAttribute(Qt::WA_StyledBackground, true);
 
     // KORREKTUR: Hintergrundfarbe auf #202530 gesetzt (Sidebar-Box-Farbe)
-    setStyleSheet("PaneToolbar { background:#202530; border-bottom:1px solid #1e2330; }");
+    setStyleSheet(TM().ssToolbar());
 
     auto *vlay = new QVBoxLayout(this);
     vlay->setContentsMargins(12, 10, 12, 10);
@@ -649,7 +581,7 @@ PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent)
         b->setIconSize(QSize(16, 16));
         b->setFixedSize(28, 28);
         b->setToolTip(tip);
-        b->setStyleSheet(SS_ACTION_BTN);
+        b->setStyleSheet(TM().ssActionBtn().toUtf8().constData());
         connect(b, &QToolButton::clicked, this, sig);
         return b;
     };
@@ -658,7 +590,7 @@ PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent)
     auto *r1 = new QHBoxLayout();
     r1->setContentsMargins(0, 0, 0, 0); r1->setSpacing(2);
     m_pathLabel = new QLabel();
-    m_pathLabel->setStyleSheet("color:#88c0d0;font-size:18px;font-weight:300;background:transparent;");
+    m_pathLabel->setStyleSheet(QString("color:%1;font-size:18px;font-weight:300;background:transparent;").arg(TM().colors().textAccent));
     r1->addWidget(m_pathLabel);
     r1->addStretch(1);
     r1->addWidget(mk("view-sort-ascending", tr("Sortieren"),  &PaneToolbar::sortClicked));
@@ -672,12 +604,12 @@ PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent)
     auto *r2 = new QHBoxLayout();
     r2->setContentsMargins(0, 0, 0, 0); r2->setSpacing(8);
     m_countLabel = new QLabel();
-    m_countLabel->setStyleSheet("color:#d8dee9;font-size:11px;background:transparent;");
+    m_countLabel->setStyleSheet(QString("color:%1;font-size:11px;background:transparent;").arg(TM().colors().textPrimary));
     m_selectedLabel = new QLabel();
-    m_selectedLabel->setStyleSheet("color:#5e81ac;font-size:11px;background:transparent;");
+    m_selectedLabel->setStyleSheet(QString("color:%1;font-size:11px;background:transparent;").arg(TM().colors().accent));
     m_selectedLabel->hide();
     m_sizeLabel = new QLabel();
-    m_sizeLabel->setStyleSheet("color:#d8dee9;font-size:11px;background:transparent;");
+    m_sizeLabel->setStyleSheet(QString("color:%1;font-size:11px;background:transparent;").arg(TM().colors().textPrimary));
     m_sizeLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     r2->addWidget(m_countLabel); r2->addWidget(m_selectedLabel);
     r2->addStretch(1); r2->addWidget(m_sizeLabel);
@@ -696,7 +628,7 @@ PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent)
     foldersFirstBtn->setFixedSize(28, 28);
     foldersFirstBtn->setCheckable(true); foldersFirstBtn->setChecked(true);
     foldersFirstBtn->setToolTip(tr("Ordner zuerst"));
-    foldersFirstBtn->setStyleSheet(SS_ACTION_BTN);
+    foldersFirstBtn->setStyleSheet(TM().ssActionBtn().toUtf8().constData());
     connect(foldersFirstBtn, &QToolButton::toggled, this, &PaneToolbar::foldersFirstToggled);
     r3->addWidget(foldersFirstBtn);
     r3->addStretch(1);
@@ -714,7 +646,7 @@ PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent)
         auto *b = new QToolButton();
         b->setIcon(QIcon::fromTheme(v.first));
         b->setIconSize(QSize(16, 16)); b->setFixedSize(28, 28);
-        b->setToolTip(v.second); b->setStyleSheet(SS_ACTION_BTN);
+        b->setToolTip(v.second); b->setStyleSheet(TM().ssActionBtn().toUtf8().constData());
         b->setCheckable(true);
         if (modeId == 0) b->setChecked(true);
         viewGroup->addButton(b, modeId++);
@@ -763,9 +695,10 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent)
     m_header->setFlat(true);
     m_header->setFixedHeight(26);
     m_header->setStyleSheet(
-        "QPushButton{background:#2e3440;border:none;border-bottom:1px solid #222733;"
-        "color:#88c0d0;font-weight:bold;font-size:11px;padding:0 8px;text-align:left;}"
-        "QPushButton:hover{background:#3b4252;color:#d8dee9;}");
+        QString("QPushButton{background:%1;border:none;border-bottom:1px solid %2;"
+        "color:%3;font-weight:bold;font-size:11px;padding:0 8px;text-align:left;}"
+        "QPushButton:hover{background:%4;color:%5;}")
+        .arg(TM().colors().bgList,TM().colors().separator,TM().colors().textAccent,TM().colors().bgHover,TM().colors().textPrimary));
     lay->addWidget(m_header);
     connect(m_header, &QPushButton::clicked, this, [this]() {
         emit headerClicked(m_path == "__drives__" ? QString() : m_path);
@@ -773,9 +706,10 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent)
 
     m_list = new QListWidget();
     m_list->setFrameShape(QFrame::NoFrame);
-    m_list->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    m_list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_list->setStyleSheet(SS_COL_INACTIVE);
+    m_list->verticalScrollBar()->hide();
+    m_list->setStyleSheet(TM().ssColInactive().toUtf8().constData());
     lay->addWidget(m_list);
 
     connect(m_list, &QListWidget::itemClicked, this, [this](QListWidgetItem *it) {
@@ -790,7 +724,7 @@ void MillerColumn::populateDrives()
     m_path = "__drives__";
     m_header->setText("This PC");
     m_list->clear();
-    m_list->setStyleSheet(SS_COL_DRIVES);
+    m_list->setStyleSheet(TM().ssColDrives().toUtf8().constData());
 
     QSet<QString> shown;
     for (const Solid::Device &dev : Solid::Device::listFromType(Solid::DeviceInterface::StorageAccess)) {
@@ -821,9 +755,9 @@ void MillerColumn::populateDrives()
 
             // KORREKTUR: usedGB ist Weiß (#ffffff)
             // totalGB bekommt die Farbe der Ordner-Header: #88c0d0
-            sizeText = QString("   <span style='color:#ffffff;'>%1 / </span>"
-            "<span style='color:#88c0d0;'>%2 GB</span>")
+            sizeText = QString("   <span style='color:#ffffff;'>%1 / </span><span style='color:%2;'>%3 GB</span>")
             .arg(usedGB, 0, 'f', 0)
+            .arg(TM().colors().textAccent)
             .arg(totalGB, 0, 'f', 0);
         }
 
@@ -856,7 +790,7 @@ void MillerColumn::populateDir(const QString &path)
     m_header->setText(name);
 
     m_list->clear();
-    m_list->setStyleSheet(SS_COL_INACTIVE);
+    m_list->setStyleSheet(TM().ssColInactive().toUtf8().constData());
 
     QDir::Filters filters = QDir::Dirs | QDir::NoDotAndDotDot;
     {
@@ -871,12 +805,17 @@ void MillerColumn::populateDir(const QString &path)
     }
 }
 
+void MillerColumn::refreshStyle()
+{
+    setActive(m_list->styleSheet() != TM().ssColInactive());
+}
+
 // Diese Funktion fehlte beim letzten Build und verursachte den Linker-Fehler
 void MillerColumn::setActive(bool active)
 {
     m_list->setStyleSheet(
-        m_path == "__drives__" ? SS_COL_DRIVES
-        : (active ? SS_COL_ACTIVE : SS_COL_INACTIVE));
+        m_path == "__drives__" ? TM().ssColDrives().toUtf8().constData()
+        : (active ? TM().ssColActive().toUtf8().constData() : TM().ssColInactive().toUtf8().constData()));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -886,20 +825,20 @@ static constexpr int FULL_COLS = 3;
 
 MillerArea::MillerArea(QWidget *parent) : QWidget(parent)
 {
-    setStyleSheet("background:#2e3440;");
+    setStyleSheet(TM().ssPane());
     auto *outerLay = new QVBoxLayout(this);
     outerLay->setContentsMargins(0, 0, 0, 0);
     outerLay->setSpacing(0);
 
     m_rowWidget = new QWidget();
-    m_rowWidget->setStyleSheet("background:#2e3440;");
+    m_rowWidget->setStyleSheet(TM().ssPane());
     m_rowLayout = new QHBoxLayout(m_rowWidget);
     m_rowLayout->setContentsMargins(0, 0, 0, 0);
     m_rowLayout->setSpacing(0);
 
     m_stripDivider = new QFrame();
     m_stripDivider->setFrameShape(QFrame::VLine);
-    m_stripDivider->setStyleSheet("background:#4c566a; color:#4c566a;");
+    m_stripDivider->setStyleSheet(QString("background:%1;color:%1;").arg(TM().colors().colActive));
     m_stripDivider->setFixedWidth(2);
     m_stripDivider->setFrameShadow(QFrame::Sunken);
     m_stripDivider->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
@@ -907,7 +846,7 @@ MillerArea::MillerArea(QWidget *parent) : QWidget(parent)
     m_rowLayout->addWidget(m_stripDivider);
 
     m_colContainer = new QWidget();
-    m_colContainer->setStyleSheet("background:#2e3440;");
+    m_colContainer->setStyleSheet(TM().ssPane());
     m_colLayout = new QHBoxLayout(m_colContainer);
     m_colLayout->setContentsMargins(0, 0, 0, 0);
     m_colLayout->setSpacing(0);
@@ -965,7 +904,7 @@ void MillerArea::updateVisibleColumns()
         if (vis && i > stripCount) {
             QFrame *sep = new QFrame(m_colContainer);
             sep->setFixedWidth(1);
-            sep->setStyleSheet("background: #222733; border: none;");
+            sep->setStyleSheet(QString("background:%1;border:none;").arg(TM().colors().separator));
 
             // Trenner im Layout direkt vor der Spalte platzieren
             int layoutIdx = m_colLayout->indexOf(m_cols[i]);
@@ -1119,7 +1058,7 @@ void MillerArea::navigateTo(const QString &path)
 void MillerArea::setFocused(bool f)
 {
     m_focused = f;
-    setStyleSheet("background:#2e3440;");
+    setStyleSheet(TM().ssPane());
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1127,7 +1066,7 @@ void MillerArea::setFocused(bool f)
 // ─────────────────────────────────────────────────────────────────────────────
 PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
 {
-    setStyleSheet("background:#181c26;");
+    setStyleSheet(QString("background:%1;").arg(TM().colors().bgDeep));
     auto *rootLay = new QVBoxLayout(this);
     rootLay->setContentsMargins(0, 0, 0, 0);
     rootLay->setSpacing(0);
@@ -1135,7 +1074,7 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     // ── Tab-Leiste mit Breadcrumb ──
     auto *tabBar = new QWidget();
     tabBar->setFixedHeight(36);
-    tabBar->setStyleSheet("background:#161a22; border-bottom:1px solid #222733;");
+    tabBar->setStyleSheet(QString("background:%1;border-bottom:1px solid %2;").arg(TM().colors().bgPanel,TM().colors().separator));
     auto *tabLay = new QHBoxLayout(tabBar);
     tabLay->setContentsMargins(4, 0, 4, 0);
     tabLay->setSpacing(2);
@@ -1146,15 +1085,17 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
 
     m_pathEdit = new QLineEdit(QDir::homePath());
     m_pathEdit->setStyleSheet(
-        "QLineEdit{background:#0f1218;border:1px solid #5e81ac;color:#ccd4e8;"
+        QString("QLineEdit{background:%1;border:1px solid %2;color:%3;")
+        .arg(TM().colors().bgMain,TM().colors().accent,TM().colors().textPrimary)+
         "font-size:11px;padding:2px 6px;border-radius:2px;}");
 
     auto *breadcrumbBtn = new QPushButton(QDir::homePath());
     breadcrumbBtn->setFlat(true);
     breadcrumbBtn->setStyleSheet(
-        "QPushButton{background:#0f1218;color:#ccd4e8;font-size:11px;"
+        QString("QPushButton{background:%1;color:%2;font-size:11px;"
         "padding:2px 6px;border-radius:2px;text-align:left;border:none;}"
-        "QPushButton:hover{background:#1e2330;}");
+        "QPushButton:hover{background:%3;}")
+        .arg(TM().colors().bgMain,TM().colors().textPrimary,TM().colors().bgBox));
     pathStack->addWidget(breadcrumbBtn);
     pathStack->addWidget(m_pathEdit);
     pathStack->setCurrentIndex(0);
@@ -1186,7 +1127,7 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     millerToggle->setIcon(QIcon::fromTheme("go-up"));
     millerToggle->setIconSize(QSize(14, 14));
     millerToggle->setToolTip(tr("Miller-Columns ein-/ausklappen"));
-    millerToggle->setStyleSheet(SS_TOOL_BTN);
+    millerToggle->setStyleSheet(TM().ssToolBtn().toUtf8().constData());
 
     auto *searchBtn = new QToolButton();
     searchBtn->setFixedSize(24, 24);
@@ -1194,7 +1135,7 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     searchBtn->setIconSize(QSize(14, 14));
     searchBtn->setToolTip(tr("Suchen"));
     searchBtn->setCheckable(true);
-    searchBtn->setStyleSheet(SS_TOOL_BTN);
+    searchBtn->setStyleSheet(TM().ssToolBtn().toUtf8().constData());
 
     tabLay->addWidget(millerToggle);
     tabLay->addWidget(pathStack, 1);
@@ -1203,7 +1144,7 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
 
     // ── Such-Panel ──
     auto *searchPanel = new QWidget();
-    searchPanel->setStyleSheet("background:#161a22;");
+    searchPanel->setStyleSheet(TM().ssSearchPanel());
     searchPanel->hide();
     auto *spVLay = new QVBoxLayout(searchPanel);
     spVLay->setContentsMargins(0, 0, 0, 0);
@@ -1211,7 +1152,7 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
 
     auto *spTopRow = new QWidget();
     spTopRow->setFixedHeight(36);
-    spTopRow->setStyleSheet("background:#161a22; border-bottom:1px solid #222733;");
+    spTopRow->setStyleSheet(QString("background:%1;border-bottom:1px solid %2;").arg(TM().colors().bgPanel,TM().colors().separator));
     auto *spLay = new QHBoxLayout(spTopRow);
     spLay->setContentsMargins(6, 4, 6, 4);
     spLay->setSpacing(4);
@@ -1219,7 +1160,8 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     auto *searchEdit = new QLineEdit();
     searchEdit->setPlaceholderText(tr("Suchen ..."));
     searchEdit->setStyleSheet(
-        "QLineEdit{background:#0f1218;border:1px solid #5e81ac;color:#ccd4e8;"
+        QString("QLineEdit{background:%1;border:1px solid %2;color:%3;")
+        .arg(TM().colors().bgMain,TM().colors().accent,TM().colors().textPrimary)+
         "font-size:11px;padding:2px 6px;border-radius:2px;}");
     searchEdit->setClearButtonEnabled(true);
 
@@ -1230,18 +1172,16 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     filterBtn->setIconSize(QSize(14, 14));
     filterBtn->setPopupMode(QToolButton::MenuButtonPopup);
     filterBtn->setStyleSheet(
-        "QToolButton{background:#1e2330;border:1px solid #2c3245;color:#ccd4e8;"
+        QString("QToolButton{background:%1;border:1px solid %2;color:%3;"
         "font-size:11px;padding:2px 6px;border-radius:2px;}"
-        "QToolButton:hover{border-color:#5e81ac;}"
+        "QToolButton:hover{border-color:%4;}"
         "QToolButton::menu-indicator{image:none;}"
-        "QToolButton::menu-button{border-left:1px solid #2c3245;width:14px;}");
+        "QToolButton::menu-button{border-left:1px solid %2;width:14px;}")
+        .arg(TM().colors().bgBox,TM().colors().borderAlt,TM().colors().textPrimary,TM().colors().accent));
 
     auto *filterMenu = new QMenu(filterBtn);
     mw_applyMenuShadow(filterMenu);
-    filterMenu->setStyleSheet(
-        "QMenu{background:#2e3440;border:1px solid #434c5e;color:#eceff4;font-size:11px;}"
-        "QMenu::item{padding:6px 16px;} QMenu::item:selected{background:#434c5e;}"
-        "QMenu::separator{background:rgba(236,239,244,120);height:1px;margin:4px 8px;}");
+    filterMenu->setStyleSheet(TM().ssMenu());
     auto *actNames   = filterMenu->addAction(tr("Dateinamen"));
     auto *actContent = filterMenu->addAction(tr("Dateiinhalt"));
     actNames->setCheckable(true);   actNames->setChecked(true);
@@ -1272,17 +1212,18 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
 
     auto *spTabRow = new QWidget();
     spTabRow->setFixedHeight(28);
-    spTabRow->setStyleSheet("background:#161a22; border-bottom:1px solid #222733;");
+    spTabRow->setStyleSheet(QString("background:%1;border-bottom:1px solid %2;").arg(TM().colors().bgPanel,TM().colors().separator));
     spTabRow->hide();
     auto *spTabLay = new QHBoxLayout(spTabRow);
     spTabLay->setContentsMargins(6, 0, 6, 0); spTabLay->setSpacing(0);
     auto mkTab = [](const QString &lbl) {
         auto *b = new QToolButton(); b->setText(lbl); b->setCheckable(true);
         b->setStyleSheet(
-            "QToolButton{background:transparent;border:none;color:#4c566a;"
+            QString("QToolButton{background:transparent;border:none;color:%1;"
             "font-size:11px;padding:2px 10px;border-bottom:2px solid transparent;}"
-            "QToolButton:checked{color:#88c0d0;border-bottom:2px solid #5e81ac;}"
-            "QToolButton:hover{color:#ccd4e8;}");
+            "QToolButton:checked{color:%2;border-bottom:2px solid %3;}"
+            "QToolButton:hover{color:%2;}")
+            .arg(TM().colors().textMuted,TM().colors().textAccent,TM().colors().accent));
         return b;
     };
     auto *tabHere    = mkTab(tr("Ab hier"));
@@ -1297,7 +1238,7 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     // ── Suchergebnis-Overlay ──
     auto *searchOverlay = new QWidget(this);
     searchOverlay->hide();
-    searchOverlay->setStyleSheet("background:#0f1218; border:1px solid #222733; border-top:none;");
+    searchOverlay->setStyleSheet(QString("background:%1;border:1px solid %2;border-top:none;").arg(TM().colors().bgMain,TM().colors().separator));
     auto *ovLay = new QVBoxLayout(searchOverlay);
     ovLay->setContentsMargins(0, 0, 0, 0); ovLay->setSpacing(0);
 
@@ -1305,20 +1246,23 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     searchResults->setHeaderLabels({tr("Name"), tr("Pfad"), tr("Geändert")});
     searchResults->setRootIsDecorated(false);
     searchResults->setStyleSheet(
-        "QTreeWidget{background:#0f1218;border:none;color:#ccd4e8;font-size:11px;outline:none;}"
-        "QTreeWidget::item{padding:4px 4px;border-bottom:1px solid #161a22;}"
-        "QTreeWidget::item:selected{background:#3b4252;color:#88c0d0;}"
-        "QTreeWidget::item:hover{background:#1e2330;}"
-        "QHeaderView::section{background:#161a22;color:#4c566a;border:none;"
-        "border-bottom:1px solid #222733;padding:3px 8px;font-size:10px;}"
-        "QTreeWidget QScrollBar:vertical{width:4px;background:transparent;border:none;}"
+        QString("QTreeWidget{background:%1;border:none;color:%2;font-size:11px;outline:none;}"
+        "QTreeWidget::item{padding:4px 4px;border-bottom:1px solid %3;}"
+        "QTreeWidget::item:selected{background:%4;color:%5;}"
+        "QTreeWidget::item:hover{background:%6;}"
+        "QHeaderView::section{background:%7;color:%8;border:none;"
+        "border-bottom:1px solid %3;padding:3px 8px;font-size:10px;}"
+        "QTreeWidget QScrollBar:vertical{width:0px;background:transparent;border:none;}"
         "QTreeWidget QScrollBar::handle:vertical{background:rgba(255,255,255,0);border-radius:2px;min-height:20px;}"
         "QTreeWidget:hover QScrollBar::handle:vertical{background:rgba(255,255,255,40);}"
         "QTreeWidget QScrollBar::add-line:vertical,QTreeWidget QScrollBar::sub-line:vertical{height:0;}"
-        "QTreeWidget QScrollBar:horizontal{height:4px;background:transparent;border:none;}"
+        "QTreeWidget QScrollBar:horizontal{height:0px;background:transparent;border:none;}"
         "QTreeWidget QScrollBar::handle:horizontal{background:rgba(255,255,255,0);border-radius:2px;min-width:20px;}"
         "QTreeWidget:hover QScrollBar::handle:horizontal{background:rgba(255,255,255,40);}"
-        "QTreeWidget QScrollBar::add-line:horizontal,QTreeWidget QScrollBar::sub-line:horizontal{width:0;}");
+        "QTreeWidget QScrollBar::add-line:horizontal,QTreeWidget QScrollBar::sub-line:horizontal{width:0;}")
+        .arg(TM().colors().bgMain,TM().colors().textPrimary,TM().colors().separator,
+             TM().colors().bgSelect,TM().colors().textLight,TM().colors().bgHover,
+             TM().colors().bgPanel,TM().colors().textMuted));
     searchResults->header()->setStretchLastSection(false);
     searchResults->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     searchResults->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
@@ -1398,9 +1342,10 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     m_vSplit->setChildrenCollapsible(true);
     m_vSplit->setHandleWidth(4);
     m_vSplit->setStyleSheet(
-        "QSplitter::handle { background:#232938; }"
-        "QSplitter::handle:hover { background:#4c566a; }"
-        "QSplitter { background:#1e2330; }");
+        QString("QSplitter::handle { background:%1; }"
+        "QSplitter::handle:hover { background:%2; }"
+        "QSplitter { background:%3; }")
+        .arg(TM().colors().splitter,TM().colors().colActive,TM().colors().bgDeep));
     rootLay->addWidget(m_vSplit, 1);
     m_vSplit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_vSplit->setMinimumHeight(200);
@@ -1411,13 +1356,13 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     m_vSplit->addWidget(m_miller);
 
     auto *lowerWidget = new QWidget();
-    lowerWidget->setStyleSheet("background:#161a22;");
+    lowerWidget->setStyleSheet(QString("background:%1;").arg(TM().colors().bgDeep));
     auto *lowerLay = new QVBoxLayout(lowerWidget);
     lowerLay->setContentsMargins(0, 0, 0, 0);
     lowerLay->setSpacing(0);
     m_toolbar  = new PaneToolbar();
     m_filePane = new FilePane();
-    m_filePane->setStyleSheet("border:none;background:#161a22;");
+    m_filePane->setStyleSheet(QString("border:none;background:%1;").arg(TM().colors().bgDeep));
     lowerLay->addWidget(m_toolbar);
     lowerLay->addWidget(m_filePane, 1);
     m_vSplit->addWidget(lowerWidget);
@@ -1522,39 +1467,41 @@ void PaneWidget::setFocused(bool f)
 {
     m_focused = f;
     m_miller->setFocused(f);
-    setStyleSheet(f ? "background:#1e2330;" : "background:#161b24;");
+    setStyleSheet(QString("background:%1;").arg(f ? TM().colors().bgBox : TM().colors().bgDeep));
 
     if (auto *d = static_cast<FilePaneDelegate *>(m_filePane->view()->itemDelegate())) {
         d->focused = f;
         m_filePane->view()->viewport()->update();
     }
 
-    // KORREKTUR: Header-Farbe auf Sidebar-Hintergrund #0f1218 gesetzt
-    const QString hdrBg = "#0f1218";
-    int hh = m_filePane->view()->header()->height();
-    if (hh <= 0) hh = 24;
+    auto *v = m_filePane->view();
+    // FrameStyle auf NoFrame setzen minimiert die Ränder automatisch
+    v->setFrameStyle(QFrame::NoFrame);
+    v->viewport()->setAttribute(Qt::WA_TranslucentBackground);
+    v->verticalScrollBar()->hide();
+    v->horizontalScrollBar()->hide();
 
-    m_filePane->setStyleSheet("background:#2e3440; border:none;");
-    m_filePane->view()->setStyleSheet(
-        QString(
-            "QTreeView{background:%1;border:none;color:#d8dee9;outline:none;font-size:10px;}"
-            "QTreeView::item{padding:2px 4px;}"
-            "QTreeView::item:hover{background:#3b4252;}"
-            "QTreeView::item:selected{background:#4c566a;color:#eceff4;}"
+    v->setStyleSheet(QString(
+        "QTreeView{background:%1;border:none;color:%2;outline:none;font-size:10px;}"
+        "QTreeView::item{padding:2px 4px;}"
+        "QTreeView::item:hover{background:%3;}"
+        "QTreeView::item:selected{background:%4;color:%5;}"
 
-            // Header-Bereich
-            "QHeaderView::section{background:%2;color:#88c0d0;border:none;"
-            "border-right:1px solid #1e2330;padding:3px 6px;font-size:10px;}"
-            "QHeaderView{background:%2; border:none;}"
+        /* Header-Fix: Hintergrund geht bis zum Rand */
+        "QHeaderView{background:%6;border:none;margin:0px;padding:0px;}"
+        "QHeaderView::section{background:%6;color:%7;border:none;"
+        "border-bottom:1px solid %3;border-right:1px solid %3;"
+        "padding:3px 6px;font-size:10px;}"
+        "QHeaderView::section:last{border-right:none;}"
 
-            "QTreeView::corner{background:%2; border:none;}"
-            "QTreeView QScrollBar:vertical{width:8px;background:#252b36;border:none;margin-top:%3px;}"
-            "QTreeView QScrollBar::handle:vertical{background:#434c5e;border-radius:4px;min-height:20px;}"
-            "QTreeView:hover QScrollBar::handle:vertical{background:#4c566a;}"
-            "QTreeView QScrollBar::sub-line:vertical,QTreeView QScrollBar::add-line:vertical{height:0;}")
-        .arg(f ? "#2e3440" : "#252b36")
-        .arg(hdrBg) // Setzt #0f1218 ein
-        .arg(hh));
+        "QTreeView::corner{background:transparent;border:none;}"
+
+        /* Scrollbar komplett versteckt */
+        "QTreeView QScrollBar:vertical{width:0px;background:transparent;border:none;}"
+        "QTreeView QScrollBar:horizontal{height:0px;background:transparent;border:none;}")
+    .arg(f ? TM().colors().bgList : TM().colors().bgDeep)
+    .arg(TM().colors().textPrimary, TM().colors().bgHover, TM().colors().bgSelect)
+    .arg(TM().colors().textLight,   TM().colors().bgBox,   TM().colors().textAccent));
 }
 
 QString PaneWidget::currentPath() const
@@ -1641,7 +1588,7 @@ void PaneWidget::updateFooter(const QString &path)
     m_previewIcon->setFixedSize(iconSize, iconSize);
     m_previewIcon->setPixmap(QFileIconProvider().icon(fi).pixmap(iconSize, iconSize));
 
-    QString info = "<table cellpadding='1' cellspacing='0' style='color:#d8dee9;font-size:11px;'>";
+    QString info = QString("<table cellpadding='1' cellspacing='0' style='color:%1;font-size:11px;'>").arg(TM().colors().textPrimary);
     auto addRow = [&info](const QString &label, const QString &val) {
         info += QString("<tr><td style='padding-right:20px;white-space:nowrap;'>%1</td>"
                         "<td style='white-space:nowrap;'>%2</td></tr>").arg(label, val);
@@ -1713,7 +1660,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_panesSplitter = new PaneSplitter(Qt::Horizontal, central);
     m_panesSplitter->setHandleWidth(12);
     m_panesSplitter->setChildrenCollapsible(true);
-    m_panesSplitter->setStyleSheet("QSplitter{background:#0a0d14;}");
+    m_panesSplitter->setStyleSheet(TM().ssSplitter());
 
     m_leftPane  = new PaneWidget();
     m_rightPane = new PaneWidget();
@@ -1792,18 +1739,25 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         for (auto *col : m_rightPane->miller()->cols()) col->populateDir(col->path());
     });
     connect(m_sidebar, &Sidebar::settingsChanged, this, [this]() {
-        // Theme wurde bereits per qApp->setStyleSheet gesetzt —
-        // alle Widgets müssen style() neu einlesen und neu zeichnen
+        // ThemeManager neu anwenden — setzt qApp->setStyleSheet und emittiert themeChanged
+        TM().apply();
+        // Shortcuts neu registrieren falls geändert
+        registerShortcuts();
+    });
+    // ThemeManager::themeChanged → alle dynamischen Stylesheets neu setzen + Views updaten
+    connect(&TM(), &ThemeManager::themeChanged, this, [this]() {
+        // Miller-Spalten neu stylen
+        for (auto *col : m_leftPane->miller()->cols())  col->refreshStyle();
+        for (auto *col : m_rightPane->miller()->cols()) col->refreshStyle();
+        // Badge-Farben neu zeichnen
+        m_leftPane->filePane()->view()->viewport()->update();
+        m_rightPane->filePane()->view()->viewport()->update();
+        // Alle Widgets neu polieren
         for (QWidget *w : QApplication::topLevelWidgets()) {
             w->style()->unpolish(w);
             w->style()->polish(w);
             w->update();
         }
-        // Badge-Farben: Views zum Neuzeichnen zwingen
-        m_leftPane->filePane()->view()->viewport()->update();
-        m_rightPane->filePane()->view()->viewport()->update();
-        // Shortcuts neu registrieren
-        registerShortcuts();
     });
 
     // Hot-Plug
@@ -1833,18 +1787,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         m_rightPane->setFocused(false);
     });
 
-    // ── Startup-Theme anwenden ─────────────────────────────────────────────
-    if (!SettingsDialog::useSystemTheme()) {
-        // Gespeichertes eigenes Theme laden
-        const QString themeName = SettingsDialog::selectedTheme();
-        for (const auto &t : SD_Styles::THEMES) {
-            if (t.name == themeName) {
-                qApp->setStyleSheet(t.stylesheet);
-                break;
-            }
-        }
-    }
-    // Ist useSystemTheme true: kein setStyleSheet → KDE-Palette greift
+    // Theme wurde bereits in main.cpp vor MainWindow-Konstruktion geladen
 
     // Shortcuts beim Start registrieren
     registerShortcuts();

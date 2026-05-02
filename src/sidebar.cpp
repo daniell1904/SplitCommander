@@ -5,8 +5,7 @@
 #include "sidebar.h"
 #include "propertiesdialog.h"
 #include "settingsdialog.h"
-
-#include <QApplication>
+#include "thememanager.h"
 
 #include <KIO/CopyJob>
 #include <Solid/Device>
@@ -51,23 +50,24 @@
 #include <QToolButton>
 #include <QUrl>
 #include <QVBoxLayout>
+#include <QApplication>
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Farbkonstanten
 // ─────────────────────────────────────────────────────────────────────────────
 namespace SC_Colors {
-    constexpr const char* BG_MAIN     = "#0f1218";
-    constexpr const char* BG_BOX      = "#202530";
-    constexpr const char* BG_LIST     = "#2e3440";
-    constexpr const char* BG_HOVER    = "#3b4252";
-    constexpr const char* BG_SELECT   = "#434c5e";
-    constexpr const char* BORDER      = "#1e2330";
-    constexpr const char* BORDER_ALT  = "#2c3245";
-    constexpr const char* TEXT_PRIMARY = "#ccd4e8";
-    constexpr const char* TEXT_ACCENT  = "#88c0d0";
-    constexpr const char* TEXT_LIGHT   = "#eceff4";
-    constexpr const char* TEXT_MUTED   = "#4c566a";
-    constexpr const char* ACCENT       = "#5e81ac";
+    #define BG_MAIN      TM().colors().bgMain
+    #define BG_BOX       TM().colors().bgBox
+    #define BG_LIST      TM().colors().bgList
+    #define BG_HOVER     TM().colors().bgHover
+    #define BG_SELECT    TM().colors().bgSelect
+    #define BORDER       TM().colors().border
+    #define BORDER_ALT   TM().colors().borderAlt
+    #define TEXT_PRIMARY TM().colors().textPrimary
+    #define TEXT_ACCENT  TM().colors().textAccent
+    #define TEXT_LIGHT   TM().colors().textLight
+    #define TEXT_MUTED   TM().colors().textMuted
+    #define ACCENT       TM().colors().accent
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -258,9 +258,9 @@ void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QM
     p->setRenderHint(QPainter::Antialiasing, false);
 
     if (opt.state & QStyle::State_Selected)
-        p->fillRect(opt.rect, QColor("#434c5e"));
+        p->fillRect(opt.rect, QColor(TM().colors().bgSelect));
     else if (opt.state & QStyle::State_MouseOver)
-        p->fillRect(opt.rect, QColor("#3b4252"));
+        p->fillRect(opt.rect, QColor(TM().colors().bgHover));
 
     const QRect    r       = opt.rect;
     const QIcon    icon    = idx.data(Qt::DecorationRole).value<QIcon>();
@@ -293,25 +293,25 @@ void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QM
             const int     lineH    = r.height() / 2;
             const int     barY     = r.top() + lineH + (r.height() - lineH) / 2 - 1;
 
-            p->setPen(QColor("#ccd4e8"));
+            p->setPen(QColor(TM().colors().textPrimary));
             p->drawText(textX, r.top(), nameW, lineH, Qt::AlignLeft | Qt::AlignVCenter,
                         fm.elidedText(name, Qt::ElideRight, nameW));
 
-            p->setPen(QColor("#d8dee9"));
+            p->setPen(QColor(TM().colors().textLight));
             p->drawText(sizeX, r.top(), usedW, lineH, Qt::AlignLeft | Qt::AlignVCenter, usedStr);
-            p->setPen(QColor("#88c0d0"));
+            p->setPen(QColor(TM().colors().textAccent));
             p->drawText(sizeX + usedW, r.top(), restW, lineH, Qt::AlignLeft | Qt::AlignVCenter, restStr);
 
-            p->setBrush(QColor("#151921")); p->setPen(Qt::NoPen);
+            p->setBrush(QColor(TM().colors().splitter)); p->setPen(Qt::NoPen);
             p->drawRoundedRect(textX, barY, textW, 3, 1, 1);
-            p->setBrush(QColor("#81a1c1"));
+            p->setBrush(QColor(TM().colors().accentHover));
             p->drawRoundedRect(textX, barY, (int)(textW * pct), 3, 1, 1);
         } else {
-            p->setPen(QColor("#ccd4e8"));
+            p->setPen(QColor(TM().colors().textPrimary));
             p->drawText(textX, r.top(), textW, r.height(), Qt::AlignLeft | Qt::AlignVCenter, name);
         }
     } else {
-        p->setPen(QColor("#ccd4e8"));
+        p->setPen(QColor(TM().colors().textPrimary));
         p->drawText(textX, r.top(), textW, r.height(), Qt::AlignLeft | Qt::AlignVCenter, name);
     }
     p->restore();
@@ -339,7 +339,7 @@ void Sidebar::adjustListHeight(QListWidget *list)
         list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     } else {
         list->setFixedHeight(SC_MAX_VISIBLE * SC_SIDEBAR_ROW_H + (SC_MAX_VISIBLE - 1) * 2);
-        list->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     }
     list->updateGeometry();
 }
@@ -349,7 +349,7 @@ void Sidebar::adjustListHeight(QListWidget *list)
 // ─────────────────────────────────────────────────────────────────────────────
 Sidebar::Sidebar(QWidget *parent) : QWidget(parent)
 {
-    setStyleSheet(QString("background-color:%1; border:none;").arg(SC_Colors::BG_MAIN));
+    setStyleSheet(QString("background-color:%1; border:none;").arg(TM().colors().bgMain));
 
     auto *outerLay = new QVBoxLayout(this);
     outerLay->setContentsMargins(0, 0, 0, 0);
@@ -374,7 +374,7 @@ Sidebar::Sidebar(QWidget *parent) : QWidget(parent)
 void Sidebar::buildLogo(QVBoxLayout *parent)
 {
     auto *wrapper = new QWidget(this);
-    wrapper->setStyleSheet(QString("background:%1;").arg(SC_Colors::BG_MAIN));
+    wrapper->setStyleSheet(QString("background:%1;").arg(TM().colors().bgMain));
     auto *lay = new QHBoxLayout(wrapper);
     lay->setContentsMargins(12, 6, 12, 4);
     lay->setSpacing(8);
@@ -411,17 +411,14 @@ void Sidebar::buildLogo(QVBoxLayout *parent)
 void Sidebar::buildDrivesSection(QVBoxLayout *parent)
 {
     auto *wrapper = new QWidget(this);
-    wrapper->setStyleSheet(QString("background:%1;").arg(SC_Colors::BG_MAIN));
+    wrapper->setStyleSheet(QString("background:%1;").arg(TM().colors().bgMain));
     auto *wLay = new QVBoxLayout(wrapper);
-    wLay->setContentsMargins(10, 6, 0, 6);
+    wLay->setContentsMargins(10, 6, 6, 6);
     wLay->setSpacing(0);
 
     auto *box = new QWidget(wrapper);
     box->setObjectName("outerBox");
-    box->setStyleSheet(
-        "#outerBox { background-color:#202530; border-radius:8px; border:1px solid #1e2330; }"
-        "QLabel { background-color:rgba(0,0,0,0) !important; border:none; color:#88c0d0; }"
-        "QPushButton { background-color:rgba(0,0,0,0) !important; border:none; color:#4c566a; }");
+    box->setStyleSheet(TM().ssBox());
     auto *vbox = new QVBoxLayout(box);
     vbox->setContentsMargins(0, 0, 0, 0);
     vbox->setSpacing(0);
@@ -434,12 +431,18 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     hLay->setContentsMargins(12, 10, 8, 6);
     hLay->setSpacing(0);
     auto *lbl = new QLabel(tr("GERÄTE"));
-    lbl->setStyleSheet(SC_Styles::HEADER_LABEL);
+    lbl->setStyleSheet(QString("font-size:12px;font-weight:normal;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
     hLay->addWidget(lbl, 1);
 
-    auto *menuBtn = new QPushButton("···");
-    menuBtn->setFixedSize(24, 20);
-    menuBtn->setStyleSheet(SC_Styles::BTN_ICON);
+    auto *menuBtn = new QPushButton();
+    menuBtn->setIcon(QIcon::fromTheme("application-menu")); // KDE Standard für "Drei Punkte"
+    if (menuBtn->icon().isNull()) menuBtn->setIcon(QIcon::fromTheme("view-more-symbolic"));
+    menuBtn->setFixedSize(26, 22);
+    menuBtn->setCursor(Qt::PointingHandCursor);
+    menuBtn->setStyleSheet(
+        "QPushButton { background: transparent; border: none; padding: 2px; }"
+        "QPushButton:hover { background: #3b4252; border-radius: 4px; }"
+    );
     hLay->addWidget(menuBtn);
     vbox->addWidget(header);
 
@@ -452,25 +455,23 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     m_driveList = new QListWidget();
     m_driveList->setFrameShape(QFrame::NoFrame);
     m_driveList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_driveList->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    m_driveList->setStyleSheet(
-        "QListWidget { background:#2e3440; border:none; outline:none; }"
-        "QListWidget::item { color:#ccd4e8; }"
-        "QListWidget::item:hover { background:#3b4252; }"
-        "QListWidget::item:selected { background:#434c5e; color:#eceff4; }");
+    m_driveList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_driveList->setStyleSheet(TM().ssListWidget());
     m_driveList->setItemDelegate(new DriveDelegate(this));
     listLay->addWidget(m_driveList);
     vbox->addWidget(listCont);
 
     // Toggle
-    auto *toggleBtn = new QPushButton("▲");
+    auto *toggleBtn = new QPushButton();
+    toggleBtn->setIcon(QIcon::fromTheme("go-up"));
+    toggleBtn->setIconSize(QSize(10, 10));
     toggleBtn->setCheckable(true);
     toggleBtn->setFixedHeight(12);
-    toggleBtn->setStyleSheet(SC_Styles::BTN_TOGGLE);
+    toggleBtn->setStyleSheet(QString("QPushButton{background:transparent !important;font-size:7px;border:none;color:%1;}").arg(TM().colors().textMuted));
     vbox->addWidget(toggleBtn, 0, Qt::AlignCenter);
     connect(toggleBtn, &QPushButton::toggled, this, [listCont, toggleBtn](bool on) {
         listCont->setVisible(!on);
-        toggleBtn->setText(on ? "▼" : "▲");
+        toggleBtn->setIcon(QIcon::fromTheme(on ? "go-down" : "go-up"));
     });
 
     wLay->addWidget(box);
@@ -482,7 +483,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     connect(menuBtn, &QPushButton::clicked, this, [this, menuBtn]() {
         auto *m = new QMenu(this);
         sc_applyMenuShadow(m);
-        m->setStyleSheet(SC_Styles::MENU);
+        m->setStyleSheet(TM().ssMenu());
         m->addAction(QIcon::fromTheme("view-refresh"), tr("Alles aktualisieren"),
                      this, [this]() { updateDrives(); })->setShortcut(Qt::Key_F5);
         m->addSeparator();
@@ -505,25 +506,42 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
 // ─────────────────────────────────────────────────────────────────────────────
 void Sidebar::buildGroupsSection(QVBoxLayout *parent)
 {
-    auto *scroll = new QScrollArea(this);
-    scroll->setWidgetResizable(true);
-    scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    scroll->setStyleSheet(SC_Styles::SCROLL_AREA.arg(SC_Colors::BG_MAIN));
+    m_scrollArea = new QScrollArea(this);
+    m_scrollArea->setWidgetResizable(true);
+    m_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_scrollArea->setStyleSheet(QString("QScrollArea{border:none;background:%1;}").arg(TM().colors().bgMain));
+    m_scrollArea->verticalScrollBar()->hide();
+    m_scrollArea->horizontalScrollBar()->hide();
 
     auto *scrollWidget = new QWidget();
-    scrollWidget->setStyleSheet(QString("background:%1;").arg(SC_Colors::BG_MAIN));
-    scroll->setWidget(scrollWidget);
+    scrollWidget->setStyleSheet(QString("background:%1;").arg(TM().colors().bgMain));
+    m_scrollArea->setWidget(scrollWidget);
 
     m_contentLayout = new QVBoxLayout(scrollWidget);
     m_contentLayout->setContentsMargins(0, 0, 0, 0);
     m_contentLayout->setSpacing(0);
 
-    // Hier werden die Gruppen geladen
     loadCustomGroups();
 
     m_contentLayout->addStretch(1);
-    parent->addWidget(scroll, 1);
+    parent->addWidget(m_scrollArea, 1);
+
+    // Overlay-Scrollbar
+    m_overlayBar = new QScrollBar(Qt::Vertical, this);
+    m_overlayBar->setStyleSheet(
+        "QScrollBar:vertical{background:transparent;width:8px;margin:0px;border:none;}"
+        "QScrollBar::handle:vertical{background:rgba(136,192,208,60);border-radius:4px;min-height:20px;margin:1px;}"
+        "QScrollBar::handle:vertical:hover{background:rgba(136,192,208,140);}"
+        "QScrollBar::add-line:vertical,QScrollBar::sub-line:vertical{height:0px;}"
+        "QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical{background:transparent;}");
+    m_overlayBar->hide();
+    m_overlayBar->raise();
+
+    auto *native = m_scrollArea->verticalScrollBar();
+    connect(native, &QScrollBar::rangeChanged, m_overlayBar, &QScrollBar::setRange);
+    connect(native, &QScrollBar::valueChanged, m_overlayBar, &QScrollBar::setValue);
+    connect(m_overlayBar, &QScrollBar::valueChanged, native, &QScrollBar::setValue);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -532,14 +550,14 @@ void Sidebar::buildGroupsSection(QVBoxLayout *parent)
 void Sidebar::buildNewGroupFixedSection(QVBoxLayout *parent)
 {
     auto *ngWrapper = new QWidget(this);
-    ngWrapper->setStyleSheet(QString("background:%1;").arg(SC_Colors::BG_MAIN));
+    ngWrapper->setStyleSheet(QString("background:%1;").arg(TM().colors().bgMain));
     auto *ngWLay = new QVBoxLayout(ngWrapper);
-    ngWLay->setContentsMargins(10, 6, 0, 6);
+    ngWLay->setContentsMargins(10, 6, 6, 6);
     ngWLay->setSpacing(0);
 
     m_newGroupBox = new QWidget(ngWrapper);
     m_newGroupBox->setObjectName("ngBox");
-    m_newGroupBox->setStyleSheet("#ngBox { background-color:#202530; border-radius:8px; border:1px solid #1e2330; }");
+    m_newGroupBox->setStyleSheet(TM().ssBox());
 
     auto *ngLay = new QVBoxLayout(m_newGroupBox);
     ngLay->setContentsMargins(6, 6, 6, 6);
@@ -547,20 +565,12 @@ void Sidebar::buildNewGroupFixedSection(QVBoxLayout *parent)
 
     auto *ngBtn = new QPushButton(tr("+ Neue Gruppe"));
     ngBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    ngBtn->setStyleSheet(
-        "QPushButton { "
-        "  background:#2e3440; "
-        "  border:none; "
-        "  color:#eceff4; "
-        "  font-size:11px; "
-        "  padding:8px; "
-        "  text-align:center; "
-        "  border-radius:4px; "
-        "}"
-        "QPushButton:hover { "
-        "  background:#3b4252; "
-        "  color:#ffffff; "
-        "}");
+    ngBtn->setStyleSheet(QString(
+        "QPushButton { background:%1; border:none; color:%2; font-size:11px;"
+        " padding:8px; text-align:center; border-radius:4px; }"
+        "QPushButton:hover { background:%3; color:%4; }")
+        .arg(TM().colors().bgList, TM().colors().textPrimary,
+             TM().colors().bgHover, TM().colors().textLight));
 
     ngLay->addWidget(ngBtn);
     ngWLay->addWidget(m_newGroupBox);
@@ -576,17 +586,14 @@ void Sidebar::buildNewGroupFixedSection(QVBoxLayout *parent)
 void Sidebar::buildTagsSection(QVBoxLayout *parent)
 {
     m_tagsWrap = new QWidget(this);
-    m_tagsWrap->setStyleSheet(QString("background:%1;").arg(SC_Colors::BG_MAIN));
+    m_tagsWrap->setStyleSheet(QString("background:%1;").arg(TM().colors().bgMain));
     auto *wLay = new QVBoxLayout(m_tagsWrap);
-    wLay->setContentsMargins(10, 6, 0, 6);
+    wLay->setContentsMargins(10, 6, 6, 6);
     wLay->setSpacing(0);
 
     m_tagsBox = new QWidget(m_tagsWrap);
     m_tagsBox->setObjectName("tagsBox");
-    m_tagsBox->setStyleSheet(
-        "#tagsBox { background-color:#202530; border-radius:8px; border:1px solid #1e2330; }"
-        "QLabel { background-color:rgba(0,0,0,0) !important; border:none; color:#88c0d0; }"
-        "QPushButton { background-color:rgba(0,0,0,0) !important; border:none; color:#4c566a; }");
+    m_tagsBox->setStyleSheet(TM().ssBox());
     auto *vbox = new QVBoxLayout(m_tagsBox);
     vbox->setContentsMargins(0, 0, 0, 0);
     vbox->setSpacing(0);
@@ -599,11 +606,17 @@ void Sidebar::buildTagsSection(QVBoxLayout *parent)
     hLay->setContentsMargins(12, 10, 8, 6);
     hLay->setSpacing(4);
     auto *lbl = new QLabel(tr("TAGS"));
-    lbl->setStyleSheet(SC_Styles::HEADER_LABEL);
+    lbl->setStyleSheet(QString("font-size:12px;font-weight:normal;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
     hLay->addWidget(lbl, 1);
-    auto *addBtn = new QPushButton("+");
-    addBtn->setFixedSize(24, 20);
-    addBtn->setStyleSheet(SC_Styles::BTN_ADD);
+    auto *addBtn = new QPushButton();
+    addBtn->setIcon(QIcon::fromTheme("list-add")); // KDE Standard für "+"
+    if (addBtn->icon().isNull()) addBtn->setIcon(QIcon::fromTheme("add-subtitle-symbolic"));
+    addBtn->setFixedSize(26, 22);
+    addBtn->setCursor(Qt::PointingHandCursor);
+    addBtn->setStyleSheet(QString(
+        "QPushButton { background:transparent; border:none; padding:2px; }"
+        "QPushButton:hover { background:%1; border-radius:4px; }")
+        .arg(TM().colors().bgHover));
     hLay->addWidget(addBtn);
     vbox->addWidget(header);
 
@@ -616,20 +629,25 @@ void Sidebar::buildTagsSection(QVBoxLayout *parent)
     m_tagList = new QListWidget();
     m_tagList->setFrameShape(QFrame::NoFrame);
     m_tagList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_tagList->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    m_tagList->setStyleSheet(SC_Styles::LIST);
+    m_tagList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_tagList->setStyleSheet(TM().ssListWidget());
     listLay->addWidget(m_tagList);
     vbox->addWidget(listCont);
 
     // Toggle
-    auto *toggleBtn = new QPushButton("▲");
+    auto *toggleBtn = new QPushButton();
     toggleBtn->setCheckable(true);
-    toggleBtn->setFixedHeight(12);
-    toggleBtn->setStyleSheet(SC_Styles::BTN_TOGGLE);
+    toggleBtn->setFixedHeight(16);
+    toggleBtn->setIcon(QIcon::fromTheme("go-up"));
+    toggleBtn->setIconSize(QSize(10, 10));
+    // Entferne 'color:%1', da Icons über das Theme gesteuert werden
+    toggleBtn->setStyleSheet("QPushButton{background:transparent !important; border:none;}");
     vbox->addWidget(toggleBtn, 0, Qt::AlignCenter);
+
     connect(toggleBtn, &QPushButton::toggled, this, [listCont, toggleBtn](bool on) {
         listCont->setVisible(!on);
-        toggleBtn->setText(on ? "▼" : "▲");
+        // WICHTIG: Hier muss setIcon statt setText stehen!
+        toggleBtn->setIcon(QIcon::fromTheme(on ? "go-down" : "go-up"));
     });
 
     connect(addBtn, &QPushButton::clicked, this, [this]() {
@@ -637,7 +655,7 @@ void Sidebar::buildTagsSection(QVBoxLayout *parent)
         QString name = QInputDialog::getText(this, tr("Neuer Tag"), tr("Tag-Name:"),
                                              QLineEdit::Normal, "", &ok);
         if (!ok || name.trimmed().isEmpty()) return;
-        QColor col = QColorDialog::getColor(QColor("#88c0d0"), this, tr("Farbe wählen"));
+        QColor col = QColorDialog::getColor(QColor(TM().colors().textAccent), this, tr("Farbe wählen"));
         if (!col.isValid()) return;
         addTagItem(name.trimmed(), col.name());
         saveTags();
@@ -658,9 +676,7 @@ void Sidebar::buildFooter(QVBoxLayout *parent)
     lay->setContentsMargins(4, 4, 4, 4);
     lay->setSpacing(2);
 
-    const QString btnSS =
-        "QToolButton { color:#4c566a; background:#202530; border:1px solid #2c3245; border-radius:6px; padding:6px; }"
-        "QToolButton:hover { color:#ccd4e8; background:#2e3440; }";
+    const QString btnSS = TM().ssFooterBtn();
 
     auto makeBtn = [&](const QString &icon, const QString &tip) -> QToolButton * {
         auto *b = new QToolButton();
@@ -794,6 +810,21 @@ void Sidebar::loadGDriveAccountsAsync()
         updateDrives();
     });
     proc->start("kioclient5", {"ls", "gdrive:/"});
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sidebar::resizeEvent
+// ─────────────────────────────────────────────────────────────────────────────
+void Sidebar::resizeEvent(QResizeEvent *e)
+{
+    QWidget::resizeEvent(e);
+    if (m_overlayBar && m_scrollArea) {
+        const int w = 8;
+        const int x = m_scrollArea->x() + m_scrollArea->width() - w;
+        const int y = m_scrollArea->y();
+        const int h = m_scrollArea->height();
+        m_overlayBar->setGeometry(x, y, w, h);
+    }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -934,7 +965,7 @@ void Sidebar::updateDrives()
         m_driveList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     } else {
         m_driveList->setFixedHeight(qMax(1, maxH));
-        m_driveList->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        m_driveList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     }
     m_driveList->updateGeometry();
 
@@ -970,10 +1001,10 @@ void Sidebar::setupDriveContextMenu()
 
         QMenu menu(this);
         sc_applyMenuShadow(&menu);
-        menu.setStyleSheet(SC_Styles::MENU);
+        menu.setStyleSheet(TM().ssMenu());
 
         auto *openInMenu = menu.addMenu(QIcon::fromTheme("folder-open"), tr("Öffnen in"));
-        openInMenu->setStyleSheet(SC_Styles::MENU);
+        openInMenu->setStyleSheet(TM().ssMenu());
         openInMenu->addAction(tr("Linke Pane"),  this, [this, path]() { emit driveClicked(path); });
         openInMenu->addAction(tr("Rechte Pane"), this, [this, path]() { emit driveClickedRight(path); });
         menu.addAction(QIcon::fromTheme("folder-open"), tr("Öffnen"), this, [this, path]() { emit driveClicked(path); });
@@ -1010,7 +1041,7 @@ void Sidebar::setupDriveContextMenu()
 
         menu.addSeparator();
         auto *copyMenu = menu.addMenu(QIcon::fromTheme("edit-copy"), tr("Kopieren"));
-        copyMenu->setStyleSheet(SC_Styles::MENU);
+        copyMenu->setStyleSheet(TM().ssMenu());
         copyMenu->addAction(tr("Pfad kopieren"), this, [path]() { QGuiApplication::clipboard()->setText(path); });
         copyMenu->addAction(tr("Name kopieren"), this, [name]() { QGuiApplication::clipboard()->setText(name); });
 
@@ -1046,7 +1077,7 @@ void Sidebar::onNewGroupDialog()
     QDialog dlg(this);
     dlg.setWindowTitle(tr("Neue Gruppe"));
     dlg.setMinimumWidth(360);
-    dlg.setStyleSheet(SC_Styles::DIALOG);
+    dlg.setStyleSheet(TM().ssDialog());
 
     auto *vl       = new QVBoxLayout(&dlg);
     vl->setSpacing(10);
@@ -1112,10 +1143,7 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     // Äußere Box
     auto *outerBox = new QWidget();
     outerBox->setObjectName("groupBox");
-    outerBox->setStyleSheet(
-        "#groupBox { background-color:#202530; border-radius:8px; border:1px solid #1e2330; }"
-        "QLabel { background-color:rgba(0,0,0,0) !important; border:none; color:#88c0d0; }"
-        "QPushButton { background-color:rgba(0,0,0,0) !important; border:none; color:#4c566a; }");
+    outerBox->setStyleSheet(TM().ssBox());
     outerBox->setProperty("groupName", name);
 
     QSettings pinSettings("SplitCommander", "CustomGroups");
@@ -1135,17 +1163,31 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     hLay->setSpacing(4);
 
     auto *lbl = new QLabel(name.toUpper());
-    lbl->setStyleSheet(SC_Styles::HEADER_LABEL);
+    lbl->setStyleSheet(QString("font-size:12px;font-weight:normal;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
     hLay->addWidget(lbl, 1);
 
-    auto *menuBtn = new QPushButton("···");
-    menuBtn->setFixedSize(24, 20);
-    menuBtn->setStyleSheet(SC_Styles::BTN_ICON);
+    // Menü-Button (KDE Style)
+    auto *menuBtn = new QPushButton();
+    menuBtn->setIcon(QIcon::fromTheme("application-menu"));
+    if (menuBtn->icon().isNull()) menuBtn->setIcon(QIcon::fromTheme("view-more-symbolic"));
+    menuBtn->setFixedSize(26, 22);
+    menuBtn->setCursor(Qt::PointingHandCursor);
+    menuBtn->setStyleSheet(
+        "QPushButton { background: transparent; border: none; padding: 2px; }"
+        "QPushButton:hover { background: #3b4252; border-radius: 4px; }"
+    );
     hLay->addWidget(menuBtn);
 
-    auto *addBtn = new QPushButton("+");
-    addBtn->setFixedSize(24, 20);
-    addBtn->setStyleSheet(SC_Styles::BTN_ADD);
+    // Plus-Button (KDE Style)
+    auto *addBtn = new QPushButton();
+    addBtn->setIcon(QIcon::fromTheme("list-add"));
+    if (addBtn->icon().isNull()) addBtn->setIcon(QIcon::fromTheme("add-subtitle-symbolic"));
+    addBtn->setFixedSize(26, 22);
+    addBtn->setCursor(Qt::PointingHandCursor);
+    addBtn->setStyleSheet(QString(
+        "QPushButton { background:transparent; border:none; padding:2px; }"
+        "QPushButton:hover { background:%1; border-radius:4px; }")
+        .arg(TM().colors().bgHover));
     hLay->addWidget(addBtn);
     vbox->addWidget(headerRow);
 
@@ -1164,9 +1206,9 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     list->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     list->setSpacing(0);
-    list->setStyleSheet(SC_Styles::LIST);
+    list->setStyleSheet(TM().ssListWidget());
     list->setItemDelegate(new DriveDelegate(false, this));
-    list->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     list->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     // Liste zum Container-Layout hinzufügen
@@ -1176,19 +1218,30 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     adjustListHeight(list);
     vbox->addWidget(listCont);
 
-    // Toggle
-    auto *toggleBtn = new QPushButton("▲");
+    // Toggle für Orte (Favoriten)
+    auto *toggleBtn = new QPushButton(); // KEIN "▲" im Konstruktor
     toggleBtn->setCheckable(true);
-    toggleBtn->setFixedHeight(12);
-    toggleBtn->setStyleSheet(SC_Styles::BTN_TOGGLE);
+    toggleBtn->setFixedHeight(16); // Etwas höher für bessere Klickbarkeit
+    toggleBtn->setIcon(QIcon::fromTheme("go-up"));
+    toggleBtn->setIconSize(QSize(10, 10));
+
+    // font-size:7px entfernen, da Icons nicht auf Schriftgröße reagieren
+    toggleBtn->setStyleSheet("QPushButton{background:transparent !important; border:none;}");
+
     vbox->addWidget(toggleBtn, 0, Qt::AlignCenter);
+
+    connect(toggleBtn, &QPushButton::toggled, this, [listCont, toggleBtn](bool on) {
+        listCont->setVisible(!on);
+        // WICHTIG: setIcon statt setText verwenden!
+        toggleBtn->setIcon(QIcon::fromTheme(on ? "go-down" : "go-up"));
+    });
 
     // Wrapper mit dunklem Hintergrund (wie GERÄTE-Box)
     auto *wrapper = new QWidget();
     wrapper->setObjectName("groupWrapper");
-    wrapper->setStyleSheet(QString("background:%1;").arg(SC_Colors::BG_MAIN));
+    wrapper->setStyleSheet(QString("background:%1;").arg(TM().colors().bgMain));
     auto *wLay = new QVBoxLayout(wrapper);
-    wLay->setContentsMargins(10, 6, 0, 6);
+    wLay->setContentsMargins(10, 6, 6, 6);
     wLay->setSpacing(0);
     wLay->addWidget(outerBox);
 
@@ -1201,7 +1254,8 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
 
     connect(toggleBtn, &QPushButton::toggled, this, [list, toggleBtn](bool on) {
         list->setVisible(!on);
-        toggleBtn->setText(on ? "▼" : "▲");
+        // Wechselt das Icon je nach Zustand
+        toggleBtn->setIcon(QIcon::fromTheme(on ? "go-down" : "go-up"));
     });
 
     connect(addBtn, &QPushButton::clicked, this, [this, list, sharedName]() {
@@ -1226,7 +1280,7 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
         auto *m = new QMenu(this);
         m->setAttribute(Qt::WA_DeleteOnClose);
         sc_applyMenuShadow(m);
-        m->setStyleSheet(SC_Styles::MENU);
+        m->setStyleSheet(TM().ssMenu());
 
         // Umbenennen
         connect(m->addAction(QIcon::fromTheme("edit-rename"), tr("Gruppe umbenennen")),
@@ -1415,10 +1469,10 @@ void Sidebar::showPlaceContextMenu(QListWidgetItem *item, QListWidget *list,
     const QString path = item->data(Qt::UserRole).toString();
     QMenu menu(this);
     sc_applyMenuShadow(&menu);
-    menu.setStyleSheet(SC_Styles::MENU);
+    menu.setStyleSheet(TM().ssMenu());
 
     auto *openIn = menu.addMenu(QIcon::fromTheme("folder-open"), tr("Öffnen in"));
-    openIn->setStyleSheet(SC_Styles::MENU);
+    openIn->setStyleSheet(TM().ssMenu());
     openIn->addAction(tr("Linke Pane"),  this, [this, path]() { emit driveClicked(path); });
     openIn->addAction(tr("Rechte Pane"), this, [this, path]() { emit driveClickedRight(path); });
 
@@ -1479,7 +1533,7 @@ void Sidebar::setupTags()
         s.endArray();
         s.beginWriteArray("tags");
         s.setArrayIndex(0); s.setValue("name", "Wichtig"); s.setValue("color", "#bf616a");
-        s.setArrayIndex(1); s.setValue("name", "Arbeit");  s.setValue("color", "#81a1c1");
+        s.setArrayIndex(1); s.setValue("name", "Arbeit");  s.setValue("color", TM().colors().accentHover);
         s.endArray(); s.sync();
         cnt = 2;
         s.beginReadArray("tags");
@@ -1505,7 +1559,7 @@ void Sidebar::setupTags()
         if (!item) return;
         QMenu menu(this);
         sc_applyMenuShadow(&menu);
-        menu.setStyleSheet(SC_Styles::MENU);
+        menu.setStyleSheet(TM().ssMenu());
 
         menu.addAction(QIcon::fromTheme("color-picker"), tr("Farbe ändern …"), this,
             [this, item]() {

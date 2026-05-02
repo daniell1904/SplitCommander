@@ -18,6 +18,8 @@
 #include <QAction>
 #include <QMenu>
 
+#include <QScrollBar>
+
 // Alle verfügbaren Spalten
 enum FPCol {
     FP_NAME=0,
@@ -106,6 +108,9 @@ private slots:
     void showHeaderMenu(const QPoint &pos);
     void reload();
 
+protected:
+    void resizeEvent(QResizeEvent *e) override;
+
 private:
     void populate(const QString &path);
     void buildRow(const QFileInfo &fi, QList<QStandardItem*> &items);
@@ -116,6 +121,7 @@ private:
     QStackedWidget        *m_stack;
     QTreeView             *m_view;
     QListView             *m_iconView;
+    QScrollBar            *m_overlayBar;
     QStandardItemModel    *m_model;
     QSortFilterProxyModel *m_proxy; // FolderFirstProxy zur Laufzeit
     QFileSystemWatcher    *m_watcher;
