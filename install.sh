@@ -7,7 +7,7 @@
 set -e
 
 INSTALL_PREFIX="/usr/local"
-BUILD_DIR="build"
+BUILD_DIR="build-release"
 BOLD="\033[1m"
 GREEN="\033[1;32m"
 RED="\033[1;31m"
