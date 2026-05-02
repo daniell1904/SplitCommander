@@ -1,0 +1,28 @@
+# Build
+build/
+build_asan/
+build-*/
+
+# Qt Creator
+*.user
+*.user.*
+CMakeLists.txt.user
+
+# Compiled output
+*.o
+*.a
+*.so
+moc_*
+ui_*
+qrc_*
+
+# CMake cache
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+
+# Backups
+versions/
+src/Sicherung/

@@ -1,0 +1,1062 @@
+#include "filepane.h"
+#include "settingsdialog.h"
+#include "tagmanager.h"
+#include <QScrollBar>
+#include <QTimer>
+#include <QDir>
+#include <QSettings>
+#include <QMenu>
+#include <QProcess>
+#include <QDesktopServices>
+#include <QUrl>
+#include <QFileInfo>
+#include <QFile>
+#include <QInputDialog>
+#include <QMessageBox>
+#include <QMimeDatabase>
+#include <QMimeType>
+#include <QMimeData>
+#include <QGuiApplication>
+#include <QClipboard>
+#include <QStandardItem>
+#include <QGraphicsDropShadowEffect>
+#include <KApplicationTrader>
+#include <KService>
+#include <KIO/CopyJob>
+#include <KIO/DeleteOrTrashJob>
+#include <KIO/RenameDialog>
+#include <KIO/PasteJob>
+#include <KIO/JobUiDelegateFactory>
+
+static const QString menuStyle =
+    "QMenu{background:#2e3440;color:#eceff4;border:1px solid #434c5e;}"
+    "QMenu::item{padding:6px 20px;}"
+    "QMenu::item:selected{background:#434c5e;}"
+    "QMenu::separator{background:rgba(236,239,244,120);height:1px;margin:4px 8px;}";
+
+static void fp_applyMenuShadow(QMenu *menu) {
+    if (!menu) return;
+    auto *shadow = new QGraphicsDropShadowEffect(menu);
+    shadow->setBlurRadius(20);
+    shadow->setOffset(0, 4);
+    shadow->setColor(QColor(0, 0, 0, 140));
+    menu->setGraphicsEffect(shadow);
+}
+
+// ── Spalten-Definitionen ──────────────────────────────────────────────────────
+const QList<FPColDef>& FilePane::colDefs() {
+    static QList<FPColDef> defs = {
+        {FP_NAME,         "Name",                "",         true,  220},
+        {FP_TYP,          "Typ",                 "",         true,  48 },
+        {FP_ALTER,        "Alter",               "",         true,  48 },
+        {FP_DATUM,        "Geändert",            "",         true,  80 },
+        {FP_ERSTELLT,     "Erstellt",            "",         false, 80 },
+        {FP_ZUGRIFF,      "Letzter Zugriff",     "",         false, 80 },
+        {FP_GROESSE,      "Größe",               "",         true,  60 },
+        {FP_RECHTE,       "Rechte",              "",         true,  68 },
+        {FP_EIGENTUEMER,  "Eigentümer",          "Weitere",  false, 70 },
+        {FP_GRUPPE,       "Benutzergruppe",      "Weitere",  false, 80 },
+        {FP_PFAD,         "Pfad",                "Weitere",  false, 120},
+        {FP_ERWEITERUNG,  "Dateierweiterung",    "Weitere",  false, 50 },
+        {FP_TAGS,         "Tags",                "",         false, 80 },
+        {FP_IMG_DATUM,    "Datum der Aufnahme",  "Bild",     false, 80 },
+        {FP_IMG_ABMESS,   "Abmessungen",         "Bild",     false, 80 },
+        {FP_IMG_BREITE,   "Breite",              "Bild",     false, 50 },
+        {FP_IMG_HOEHE,    "Höhe",                "Bild",     false, 50 },
+        {FP_IMG_AUSRICHT, "Ausrichtung",         "Bild",     false, 60 },
+        {FP_AUD_KUENSTLER,"Künstler",            "Audio",    false, 80 },
+        {FP_AUD_GENRE,    "Genre",               "Audio",    false, 60 },
+        {FP_AUD_ALBUM,    "Album",               "Audio",    false, 80 },
+        {FP_AUD_DAUER,    "Dauer",               "Audio",    false, 50 },
+        {FP_AUD_BITRATE,  "Bitrate",             "Audio",    false, 60 },
+        {FP_AUD_STUECK,   "Stück",               "Audio",    false, 40 },
+        {FP_VID_SEITENVERH,"Seitenverhältnis",   "Video",    false, 60 },
+        {FP_VID_FRAMERATE,"Bildwiederholrate",   "Video",    false, 60 },
+        {FP_VID_DAUER,    "Dauer",               "Video",    false, 50 },
+        {FP_DOC_TITEL,    "Titel",               "Dokument", false, 80 },
+        {FP_DOC_AUTOR,    "Autor",               "Dokument", false, 70 },
+        {FP_DOC_HERAUSGEBER,"Herausgeber",       "Dokument", false, 80 },
+        {FP_DOC_SEITEN,   "Seitenanzahl",        "Dokument", false, 50 },
+        {FP_DOC_WOERTER,  "Wortanzahl",          "Dokument", false, 60 },
+        {FP_DOC_ZEILEN,   "Zeilenanzahl",        "Dokument", false, 60 },
+    };
+    return defs;
+}
+
+class FolderFirstProxy : public QSortFilterProxyModel {
+public:
+    bool foldersFirst = true;
+    explicit FolderFirstProxy(QObject *p=nullptr) : QSortFilterProxyModel(p) {}
+protected:
+    bool lessThan(const QModelIndex &l, const QModelIndex &r) const override {
+        if (foldersFirst) {
+            auto *ml = qobject_cast<QStandardItemModel*>(sourceModel());
+            if (ml) {
+                int ld = ml->item(l.row(),0) ? ml->item(l.row(),0)->data(Qt::UserRole+10).toInt() : 1;
+                int rd = ml->item(r.row(),0) ? ml->item(r.row(),0)->data(Qt::UserRole+10).toInt() : 1;
+                if (ld != rd) return ld < rd;
+            }
+        }
+        return QSortFilterProxyModel::lessThan(l, r);
+    }
+};
+
+// ── Delegate ─────────────────────────────────────────────────────────────────
+FilePaneDelegate::FilePaneDelegate(QObject *par) : QStyledItemDelegate(par) {}
+
+QString FilePaneDelegate::formatAge(qint64 s) const {
+    if(s<60)        return QString("%1s").arg(s);
+    if(s<3600)      return QString("%1m").arg(s/60);
+    if(s<86400)     return QString("%1h").arg(s/3600);
+    if(s<86400*30)  return QString("%1t").arg(s/86400);
+    if(s<86400*365) return QString("%1M").arg(s/86400/30);
+    return QString("%1J").arg(s/86400/365);
+}
+
+QColor FilePaneDelegate::ageColor(qint64 s) const {
+    // Sekunden → Farbe aus Einstellungen (Index 0..5 = heute/<7d/<30d/<180d/<1y/>1y)
+    if(s < 3600)          return SettingsDialog::ageBadgeColor(0);
+    if(s < 86400)         return SettingsDialog::ageBadgeColor(0);
+    if(s < 86400*7)       return SettingsDialog::ageBadgeColor(1);
+    if(s < 86400*30)      return SettingsDialog::ageBadgeColor(2);
+    if(s < 86400*90)      return SettingsDialog::ageBadgeColor(3);
+    if(s < 86400*365)     return SettingsDialog::ageBadgeColor(4);
+    return SettingsDialog::ageBadgeColor(5);
+}
+
+void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QModelIndex &idx) const
+{
+    QStyleOptionViewItem o = opt;
+    initStyleOption(&o, idx);
+
+    bool sel = o.state & QStyle::State_Selected;
+    bool hov = o.state & QStyle::State_MouseOver;
+    QColor bg, bgAlt;
+
+    // Hintergrundfarben basierend auf Fokus-Status
+    if (focused) {
+        bg = QColor("#2e3440");
+        bgAlt = QColor("#343d4a");
+    } else {
+        bg = QColor("#252b36");
+        bgAlt = QColor("#2a3040");
+    }
+
+    QColor bgFinal = sel ? QColor("#4c566a") : hov ? QColor("#3b4252") : (idx.row() % 2 ? bgAlt : bg);
+    p->fillRect(o.rect, bgFinal);
+
+    int col = idx.data(Qt::UserRole + 99).toInt(); // logische Spalten-ID
+    QRect r = o.rect.adjusted(4, 0, -4, 0);
+    QFont f = o.font;
+    f.setPointSize(10);
+    p->setFont(f);
+
+    QColor tc = sel ? Qt::white : QColor("#d8dee9");
+    QColor dc = sel ? Qt::white : QColor("#6272a4");
+
+    if (col == FP_NAME) {
+        QIcon icon = qvariant_cast<QIcon>(idx.data(Qt::DecorationRole));
+        if (!icon.isNull()) {
+            p->drawPixmap(r.left(), r.top() + (r.height() - 16) / 2, icon.pixmap(16, 16));
+        }
+        r.setLeft(r.left() + 22);
+        p->setPen(tc);
+        p->drawText(r, Qt::AlignVCenter | Qt::AlignLeft,
+                    o.fontMetrics.elidedText(idx.data().toString(), Qt::ElideRight, r.width()));
+
+    } else if (col == FP_ALTER) {
+        qint64 secs = idx.data(Qt::UserRole).toLongLong();
+        QString age = formatAge(secs);
+        QColor bc = ageColor(secs);
+        const int BW = 44, BH = 16;
+        QRect br(r.left() + (r.width() - BW) / 2, r.top() + (r.height() - BH) / 2, BW, BH);
+
+        p->setRenderHint(QPainter::Antialiasing, false);
+        p->setBrush(bc.darker(200));
+        p->setPen(Qt::NoPen);
+        p->drawRect(br);
+
+        QFont fb = f;
+        fb.setBold(true);
+        fb.setPointSize(8);
+        p->setFont(fb);
+        p->setPen(Qt::white);
+        p->drawText(br, Qt::AlignCenter, age);
+        p->setFont(f);
+
+    } else if (col == FP_TAGS) {
+        QString tagName = idx.data().toString();
+        if (!tagName.isEmpty()) {
+            QString colorStr = TagManager::instance().tagColor(tagName);
+            QColor tagCol = colorStr.isEmpty() ? QColor("#5e81ac") : QColor(colorStr);
+            int textW = o.fontMetrics.horizontalAdvance(tagName);
+            int BW = qMin(textW + 12, r.width()), BH = 16;
+            QRect br(r.left() + (r.width() - BW) / 2, r.top() + (r.height() - BH) / 2, BW, BH);
+
+            p->setRenderHint(QPainter::Antialiasing, true);
+            p->setBrush(tagCol.darker(180));
+            p->setPen(QPen(tagCol, 1));
+            p->drawRoundedRect(br, 4, 4);
+            p->setRenderHint(QPainter::Antialiasing, false);
+
+            QFont fb = f;
+            fb.setBold(true);
+            fb.setPointSize(8);
+            p->setFont(fb);
+            p->setPen(tagCol.lighter(160));
+            p->drawText(br, Qt::AlignCenter, o.fontMetrics.elidedText(tagName, Qt::ElideRight, BW - 6));
+            p->setFont(f);
+        }
+    } else {
+        p->setPen(col == FP_GROESSE ? tc : dc);
+        if (col == FP_RECHTE) {
+            QFont fm = f;
+            fm.setFamily("monospace");
+            fm.setPointSize(9);
+            p->setFont(fm);
+        }
+        p->drawText(r, Qt::AlignVCenter | Qt::AlignHCenter,
+                    o.fontMetrics.elidedText(idx.data().toString(), Qt::ElideRight, r.width()));
+        p->setFont(f);
+    }
+
+    p->setPen(QColor("#3b4252"));
+    p->drawLine(o.rect.bottomLeft(), o.rect.bottomRight());
+}
+
+QSize FilePaneDelegate::sizeHint(const QStyleOptionViewItem&, const QModelIndex&) const
+{
+    return QSize(0, 26);
+}
+// ── Hilfsfunktionen ───────────────────────────────────────────────────────────
+static QString fmtSize(qint64 sz) {
+    if(sz<1024)             return QString("%1 B").arg(sz);
+    if(sz<1024*1024)        return QString("%1 KB").arg(sz/1024);
+    if(sz<1024LL*1024*1024) return QString("%1 MB").arg(sz/(1024*1024));
+    return QString("%1 GB").arg(sz/(1024LL*1024*1024));
+}
+
+static QString fmtRwx(QFile::Permissions p) {
+    QString s;
+    s+=(p&QFile::ReadOwner)?"r":"-"; s+=(p&QFile::WriteOwner)?"w":"-"; s+=(p&QFile::ExeOwner)?"x":"-";
+    s+=(p&QFile::ReadGroup)?"r":"-"; s+=(p&QFile::WriteGroup)?"w":"-"; s+=(p&QFile::ExeGroup)?"x":"-";
+    s+=(p&QFile::ReadOther)?"r":"-"; s+=(p&QFile::WriteOther)?"w":"-"; s+=(p&QFile::ExeOther)?"x":"-";
+    return s;
+}
+
+// ── FilePane ─────────────────────────────────────────────────────────────────
+void FilePane::setupColumns() {
+    m_colVisible.resize(FP_COUNT);
+    // Defaults
+    for(int i=0;i<FP_COUNT;i++) m_colVisible[i]=false;
+    for(const auto &d : colDefs()) m_colVisible[d.id]=d.defaultVisible;
+
+    // Aus QSettings laden
+    QSettings s("SplitCommander","UI");
+    s.beginGroup("columns");
+    for(const auto &d : colDefs())
+        if(s.contains(QString::number(d.id)))
+            m_colVisible[d.id]=s.value(QString::number(d.id)).toBool();
+    s.endGroup();
+
+    // Model-Header aufbauen
+    QStringList labels;
+    for(const auto &d : colDefs())
+        if(m_colVisible[d.id]) labels << d.label;
+    m_model->setHorizontalHeaderLabels(labels);
+
+    int visIdx=0;
+    for(const auto &d : colDefs()) {
+        if(!m_colVisible[d.id]) continue;
+        auto *hi = m_model->horizontalHeaderItem(visIdx);
+        if(hi) hi->setTextAlignment(d.id==FP_NAME ? Qt::AlignLeft|Qt::AlignVCenter : Qt::AlignCenter);
+        visIdx++;
+    }
+}
+
+void FilePane::buildRow(const QFileInfo &fi, QList<QStandardItem*> &items) {
+    bool isDir=fi.isDir();
+    qint64 secs=fi.lastModified().secsTo(QDateTime::currentDateTime());
+    QString ext=fi.suffix().toUpper().left(4);
+    QString typ=isDir?"[DIR]":(ext.isEmpty()?"[???]":"["+ext+"]");
+
+    for(const auto &d : colDefs()) {
+        if(!m_colVisible[d.id]) continue;
+        auto *it=new QStandardItem();
+        it->setEditable(false);
+        it->setData(d.id, Qt::UserRole+99); // Spalten-ID für Delegate
+
+        switch(d.id) {
+        case FP_NAME:
+            it->setText(fi.fileName());
+            it->setIcon(m_iconProv.icon(fi));
+            it->setData(fi.absoluteFilePath(), Qt::UserRole);
+            it->setData(isDir?0:1, Qt::UserRole+10);
+            break;
+        case FP_TYP:      it->setText(typ); break;
+        case FP_ALTER:
+            it->setData(secs, Qt::UserRole);
+            it->setData(secs, Qt::UserRole+1); // für Sortierung
+            break;
+        case FP_DATUM:
+            it->setText(fi.lastModified().toString("yyyy-MM-dd"));
+            it->setData(fi.lastModified(), Qt::UserRole);
+            break;
+        case FP_ERSTELLT:
+            it->setText(fi.birthTime().toString("yyyy-MM-dd"));
+            it->setData(fi.birthTime(), Qt::UserRole);
+            break;
+        case FP_ZUGRIFF:
+            it->setText(fi.lastRead().toString("yyyy-MM-dd"));
+            it->setData(fi.lastRead(), Qt::UserRole);
+            break;
+        case FP_GROESSE: {
+            qint64 sortSz=isDir
+                ? QDir(fi.absoluteFilePath()).entryList(QDir::AllEntries|QDir::NoDotAndDotDot).count()
+                : fi.size();
+            it->setText(isDir ? QString("%1 El.").arg(sortSz) : fmtSize(fi.size()));
+            it->setData(sortSz, Qt::UserRole);
+            break;
+        }
+        case FP_RECHTE:     it->setText(fmtRwx(fi.permissions())); break;
+        case FP_EIGENTUEMER: it->setText(fi.owner()); break;
+        case FP_GRUPPE:     it->setText(fi.group()); break;
+        case FP_PFAD:       it->setText(fi.absolutePath()); break;
+        case FP_ERWEITERUNG: it->setText(fi.suffix()); break;
+        case FP_TAGS:       it->setText(TagManager::instance().fileTag(fi.absoluteFilePath())); break;
+        default:            it->setText(""); break; // Meta: async befüllt
+        }
+        items << it;
+    }
+}
+
+void FilePane::fetchMetaAsync(const QFileInfo &fi, int row) {
+    // Nur für Media-Dateien
+    static const QStringList imgExts={"jpg","jpeg","png","tif","tiff","webp","heic","raw","cr2","nef"};
+    static const QStringList audExts={"mp3","flac","ogg","m4a","aac","wav","opus","wma"};
+    static const QStringList vidExts={"mp4","mkv","avi","mov","webm","flv","wmv","m4v"};
+
+    QString ext=fi.suffix().toLower();
+    bool isImg=imgExts.contains(ext);
+    bool isAud=audExts.contains(ext);
+    bool isVid=vidExts.contains(ext);
+    bool needExif=isImg||isAud||isVid;
+
+    if(!needExif) return;
+
+    auto *proc=new QProcess(this);
+    QStringList args={"-json","-fast",
+        "-DateTimeOriginal","-ImageWidth","-ImageHeight","-Orientation",
+        "-Artist","-Genre","-Album","-Duration","-AudioBitrate","-TrackNumber",
+        "-VideoFrameRate","-AspectRatio",
+        "-Title","-Author","-Publisher","-PageCount",
+        fi.absoluteFilePath()};
+    proc->setProgram("exiftool");
+    proc->setArguments(args);
+
+    connect(proc, QOverload<int,QProcess::ExitStatus>::of(&QProcess::finished),
+        this, [this, proc, row, isImg, isAud, isVid](int, QProcess::ExitStatus) {
+        proc->deleteLater();
+        QString out=proc->readAllStandardOutput().trimmed();
+        if(out.isEmpty()) return;
+
+        // Einfaches JSON-Parsing
+        auto val=[&](const QString &key)->QString {
+            int i=out.indexOf("\""+key+"\"");
+            if(i<0) return {};
+            int c=out.indexOf(":",i); if(c<0) return {};
+            int s=out.indexOf("\"",c); int e=out.indexOf("\"",s+1);
+            if(s<0) { // Zahl
+                int ns=c+1; while(ns<out.size()&&(out[ns]==' '||out[ns]=='\n')) ns++;
+                int ne=ns; while(ne<out.size()&&out[ne]!=','&&out[ne]!='\n'&&out[ne]!='}') ne++;
+                return out.mid(ns,ne-ns).trimmed();
+            }
+            return out.mid(s+1,e-s-1);
+        };
+
+        // Sichtbare Spalten befüllen
+        int visIdx=0;
+        for(const auto &d : colDefs()) {
+            if(!m_colVisible[d.id]) continue;
+            QString v;
+            if(isImg) switch(d.id) {
+                case FP_IMG_DATUM:    v=val("DateTimeOriginal"); break;
+                case FP_IMG_BREITE:   v=val("ImageWidth"); break;
+                case FP_IMG_HOEHE:    v=val("ImageHeight"); break;
+                case FP_IMG_ABMESS:   { auto w=val("ImageWidth"),h=val("ImageHeight"); if(!w.isEmpty()) v=w+"×"+h; } break;
+                case FP_IMG_AUSRICHT: v=val("Orientation"); break;
+                default: break;
+            }
+            if(isAud) switch(d.id) {
+                case FP_AUD_KUENSTLER: v=val("Artist"); break;
+                case FP_AUD_GENRE:     v=val("Genre"); break;
+                case FP_AUD_ALBUM:     v=val("Album"); break;
+                case FP_AUD_DAUER:     v=val("Duration"); break;
+                case FP_AUD_BITRATE:   v=val("AudioBitrate"); break;
+                case FP_AUD_STUECK:    v=val("TrackNumber"); break;
+                default: break;
+            }
+            if(isVid) switch(d.id) {
+                case FP_VID_FRAMERATE:  v=val("VideoFrameRate"); break;
+                case FP_VID_SEITENVERH: v=val("AspectRatio"); break;
+                case FP_VID_DAUER:      v=val("Duration"); break;
+                default: break;
+            }
+            if(!v.isEmpty()) {
+                auto *it=m_model->item(row, visIdx);
+                if(it) it->setText(v);
+            }
+            visIdx++;
+        }
+    });
+    proc->start();
+}
+
+void FilePane::populate(const QString &path) {
+    m_model->removeRows(0, m_model->rowCount());
+    QDir dir(path);
+    if(!dir.exists()) return;
+
+    QSettings gs("SplitCommander", "General");
+    QDir::Filters filters = QDir::AllEntries | QDir::NoDotAndDotDot;
+    if (gs.value("showHidden", false).toBool())
+        filters |= QDir::Hidden;
+
+    const auto entries=dir.entryInfoList(
+        filters,
+        m_foldersFirst ? QDir::DirsFirst|QDir::Name : QDir::Name);
+
+    int row=0;
+    for(const QFileInfo &fi : entries) {
+        QList<QStandardItem*> items;
+        buildRow(fi, items);
+        m_model->appendRow(items);
+        fetchMetaAsync(fi, row++);
+    }
+}
+
+FilePane::FilePane(QWidget *parent) : QWidget(parent) {
+    auto *lay=new QVBoxLayout(this);
+    lay->setContentsMargins(0,0,0,0);
+
+    m_stack = new QStackedWidget(this);
+    lay->addWidget(m_stack);
+
+    m_model=new QStandardItemModel(0, 0, this);
+
+    m_proxy = new FolderFirstProxy(this);
+    m_proxy->setSourceModel(m_model);
+    m_proxy->setSortRole(Qt::UserRole);
+    m_proxy->setDynamicSortFilter(true);
+    m_proxy->setSortCaseSensitivity(Qt::CaseInsensitive);
+
+    m_view=new QTreeView(this);
+    m_view->setRootIsDecorated(false);
+    m_view->setItemsExpandable(false);
+    m_view->setUniformRowHeights(true);
+    m_view->setSortingEnabled(true);
+    m_view->setAlternatingRowColors(false);
+    m_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    m_view->setMouseTracking(true);
+    m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_view->setModel(m_proxy);
+    m_view->setItemDelegate(new FilePaneDelegate(this));
+
+    setupColumns();
+
+    auto *hdr=m_view->header();
+    // Spaltenbreiten setzen
+    int visIdx=0;
+    for(const auto &d : colDefs()) {
+        if(!m_colVisible[d.id]) continue;
+        hdr->setSectionResizeMode(visIdx, d.id==FP_NAME ? QHeaderView::Stretch : QHeaderView::Fixed);
+        if(d.id!=FP_NAME) hdr->resizeSection(visIdx, d.defaultWidth);
+        visIdx++;
+    }
+    hdr->setDefaultAlignment(Qt::AlignCenter);
+    m_model->horizontalHeaderItem(0)->setTextAlignment(Qt::AlignLeft|Qt::AlignVCenter);
+    hdr->setSectionsClickable(true);
+    hdr->setSortIndicatorShown(true);
+    hdr->setSortIndicator(0, Qt::AscendingOrder);
+    m_proxy->sort(0, Qt::AscendingOrder);
+    hdr->setStretchLastSection(false);
+    hdr->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(hdr, &QHeaderView::customContextMenuRequested, this, &FilePane::showHeaderMenu);
+    connect(hdr, &QHeaderView::sectionDoubleClicked, this, [this](int col) {
+        m_view->resizeColumnToContents(col);
+    });
+
+    m_view->setStyleSheet(
+        "QTreeView{background:#2e3440;border:none;color:#d8dee9;outline:none;font-size:10px;}"
+        "QTreeView::item{padding:2px 4px;}"
+        "QTreeView::item:hover{background:#3b4252;}"
+        "QTreeView::item:selected{background:#4c566a;color:#eceff4;}"
+        "QHeaderView::section{background:#272c38;color:#88c0d0;border:none;"
+        "border-bottom:1px solid #3b4252;border-right:1px solid #3b4252;"
+        "padding:3px 6px;font-size:10px;}"
+        "QHeaderView{background:#272c38;}"
+        "QTreeView QScrollBar:vertical{width:4px;background:transparent;border:none;}"
+        "QTreeView QScrollBar::handle:vertical{background:rgba(255,255,255,0);border-radius:2px;min-height:20px;}"
+        "QTreeView:hover QScrollBar::handle:vertical{background:rgba(255,255,255,40);}"
+        "QTreeView QScrollBar::add-line:vertical,QTreeView QScrollBar::sub-line:vertical{height:0;}"
+        "QTreeView QScrollBar::add-page:vertical,QTreeView QScrollBar::sub-page:vertical{background:#272c38;}");
+
+    // margin-top des Scrollbars nach erstem Paint auf echte Header-Höhe setzen
+    QTimer::singleShot(0, this, [this]() {
+        int hh = m_view->header()->height();
+        if (hh <= 0) hh = 24;
+        QString ss = m_view->styleSheet();
+        ss.replace("QTreeView QScrollBar:vertical{width:4px;background:transparent;border:none;}",
+                   QString("QTreeView QScrollBar:vertical{width:4px;background:#272c38;border:none;margin-top:%1px;}").arg(hh));
+        m_view->setStyleSheet(ss);
+    });
+
+    m_iconView = new QListView(this);
+    m_iconView->setModel(m_proxy);
+    m_iconView->setSelectionModel(m_view->selectionModel());
+    m_iconView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    m_iconView->setMouseTracking(true);
+    m_iconView->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_iconView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_iconView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    m_iconView->verticalScrollBar()->setSingleStep(26);
+    m_iconView->setWordWrap(true);
+    m_iconView->setStyleSheet(
+        "QListView{background:#2e3440;alternate-background-color:#343d4a;border:none;color:#d8dee9;outline:none;font-size:11px;}"
+        "QListView::item{padding:4px;border-radius:4px;}"
+        "QListView::item:hover{background:#3b4252;}"
+        "QListView::item:selected{background:#4c566a;color:#eceff4;}"
+        "QListView QScrollBar:vertical{width:4px;background:transparent;border:none;}"
+        "QListView QScrollBar::handle:vertical{background:rgba(255,255,255,0);border-radius:2px;min-height:20px;}"
+        "QListView:hover QScrollBar::handle:vertical{background:rgba(255,255,255,40);}"
+    );
+
+    m_stack->addWidget(m_view);
+    m_stack->addWidget(m_iconView);
+    m_stack->setCurrentWidget(m_view);
+
+    m_view->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_view,&QTreeView::customContextMenuRequested,this,&FilePane::showContextMenu);
+    connect(m_view,&QTreeView::activated,this,&FilePane::onItemActivated);
+    connect(m_view, &QTreeView::clicked, this, [this](const QModelIndex &idx) {
+        QSettings gs("SplitCommander", "General");
+        if (gs.value("singleClick", false).toBool()) onItemActivated(idx);
+    });
+    connect(m_iconView, &QListView::clicked, this, [this](const QModelIndex &idx) {
+        QSettings gs("SplitCommander", "General");
+        if (gs.value("singleClick", false).toBool()) onItemActivated(idx);
+    });
+    
+    connect(m_iconView,&QListView::customContextMenuRequested,this,&FilePane::showContextMenu);
+    connect(m_iconView,&QListView::activated,this,&FilePane::onItemActivated);
+    connect(m_view->selectionModel(),&QItemSelectionModel::currentChanged,
+        this,[this](const QModelIndex &cur,const QModelIndex&){
+            QModelIndex src=m_proxy->mapToSource(cur);
+            if(src.isValid()){
+                auto *it=m_model->item(src.row(),0);
+                if(it) emit fileSelected(it->data(Qt::UserRole).toString());
+            }
+        });
+
+    m_watcher=new QFileSystemWatcher(this);
+    connect(m_watcher,&QFileSystemWatcher::directoryChanged,this,&FilePane::reload);
+
+    connect(&TagManager::instance(), &TagManager::fileTagChanged, this, [this](const QString &changedPath) {
+        for (int row = 0; row < m_model->rowCount(); ++row) {
+            auto *nameItem = m_model->item(row, 0);
+            if (!nameItem) continue;
+            if (nameItem->data(Qt::UserRole).toString() != changedPath) continue;
+            int visIdx = 0;
+            for (const auto &d : colDefs()) {
+                if (!m_colVisible[d.id]) { continue; }
+                if (d.id == FP_TAGS) {
+                    auto *tagItem = m_model->item(row, visIdx);
+                    if (tagItem) tagItem->setText(TagManager::instance().fileTag(changedPath));
+                    break;
+                }
+                visIdx++;
+            }
+            break;
+        }
+    });
+
+    setRootPath(QDir::homePath());
+}
+
+void FilePane::setFoldersFirst(bool on) {
+    m_foldersFirst=on;
+    static_cast<FolderFirstProxy*>(m_proxy)->foldersFirst=on;
+    if(!m_currentPath.isEmpty()) populate(m_currentPath);
+}
+
+void FilePane::setNameFilter(const QString &pattern) {
+    m_filter=pattern;
+    m_proxy->setFilterWildcard(pattern);
+    m_proxy->setFilterKeyColumn(0);
+}
+
+void FilePane::setRootPath(const QString &path) {
+    if(path.isEmpty()||!QFileInfo::exists(path)) return;
+    m_currentTagFilter.clear();
+    if(!m_watcher->directories().isEmpty())
+        m_watcher->removePaths(m_watcher->directories());
+    m_currentPath=path;
+    m_watcher->addPath(path);
+    populate(path);
+}
+
+void FilePane::setColumnVisible(int colId, bool visible) {
+    if (colId < 0 || colId >= FP_COUNT) return;
+    if (m_colVisible[colId] == visible) return;
+    m_colVisible[colId] = visible;
+    int visCount=0;
+    for(int i=0;i<FP_COUNT;i++) if(m_colVisible[i]) visCount++;
+    m_model->setColumnCount(visCount);
+    QStringList labels; labels<<"Name";
+    for(const auto &d : colDefs())
+        if(m_colVisible[d.id]&&d.id!=FP_NAME) labels<<d.label;
+    m_model->setHorizontalHeaderLabels(labels);
+    auto *hdr=m_view->header();
+    int vi=0;
+    for(const auto &d : colDefs()) {
+        if(!m_colVisible[d.id]) continue;
+        hdr->setSectionResizeMode(vi, d.id==FP_NAME ? QHeaderView::Stretch : QHeaderView::Fixed);
+        if(d.id!=FP_NAME) hdr->resizeSection(vi, d.defaultWidth);
+        vi++;
+    }
+    if(m_model->horizontalHeaderItem(0))
+        m_model->horizontalHeaderItem(0)->setTextAlignment(Qt::AlignLeft|Qt::AlignVCenter);
+    if(!m_currentPath.isEmpty()) populate(m_currentPath);
+}
+
+void FilePane::setViewMode(int mode) {
+    // 0: Details, 1: Kompakt, 2: Liste, 3: Grid
+    bool changed = false;
+    QList<bool> newVis = m_colVisible;
+    
+    if (mode == 0) {
+        m_stack->setCurrentWidget(m_view);
+        for(int i=1; i<FP_COUNT; i++) newVis[i] = false;
+        for(const auto &d : colDefs()) {
+            if(d.defaultVisible) newVis[d.id] = true;
+        }
+    } else if (mode == 1) {
+        m_stack->setCurrentWidget(m_iconView);
+        m_iconView->setViewMode(QListView::ListMode);
+        m_iconView->setAlternatingRowColors(true);
+        m_iconView->setFlow(QListView::TopToBottom);
+        m_iconView->setWrapping(false);
+        m_iconView->setIconSize(QSize(48, 48));
+        m_iconView->setGridSize(QSize()); // Let it adjust naturally
+        m_iconView->setSpacing(0); // Set spacing to 0 so alternate colors are continuous
+        for(int i=1; i<FP_COUNT; i++) newVis[i] = false;
+    } else if (mode == 2) {
+        m_stack->setCurrentWidget(m_view);
+        for(int i=1; i<FP_COUNT; i++) newVis[i] = false;
+        newVis[FP_GROESSE] = true;
+        newVis[FP_DATUM] = true;
+    } else if (mode == 3) {
+        m_stack->setCurrentWidget(m_iconView);
+        m_iconView->setViewMode(QListView::IconMode);
+        m_iconView->setAlternatingRowColors(false);
+        m_iconView->setFlow(QListView::LeftToRight);
+        m_iconView->setWrapping(true);
+        m_iconView->setResizeMode(QListView::Adjust);
+        m_iconView->setIconSize(QSize(80, 80));
+        m_iconView->setGridSize(QSize(110, 120));
+        m_iconView->setSpacing(8);
+        for(int i=1; i<FP_COUNT; i++) newVis[i] = false;
+    }
+
+    for (int i=1; i<FP_COUNT; i++) {
+        if (m_colVisible[i] != newVis[i]) changed = true;
+    }
+    if (!changed) return;
+
+    m_colVisible = newVis;
+
+    int visCount=0;
+    for(int i=0;i<FP_COUNT;i++) if(m_colVisible[i]) visCount++;
+    m_model->setColumnCount(visCount);
+    QStringList labels; labels<<"Name";
+    for(const auto &d : colDefs())
+        if(m_colVisible[d.id]&&d.id!=FP_NAME) labels<<d.label;
+    m_model->setHorizontalHeaderLabels(labels);
+    auto *hdr=m_view->header();
+    int vi=0;
+    for(const auto &d : colDefs()) {
+        if(!m_colVisible[d.id]) continue;
+        hdr->setSectionResizeMode(vi, d.id==FP_NAME ? QHeaderView::Stretch : QHeaderView::Fixed);
+        if(d.id!=FP_NAME) hdr->resizeSection(vi, d.defaultWidth);
+        vi++;
+    }
+    if(m_model->horizontalHeaderItem(0))
+        m_model->horizontalHeaderItem(0)->setTextAlignment(Qt::AlignLeft|Qt::AlignVCenter);
+    if(!m_currentPath.isEmpty()) populate(m_currentPath);
+}
+
+void FilePane::reload() {
+    if (!m_currentTagFilter.isEmpty())
+        showTaggedFiles(m_currentTagFilter);
+    else if (!m_currentPath.isEmpty())
+        populate(m_currentPath);
+}
+
+void FilePane::showTaggedFiles(const QString &tagName) {
+    m_currentTagFilter = tagName;
+    m_model->removeRows(0, m_model->rowCount());
+
+    int row = 0;
+    for (const QString &path : TagManager::instance().filesWithTag(tagName)) {
+        QFileInfo fi(path);
+        if (!fi.exists()) continue;
+        QList<QStandardItem*> items;
+        buildRow(fi, items);
+        m_model->appendRow(items);
+        fetchMetaAsync(fi, row++);
+    }
+}
+
+QString FilePane::currentPath() const { return m_currentPath; }
+bool FilePane::hasFocus() const { return m_view->hasFocus(); }
+
+void FilePane::onItemActivated(const QModelIndex &index) {
+    QModelIndex src=m_proxy->mapToSource(index);
+    if(!src.isValid()) return;
+    auto *it=m_model->item(src.row(),0);
+    if(!it) return;
+    QString path=it->data(Qt::UserRole).toString();
+    if(QFileInfo(path).isDir()){
+        setRootPath(path);
+        emit fileActivated(path);
+    } else {
+        QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+    }
+}
+
+// ── Header-Kontextmenü (Spalten ein-/ausblenden) ──────────────────────────────
+void FilePane::showHeaderMenu(const QPoint &pos) {
+    QMenu menu;
+    fp_applyMenuShadow(&menu);
+    menu.setStyleSheet(
+        "QMenu{background:#2e3440;color:#eceff4;border:1px solid #434c5e;font-size:10px;}"
+        "QMenu::item{padding:5px 20px 5px 8px;}"
+        "QMenu::item:selected{background:#434c5e;}"
+        "QMenu::separator{background:rgba(236,239,244,120);height:1px;margin:3px 8px;}"
+        "QMenu::indicator{width:14px;height:14px;}");
+
+    // Gruppen-Submenüs
+    QMap<QString,QMenu*> subMenus;
+    QStringList groupOrder={"Bild","Audio","Video","Dokument","Weitere"};
+    for(const QString &g : groupOrder) {
+        auto *sub=menu.addMenu(g);
+        sub->setStyleSheet(menu.styleSheet());
+        subMenus[g]=sub;
+    }
+    menu.addSeparator();
+
+    // Spalten ohne Gruppe direkt im Menü (außer Name der immer sichtbar ist)
+    for(const auto &d : colDefs()) {
+        if(d.id==FP_NAME) continue;
+        QAction *act;
+        if(d.group.isEmpty()) {
+            act=menu.addAction(d.label);
+        } else {
+            act=subMenus[d.group]->addAction(d.label);
+        }
+        act->setCheckable(true);
+        act->setChecked(m_colVisible[d.id]);
+        connect(act,&QAction::toggled,this,[this,d](bool on){
+            m_colVisible[d.id]=on;
+            // In QSettings speichern
+            QSettings s("SplitCommander","UI");
+            s.beginGroup("columns");
+            s.setValue(QString::number(d.id), on);
+            s.endGroup();
+            // Neuaufbau
+            int visCount=0;
+            for(int i=0;i<FP_COUNT;i++) if(m_colVisible[i]) visCount++;
+            m_model->setColumnCount(visCount);
+            QStringList labels; labels<<"Name";
+            for(const auto &dd : colDefs())
+                if(m_colVisible[dd.id]&&dd.id!=FP_NAME) labels<<dd.label;
+            m_model->setHorizontalHeaderLabels(labels);
+            auto *hdr=m_view->header();
+            int vi=0;
+            for(const auto &dd : colDefs()) {
+                if(!m_colVisible[dd.id]) continue;
+                hdr->setSectionResizeMode(vi, dd.id==FP_NAME ? QHeaderView::Stretch : QHeaderView::Fixed);
+                if(dd.id!=FP_NAME) hdr->resizeSection(vi, dd.defaultWidth);
+                vi++;
+            }
+            if(m_model->horizontalHeaderItem(0))
+                m_model->horizontalHeaderItem(0)->setTextAlignment(Qt::AlignLeft|Qt::AlignVCenter);
+            if(!m_currentPath.isEmpty()) populate(m_currentPath);
+            emit columnsChanged(d.id, on);
+        });
+    }
+
+    menu.exec(m_view->header()->mapToGlobal(pos));
+}
+void FilePane::openWithApp(const QString &desktopEntry, const QString &path) {
+    KService::Ptr svc = KService::serviceByDesktopName(desktopEntry);
+    if (!svc) return;
+    QString exec = svc->exec();
+    exec.replace("%f", "\"" + path + "\"");
+    exec.replace("%F", "\"" + path + "\"");
+    exec.replace("%u", "\"" + path + "\"");
+    exec.replace("%U", "\"" + path + "\"");
+    exec.replace("%i", "").replace("%c", svc->name()).replace("%k", "");
+    QProcess::startDetached("sh", {"-c", exec.trimmed()});
+}
+
+void FilePane::showContextMenu(const QPoint &pos) {
+    QModelIndex proxyIndex = m_view->indexAt(pos);
+    QModelIndex index = m_proxy->mapToSource(proxyIndex);
+    bool hasItem = index.isValid();
+    QString path;
+    if (hasItem) {
+        auto *it = m_model->item(index.row(), 0);
+        path = it ? it->data(Qt::UserRole).toString() : m_currentPath;
+    } else {
+        path = m_currentPath;
+    }
+    QFileInfo info(path);
+    bool isDir      = info.isDir();
+    QString dirPath = isDir ? path : info.dir().absolutePath();
+    QUrl    itemUrl = QUrl::fromLocalFile(path);
+
+    QMenu menu(this);
+    fp_applyMenuShadow(&menu);
+    menu.setStyleSheet(menuStyle);
+
+    // ── Öffnen / Öffnen mit ───────────────────────────────────────────────
+    if (hasItem) {
+        menu.addAction(QIcon::fromTheme("document-open"), tr("Öffnen"), this,
+            [path, isDir, this]() {
+                if (isDir) setRootPath(path);
+                else QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+            });
+
+        QMimeDatabase mdb;
+        QMimeType mime = isDir ? mdb.mimeTypeForName("inode/directory")
+                               : mdb.mimeTypeForFile(path);
+        KService::List apps = KApplicationTrader::queryByMimeType(mime.name());
+
+        // Erste App als direkten Eintrag (Mittelklick-App)
+        if (!apps.isEmpty()) {
+            KService::Ptr preferred = apps.first();
+            QString prefDesktop = preferred->desktopEntryName();
+            menu.addAction(QIcon::fromTheme(preferred->icon()),
+                tr("Mit %1 öffnen").arg(preferred->name()), this,
+                [this, prefDesktop, path]() { openWithApp(prefDesktop, path); });
+        }
+
+        // "Öffnen mit" Untermenü
+        auto *openWithMenu = menu.addMenu(QIcon::fromTheme("document-open"), tr("Öffnen mit"));
+        openWithMenu->setStyleSheet(menuStyle);
+        for (const KService::Ptr &svc : apps) {
+            if (svc->noDisplay()) continue;
+            QString desktop = svc->desktopEntryName();
+            openWithMenu->addAction(QIcon::fromTheme(svc->icon()), svc->name(), this,
+                [this, desktop, path]() { openWithApp(desktop, path); });
+        }
+        openWithMenu->addSeparator();
+        openWithMenu->addAction(QIcon::fromTheme("application-x-executable"),
+            tr("Andere Anwendung …"), this, [path]() {
+                QProcess::startDetached("kioclient6",
+                    {"openWith", QUrl::fromLocalFile(path).toString()});
+            });
+
+        menu.addSeparator();
+    }
+
+    // ── Ausschneiden / Kopieren / Einfügen ───────────────────────────────
+    if (hasItem) {
+        menu.addAction(QIcon::fromTheme("edit-cut"), tr("Ausschneiden"), this,
+            [itemUrl]() {
+                auto *mime = new QMimeData();
+                mime->setUrls({itemUrl});
+                mime->setData("x-kde-cut-selection", "1");
+                QGuiApplication::clipboard()->setMimeData(mime);
+            });
+        menu.addAction(QIcon::fromTheme("edit-copy"), tr("Kopieren"), this,
+            [itemUrl]() {
+                auto *mime = new QMimeData();
+                mime->setUrls({itemUrl});
+                QGuiApplication::clipboard()->setMimeData(mime);
+            });
+    }
+
+    const QMimeData *clip = QGuiApplication::clipboard()->mimeData();
+    bool canPaste = clip && clip->hasUrls();
+    auto *pasteAct = menu.addAction(QIcon::fromTheme("edit-paste"), tr("Einfügen"), this,
+        [this, dirPath, clip]() {
+            if (!clip || !clip->hasUrls()) return;
+            bool isCut = clip->data("x-kde-cut-selection") == "1";
+            QList<QUrl> urls = clip->urls();
+            if (isCut)
+                KIO::move(urls, QUrl::fromLocalFile(dirPath),
+                          KIO::HideProgressInfo)->uiDelegate()->setAutoErrorHandlingEnabled(true);
+            else
+                KIO::copy(urls, QUrl::fromLocalFile(dirPath),
+                          KIO::HideProgressInfo)->uiDelegate()->setAutoErrorHandlingEnabled(true);
+        });
+    pasteAct->setEnabled(canPaste);
+
+    if (hasItem) {
+        menu.addAction(QIcon::fromTheme("edit-copy"), tr("Adresse kopieren"), this,
+            [path]() { QGuiApplication::clipboard()->setText(path); });
+
+        // Hier duplizieren
+        menu.addAction(QIcon::fromTheme("edit-copy"), tr("Hier duplizieren"), this,
+            [this, path, dirPath, itemUrl]() {
+                QString baseName = QFileInfo(path).completeBaseName();
+                QString suffix   = QFileInfo(path).suffix();
+                QString copyName = suffix.isEmpty()
+                    ? baseName + tr(" (Kopie)")
+                    : baseName + tr(" (Kopie).") + suffix;
+                QUrl dest = QUrl::fromLocalFile(dirPath + "/" + copyName);
+                KIO::copy({itemUrl}, dest, KIO::HideProgressInfo)
+                    ->uiDelegate()->setAutoErrorHandlingEnabled(true);
+            });
+    }
+
+    menu.addSeparator();
+
+    // ── Neu ───────────────────────────────────────────────────────────────
+    auto *newMenu = menu.addMenu(QIcon::fromTheme("folder-new"), tr("Neu"));
+    newMenu->setStyleSheet(menuStyle);
+    newMenu->addAction(QIcon::fromTheme("folder-new"), tr("Ordner …"), this,
+        [this, dirPath]() {
+            QString name = QInputDialog::getText(this, tr("Neuer Ordner"), tr("Name:"));
+            if (!name.isEmpty()) QDir(dirPath).mkdir(name);
+        });
+    newMenu->addAction(QIcon::fromTheme("document-new"), tr("Leere Datei …"), this,
+        [this, dirPath]() {
+            QString name = QInputDialog::getText(this, tr("Neue Datei"), tr("Name:"));
+            if (!name.isEmpty()) { QFile f(dirPath + "/" + name); (void)f.open(QIODevice::WriteOnly); }
+        });
+
+    menu.addSeparator();
+
+    // ── Umbenennen ────────────────────────────────────────────────────────
+    if (hasItem) {
+        menu.addAction(QIcon::fromTheme("edit-rename"), tr("Umbenennen …"), this,
+            [this, path, itemUrl, dirPath]() {
+                bool ok;
+                QString newName = QInputDialog::getText(this, tr("Umbenennen"),
+                    tr("Neuer Name:"), QLineEdit::Normal, QFileInfo(path).fileName(), &ok);
+                if (ok && !newName.isEmpty() && newName != QFileInfo(path).fileName()) {
+                    QUrl dest = QUrl::fromLocalFile(dirPath + "/" + newName);
+                    auto *job = KIO::moveAs(itemUrl, dest, KIO::HideProgressInfo);
+                    job->uiDelegate()->setAutoErrorHandlingEnabled(true);
+                }
+            });
+
+        menu.addSeparator();
+
+        // ── In den Papierkorb ─────────────────────────────────────────────
+        menu.addAction(QIcon::fromTheme("edit-delete"), tr("In den Papierkorb verschieben"), this,
+            [itemUrl]() {
+                auto *job = new KIO::DeleteOrTrashJob({itemUrl},
+                    KIO::AskUserActionInterface::Trash,
+                    KIO::AskUserActionInterface::DefaultConfirmation, nullptr);
+                job->uiDelegate()->setAutoErrorHandlingEnabled(true);
+                job->start();
+            });
+    }
+
+    menu.addSeparator();
+
+    // ── Aktionen Untermenü ────────────────────────────────────────────────
+    auto *actMenu = menu.addMenu(QIcon::fromTheme("system-run"), tr("Aktionen"));
+    actMenu->setStyleSheet(menuStyle);
+
+    actMenu->addAction(QIcon::fromTheme("utilities-terminal"),
+        tr("Terminal hier öffnen"), this, [dirPath]() {
+            QProcess p;
+            p.start("kreadconfig6", {"--group","General","--key","TerminalApplication"});
+            p.waitForFinished(500);
+            QString term = QString::fromUtf8(p.readAllStandardOutput()).trimmed();
+            if (term.isEmpty())
+                for (const QString &t : {"konsole","ptyxis","gnome-terminal","kitty","alacritty","xterm"})
+                    if (QProcess::execute("which",{t}) == 0) { term = t; break; }
+            if (term.isEmpty()) return;
+            if (term.contains("konsole"))
+                QProcess::startDetached(term, {"--new-window","--workdir", dirPath});
+            else if (term.contains("ptyxis") || term.contains("gnome-terminal"))
+                QProcess::startDetached(term, {"--working-directory", dirPath});
+            else
+                QProcess::startDetached(term, {"--directory", dirPath});
+        });
+
+    if (hasItem) {
+        actMenu->addAction(QIcon::fromTheme("document-encrypt"),
+            tr("Datei verschlüsseln …"), this, [path]() {
+                QProcess::startDetached("kleopatra", {"--encrypt", path});
+            });
+        actMenu->addAction(QIcon::fromTheme("document-sign"),
+            tr("Datei signieren & verschlüsseln …"), this, [path]() {
+                QProcess::startDetached("kleopatra", {"--sign-encrypt", path});
+            });
+        actMenu->addAction(QIcon::fromTheme("document-sign"),
+            tr("Datei signieren …"), this, [path]() {
+                QProcess::startDetached("kleopatra", {"--sign", path});
+            });
+        actMenu->addSeparator();
+        actMenu->addAction(QIcon::fromTheme("folder-new"),
+            tr("In neuen Ordner verschieben …"), this, [this, itemUrl, dirPath]() {
+                bool ok;
+                QString folderName = QInputDialog::getText(this,
+                    tr("In neuen Ordner verschieben"), tr("Ordnername:"), QLineEdit::Normal,
+                    QFileInfo(itemUrl.toLocalFile()).baseName(), &ok);
+                if (!ok || folderName.isEmpty()) return;
+                QString dest = dirPath + "/" + folderName;
+                QDir().mkdir(dest);
+                KIO::move({itemUrl}, QUrl::fromLocalFile(dest), KIO::HideProgressInfo);
+            });
+    }
+
+    menu.addSeparator();
+
+    // ── Tag ───────────────────────────────────────────────────────────────
+    if (hasItem) {
+        auto *tagMenu = menu.addMenu(QIcon::fromTheme("tag"), tr("Tag"));
+        tagMenu->setStyleSheet(menuStyle);
+        QString currentTag = TagManager::instance().fileTag(path);
+        for (const auto &t : TagManager::instance().tags()) {
+            QPixmap dot(14, 14);
+            dot.fill(Qt::transparent);
+            QPainter dp(&dot);
+            dp.setRenderHint(QPainter::Antialiasing);
+            dp.setBrush(QColor(t.second));
+            dp.setPen(Qt::NoPen);
+            dp.drawEllipse(1, 1, 12, 12);
+            QAction *act = tagMenu->addAction(QIcon(dot), t.first);
+            act->setCheckable(true);
+            act->setChecked(t.first == currentTag);
+            connect(act, &QAction::triggered, this, [path, t](bool) {
+                TagManager::instance().setFileTag(path, t.first);
+            });
+        }
+        if (!currentTag.isEmpty()) {
+            tagMenu->addSeparator();
+            tagMenu->addAction(QIcon::fromTheme("edit-clear"), tr("Tag entfernen"), this,
+                [path]() { TagManager::instance().clearFileTag(path); });
+        }
+    }
+
+    menu.addSeparator();
+
+    // ── Eigenschaften ─────────────────────────────────────────────────────
+    if (hasItem) {
+        menu.addAction(QIcon::fromTheme("document-properties"), tr("Eigenschaften"), this,
+            [path]() {
+                QProcess::startDetached("kioclient6",
+                    {"properties", QUrl::fromLocalFile(path).toString()});
+            });
+    }
+
+    menu.exec(m_view->mapToGlobal(pos));
+}
