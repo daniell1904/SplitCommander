@@ -105,6 +105,58 @@ install() {
     print_ok "SplitCommander installiert nach $INSTALL_PREFIX/bin/splitcommander"
 }
 
+# ── Icon installieren ─────────────────────────────────────────────────────────
+install_icon() {
+    print_step "Installiere Icon"
+
+    local svg="logo.svg"
+    if [ ! -f "$svg" ]; then
+        print_warn "logo.svg nicht gefunden — überspringe Icon-Installation"
+        return
+    fi
+
+    # PNG-Größen generieren
+    local sizes=(16 32 48 64 128 256)
+    local converter=""
+
+    if command -v inkscape &>/dev/null; then
+        converter="inkscape"
+    elif command -v convert &>/dev/null; then
+        converter="imagemagick"
+    else
+        print_warn "Weder inkscape noch imagemagick gefunden — installiere imagemagick"
+        local distro
+        distro=$(detect_distro)
+        case "$distro" in
+            arch|cachyos|endeavouros|manjaro) sudo pacman -S --needed --noconfirm imagemagick ;;
+            fedora)                           sudo dnf install -y imagemagick ;;
+            ubuntu|debian|linuxmint|pop)      sudo apt-get install -y imagemagick ;;
+            opensuse*|suse)                   sudo zypper install -y ImageMagick ;;
+        esac
+        converter="imagemagick"
+    fi
+
+    for size in "${sizes[@]}"; do
+        local dir="/usr/share/icons/hicolor/${size}x${size}/apps"
+        sudo mkdir -p "$dir"
+        if [ "$converter" = "inkscape" ]; then
+            inkscape "$svg" --export-type=png --export-filename="/tmp/sc_${size}.png" \
+                --export-width="$size" --export-height="$size" 2>/dev/null
+        else
+            convert -background none -resize "${size}x${size}" "$svg" "/tmp/sc_${size}.png" 2>/dev/null
+        fi
+        sudo cp "/tmp/sc_${size}.png" "$dir/splitcommander.png"
+        rm -f "/tmp/sc_${size}.png"
+    done
+
+    # SVG auch direkt installieren
+    sudo mkdir -p /usr/share/icons/hicolor/scalable/apps
+    sudo cp "$svg" /usr/share/icons/hicolor/scalable/apps/splitcommander.svg
+
+    sudo gtk-update-icon-cache /usr/share/icons/hicolor 2>/dev/null || true
+    print_ok "Icon installiert (${sizes[*]} px + SVG)"
+}
+
 # ── Desktop-Eintrag ───────────────────────────────────────────────────────────
 install_desktop() {
     local desktop_file="/usr/share/applications/splitcommander.desktop"
@@ -114,7 +166,7 @@ install_desktop() {
 Name=SplitCommander
 Comment=Nativer KDE Dual-Pane Dateimanager
 Exec=splitcommander
-Icon=system-file-manager
+Icon=splitcommander
 Terminal=false
 Type=Application
 Categories=System;FileTools;FileManager;
@@ -155,6 +207,7 @@ main() {
     [ "$skip_deps" -eq 0 ]    && install_deps "$distro"
     build
     [ "$skip_install" -eq 0 ] && install
+    install_icon
     install_desktop
 
     echo ""
