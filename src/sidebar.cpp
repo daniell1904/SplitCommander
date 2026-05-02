@@ -6,6 +6,7 @@
 #include "propertiesdialog.h"
 #include "settingsdialog.h"
 #include "thememanager.h"
+#include <QTimer>
 
 #include <KIO/CopyJob>
 #include <Solid/Device>
@@ -311,16 +312,35 @@ void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QM
             p->drawText(textX, r.top(), textW, r.height(), Qt::AlignLeft | Qt::AlignVCenter, name);
         }
     } else {
-        p->setPen(QColor(TM().colors().textPrimary));
-        p->drawText(textX, r.top(), textW, r.height(), Qt::AlignLeft | Qt::AlignVCenter, name);
+        // Nicht eingehängt: Name gedämpft + Eject-Symbol rechts
+        const bool unmounted = path.startsWith("solid:");
+        p->setPen(QColor(unmounted ? TM().colors().textMuted : TM().colors().textPrimary));
+        if (unmounted) {
+            // Name linksbündig, Eject-Icon rechts
+            const QIcon ejectIcon = QIcon::fromTheme("media-eject");
+            const int   eSz  = 12;
+            const int   eX   = r.right() - eSz - 6;
+            const int   eY   = r.top() + (r.height() - eSz) / 2;
+            p->drawText(textX, r.top(), textW - eSz - 10, r.height(), Qt::AlignLeft | Qt::AlignVCenter, name);
+            ejectIcon.paint(p, eX, eY, eSz, eSz, Qt::AlignCenter, QIcon::Disabled);
+        } else {
+            p->drawText(textX, r.top(), textW, r.height(), Qt::AlignLeft | Qt::AlignVCenter, name);
+        }
     }
+    p->restore();
+
+    // 1px Trennlinie am unteren Rand
+    p->save();
+    p->setPen(QPen(QColor(TM().colors().border), 1));
+    p->drawLine(opt.rect.left(), opt.rect.bottom(), opt.rect.right(), opt.rect.bottom());
     p->restore();
 }
 
 QSize DriveDelegate::sizeHint(const QStyleOptionViewItem &, const QModelIndex &idx) const
 {
     const QString path = idx.data(Qt::UserRole).toString();
-    return QSize(200, (m_showBars && path.startsWith("/")) ? 44 : SC_SIDEBAR_ROW_H);
+    // Eingehängt (Pfad) oder ausgehängt (solid:): beide bekommen 44px wenn showBars
+    return QSize(200, m_showBars ? 44 : SC_SIDEBAR_ROW_H);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -715,11 +735,16 @@ void Sidebar::buildFooter(QVBoxLayout *parent)
     connect(settingsBtn, &QToolButton::clicked, this, [this]() {
         auto *dlg = new SettingsDialog(this);
         dlg->setAttribute(Qt::WA_DeleteOnClose);
-        connect(dlg, &SettingsDialog::themeChanged,       this, [this]() { emit settingsChanged(); });
         connect(dlg, &SettingsDialog::shortcutsChanged,   this, [this]() { emit settingsChanged(); });
         connect(dlg, &SettingsDialog::hiddenFilesChanged, this, [this](bool show) { emit hiddenFilesChanged(show); });
         connect(dlg, &SettingsDialog::singleClickChanged, this, [this]() { emit settingsChanged(); });
         dlg->exec();
+        // QTimer::singleShot(0) stellt sicher dass deleteLater() für dlg
+        // bereits ausgeführt wurde (s_instance == nullptr) bevor settingsChanged
+        // den viewport-Repaint triggert. Ohne den Timer würde ageBadgeColor()
+        // noch s_instance->m_ageColors lesen — die zwar korrekt sind, aber
+        // das Timing ist nicht garantiert auf allen Qt-Versionen.
+        QTimer::singleShot(0, this, [this]() { emit settingsChanged(); });
     });
 
     // Layout-Picker
@@ -888,6 +913,7 @@ void Sidebar::updateDrives()
         auto *it = new QListWidgetItem(QIcon::fromTheme(iconName), name, m_driveList);
         it->setData(Qt::UserRole,     path);
         it->setData(Qt::UserRole + 1, freeStr);
+        it->setData(Qt::UserRole + 2, device.udi()); // UDI für teardown
     }
 
     // ── Nicht gemountete Block-Geräte ──
@@ -996,8 +1022,11 @@ void Sidebar::setupDriveContextMenu()
 
         const QString path     = item->data(Qt::UserRole).toString();
         const QString name     = item->text();
+        const QString udi      = item->data(Qt::UserRole + 2).toString();
         const bool    isSolid  = path.startsWith("solid:");
         const bool    isGdrive = path.startsWith("gdrive:/");
+        // Gemountetes Solid-Laufwerk: hat UDI aber kein solid:-Prefix
+        const bool    isMountedSolid = !udi.isEmpty() && !isSolid && !isGdrive;
 
         QMenu menu(this);
         sc_applyMenuShadow(&menu);
@@ -1010,7 +1039,23 @@ void Sidebar::setupDriveContextMenu()
         menu.addAction(QIcon::fromTheme("folder-open"), tr("Öffnen"), this, [this, path]() { emit driveClicked(path); });
         menu.addSeparator();
 
-        if (!isSolid && path != "/" && !path.isEmpty()) {
+        // Gemountetes Solid-Laufwerk: Aushängen via UDI
+        if (isMountedSolid) {
+            menu.addAction(QIcon::fromTheme("media-eject"), tr("Aushängen"), this, [this, udi]() {
+                Solid::Device dev(udi);
+                auto *acc = dev.as<Solid::StorageAccess>();
+                if (!acc) return;
+                emit driveClicked(QDir::homePath());
+                connect(acc, &Solid::StorageAccess::teardownDone, this,
+                        [this](Solid::ErrorType, QVariant, const QString &) {
+                    updateDrives(); emit drivesChanged();
+                }, Qt::SingleShotConnection);
+                acc->teardown();
+            });
+        }
+
+        // Nicht-gemountetes normales Laufwerk: umount
+        if (!isSolid && !isMountedSolid && path != "/" && !path.isEmpty() && !isGdrive) {
             menu.addAction(QIcon::fromTheme("media-eject"), tr("Auswerfen"), this, [this, path]() {
                 auto *proc = new QProcess(this);
                 connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
@@ -1027,6 +1072,7 @@ void Sidebar::setupDriveContextMenu()
             bool mounted = acc && acc->isAccessible();
             if (mounted) {
                 menu.addAction(QIcon::fromTheme("media-eject"), tr("Aushängen"), this, [this, acc]() {
+                    emit driveClicked(QDir::homePath());
                     connect(acc, &Solid::StorageAccess::teardownDone, this,
                             [this](Solid::ErrorType, QVariant, const QString &) {
                         updateDrives(); emit drivesChanged();
@@ -1207,7 +1253,7 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     list->setSpacing(0);
     list->setStyleSheet(TM().ssListWidget());
-    list->setItemDelegate(new DriveDelegate(false, this));
+    list->setItemDelegate(new DriveDelegate(true, this));
     list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     list->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 

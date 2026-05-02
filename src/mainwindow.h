@@ -58,6 +58,8 @@ signals:
     void entryClicked(const QString &path, MillerColumn *self);
     void activated(MillerColumn *self);
     void headerClicked(const QString &path);
+    void teardownRequested(const QString &udi);   // Laufwerk aushängen
+    void setupRequested(const QString &udi);      // Laufwerk einhängen
 private:
     QListWidget  *m_list;
     QPushButton  *m_header;
@@ -153,6 +155,7 @@ private:
     PaneWidget *m_rightPane;
     PaneWidget *activePane() const { return m_rightPane->isFocused() ? m_rightPane : m_leftPane; }
     QSplitter  *m_panesSplitter;
+    QSplitter  *m_vSplit = nullptr;
     int         m_currentMode = 1;
     void registerShortcuts();
     QList<QShortcut*> m_shortcuts;

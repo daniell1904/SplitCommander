@@ -16,6 +16,7 @@
 #include <QSettings>
 #include <QScrollArea>
 #include <QToolButton>
+#include <QSlider>
 #include <QColor>
 #include <QList>
 
@@ -43,6 +44,7 @@ class SettingsDialog : public QDialog {
 
 public:
     explicit SettingsDialog(QWidget *parent = nullptr);
+    ~SettingsDialog() override { if (s_instance == this) s_instance = nullptr; }
 
     static bool    useSystemTheme();
     static QString selectedTheme();
@@ -69,6 +71,13 @@ private:
     void applyAndSave();
     void loadValues();
 
+private slots:
+    void updateDynamicColors(); // Neu: Berechnet Farben live
+
+private:
+    static SettingsDialog* s_instance; // Neu: Für Live-Zugriff
+    static SettingsDialog* instance() { return s_instance; }
+
     QCheckBox    *m_systemThemeCheck  = nullptr;
     QButtonGroup *m_themeGroup        = nullptr;
     QWidget      *m_themeBox          = nullptr;
@@ -76,6 +85,11 @@ private:
 
     QList<QToolButton*> m_ageBtns;
     QList<QColor>       m_ageColors;
+    QWidget    *m_gradBar  = nullptr;
+    QCheckBox  *m_ageCheck = nullptr;
+
+    QSlider    *m_sSlider = nullptr; // Neu: Member für Sättigung
+    QSlider    *m_lSlider = nullptr; // Neu: Member für Helligkeit
 
     QCheckBox *m_singleClickCheck   = nullptr;
     QCheckBox *m_confirmDeleteCheck = nullptr;

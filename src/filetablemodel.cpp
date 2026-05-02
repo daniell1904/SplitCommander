@@ -1,5 +1,6 @@
 #include "tagmanager.h"
 #include "filetablemodel.h"
+#include "settingsdialog.h"
 #include <QThread>
 #include <QMutex>
 #include <QDirIterator>
@@ -8,7 +9,6 @@
 #include <QPainter>
 #include <QPixmap>
 #include <QIcon>
-#include <QSettings>
 
 FileTableModel::FileTableModel(QObject *parent)
     : QAbstractTableModel(parent)
@@ -104,20 +104,14 @@ static QString formatSize(qint64 s)
 
 static QColor ageColor(qint64 days)
 {
-    // Farben aus Einstellungen lesen (Fallback: Standardwerte)
-    static const QStringList defaults = {
-        "#00cc44", "#00aacc", "#ddaa00", "#ee6600", "#cc2200", "#6677aa"
-    };
-    auto col = [&](int idx) -> QColor {
-        QSettings s("SplitCommander", "AgeBadge");
-        return QColor(s.value(QString("color%1").arg(idx), defaults.at(idx)).toString());
-    };
-    if (days <  1)  return col(0);
-    if (days <  7)  return col(1);
-    if (days < 30)  return col(2);
-    if (days < 180) return col(3);
-    if (days < 365) return col(4);
-    return col(5);
+    // Nutzt SettingsDialog::ageBadgeColor() — liest RAM wenn Dialog offen, sonst QSettings
+    // Einheit: Tage (konsistent mit daysTo()-Aufruf in data())
+    if (days <  1)  return SettingsDialog::ageBadgeColor(0);  // < 1 Tag
+    if (days <  7)  return SettingsDialog::ageBadgeColor(1);  // < 7 Tage
+    if (days < 30)  return SettingsDialog::ageBadgeColor(2);  // < 1 Monat
+    if (days < 180) return SettingsDialog::ageBadgeColor(3);  // < 6 Monate
+    if (days < 365) return SettingsDialog::ageBadgeColor(4);  // < 1 Jahr
+    return SettingsDialog::ageBadgeColor(5);                   // > 1 Jahr
 }
 
 static QPixmap ageBadge(qint64 days, const QString &text)

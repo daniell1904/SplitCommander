@@ -710,12 +710,41 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent)
     m_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_list->verticalScrollBar()->hide();
     m_list->setStyleSheet(TM().ssColInactive().toUtf8().constData());
+    m_list->setContextMenuPolicy(Qt::CustomContextMenu);
     lay->addWidget(m_list);
 
     connect(m_list, &QListWidget::itemClicked, this, [this](QListWidgetItem *it) {
         emit activated(this);
         const QString p = it->data(Qt::UserRole).toString();
         if (!p.isEmpty()) emit entryClicked(p, this);
+    });
+
+    connect(m_list, &QListWidget::customContextMenuRequested, this, [this](const QPoint &pos) {
+        QListWidgetItem *it = m_list->itemAt(pos);
+        if (!it) return;
+        if (m_path != QLatin1String("__drives__")) return;
+
+        const QString udi = it->data(Qt::UserRole + 1).toString();
+        if (udi.isEmpty()) return;
+
+        Solid::Device dev(udi);
+        const auto *acc = dev.as<Solid::StorageAccess>();
+        if (!acc) return;
+
+        QMenu menu(this);
+        menu.setStyleSheet(TM().ssMenu());
+
+        if (acc->isAccessible()) {
+            menu.addAction(QIcon::fromTheme("media-eject"), tr("Aushängen"), this, [this, udi]() {
+                emit teardownRequested(udi);
+            });
+        } else {
+            menu.addAction(QIcon::fromTheme("drive-harddisk"), tr("Einhängen"), this, [this, udi]() {
+                emit setupRequested(udi);
+            });
+        }
+
+        menu.exec(m_list->mapToGlobal(pos));
     });
 }
 
@@ -725,56 +754,48 @@ void MillerColumn::populateDrives()
     m_header->setText("This PC");
     m_list->clear();
     m_list->setStyleSheet(TM().ssColDrives().toUtf8().constData());
+    m_list->setItemDelegate(new DriveDelegate(true, m_list));
 
-    QSet<QString> shown;
+    // ── Eingehängte Laufwerke ──
+    QSet<QString> shownUdis;
     for (const Solid::Device &dev : Solid::Device::listFromType(Solid::DeviceInterface::StorageAccess)) {
         const auto *acc = dev.as<Solid::StorageAccess>();
-        if (!acc || !acc->isAccessible()) continue;
-        const QString p = acc->filePath();
-        if (p.isEmpty() || shown.contains(p)) continue;
-        if (p.startsWith("/boot") || p.startsWith("/efi") || p.startsWith("/snap")) continue;
-        shown.insert(p);
+        if (!acc) continue;
 
-        QString driveName = (p == "/") ? QStringLiteral("Fedora") : dev.description();
-        if (driveName.isEmpty()) driveName = QDir(p).dirName();
+        const bool mounted = acc->isAccessible();
+        const QString p = acc->filePath();
+
+        // Systempartitionen überspringen
+        if (mounted) {
+            if (p.isEmpty()) continue;
+            if (p.startsWith("/boot") || p.startsWith("/efi") || p.startsWith("/snap")) continue;
+        }
+
+        shownUdis.insert(dev.udi());
+
+        QString driveName = mounted && (p == "/") ? QStringLiteral("Fedora") : dev.description();
+        if (driveName.isEmpty()) driveName = mounted ? QDir(p).dirName() : dev.udi().section('/', -1);
 
         QString iconName = "drive-harddisk";
         if (const auto *drv = dev.as<Solid::StorageDrive>()) {
             if (drv->driveType() == Solid::StorageDrive::CdromDrive)
                 iconName = "drive-optical";
-            else if (drv->isRemovable() || p.startsWith("/run/media/"))
+            else if (drv->isRemovable() || (mounted && p.startsWith("/run/media/")))
                 iconName = "drive-removable-media";
         }
 
-        QStorageInfo si(p);
-        QString sizeText;
-        if (si.isValid() && si.bytesTotal() > 0) {
-            double totalGB = si.bytesTotal() / (1024.0 * 1024 * 1024);
-            double freeGB  = si.bytesFree()  / (1024.0 * 1024 * 1024);
-            double usedGB  = totalGB - freeGB;
-
-            // KORREKTUR: usedGB ist Weiß (#ffffff)
-            // totalGB bekommt die Farbe der Ordner-Header: #88c0d0
-            sizeText = QString("   <span style='color:#ffffff;'>%1 / </span><span style='color:%2;'>%3 GB</span>")
-            .arg(usedGB, 0, 'f', 0)
-            .arg(TM().colors().textAccent)
-            .arg(totalGB, 0, 'f', 0);
-        }
-
         auto *it = new QListWidgetItem(m_list);
-        it->setData(Qt::UserRole, p);
-        it->setSizeHint(QSize(0, 30));
+        it->setData(Qt::DisplayRole,    driveName);
+        it->setData(Qt::DecorationRole, QIcon::fromTheme(iconName));
+        // UserRole: bei eingehängt = Pfad, bei ausgehängt = "solid:" + UDI
+        it->setData(Qt::UserRole, mounted ? p : QString("solid:") + dev.udi());
+        it->setData(Qt::UserRole + 1, dev.udi()); // UDI immer verfügbar
+        it->setSizeHint(QSize(0, 44));
 
-        QLabel *label = new QLabel(m_list);
-        QString fullHtml = QString("<html><div style='color:#ffffff;'>%1 %2</div></html>")
-        .arg(driveName)
-        .arg(sizeText);
-
-        label->setText(fullHtml);
-        label->setStyleSheet("background:transparent; padding-left: 5px;");
-
-        it->setIcon(QIcon::fromTheme(iconName));
-        m_list->setItemWidget(it, label);
+        // Ausgegraut wenn nicht eingehängt
+        if (!mounted) {
+            it->setForeground(QColor(TM().colors().textMuted));
+        }
     }
 }
 
@@ -942,6 +963,30 @@ void MillerArea::init()
         src->setActive(true); m_activeCol = src;
     });
     connect(col, &MillerColumn::headerClicked, this, &MillerArea::headerClicked);
+
+    connect(col, &MillerColumn::teardownRequested, this, [this](const QString &udi) {
+        // Dolphin-Ansatz: zuerst zu homePath navigieren, damit das Laufwerk nicht belegt ist
+        navigateTo(QDir::homePath());
+
+        Solid::Device dev(udi);
+        auto *acc = dev.as<Solid::StorageAccess>();
+        if (!acc) return;
+        connect(acc, &Solid::StorageAccess::teardownDone, this,
+                [this](Solid::ErrorType, QVariant, const QString &) {
+            refreshDrives();
+        }, Qt::SingleShotConnection);
+        acc->teardown();
+    });
+    connect(col, &MillerColumn::setupRequested, this, [this](const QString &udi) {
+        Solid::Device dev(udi);
+        auto *acc = dev.as<Solid::StorageAccess>();
+        if (!acc) return;
+        connect(acc, &Solid::StorageAccess::setupDone, this,
+                [this](Solid::ErrorType, QVariant, const QString &) {
+            refreshDrives();
+        }, Qt::SingleShotConnection);
+        acc->setup();
+    });
 }
 
 void MillerArea::appendColumn(const QString &path)
@@ -1370,6 +1415,21 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     m_vSplit->setStretchFactor(0, 0);
     m_vSplit->setStretchFactor(1, 1);
 
+    // Gespeicherte Position wiederherstellen
+    {
+        QSettings s("SplitCommander", "UI");
+        const QByteArray state = s.value("vSplitState").toByteArray();
+        if (!state.isEmpty())
+            m_vSplit->restoreState(state);
+    }
+
+    // Position beim Verschieben speichern
+    connect(m_vSplit, &QSplitter::splitterMoved, this, [this](int, int) {
+        QSettings s("SplitCommander", "UI");
+        s.setValue("vSplitState", m_vSplit->saveState());
+        s.sync();
+    });
+
     connect(millerToggle, &QToolButton::toggled, this, [this, millerToggle](bool checked) {
         if (checked) {
             m_vSplit->setSizes({200, 450});
@@ -1749,7 +1809,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         // Miller-Spalten neu stylen
         for (auto *col : m_leftPane->miller()->cols())  col->refreshStyle();
         for (auto *col : m_rightPane->miller()->cols()) col->refreshStyle();
-        // Badge-Farben neu zeichnen
+        // Badge-Farben neu zeichnen — beide PaneWidgets
         m_leftPane->filePane()->view()->viewport()->update();
         m_rightPane->filePane()->view()->viewport()->update();
         // Alle Widgets neu polieren

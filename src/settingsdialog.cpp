@@ -3,6 +3,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 #include "settingsdialog.h"
+#include <QSlider>
 #include "thememanager.h"
 
 #include <QApplication>
@@ -14,6 +15,8 @@
 #include <QPixmap>
 #include <QListWidget>
 #include <QStackedWidget>
+
+SettingsDialog* SettingsDialog::s_instance = nullptr;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // THEMES Definition
@@ -44,12 +47,21 @@ QString SettingsDialog::selectedTheme()
 
 QColor SettingsDialog::ageBadgeColor(int index)
 {
-    static const QStringList defaults = {
-        "#00cc44", "#00aacc", "#ddaa00", "#ee6600", "#cc2200", "#6677aa"
-    };
+    // 1. Wenn der Dialog offen ist, nimm die Farbe direkt aus dem RAM
+    if (s_instance && index >= 0 && index < s_instance->m_ageColors.size()) {
+        return s_instance->m_ageColors[index];
+    }
+
+    // 2. Immer aus gespeicherten S/L-Werten neu berechnen — nie veraltete color0-color5 lesen
+    const int hues[6] = {0, 30, 80, 160, 220, 270};
     QSettings s("SplitCommander", "AgeBadge");
-    return QColor(s.value(QString("color%1").arg(index),
-                          defaults.value(index, "#888888")).toString());
+    int sat = s.value("saturation", 220).toInt();
+    int lit = s.value("lightness",  140).toInt();
+    int sMapped = 40 + (sat * (255 - 40) / 255);
+    int lMapped = 60 + (lit * (220 - 60) / 255);
+    int idx     = qBound(0, index, 5);
+    int s_final = (idx == 5) ? sMapped / 2 : sMapped;
+    return QColor::fromHsl(hues[idx], s_final, lMapped);
 }
 
 QString SettingsDialog::dateFormat()
@@ -187,8 +199,10 @@ static QString dialogSS()
 // Konstruktor
 // ─────────────────────────────────────────────────────────────────────────────
 SettingsDialog::SettingsDialog(QWidget *parent)
-    : QDialog(parent)
+: QDialog(parent)
 {
+    s_instance = this; // <── HIER ALS ERSTE ZEILE EINFÜGEN
+
     setWindowTitle(tr("SplitCommander — Einstellungen"));
     setMinimumSize(640, 500);
     setStyleSheet(dialogSS());
@@ -375,43 +389,99 @@ QWidget *SettingsDialog::buildPageDesign()
     connect(m_systemThemeCheck, &QCheckBox::toggled, m_themeBox, &QWidget::setDisabled);
     lay->addWidget(m_themeBox);
 
-    // Altersbadge-Farben
-    auto *grpAge = new QGroupBox(tr("Altersbadge-Farben"), page);
-    auto *ageLay = new QGridLayout(grpAge);
-    ageLay->setSpacing(10);
-    ageLay->setColumnStretch(1, 1);
-    ageLay->setColumnStretch(3, 1);
+    // ── Dateialter / relatives Datum ─────────────────────────────────────
+    auto *grpAge = new QGroupBox(tr("Dateialter / relatives Datum"), page);
+    auto *ageLay = new QVBoxLayout(grpAge);
+    ageLay->setSpacing(6);
 
-    const QStringList ageLabels = {
-        tr("< 1 Tag"), tr("< 7 Tage"), tr("< 30 Tage"),
-        tr("< 6 Monate"), tr("< 1 Jahr"), tr("> 1 Jahr")
-    };
+    QSettings ageS("SplitCommander", "AgeBadge");
+    // m_ageCheck wird hier nicht mehr erstellt, da die Badges immer an sind.
+
+    // Farben laden
     m_ageColors.clear();
     m_ageBtns.clear();
-
     for (int i = 0; i < 6; ++i) {
-        QColor col = ageBadgeColor(i);
-        m_ageColors.append(col);
-
-        auto *lbl = new QLabel(ageLabels.at(i), grpAge);
-        auto *btn = new QToolButton(grpAge);
-        btn->setFixedSize(56, 22);
-        btn->setIcon(QIcon(colorChip(col)));
-        btn->setIconSize(QSize(46, 16));
-
-        const int idx = i;
-        connect(btn, &QToolButton::clicked, this, [this, idx, btn]() {
-            QColor c = QColorDialog::getColor(m_ageColors.at(idx), this, tr("Farbe wählen"));
-            if (!c.isValid()) return;
-            m_ageColors[idx] = c;
-            btn->setIcon(QIcon(colorChip(c)));
-        });
-
-        const int col2 = (i % 2) * 2;
-        ageLay->addWidget(lbl, i / 2, col2);
-        ageLay->addWidget(btn, i / 2, col2 + 1);
-        m_ageBtns.append(btn);
+        m_ageColors.append(ageBadgeColor(i));
+        m_ageBtns.append(nullptr); // Platzhalter
     }
+
+    // ── Gradient-Balken ────────────────────────────────────────────────────
+    // Lokale Klasse — kein Q_OBJECT
+    struct GradBar : public QWidget {
+        QList<QColor> *cols;
+        GradBar(QWidget *p, QList<QColor> *c) : QWidget(p), cols(c) { setFixedHeight(52); }
+        void paintEvent(QPaintEvent*) override {
+            QPainter p(this);
+            p.setRenderHint(QPainter::Antialiasing);
+            int w = width() - 4;
+            // Gradient aus 6 Farben
+            QLinearGradient grad(2, 8, w+2, 8);
+            for (int i = 0; i < 6; ++i)
+                grad.setColorAt(i / 5.0, (*cols)[i]);
+            p.setPen(Qt::NoPen);
+            p.setBrush(grad);
+            p.drawRoundedRect(2, 8, w, 22, 4, 4);
+            // Labels
+            const QStringList lbl = {"▪1 Stunde","▪1 Tag","▪7 Tage","▪1 Monat","▪1 Jahr","▪>1 Jahr"};
+            QFont f = p.font(); f.setPixelSize(9); p.setFont(f);
+            for (int i = 0; i < 6; ++i) {
+                double pos = i / 5.0;
+                int x = 2 + (int)(pos * w);
+                QColor bg = (*cols)[i];
+                p.setPen(bg.lightnessF() > 0.45 ? Qt::black : Qt::white);
+                p.drawText(x+2, 24, lbl[i]);
+            }
+        }
+    };
+
+    auto *gradBar = new GradBar(grpAge, &m_ageColors);
+    m_gradBar = gradBar;
+    ageLay->addWidget(gradBar);
+
+    // ── S und L Slider ─────────────────────────────────────────────────────
+    auto *sliderRow = new QHBoxLayout();
+    sliderRow->setSpacing(8);
+
+    auto mkLabel = [&](const QString &t) {
+        auto *l = new QLabel(t, grpAge);
+        l->setFixedWidth(10);
+        return l;
+    };
+
+    m_sSlider = new QSlider(Qt::Horizontal, grpAge);
+    m_sSlider->setRange(0, 255);
+    m_sSlider->setValue(ageS.value("saturation", 220).toInt());
+    m_sSlider->setFixedHeight(18);
+
+    m_lSlider = new QSlider(Qt::Horizontal, grpAge);
+    m_lSlider->setRange(0, 255);
+    m_lSlider->setValue(ageS.value("lightness", 140).toInt());
+    m_lSlider->setFixedHeight(18);
+
+    auto *resetBtn = new QToolButton(grpAge);
+    resetBtn->setIcon(QIcon::fromTheme("edit-undo"));
+    resetBtn->setToolTip(tr("Zurücksetzen"));
+    resetBtn->setFixedSize(22, 22);
+
+    sliderRow->addWidget(mkLabel("S"));
+    sliderRow->addWidget(m_sSlider, 1);
+    sliderRow->addWidget(mkLabel("L"));
+    sliderRow->addWidget(m_lSlider, 1);
+    sliderRow->addWidget(resetBtn);
+    ageLay->addLayout(sliderRow);
+
+    // --- DIESEN CODE STATTDESSEN EINFÜGEN ---
+    connect(m_sSlider, &QSlider::valueChanged, this, &SettingsDialog::updateDynamicColors);
+    connect(m_lSlider, &QSlider::valueChanged, this, &SettingsDialog::updateDynamicColors);
+
+    // Korrigierter Reset-Button (suche den connect für resetBtn direkt darunter)
+    connect(resetBtn, &QToolButton::clicked, this, [this]() {
+        m_sSlider->setValue(220); // Standard Sättigung
+        m_lSlider->setValue(140); // Standard Helligkeit
+        updateDynamicColors();    // Ruft die Logik am Ende der Datei auf
+    });
+
+
     lay->addWidget(grpAge);
     lay->addStretch();
 
@@ -602,11 +672,17 @@ void SettingsDialog::applyAndSave()
         themeChanged = (oldSys != newSys) || (oldTh != newTh);
     }
 
-    // Age-Badge Farben
+    // Age-Badge — Immer speichern, da immer aktiv
     {
         QSettings s("SplitCommander", "AgeBadge");
+        s.setValue("enabled", true);
         for (int i = 0; i < m_ageColors.size(); ++i)
             s.setValue(QString("color%1").arg(i), m_ageColors.at(i).name());
+
+        if (m_sSlider && m_lSlider) {
+            s.setValue("saturation", m_sSlider->value());
+            s.setValue("lightness",  m_lSlider->value());
+        }
         s.sync();
     }
 
@@ -623,7 +699,8 @@ void SettingsDialog::applyAndSave()
 
     // Theme-Wechsel: Neustart anbieten
     if (themeChanged) {
-        emit this->themeChanged();
+        // kein emit themeChanged() hier — sidebar.cpp emittiert settingsChanged()
+        // nach dlg->exec(), wenn der Dialog bereits geschlossen und s_instance==nullptr ist.
 
         QMessageBox msg(this);
         msg.setWindowTitle(tr("Neustart erforderlich"));
@@ -643,3 +720,25 @@ void SettingsDialog::applyAndSave()
         }
     }
 }
+void SettingsDialog::updateDynamicColors()
+{
+    if (!m_sSlider || !m_lSlider) return;
+
+    int sMapped = 40 + (m_sSlider->value() * (255 - 40) / 255);
+    int lMapped = 60 + (m_lSlider->value() * (220 - 60) / 255);
+
+    const int hues[6] = {0, 30, 80, 160, 220, 270};
+
+    for (int i = 0; i < 6; ++i) {
+        int s_final = (i == 5) ? sMapped / 2 : sMapped;
+        if (i < m_ageColors.size()) {
+            m_ageColors[i] = QColor::fromHsl(hues[i], s_final, lMapped);
+        }
+    }
+
+    if (m_gradBar) m_gradBar->update();
+    // Kein emit themeChanged() hier — das würde TM().apply() + unpolish/polish
+    // aller Widgets triggern, während der Dialog noch per exec() läuft → Crash.
+    // themeChanged wird erst beim Apply/OK-Klick emittiert.
+} // <--- Diese Klammer schließt die Funktion (muss da sein!)
+

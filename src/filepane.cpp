@@ -116,11 +116,17 @@ QString FilePaneDelegate::formatAge(qint64 s) const {
 }
 
 QColor FilePaneDelegate::ageColor(qint64 s) const {
-    // Index 0=<1Tag, 1=<7Tage, 2=<30Tage, 3=<6Monate, 4=<1Jahr, 5=>1Jahr
-    if(s < 86400)           return SettingsDialog::ageBadgeColor(0);   // < 1 Tag
-    if(s < 86400*7)         return SettingsDialog::ageBadgeColor(1);   // < 7 Tage
-    if(s < 86400*30)        return SettingsDialog::ageBadgeColor(2);   // < 30 Tage
-    if(s < 86400*180)       return SettingsDialog::ageBadgeColor(3);   // < 6 Monate
+    // Kontinuierlicher Verlauf wie OC:
+    // < 1h = Index 0 (Rot)
+    // < 1Tag = Index 1 (Orange)
+    // < 7 Tage = Index 2 (Grün)
+    // < 1 Monat = Index 3 (Cyan)
+    // < 1 Jahr = Index 4 (Blau)
+    // > 1 Jahr = Index 5 (Grau/Lila)
+    if(s < 3600)            return SettingsDialog::ageBadgeColor(0);   // < 1 Stunde
+    if(s < 86400)           return SettingsDialog::ageBadgeColor(1);   // < 1 Tag
+    if(s < 86400*7)         return SettingsDialog::ageBadgeColor(2);   // < 7 Tage
+    if(s < 86400*30)        return SettingsDialog::ageBadgeColor(3);   // < 1 Monat
     if(s < 86400*365)       return SettingsDialog::ageBadgeColor(4);   // < 1 Jahr
     return SettingsDialog::ageBadgeColor(5);                            // > 1 Jahr
 }
@@ -169,20 +175,23 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const
     } else if (col == FP_ALTER) {
         qint64 secs = idx.data(Qt::UserRole).toLongLong();
         QString age = formatAge(secs);
-        QColor bc = ageColor(secs);
+        QColor bc = ageColor(secs); // Holt die Live-Farbe aus dem Dialog
+
         const int BW = 44, BH = 16;
         QRect br(r.left() + (r.width() - BW) / 2, r.top() + (r.height() - BH) / 2, BW, BH);
 
         p->setRenderHint(QPainter::Antialiasing, false);
-        p->setBrush(bc.darker(200));
+        p->setBrush(bc);
         p->setPen(Qt::NoPen);
         p->drawRect(br);
+
+        // Textfarbe automatisch anpassen (Schwarz auf hellen Farben, Weiß auf dunklen)
+        p->setPen(bc.lightness() > 150 ? Qt::black : Qt::white);
 
         QFont fb = f;
         fb.setBold(true);
         fb.setPointSize(8);
         p->setFont(fb);
-        p->setPen(Qt::white);
         p->drawText(br, Qt::AlignCenter, age);
         p->setFont(f);
 
