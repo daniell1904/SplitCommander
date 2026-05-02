@@ -109,22 +109,24 @@ install() {
 install_icon() {
     print_step "Installiere Icon"
 
+    local png="src/splitcommander_128.png"
     local svg="logo.svg"
-    if [ ! -f "$svg" ]; then
-        print_warn "logo.svg nicht gefunden — überspringe Icon-Installation"
+
+    if [ ! -f "$png" ]; then
+        print_warn "$png nicht gefunden — überspringe Icon-Installation"
         return
     fi
 
-    # PNG-Größen generieren
+    # PNG in alle Standardgrößen skalieren
     local sizes=(16 32 48 64 128 256)
     local converter=""
 
-    if command -v inkscape &>/dev/null; then
-        converter="inkscape"
-    elif command -v convert &>/dev/null; then
+    if command -v convert &>/dev/null; then
         converter="imagemagick"
+    elif command -v inkscape &>/dev/null; then
+        converter="inkscape"
     else
-        print_warn "Weder inkscape noch imagemagick gefunden — installiere imagemagick"
+        print_warn "imagemagick nicht gefunden — installiere es"
         local distro
         distro=$(detect_distro)
         case "$distro" in
@@ -139,22 +141,19 @@ install_icon() {
     for size in "${sizes[@]}"; do
         local dir="/usr/share/icons/hicolor/${size}x${size}/apps"
         sudo mkdir -p "$dir"
-        if [ "$converter" = "inkscape" ]; then
-            inkscape "$svg" --export-type=png --export-filename="/tmp/sc_${size}.png" \
-                --export-width="$size" --export-height="$size" 2>/dev/null
-        else
-            convert -background none -resize "${size}x${size}" "$svg" "/tmp/sc_${size}.png" 2>/dev/null
-        fi
+        convert -background none -resize "${size}x${size}" "$png" "/tmp/sc_${size}.png" 2>/dev/null
         sudo cp "/tmp/sc_${size}.png" "$dir/splitcommander.png"
         rm -f "/tmp/sc_${size}.png"
     done
 
-    # SVG auch direkt installieren
-    sudo mkdir -p /usr/share/icons/hicolor/scalable/apps
-    sudo cp "$svg" /usr/share/icons/hicolor/scalable/apps/splitcommander.svg
+    # SVG zusätzlich installieren falls vorhanden
+    if [ -f "$svg" ]; then
+        sudo mkdir -p /usr/share/icons/hicolor/scalable/apps
+        sudo cp "$svg" /usr/share/icons/hicolor/scalable/apps/splitcommander.svg
+    fi
 
     sudo gtk-update-icon-cache /usr/share/icons/hicolor 2>/dev/null || true
-    print_ok "Icon installiert (${sizes[*]} px + SVG)"
+    print_ok "Icon installiert (${sizes[*]} px)"
 }
 
 # ── Desktop-Eintrag ───────────────────────────────────────────────────────────
