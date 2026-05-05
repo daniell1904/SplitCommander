@@ -18,6 +18,8 @@
 #include <QToolButton>
 #include <QSlider>
 #include <QColor>
+#include <QListWidget>
+#include <QStackedWidget>
 #include <QList>
 
 struct ShortcutEntry {
@@ -44,6 +46,7 @@ class SettingsDialog : public QDialog {
 
 public:
     explicit SettingsDialog(QWidget *parent = nullptr);
+    void setInitialPage(int index);
     ~SettingsDialog() override { if (s_instance == this) s_instance = nullptr; }
 
     static bool    useSystemTheme();
@@ -53,6 +56,7 @@ public:
     static bool    singleClickOpen();
     static bool    confirmDelete();
     static bool    showHiddenFiles();
+    static bool    showFileExtensions();
     static QString shortcut(const QString &id);
     static QList<ShortcutEntry> allShortcuts();
 
@@ -85,6 +89,8 @@ private:
 
     QList<QToolButton*> m_ageBtns;
     QList<QColor>       m_ageColors;
+    QListWidget        *m_navList  = nullptr;
+    QStackedWidget     *m_stack    = nullptr;
     QWidget    *m_gradBar  = nullptr;
     QCheckBox  *m_ageCheck = nullptr;
 
@@ -94,6 +100,7 @@ private:
     QCheckBox *m_singleClickCheck   = nullptr;
     QCheckBox *m_confirmDeleteCheck = nullptr;
     QCheckBox *m_showHiddenCheck    = nullptr;
+    QCheckBox *m_showExtCheck       = nullptr;
     QComboBox *m_dateFormatCombo    = nullptr;
 
     QList<QKeySequenceEdit*> m_shortcutEdits;

@@ -327,10 +327,15 @@ QString ThemeManager::ssMenu() const {
     const auto &c = m_colors;
     return QString(
         "QMenu{background:%1;color:%2;border:1px solid %3;}"
-        "QMenu::item{padding:6px 20px;}"
+        "QMenu::item{padding:6px 24px 6px 28px;}"
         "QMenu::item:selected{background:%4;}"
-        "QMenu::separator{background:%5;height:1px;margin:4px 8px;}")
-        .arg(c.bgList, c.textLight, c.bgSelect, c.bgSelect, c.borderAlt);
+        "QMenu::separator{background:%5;height:1px;margin:4px 8px;}"
+        "QMenu::indicator{width:14px;height:14px;margin-left:6px;}"
+        "QMenu::indicator:non-exclusive:checked{image:url(none);border:2px solid %6;background:%6;border-radius:2px;}"
+        "QMenu::indicator:non-exclusive:unchecked{image:url(none);border:1px solid %5;background:transparent;border-radius:2px;}"
+        "QMenu::indicator:exclusive:checked{image:url(none);border:2px solid %6;background:%6;border-radius:7px;}"
+        "QMenu::indicator:exclusive:unchecked{image:url(none);border:1px solid %5;background:transparent;border-radius:7px;}")
+        .arg(c.bgList, c.textLight, c.bgSelect, c.bgSelect, c.borderAlt, c.accent);
 }
 
 QString ThemeManager::ssListWidget() const {

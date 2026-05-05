@@ -119,6 +119,10 @@ protected:
 signals:
     void focusRequested();
     void pathUpdated(const QString &path);
+    void openSettingsRequested(int page);
+    void hiddenFilesToggled(bool show);
+    void extensionsToggled(bool show);
+    void newFolderRequested();
 private:
     void buildFooter(QVBoxLayout *rootLay);
     void positionFooterPanel();

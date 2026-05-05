@@ -4,6 +4,8 @@
 
 #include "mainwindow.h"
 #include "settingsdialog.h"
+#include "themedialog.h"
+#include "agebadgedialog.h"
 #include "thememanager.h"
 
 #include <KIO/DeleteOrTrashJob>
@@ -27,6 +29,7 @@
 #include <QHeaderView>
 #include <QInputDialog>
 #include <QMenu>
+#include <QWidgetAction>
 #include <QMessageBox>
 #include <QMouseEvent>
 #include <QPainter>
@@ -1182,10 +1185,201 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     searchBtn->setCheckable(true);
     searchBtn->setStyleSheet(TM().ssToolBtn().toUtf8().constData());
 
+    auto *hamburgerBtn = new QToolButton();
+    hamburgerBtn->setFixedSize(24, 24);
+    hamburgerBtn->setIcon(QIcon::fromTheme("application-menu"));
+    hamburgerBtn->setIconSize(QSize(14, 14));
+    hamburgerBtn->setToolTip(tr("Menü"));
+    hamburgerBtn->setStyleSheet(TM().ssToolBtn() +
+        " QToolButton::menu-indicator { image: none; }");
+    hamburgerBtn->setPopupMode(QToolButton::InstantPopup);
+
+    // ── Hamburger-Menü ────────────────────────────────────────────────────
+    auto *hamburgerMenu = new QMenu(hamburgerBtn);
+    hamburgerMenu->setStyleSheet(TM().ssMenu());
+
+    // Neu erstellen
+    auto *menuNew = hamburgerMenu->addMenu(QIcon::fromTheme("folder-new"), tr("Neu erstellen"));
+    menuNew->setStyleSheet(TM().ssMenu());
+    auto *actNewFolder = menuNew->addAction(QIcon::fromTheme("folder-new"),  tr("Ordner"));
+    auto *actNewFile   = menuNew->addAction(QIcon::fromTheme("document-new"), tr("Datei"));
+    Q_UNUSED(actNewFile) // noch nicht implementiert
+    actNewFile->setEnabled(false);
+
+    hamburgerMenu->addSeparator();
+
+    // Toggle-Aktionen
+    auto *actHidden = hamburgerMenu->addAction(QIcon::fromTheme("view-hidden"), tr("Versteckte Dateien anzeigen"));
+    actHidden->setCheckable(true);
+    actHidden->setChecked(SettingsDialog::showHiddenFiles());
+
+    auto *actSingleClick = hamburgerMenu->addAction(QIcon::fromTheme("input-mouse"), tr("Einfachklick zum Öffnen"));
+    actSingleClick->setCheckable(true);
+    actSingleClick->setChecked(SettingsDialog::singleClickOpen());
+
+    auto *actExtensions = hamburgerMenu->addAction(QIcon::fromTheme("text-x-generic"), tr("Dateiendungen anzeigen"));
+    actExtensions->setCheckable(true);
+    actExtensions->setChecked(SettingsDialog::showFileExtensions());
+
+    auto *actTerminal = hamburgerMenu->addAction(QIcon::fromTheme("utilities-terminal"), tr("Terminal öffnen"));
+    actTerminal->setEnabled(false); // noch nicht implementiert
+
+    hamburgerMenu->addSeparator();
+
+    // Theme-Untermenü
+    auto *menuTheme = hamburgerMenu->addMenu(QIcon::fromTheme("preferences-desktop-color"), tr("Theme"));
+    menuTheme->setStyleSheet(TM().ssMenu());
+
+    // Widget-Inhalt des Untermenüs
+    auto *themeWidget = new QWidget();
+    themeWidget->setStyleSheet(QString("QWidget { background:%1; }"
+        "QCheckBox { color:%2; font-size:11px; background:transparent; }"
+        "QCheckBox::indicator { width:14px; height:14px; border:1px solid %3; border-radius:2px; background:transparent; }"
+        "QCheckBox::indicator:checked { background:%4; border-color:%4; }"
+        "QLabel#hint { color:%5; font-size:10px; background:transparent; }"
+        "QRadioButton { color:%2; font-size:11px; background:transparent; padding:4px 0; }"
+        "QRadioButton::indicator { width:14px; height:14px; }"
+        "QRadioButton:disabled { color:%5; }")
+        .arg(TM().colors().bgPanel, TM().colors().textLight, TM().colors().borderAlt,
+             TM().colors().accent, TM().colors().textMuted));
+
+    auto *twLay = new QVBoxLayout(themeWidget);
+    twLay->setContentsMargins(16, 10, 16, 4);
+    twLay->setSpacing(4);
+
+    // KDE Global Checkbox
+    auto *twSysCheck = new QCheckBox(tr("KDE Global Theme verwenden"), themeWidget);
+    twSysCheck->setChecked(SettingsDialog::useSystemTheme());
+    auto *twHint = new QLabel(tr("Übernimmt Farben und Stil des aktiven KDE Global Themes."), themeWidget);
+    twHint->setObjectName("hint");
+    twHint->setWordWrap(true);
+    twLay->addWidget(twSysCheck);
+    twLay->addWidget(twHint);
+
+    // Trennlinie
+    auto *twSep = new QFrame(themeWidget);
+    twSep->setFrameShape(QFrame::HLine);
+    twSep->setStyleSheet(QString("background:%1;").arg(TM().colors().separator));
+    twSep->setFixedHeight(1);
+    twLay->addSpacing(4);
+    twLay->addWidget(twSep);
+    twLay->addSpacing(4);
+
+    // Radio-Buttons für eigene Themes
+    auto *twThemeGroup = new QButtonGroup(themeWidget);
+    const QString curTheme = SettingsDialog::selectedTheme();
+    for (int i = 0; i < SD_Styles::THEMES.size(); ++i) {
+        const auto &t = SD_Styles::THEMES.at(i);
+        auto *rb = new QRadioButton(t.name, themeWidget);
+        rb->setChecked(!SettingsDialog::useSystemTheme() && t.name == curTheme);
+        rb->setEnabled(!SettingsDialog::useSystemTheme());
+        twThemeGroup->addButton(rb, i);
+        twLay->addWidget(rb);
+    }
+
+    connect(twSysCheck, &QCheckBox::toggled, themeWidget, [twThemeGroup](bool checked) {
+        for (auto *btn : twThemeGroup->buttons())
+            btn->setEnabled(!checked);
+    });
+
+    // Übernehmen / Abbrechen
+    twLay->addSpacing(8);
+    auto *twBtnRow = new QWidget(themeWidget);
+    auto *twBtnLay = new QHBoxLayout(twBtnRow);
+    twBtnLay->setContentsMargins(0, 0, 0, 0);
+    twBtnLay->setSpacing(8);
+    twBtnLay->addStretch();
+
+    auto *twCancel = new QPushButton(tr("Abbrechen"), twBtnRow);
+    twCancel->setFixedWidth(90);
+    auto *twApply  = new QPushButton(tr("Übernehmen"), twBtnRow);
+    twApply->setObjectName("applyBtn");
+    twApply->setFixedWidth(110);
+    twBtnLay->addWidget(twCancel);
+    twBtnLay->addWidget(twApply);
+    twLay->addWidget(twBtnRow);
+    twLay->addSpacing(6);
+
+    auto *twAction = new QWidgetAction(menuTheme);
+    twAction->setDefaultWidget(themeWidget);
+    menuTheme->addAction(twAction);
+
+    connect(twCancel, &QPushButton::clicked, menuTheme, &QMenu::close);
+    connect(twApply,  &QPushButton::clicked, this, [this, twSysCheck, twThemeGroup, menuTheme, hamburgerMenu]() {
+        QSettings s("SplitCommander", "Appearance");
+        s.setValue("useSystemTheme", twSysCheck->isChecked());
+        if (!twSysCheck->isChecked()) {
+            int idx = twThemeGroup->checkedId();
+            if (idx >= 0 && idx < SD_Styles::THEMES.size())
+                s.setValue("theme", SD_Styles::THEMES.at(idx).name);
+        }
+        s.sync();
+        menuTheme->close();
+        hamburgerMenu->close();
+        QMessageBox::information(this, tr("Neustart erforderlich"),
+            tr("SplitCommander wird jetzt neu gestartet."));
+        QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments());
+        QApplication::quit();
+    });
+
+    // Age-Badges → öffnet SettingsDialog auf Design-Tab
+    auto *actAgeBadge = hamburgerMenu->addAction(QIcon::fromTheme("chronometer"), tr("Altersbadges"));
+
+    // Shortcuts → öffnet SettingsDialog auf Shortcuts-Tab
+    auto *actShortcuts = hamburgerMenu->addAction(QIcon::fromTheme("configure-shortcuts"), tr("Shortcuts"));
+
+    hamburgerMenu->addSeparator();
+
+    // Über
+    auto *actAbout = hamburgerMenu->addAction(QIcon::fromTheme("help-about"), tr("Über SplitCommander"));
+
+    hamburgerBtn->setMenu(hamburgerMenu);
+
     tabLay->addWidget(millerToggle);
     tabLay->addWidget(pathStack, 1);
     tabLay->addWidget(searchBtn);
+    tabLay->addWidget(hamburgerBtn);
     rootLay->addWidget(tabBar);
+
+    // ── Hamburger-Connects ────────────────────────────────────────────────
+    connect(actNewFolder, &QAction::triggered, this, [this]() {
+        emit newFolderRequested();
+    });
+
+    connect(actHidden, &QAction::toggled, this, [this](bool checked) {
+        QSettings s("SplitCommander", "General");
+        s.setValue("showHidden", checked);
+        s.sync();
+        emit hiddenFilesToggled(checked);
+    });
+
+    connect(actSingleClick, &QAction::toggled, this, [](bool checked) {
+        QSettings s("SplitCommander", "General");
+        s.setValue("singleClick", checked);
+        s.sync();
+    });
+
+    connect(actExtensions, &QAction::toggled, this, [this](bool checked) {
+        QSettings s("SplitCommander", "General");
+        s.setValue("showExtensions", checked);
+        s.sync();
+        emit extensionsToggled(checked);
+    });
+
+    connect(actAgeBadge, &QAction::triggered, this, [this]() {
+        auto *dlg = new AgeBadgeDialog(this);
+        dlg->open();
+    });
+
+    connect(actShortcuts, &QAction::triggered, this, [this]() {
+        emit openSettingsRequested(3);
+    });
+
+    connect(actAbout, &QAction::triggered, this, [this]() {
+        QMessageBox::about(this, tr("Über SplitCommander"),
+            tr("<b>SplitCommander</b><br>Ein nativer KDE-Dateimanager.<br><br>"
+               "Lizenz: GPL-3.0<br>Stack: Qt6 + KF6 + C++"));
+    });
 
     // ── Such-Panel ──
     auto *searchPanel = new QWidget();
@@ -1735,6 +1929,35 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(m_rightPane, &PaneWidget::focusRequested, this, [this]() {
         m_rightPane->setFocused(true); m_leftPane->setFocused(false);
     });
+
+    // Hamburger-Menü Signals beider Panes
+    auto connectHamburger = [this](PaneWidget *pane) {
+        connect(pane, &PaneWidget::newFolderRequested, this, [this, pane]() {
+            bool ok;
+            QString name = QInputDialog::getText(this, tr("Neuer Ordner"), tr("Ordnername:"),
+                                                 QLineEdit::Normal, tr("Neuer Ordner"), &ok);
+            if (!ok || name.trimmed().isEmpty()) return;
+            if (!QDir(pane->currentPath()).mkdir(name))
+                QMessageBox::warning(this, tr("Fehler"), tr("Ordner konnte nicht erstellt werden."));
+        });
+        connect(pane, &PaneWidget::hiddenFilesToggled, this, [this](bool show) {
+            emit m_sidebar->hiddenFilesChanged(show);
+        });
+        connect(pane, &PaneWidget::extensionsToggled, this, [this](bool) {
+            m_leftPane->filePane()->setRootPath(m_leftPane->currentPath());
+            m_rightPane->filePane()->setRootPath(m_rightPane->currentPath());
+        });
+        connect(pane, &PaneWidget::openSettingsRequested, this, [this](int page) {
+            auto *dlg = new SettingsDialog(this);
+            dlg->setInitialPage(page);
+            connect(dlg, &SettingsDialog::shortcutsChanged,   this, [this]() { emit m_sidebar->settingsChanged(); });
+            connect(dlg, &SettingsDialog::hiddenFilesChanged, this, [this](bool show) { emit m_sidebar->hiddenFilesChanged(show); });
+            connect(dlg, &SettingsDialog::singleClickChanged, this, [this]() { emit m_sidebar->settingsChanged(); });
+            dlg->open();
+        });
+    };
+    connectHamburger(m_leftPane);
+    connectHamburger(m_rightPane);
 
     // Navigation (inkl. Solid-Mount)
     auto mountAndNavigate = [this](const QString &path, bool leftPane) {

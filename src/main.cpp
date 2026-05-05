@@ -4,6 +4,7 @@
 #include <iostream>
 #include "mainwindow.h"
 #include "thememanager.h"
+#include "settingsdialog.h"
 
 int main(int argc, char *argv[])
 {

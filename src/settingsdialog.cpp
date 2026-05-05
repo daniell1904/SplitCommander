@@ -88,6 +88,12 @@ bool SettingsDialog::showHiddenFiles()
     return s.value("showHidden", false).toBool();
 }
 
+bool SettingsDialog::showFileExtensions()
+{
+    QSettings s("SplitCommander", "General");
+    return s.value("showExtensions", true).toBool();
+}
+
 QString SettingsDialog::shortcut(const QString &id)
 {
     QSettings s("SplitCommander", "Shortcuts");
@@ -213,16 +219,16 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     rootLay->setSpacing(0);
 
     // Links: Kategorie-Liste
-    auto *navList = new QListWidget(this);
-    navList->setObjectName("navList");
-    navList->setFixedWidth(150);
-    navList->setFrameShape(QFrame::NoFrame);
-    navList->setSpacing(0);
-    navList->addItem(tr("Allgemein"));
-    navList->addItem(tr("Design"));
-    navList->addItem(tr("Erweitert"));
-    navList->addItem(tr("Shortcuts"));
-    navList->setCurrentRow(0);
+    m_navList = new QListWidget(this);
+    m_navList->setObjectName("navList");
+    m_navList->setFixedWidth(150);
+    m_navList->setFrameShape(QFrame::NoFrame);
+    m_navList->setSpacing(0);
+    m_navList->addItem(tr("Allgemein"));
+    m_navList->addItem(tr("Design"));
+    m_navList->addItem(tr("Erweitert"));
+    m_navList->addItem(tr("Shortcuts"));
+    m_navList->setCurrentRow(0);
 
     // Trennlinie
     auto *divider = new QFrame(this);
@@ -231,21 +237,21 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     divider->setFixedWidth(1);
 
     // Rechts: Stacked Widget
-    auto *stack = new QStackedWidget(this);
-    stack->setObjectName("contentArea");
+    m_stack = new QStackedWidget(this);
+    m_stack->setObjectName("contentArea");
 
-    rootLay->addWidget(navList);
+    rootLay->addWidget(m_navList);
     rootLay->addWidget(divider);
-    rootLay->addWidget(stack, 1);
+    rootLay->addWidget(m_stack, 1);
 
     // Seiten aufbauen
-    stack->addWidget(buildPageGeneral());
-    stack->addWidget(buildPageDesign());
-    stack->addWidget(buildPageAdvanced());
-    stack->addWidget(buildPageShortcuts());
+    m_stack->addWidget(buildPageGeneral());
+    m_stack->addWidget(buildPageDesign());
+    m_stack->addWidget(buildPageAdvanced());
+    m_stack->addWidget(buildPageShortcuts());
 
     // Navigation
-    connect(navList, &QListWidget::currentRowChanged, stack, &QStackedWidget::setCurrentIndex);
+    connect(m_navList, &QListWidget::currentRowChanged, m_stack, &QStackedWidget::setCurrentIndex);
 
     // ── Bottom-Bar ────────────────────────────────────────────────────────
     // Wrapper um rootLay + Bottom-Bar zu kombinieren
@@ -292,6 +298,14 @@ SettingsDialog::SettingsDialog(QWidget *parent)
 // ─────────────────────────────────────────────────────────────────────────────
 // Seite: Allgemein
 // ─────────────────────────────────────────────────────────────────────────────
+void SettingsDialog::setInitialPage(int index)
+{
+    if (m_navList && m_stack) {
+        m_navList->setCurrentRow(index);
+        m_stack->setCurrentIndex(index);
+    }
+}
+
 QWidget *SettingsDialog::buildPageGeneral()
 {
     auto *scroll = new QScrollArea();
@@ -310,9 +324,11 @@ QWidget *SettingsDialog::buildPageGeneral()
     m_singleClickCheck   = new QCheckBox(tr("Einfachklick zum Öffnen"), grpBeh);
     m_confirmDeleteCheck = new QCheckBox(tr("Löschen bestätigen"), grpBeh);
     m_showHiddenCheck    = new QCheckBox(tr("Versteckte Dateien anzeigen  (Ctrl+H)"), grpBeh);
+    m_showExtCheck       = new QCheckBox(tr("Dateiendungen anzeigen"), grpBeh);
     behLay->addWidget(m_singleClickCheck);
     behLay->addWidget(m_confirmDeleteCheck);
     behLay->addWidget(m_showHiddenCheck);
+    behLay->addWidget(m_showExtCheck);
     lay->addWidget(grpBeh);
 
     // Datum & Zeit
@@ -358,32 +374,101 @@ QWidget *SettingsDialog::buildPageDesign()
     sysLay->addWidget(sysHint);
     lay->addWidget(grpSys);
 
-    // Eigene Themes
+    // Eigene Themes — Vorschau-Karten
     m_themeBox = new QGroupBox(tr("Eigenes Theme"), page);
     auto *themeLay = new QVBoxLayout(m_themeBox);
-    themeLay->setSpacing(6);
+    themeLay->setSpacing(8);
     m_themeGroup = new QButtonGroup(m_themeBox);
 
     for (int i = 0; i < SD_Styles::THEMES.size(); ++i) {
         const auto &t = SD_Styles::THEMES.at(i);
-        auto *row  = new QWidget(m_themeBox);
-        auto *rLay = new QHBoxLayout(row);
-        rLay->setContentsMargins(4, 4, 4, 4);
-        rLay->setSpacing(12);
 
-        auto *rb = new QRadioButton(t.name, row);
+        // Karte: RadioButton unsichtbar, Karte selbst ist das visuelle Element
+        auto *card = new QWidget(m_themeBox);
+        card->setFixedHeight(56);
+        card->setCursor(Qt::PointingHandCursor);
+
+        // Hintergrund der Karte = Theme-bg, mit Rand
+        card->setStyleSheet(QString(
+            "QWidget { background:%1; border-radius:6px;"
+            " border:1px solid rgba(255,255,255,12); }").arg(t.bg));
+
+        auto *cardLay = new QHBoxLayout(card);
+        cardLay->setContentsMargins(12, 0, 12, 0);
+        cardLay->setSpacing(10);
+
+        // Radio-Button (unsichtbarer Indicator, nur Logik)
+        auto *rb = new QRadioButton(card);
+        rb->setStyleSheet("QRadioButton { background:transparent; border:none; }"
+                          "QRadioButton::indicator { width:14px; height:14px; }");
         m_themeGroup->addButton(rb, i);
-        rLay->addWidget(rb, 1);
+        cardLay->addWidget(rb);
 
-        // Farbvorschau
-        for (const QString &col : { t.bg, t.box, t.accent, t.text }) {
-            auto *chip = new QLabel(row);
-            chip->setFixedSize(18, 18);
+        // Theme-Name
+        auto *nameLabel = new QLabel(t.name, card);
+        nameLabel->setStyleSheet(QString(
+            "color:%1; font-size:12px; font-weight:600;"
+            " background:transparent; border:none;").arg(t.text));
+        cardLay->addWidget(nameLabel, 1);
+
+        // Farbstreifen: bg, box, accent, text — als breite Chips
+        const QStringList cols  = { t.bg,   t.box,   t.accent, t.text };
+        const QStringList tips  = { tr("Hintergrund"), tr("Box"), tr("Akzent"), tr("Text") };
+        for (int ci = 0; ci < cols.size(); ++ci) {
+            auto *chip = new QLabel(card);
+            chip->setFixedSize(28, 28);
+            chip->setToolTip(tips.at(ci));
             chip->setStyleSheet(QString(
-                "background:%1; border-radius:3px; border:1px solid rgba(255,255,255,15);").arg(col));
-            rLay->addWidget(chip);
+                "background:%1; border-radius:4px;"
+                " border:1px solid rgba(255,255,255,18);"
+                " background:transparent; border:none;").arg(cols.at(ci)));
+            // Chip als Pixmap zeichnen damit border-radius greift
+            QPixmap px(28, 28);
+            px.fill(Qt::transparent);
+            QPainter pp(&px);
+            pp.setRenderHint(QPainter::Antialiasing);
+            pp.setBrush(QColor(cols.at(ci)));
+            pp.setPen(QPen(QColor(255,255,255,20), 1));
+            pp.drawRoundedRect(1, 1, 26, 26, 5, 5);
+            chip->setPixmap(px);
+            cardLay->addWidget(chip);
         }
-        themeLay->addWidget(row);
+
+        // Klick auf Karte = Radio selektieren
+        connect(rb, &QRadioButton::toggled, card, [card, t](bool checked){
+            if (checked)
+                card->setStyleSheet(QString(
+                    "QWidget { background:%1; border-radius:6px;"
+                    " border:2px solid %2; }").arg(t.bg, t.accent));
+            else
+                card->setStyleSheet(QString(
+                    "QWidget { background:%1; border-radius:6px;"
+                    " border:1px solid rgba(255,255,255,12); }").arg(t.bg));
+        });
+
+        // Mausklick auf gesamte Karte (auch auf Labels/Chips) → Radio aktivieren
+        // Dafür installieren wir einen EventFilter auf der Karte
+        // Einfachste Lösung: card als QAbstractButton-Wrapper via Lambda auf installEventFilter
+        // → stattdessen: alle Kind-Widgets durch-reichen via setAttribute
+        card->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+        // Karte selbst bekommt Klick-Handler über installEventFilter
+        struct CardFilter : public QObject {
+            QRadioButton *btn;
+            CardFilter(QObject *parent, QRadioButton *b) : QObject(parent), btn(b) {}
+            bool eventFilter(QObject *, QEvent *e) override {
+                if (e->type() == QEvent::MouseButtonPress) { btn->setChecked(true); return true; }
+                return false;
+            }
+        };
+        auto *cf = new CardFilter(card, rb);
+        card->installEventFilter(cf);
+        // Auch alle direkten Kind-Widgets weiterleiten außer dem RadioButton selbst
+        for (auto *child : card->findChildren<QWidget*>(QString(), Qt::FindDirectChildrenOnly)) {
+            if (child != rb)
+                child->installEventFilter(cf);
+        }
+
+        themeLay->addWidget(card);
     }
 
     connect(m_systemThemeCheck, &QCheckBox::toggled, m_themeBox, &QWidget::setDisabled);
@@ -607,6 +692,7 @@ void SettingsDialog::loadValues()
     m_singleClickCheck->setChecked(singleClickOpen());
     m_confirmDeleteCheck->setChecked(confirmDelete());
     m_showHiddenCheck->setChecked(showHiddenFiles());
+    m_showExtCheck->setChecked(showFileExtensions());
 
     const QString fmt = dateFormat();
     for (int i = 0; i < m_dateFormatCombo->count(); ++i)
@@ -639,10 +725,11 @@ void SettingsDialog::applyAndSave()
         QSettings s("SplitCommander", "General");
         const bool oldHidden = s.value("showHidden", false).toBool();
         const bool oldClick  = s.value("singleClick", false).toBool();
-        s.setValue("singleClick",   m_singleClickCheck->isChecked());
-        s.setValue("confirmDelete", m_confirmDeleteCheck->isChecked());
-        s.setValue("showHidden",    m_showHiddenCheck->isChecked());
-        s.setValue("dateFormat",    m_dateFormatCombo->currentData().toString());
+        s.setValue("singleClick",    m_singleClickCheck->isChecked());
+        s.setValue("confirmDelete",  m_confirmDeleteCheck->isChecked());
+        s.setValue("showHidden",     m_showHiddenCheck->isChecked());
+        s.setValue("showExtensions", m_showExtCheck->isChecked());
+        s.setValue("dateFormat",     m_dateFormatCombo->currentData().toString());
         s.sync();
         if (m_showHiddenCheck->isChecked() != oldHidden)
             emit hiddenFilesChanged(m_showHiddenCheck->isChecked());

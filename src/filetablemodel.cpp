@@ -181,7 +181,10 @@ QVariant FileTableModel::data(const QModelIndex &index, int role) const
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
         case IconCol: return {};
-        case NameCol: return fi.fileName();
+        case NameCol:
+            if (!dir && !SettingsDialog::showFileExtensions())
+                return fi.completeBaseName();
+            return fi.fileName();
         case TypeCol: return dir ? QStringLiteral("[DIR]") : fi.suffix().toUpper();
         case AgeCol:  return {};
         case DateCol: return fi.lastModified().toString("yyyy-MM-dd HH:mm");

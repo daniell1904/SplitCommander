@@ -30,6 +30,8 @@ add_executable(splitcommander
     src/jobprogresswidget.cpp
     src/fileoperations.cpp
     src/settingsdialog.cpp
+    src/themedialog.cpp
+    src/agebadgedialog.cpp
     src/thememanager.cpp
 )
 

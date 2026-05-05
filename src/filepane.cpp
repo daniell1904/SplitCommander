@@ -298,12 +298,15 @@ void FilePane::buildRow(const QFileInfo &fi, QList<QStandardItem*> &items) {
         it->setData(d.id, Qt::UserRole+99); // Spalten-ID für Delegate
 
         switch(d.id) {
-        case FP_NAME:
-            it->setText(fi.fileName());
+        case FP_NAME: {
+            const QString displayName = (!fi.isDir() && !SettingsDialog::showFileExtensions())
+                ? fi.completeBaseName() : fi.fileName();
+            it->setText(displayName);
             it->setIcon(m_iconProv.icon(fi));
             it->setData(fi.absoluteFilePath(), Qt::UserRole);
             it->setData(isDir?0:1, Qt::UserRole+10);
             break;
+        }
         case FP_TYP:      it->setText(typ); break;
         case FP_ALTER:
             it->setData(secs, Qt::UserRole);
