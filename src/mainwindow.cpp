@@ -4,10 +4,13 @@
 
 #include "mainwindow.h"
 #include "settingsdialog.h"
+#include "shortcutdialog.h"
 #include "themedialog.h"
 #include "agebadgedialog.h"
 #include "thememanager.h"
+#include "terminalutils.h"
 
+#include <KIO/CopyJob>
 #include <KIO/DeleteOrTrashJob>
 #include <KIO/JobUiDelegateFactory>
 #include <KJobWidgets>
@@ -20,6 +23,12 @@
 #include <QActionGroup>
 #include <QApplication>
 #include <QButtonGroup>
+#include <QClipboard>
+#include <QMimeData>
+#include <QFileDialog>
+#include <QStandardPaths>
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QDirIterator>
 #include <QFileIconProvider>
@@ -596,11 +605,9 @@ PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent)
     m_pathLabel->setStyleSheet(QString("color:%1;font-size:18px;font-weight:300;background:transparent;").arg(TM().colors().textAccent));
     r1->addWidget(m_pathLabel);
     r1->addStretch(1);
-    r1->addWidget(mk("view-sort-ascending", tr("Sortieren"),  &PaneToolbar::sortClicked));
-    r1->addWidget(mk("view-list-details",   tr("Ansicht"),    &PaneToolbar::sortClicked));
-    r1->addWidget(mk("folder-new",          tr("Neu"),        &PaneToolbar::newFolderClicked));
-    r1->addWidget(mk("edit-copy",           tr("Kopieren"),   &PaneToolbar::sortClicked));
-    r1->addWidget(mk("system-run",          tr("Aktionen"),   &PaneToolbar::actionsClicked));
+    r1->addWidget(mk("view-sort-ascending", tr("Sortieren"),       &PaneToolbar::sortClicked));
+    r1->addWidget(mk("folder-new",          tr("Neu"),             &PaneToolbar::newFolderClicked));
+    r1->addWidget(mk("edit-copy",           tr("Kopieren"),        &PaneToolbar::copyClicked));
     vlay->addLayout(r1);
 
     // Row 2: Anzahl | Größe
@@ -769,26 +776,42 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent)
     connect(m_list, &QListWidget::customContextMenuRequested, this, [this](const QPoint &pos) {
         QListWidgetItem *it = m_list->itemAt(pos);
         if (!it) return;
-        if (m_path != QLatin1String("__drives__")) return;
 
-        const QString udi = it->data(Qt::UserRole + 1).toString();
-        if (udi.isEmpty()) return;
-
-        Solid::Device dev(udi);
-        const auto *acc = dev.as<Solid::StorageAccess>();
-        if (!acc) return;
-
+        const QString itemPath = it->data(Qt::UserRole).toString();
         QMenu menu(this);
         menu.setStyleSheet(TM().ssMenu());
 
-        if (acc->isAccessible()) {
-            menu.addAction(QIcon::fromTheme("media-eject"), tr("Aushängen"), this, [this, udi]() {
-                emit teardownRequested(udi);
-            });
+        if (m_path == QLatin1String("__drives__")) {
+            // ── Laufwerk-Menü ──────────────────────────────────────────────
+            const QString udi = it->data(Qt::UserRole + 1).toString();
+            if (udi.isEmpty()) { menu.exec(m_list->mapToGlobal(pos)); return; }
+            Solid::Device dev(udi);
+            const auto *acc = dev.as<Solid::StorageAccess>();
+            if (!acc) { menu.exec(m_list->mapToGlobal(pos)); return; }
+            if (acc->isAccessible()) {
+                menu.addAction(QIcon::fromTheme("media-eject"), tr("Aushängen"), this, [this, udi]() {
+                    emit teardownRequested(udi);
+                });
+            } else {
+                menu.addAction(QIcon::fromTheme("drive-harddisk"), tr("Einhängen"), this, [this, udi]() {
+                    emit setupRequested(udi);
+                });
+            }
         } else {
-            menu.addAction(QIcon::fromTheme("drive-harddisk"), tr("Einhängen"), this, [this, udi]() {
-                emit setupRequested(udi);
-            });
+            // ── Ordner-Menü ────────────────────────────────────────────────
+            menu.addAction(QIcon::fromTheme("folder-open"), tr("Öffnen"), this,
+                [this, itemPath]() { emit entryClicked(itemPath, this); });
+
+            auto *openInMenu = menu.addMenu(QIcon::fromTheme("folder-open"), tr("Öffnen in"));
+            openInMenu->setStyleSheet(TM().ssMenu());
+            openInMenu->addAction(tr("Linker Ansicht"),  this, [this, itemPath]() { emit entryClicked(itemPath, this); });
+
+            menu.addSeparator();
+            menu.addAction(QIcon::fromTheme("utilities-terminal"), tr("Terminal hier öffnen"), this,
+                [itemPath]() { sc_openTerminal(itemPath); });
+            menu.addSeparator();
+            menu.addAction(QIcon::fromTheme("edit-copy"), tr("Pfad kopieren"), this,
+                [itemPath]() { QGuiApplication::clipboard()->setText(itemPath); });
         }
 
         menu.exec(m_list->mapToGlobal(pos));
@@ -1223,17 +1246,24 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     millerToggle->setStyleSheet(TM().ssToolBtn().toUtf8().constData());
 
     auto *searchBtn = new QToolButton();
-    searchBtn->setFixedSize(24, 24);
+    searchBtn->setFixedSize(30, 30);
     searchBtn->setIcon(QIcon::fromTheme("system-search"));
-    searchBtn->setIconSize(QSize(14, 14));
+    searchBtn->setIconSize(QSize(18, 18));
     searchBtn->setToolTip(tr("Suchen"));
     searchBtn->setCheckable(true);
     searchBtn->setStyleSheet(TM().ssToolBtn().toUtf8().constData());
 
+    auto *layoutBtn = new QToolButton();
+    layoutBtn->setFixedSize(30, 30);
+    layoutBtn->setIcon(QIcon::fromTheme("view-split-left-right"));
+    layoutBtn->setIconSize(QSize(18, 18));
+    layoutBtn->setToolTip(tr("Layout wählen"));
+    layoutBtn->setStyleSheet(TM().ssToolBtn().toUtf8().constData());
+
     auto *hamburgerBtn = new QToolButton();
-    hamburgerBtn->setFixedSize(24, 24);
+    hamburgerBtn->setFixedSize(30, 30);
     hamburgerBtn->setIcon(QIcon::fromTheme("application-menu"));
-    hamburgerBtn->setIconSize(QSize(14, 14));
+    hamburgerBtn->setIconSize(QSize(18, 18));
     hamburgerBtn->setToolTip(tr("Menü"));
     hamburgerBtn->setStyleSheet(TM().ssToolBtn() +
         " QToolButton::menu-indicator { image: none; }");
@@ -1246,10 +1276,14 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     // Neu erstellen
     auto *menuNew = hamburgerMenu->addMenu(QIcon::fromTheme("folder-new"), tr("Neu erstellen"));
     menuNew->setStyleSheet(TM().ssMenu());
-    auto *actNewFolder = menuNew->addAction(QIcon::fromTheme("folder-new"),  tr("Ordner"));
-    auto *actNewFile   = menuNew->addAction(QIcon::fromTheme("document-new"), tr("Datei"));
-    Q_UNUSED(actNewFile) // noch nicht implementiert
-    actNewFile->setEnabled(false);
+    auto *actNewFolder   = menuNew->addAction(QIcon::fromTheme("folder-new"),   tr("Ordner …"));
+    auto *actNewText     = menuNew->addAction(QIcon::fromTheme("text-plain"),    tr("Textdatei …"));
+    auto *actNewHtml     = menuNew->addAction(QIcon::fromTheme("text-html"),     tr("HTML-Datei …"));
+    auto *actNewEmpty    = menuNew->addAction(QIcon::fromTheme("document-new"),  tr("Leere Datei …"));
+    menuNew->addSeparator();
+    auto *actNewLinkUrl  = menuNew->addAction(QIcon::fromTheme("text-html"),     tr("Verknüpfung zu Adresse (URL) …"));
+    auto *actNewLinkFile = menuNew->addAction(QIcon::fromTheme("inode-symlink"), tr("Verknüpfung zu Datei oder Ordner …"));
+    Q_UNUSED(actNewLinkUrl)
 
     hamburgerMenu->addSeparator();
 
@@ -1266,8 +1300,69 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     actExtensions->setCheckable(true);
     actExtensions->setChecked(SettingsDialog::showFileExtensions());
 
-    auto *actTerminal = hamburgerMenu->addAction(QIcon::fromTheme("utilities-terminal"), tr("Terminal öffnen"));
-    actTerminal->setEnabled(false); // noch nicht implementiert
+    auto *menuTerminal = hamburgerMenu->addMenu(QIcon::fromTheme("utilities-terminal"), tr("Terminal"));
+    menuTerminal->setStyleSheet(TM().ssMenu());
+
+    menuTerminal->addAction(QIcon::fromTheme("utilities-terminal"), tr("Terminal hier öffnen"),
+        this, [this]() {
+            const QString path = this->currentPath();
+            sc_openTerminal(path.isEmpty() ? QDir::homePath() : path);
+        });
+
+    menuTerminal->addSeparator();
+
+    menuTerminal->addAction(QIcon::fromTheme("preferences-system"), tr("Terminal wählen…"),
+        this, [this]() {
+            QDialog dlg(this);
+            dlg.setWindowTitle(tr("Terminal wählen"));
+            dlg.setMinimumWidth(340);
+            dlg.setStyleSheet(TM().ssDialog());
+
+            auto *vl = new QVBoxLayout(&dlg);
+            vl->setSpacing(10);
+            vl->setContentsMargins(16, 16, 16, 16);
+
+            vl->addWidget(new QLabel(tr("Installierte Terminals:")));
+
+            const QStringList installed = sc_installedTerminals();
+            const QString current = sc_detectTerminal();
+
+            auto *grp = new QButtonGroup(&dlg);
+            for (const QString &t : installed) {
+                auto *btn = new QPushButton(t, &dlg);
+                btn->setCheckable(true);
+                btn->setChecked(t == current);
+                btn->setIcon(QIcon::fromTheme("utilities-terminal"));
+                grp->addButton(btn);
+                vl->addWidget(btn);
+            }
+
+            vl->addWidget(new QLabel(tr("Oder eigenen Befehl eingeben:")));
+            auto *customEdit = new QLineEdit(&dlg);
+            customEdit->setPlaceholderText(tr("z.B. /usr/bin/kitty"));
+            if (!installed.contains(current))
+                customEdit->setText(current);
+            vl->addWidget(customEdit);
+
+            auto *btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dlg);
+            connect(btns, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
+            connect(btns, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
+            vl->addWidget(btns);
+
+            if (dlg.exec() != QDialog::Accepted) return;
+
+            QString chosen;
+            if (auto *checked = grp->checkedButton())
+                chosen = checked->text();
+            if (!customEdit->text().trimmed().isEmpty())
+                chosen = customEdit->text().trimmed();
+
+            if (!chosen.isEmpty()) {
+                QSettings s("SplitCommander", "General");
+                s.setValue("terminalApp", chosen);
+                s.sync();
+            }
+        });
 
     hamburgerMenu->addSeparator();
 
@@ -1383,13 +1478,118 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     tabLay->addWidget(millerToggle);
     tabLay->addWidget(pathStack, 1);
     tabLay->addWidget(searchBtn);
+    tabLay->addWidget(layoutBtn);
     tabLay->addWidget(hamburgerBtn);
     rootLay->addWidget(tabBar);
+
+    // ── Layout-Button Connect ─────────────────────────────────────────────
+    connect(layoutBtn, &QToolButton::clicked, this, [this, layoutBtn]() {
+        auto *popup = new QDialog(this, Qt::Popup | Qt::FramelessWindowHint);
+        popup->setAttribute(Qt::WA_DeleteOnClose);
+        popup->setStyleSheet(TM().ssDialog() +
+            "QPushButton { background:#23283a; border:1px solid #2c3245; color:#ccd4e8;"
+            " border-radius:4px; padding:8px; font-size:10px; }"
+            "QPushButton:hover { background:#3b4252; border-color:#5e81ac; }"
+            "QPushButton:checked { background:#3b4252; border:2px solid #5e81ac; color:#88c0d0; }");
+
+        auto *lay2 = new QHBoxLayout(popup);
+        lay2->setContentsMargins(8, 8, 8, 8);
+        lay2->setSpacing(6);
+
+        struct ModeEntry { QString label, sub, icon; int mode; };
+        const QList<ModeEntry> modes = {
+            { tr("Klassisch"), tr("Einzeln"),  "view-list-details",     0 },
+            { tr("Standard"),  tr("Dual"),     "view-split-left-right", 1 },
+            { tr("Spalten"),   tr("Dual"),     "view-split-top-bottom", 2 },
+        };
+
+        auto *grp = new QButtonGroup(popup);
+        QSettings s("SplitCommander", "UI");
+        int current = s.value("layoutMode", 1).toInt();
+
+        for (const auto &entry : modes) {
+            auto *btn = new QPushButton();
+            btn->setCheckable(true);
+            btn->setChecked(entry.mode == current);
+            btn->setFixedSize(72, 68);
+
+            auto *vl = new QVBoxLayout(btn);
+            vl->setContentsMargins(4, 6, 4, 4);
+            vl->setSpacing(3);
+            auto *ic  = new QLabel();
+            ic->setPixmap(QIcon::fromTheme(entry.icon).pixmap(24, 24));
+            ic->setAlignment(Qt::AlignCenter);
+            ic->setStyleSheet("background:transparent;border:none;");
+            auto *lb1 = new QLabel(entry.label);
+            lb1->setAlignment(Qt::AlignCenter);
+            lb1->setStyleSheet("background:transparent;border:none;font-weight:bold;font-size:10px;");
+            auto *lb2 = new QLabel(entry.sub);
+            lb2->setAlignment(Qt::AlignCenter);
+            lb2->setStyleSheet("background:transparent;border:none;color:#4c566a;font-size:9px;");
+            vl->addWidget(ic); vl->addWidget(lb1); vl->addWidget(lb2);
+
+            grp->addButton(btn, entry.mode);
+            lay2->addWidget(btn);
+
+            connect(btn, &QPushButton::clicked, this, [this, popup, entry]() {
+                QSettings ss("SplitCommander", "UI");
+                ss.setValue("layoutMode", entry.mode);
+                emit layoutChangeRequested(entry.mode);
+                popup->close();
+            });
+        }
+
+        popup->move(layoutBtn->mapToGlobal(QPoint(0, layoutBtn->height() + 2)));
+        popup->exec();
+    });
 
     // ── Hamburger-Connects ────────────────────────────────────────────────
     connect(actNewFolder, &QAction::triggered, this, [this]() {
         emit newFolderRequested();
     });
+
+    connect(actNewText, &QAction::triggered, this, [this]() {
+        auto *mw = qobject_cast<MainWindow*>(window()); if (!mw) return;
+        const QString dir = mw->activePane()->currentPath();
+        bool ok; QString name = QInputDialog::getText(this, tr("Neue Textdatei"), tr("Name:"),
+            QLineEdit::Normal, tr("Neue Datei.txt"), &ok);
+        if (ok && !name.isEmpty()) { QFile f(dir + "/" + name); (void)f.open(QIODevice::WriteOnly); }
+    });
+
+    connect(actNewHtml, &QAction::triggered, this, [this]() {
+        auto *mw = qobject_cast<MainWindow*>(window()); if (!mw) return;
+        const QString dir = mw->activePane()->currentPath();
+        bool ok; QString name = QInputDialog::getText(this, tr("Neue HTML-Datei"), tr("Name:"),
+            QLineEdit::Normal, tr("index.html"), &ok);
+        if (!ok || name.isEmpty()) return;
+        QFile f(dir + "/" + name);
+        if (f.open(QIODevice::WriteOnly | QIODevice::Text))
+            f.write("<!DOCTYPE html>\n<html>\n<head><meta charset=\"utf-8\"><title></title></head>\n<body>\n\n</body>\n</html>\n");
+    });
+
+    connect(actNewEmpty, &QAction::triggered, this, [this]() {
+        auto *mw = qobject_cast<MainWindow*>(window()); if (!mw) return;
+        const QString dir = mw->activePane()->currentPath();
+        bool ok; QString name = QInputDialog::getText(this, tr("Leere Datei"), tr("Name:"),
+            QLineEdit::Normal, tr("Neue Datei"), &ok);
+        if (ok && !name.isEmpty()) { QFile f(dir + "/" + name); (void)f.open(QIODevice::WriteOnly); }
+    });
+
+    connect(actNewLinkFile, &QAction::triggered, this, [this]() {
+        auto *mw = qobject_cast<MainWindow*>(window()); if (!mw) return;
+        const QString dir = mw->activePane()->currentPath();
+        QString target = QFileDialog::getExistingDirectory(this, tr("Ziel waehlen"), dir);
+        if (target.isEmpty())
+            target = QFileDialog::getOpenFileName(this, tr("Ziel waehlen"), dir);
+        if (target.isEmpty()) return;
+        bool ok; QString name = QInputDialog::getText(this, tr("Verknuepfungsname"), tr("Name:"),
+            QLineEdit::Normal, QFileInfo(target).fileName(), &ok);
+        if (ok && !name.isEmpty()) QFile::link(target, dir + "/" + name);
+    });
+
+
+
+
 
     connect(actHidden, &QAction::toggled, this, [this](bool checked) {
         QSettings s("SplitCommander", "General");
@@ -1417,7 +1617,14 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     });
 
     connect(actShortcuts, &QAction::triggered, this, [this]() {
-        emit openSettingsRequested(3);
+        MainWindow *mw = nullptr;
+        for (QWidget *w : QApplication::topLevelWidgets())
+            if ((mw = qobject_cast<MainWindow*>(w))) break;
+        auto *dlg = new ShortcutDialog(mw ? static_cast<QWidget*>(mw) : static_cast<QWidget*>(this));
+        if (mw) QObject::connect(dlg, &ShortcutDialog::shortcutsChanged,
+                                 mw, &MainWindow::registerShortcuts);
+        dlg->setAttribute(Qt::WA_DeleteOnClose);
+        dlg->exec();
     });
 
     connect(actAbout, &QAction::triggered, this, [this]() {
@@ -1729,6 +1936,18 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
             KIO::AskUserActionInterface::DefaultConfirmation, this);
         job->start();
     });
+
+
+    connect(m_toolbar, &PaneToolbar::copyClicked, this, [this]() {
+        auto *mw = qobject_cast<MainWindow*>(window()); if (!mw) return;
+        auto *src  = mw->activePane()->filePane();
+        auto *dest = (mw->activePane() == mw->leftPane()) ? mw->rightPane() : mw->leftPane();
+        const QList<QUrl> urls = src->selectedUrls();
+        if (urls.isEmpty() || dest->currentPath().isEmpty()) return;
+        auto *job = KIO::copy(urls, QUrl::fromLocalFile(dest->currentPath()), KIO::DefaultFlags);
+        job->uiDelegate()->setAutoErrorHandlingEnabled(true);
+    });
+
     connect(m_toolbar, &PaneToolbar::sortClicked, this, [this]() {
         auto *hdr = m_filePane->view()->header();
         m_filePane->view()->sortByColumn(hdr->sortIndicatorSection(),
@@ -2049,6 +2268,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         if (out) *out = m_leftPane->currentPath();
     });
     connect(m_sidebar, &Sidebar::layoutChangeRequested, this, &MainWindow::applyLayout);
+    connect(m_leftPane,  &PaneWidget::layoutChangeRequested, this, &MainWindow::applyLayout);
+    connect(m_rightPane, &PaneWidget::layoutChangeRequested, this, &MainWindow::applyLayout);
     connect(m_sidebar, &Sidebar::tagClicked, this, [this](const QString &tagName) {
         activePane()->filePane()->showTaggedFiles(tagName);
     });
@@ -2129,9 +2350,10 @@ void MainWindow::registerShortcuts()
 
     // Hilfslambda: Shortcut registrieren und in m_shortcuts speichern
     auto add = [this](const QString &id, std::function<void()> fn) {
-        const QString seq = SettingsDialog::shortcut(id);
+        const QString seq = ShortcutDialog::shortcut(id);
         if (seq.isEmpty()) return;
         auto *sc = new QShortcut(QKeySequence(seq), this);
+        sc->setContext(Qt::ApplicationShortcut);
         connect(sc, &QShortcut::activated, this, fn);
         m_shortcuts.append(sc);
     };
@@ -2190,6 +2412,56 @@ void MainWindow::registerShortcuts()
         QSettings gs("SplitCommander", "UI");
         gs.setValue("layoutMode", next); gs.sync();
         applyLayout(next);
+    });
+
+    // Navigation zurück/vorwärts
+    add("nav_back", [this]() {
+        auto *p = activePane();
+        if (!p->histBack().isEmpty()) { p->histFwd().push(p->currentPath()); p->navigateTo(p->histBack().pop()); }
+    });
+    add("nav_forward", [this]() {
+        auto *p = activePane();
+        if (!p->histFwd().isEmpty()) { p->histBack().push(p->currentPath()); p->navigateTo(p->histFwd().pop()); }
+    });
+
+    // Datei löschen (Entf = Papierkorb, Shift+Entf = permanent)
+    add("file_delete", [this]() {
+        const QList<QUrl> urls = activePane()->filePane()->selectedUrls();
+        if (urls.isEmpty()) return;
+        const bool shift = QGuiApplication::keyboardModifiers() & Qt::ShiftModifier;
+        auto *job = new KIO::DeleteOrTrashJob(urls,
+            shift ? KIO::AskUserActionInterface::Delete
+                  : KIO::AskUserActionInterface::Trash,
+            KIO::AskUserActionInterface::DefaultConfirmation, this);
+        job->start();
+    });
+
+    // Umbenennen
+    add("file_rename", [this]() {
+        const QList<QUrl> urls = activePane()->filePane()->selectedUrls();
+        if (urls.size() != 1) return;
+        const QString path = urls.first().toLocalFile();
+        bool ok;
+        QString newName = QInputDialog::getText(this, tr("Umbenennen"),
+            tr("Neuer Name:"), QLineEdit::Normal, QFileInfo(path).fileName(), &ok);
+        if (!ok || newName.isEmpty() || newName == QFileInfo(path).fileName()) return;
+        QUrl dest = QUrl::fromLocalFile(QFileInfo(path).dir().absolutePath() + "/" + newName);
+        KIO::moveAs(urls.first(), dest, KIO::HideProgressInfo);
+    });
+
+    // Kopieren in Zwischenablage
+    add("file_copy", [this]() {
+        const QList<QUrl> urls = activePane()->filePane()->selectedUrls();
+        if (urls.isEmpty()) return;
+        auto *mime = new QMimeData();
+        mime->setUrls(urls);
+        mime->setData("x-kde-cut-selection", QByteArray("0"));
+        QGuiApplication::clipboard()->setMimeData(mime);
+    });
+
+    // Neuer Ordner
+    add("file_newfolder", [this]() {
+        emit activePane()->newFolderRequested();
     });
 }
 

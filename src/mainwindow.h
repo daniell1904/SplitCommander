@@ -36,6 +36,7 @@ signals:
     void deleteClicked();
     void sortClicked();
     void actionsClicked();
+    void copyClicked();
 private:
     QLabel *m_pathLabel;
     QLabel *m_countLabel;
@@ -113,6 +114,9 @@ public:
     void navigateTo(const QString &path);
     void updateFooter(const QString &path);
     MillerArea *miller() { return m_miller; }
+    PaneToolbar *toolbar() { return m_toolbar; }
+    QStack<QString> &histBack() { return m_histBack; }
+    QStack<QString> &histFwd()  { return m_histFwd; }
 protected:
     bool eventFilter(QObject *obj, QEvent *ev) override;
     void resizeEvent(QResizeEvent *e) override;
@@ -123,6 +127,7 @@ signals:
     void hiddenFilesToggled(bool show);
     void extensionsToggled(bool show);
     void newFolderRequested();
+    void layoutChangeRequested(int mode);
 private:
     void buildFooter(QVBoxLayout *rootLay);
     void positionFooterPanel();
@@ -157,11 +162,15 @@ private:
     Sidebar    *m_sidebar;
     PaneWidget *m_leftPane;
     PaneWidget *m_rightPane;
-    PaneWidget *activePane() const { return m_rightPane->isFocused() ? m_rightPane : m_leftPane; }
     QSplitter  *m_panesSplitter;
     QSplitter  *m_vSplit = nullptr;
     int         m_currentMode = 1;
+public:
     void registerShortcuts();
+    PaneWidget *activePane() const { return m_rightPane->isFocused() ? m_rightPane : m_leftPane; }
+    PaneWidget *leftPane()   const { return m_leftPane; }
+    PaneWidget *rightPane()  const { return m_rightPane; }
+private:
     QList<QShortcut*> m_shortcuts;
 };
 

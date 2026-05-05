@@ -1,29 +1,85 @@
 <svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d1526"/>
+      <stop offset="100%" stop-color="#060c18"/>
+    </linearGradient>
+    <linearGradient id="spl" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#88c0d0" stop-opacity="0.3"/>
+      <stop offset="30%" stop-color="#88c0d0"/>
+      <stop offset="50%" stop-color="#ffffff"/>
+      <stop offset="70%" stop-color="#88c0d0"/>
+      <stop offset="100%" stop-color="#88c0d0" stop-opacity="0.3"/>
+    </linearGradient>
+    <linearGradient id="pL" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a2d4a"/>
+      <stop offset="100%" stop-color="#0f1e35"/>
+    </linearGradient>
+    <linearGradient id="pR" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f2040"/>
+      <stop offset="100%" stop-color="#081428"/>
+    </linearGradient>
+    <clipPath id="clip">
+      <rect width="160" height="160" rx="28"/>
+    </clipPath>
+  </defs>
+
   <!-- Hintergrund -->
-  <rect x="0" y="0" width="160" height="160" rx="28" fill="#1a1f2e"/>
-  <rect x="0" y="0" width="160" height="160" rx="28" fill="none" stroke="#2c3550" stroke-width="1.5"/>
-  <!-- Linkes Panel -->
-  <rect x="20" y="22" width="54" height="116" rx="10" fill="#2a3a5c"/>
-  <rect x="20" y="22" width="54" height="4" rx="2" fill="#5e81ac" opacity="0.6"/>
-  <rect x="28" y="36" width="38" height="5" rx="2.5" fill="#5e81ac" opacity="0.9"/>
-  <rect x="28" y="48" width="30" height="4" rx="2" fill="#3d5278" opacity="0.8"/>
-  <rect x="28" y="58" width="34" height="4" rx="2" fill="#3d5278" opacity="0.6"/>
-  <rect x="28" y="68" width="26" height="4" rx="2" fill="#3d5278" opacity="0.5"/>
-  <rect x="28" y="78" width="32" height="4" rx="2" fill="#3d5278" opacity="0.4"/>
-  <rect x="28" y="88" width="28" height="4" rx="2" fill="#3d5278" opacity="0.35"/>
-  <rect x="28" y="98" width="36" height="4" rx="2" fill="#3d5278" opacity="0.3"/>
-  <rect x="28" y="108" width="24" height="4" rx="2" fill="#3d5278" opacity="0.25"/>
-  <!-- Splitter -->
-  <rect x="77" y="22" width="6" height="116" rx="1" fill="#88c0d0" opacity="0.35"/>
-  <!-- Rechtes Panel -->
-  <rect x="86" y="22" width="54" height="116" rx="10" fill="#1e2d45"/>
-  <rect x="86" y="22" width="54" height="4" rx="2" fill="#88c0d0" opacity="0.4"/>
-  <rect x="94" y="36" width="38" height="5" rx="2.5" fill="#88c0d0" opacity="0.7"/>
-  <rect x="94" y="48" width="28" height="4" rx="2" fill="#4a6a8a" opacity="0.7"/>
-  <rect x="94" y="58" width="36" height="4" rx="2" fill="#4a6a8a" opacity="0.55"/>
-  <rect x="94" y="68" width="22" height="4" rx="2" fill="#4a6a8a" opacity="0.45"/>
-  <rect x="94" y="78" width="34" height="4" rx="2" fill="#4a6a8a" opacity="0.38"/>
-  <rect x="94" y="88" width="26" height="4" rx="2" fill="#4a6a8a" opacity="0.3"/>
-  <rect x="94" y="98" width="30" height="4" rx="2" fill="#4a6a8a" opacity="0.25"/>
-  <rect x="94" y="108" width="38" height="4" rx="2" fill="#4a6a8a" opacity="0.2"/>
+  <rect width="160" height="160" rx="28" fill="url(#bg1)"/>
+  <rect width="160" height="160" rx="28" fill="none" stroke="#88c0d0" stroke-width="1.5" opacity="0.35"/>
+
+  <!-- Linkes Panel (endet bei x=76) -->
+  <rect x="11" y="14" width="65" height="122" rx="9" fill="url(#pL)"/>
+  <rect x="11" y="14" width="65" height="8" rx="0" fill="#1e3554" clip-path="url(#clip)"/>
+  <rect x="11" y="14" width="22" height="8" rx="0" fill="#2a4a70" clip-path="url(#clip)"/>
+  <!-- Aktiver Eintrag -->
+  <rect x="11" y="22" width="65" height="14" rx="0" fill="#1e3a60" clip-path="url(#clip)"/>
+  <rect x="17" y="25" width="10" height="7" rx="2" fill="#88c0d0" opacity="0.9"/>
+  <rect x="30" y="27" width="28" height="3" rx="1.5" fill="#88c0d0" opacity="0.85"/>
+  <polygon points="72,30 76,31.5 72,33" fill="#88c0d0" opacity="0.95"/>
+  <!-- Zeilen -->
+  <rect x="17" y="41" width="10" height="7" rx="2" fill="#3d5278" opacity="0.65"/>
+  <rect x="30" y="43" width="24" height="3" rx="1.5" fill="#3d5278" opacity="0.55"/>
+  <rect x="17" y="53" width="10" height="7" rx="2" fill="#3d5278" opacity="0.55"/>
+  <rect x="30" y="55" width="28" height="3" rx="1.5" fill="#3d5278" opacity="0.44"/>
+  <rect x="17" y="65" width="10" height="7" rx="2" fill="#3d5278" opacity="0.44"/>
+  <rect x="30" y="67" width="22" height="3" rx="1.5" fill="#3d5278" opacity="0.34"/>
+  <rect x="17" y="77" width="10" height="7" rx="2" fill="#3d5278" opacity="0.34"/>
+  <rect x="30" y="79" width="26" height="3" rx="1.5" fill="#3d5278" opacity="0.25"/>
+  <rect x="17" y="89" width="10" height="7" rx="2" fill="#3d5278" opacity="0.25"/>
+  <rect x="30" y="91" width="20" height="3" rx="1.5" fill="#3d5278" opacity="0.18"/>
+  <rect x="17" y="101" width="10" height="7" rx="2" fill="#3d5278" opacity="0.16"/>
+  <rect x="30" y="103" width="24" height="3" rx="1.5" fill="#3d5278" opacity="0.12"/>
+  <rect x="17" y="113" width="10" height="7" rx="2" fill="#3d5278" opacity="0.1"/>
+  <rect x="30" y="115" width="18" height="3" rx="1.5" fill="#3d5278" opacity="0.07"/>
+
+  <!-- Rechtes Panel (beginnt bei x=86) -->
+  <rect x="86" y="14" width="63" height="122" rx="9" fill="url(#pR)"/>
+  <rect x="86" y="14" width="63" height="8" rx="0" fill="#142038" clip-path="url(#clip)"/>
+  <rect x="86" y="14" width="22" height="8" rx="0" fill="#1a3050" clip-path="url(#clip)"/>
+  <rect x="92" y="25" width="50" height="3.5" rx="1.75" fill="#88c0d0" opacity="0.85"/>
+  <rect x="92" y="33" width="40" height="3" rx="1.5" fill="#5a8aaa" opacity="0.65"/>
+  <rect x="92" y="41" width="46" height="3" rx="1.5" fill="#5a8aaa" opacity="0.52"/>
+  <rect x="92" y="49" width="34" height="3" rx="1.5" fill="#5a8aaa" opacity="0.4"/>
+  <rect x="92" y="57" width="44" height="3" rx="1.5" fill="#5a8aaa" opacity="0.3"/>
+  <rect x="92" y="65" width="36" height="3" rx="1.5" fill="#5a8aaa" opacity="0.22"/>
+  <rect x="92" y="73" width="48" height="3" rx="1.5" fill="#5a8aaa" opacity="0.16"/>
+  <rect x="92" y="81" width="30" height="3" rx="1.5" fill="#5a8aaa" opacity="0.11"/>
+  <rect x="92" y="89" width="42" height="3" rx="1.5" fill="#5a8aaa" opacity="0.08"/>
+  <rect x="92" y="97" width="34" height="3" rx="1.5" fill="#5a8aaa" opacity="0.05"/>
+  <rect x="92" y="105" width="44" height="3" rx="1.5" fill="#5a8aaa" opacity="0.03"/>
+
+  <!-- Statusbar -->
+  <rect x="0" y="136" width="160" height="14" rx="0" fill="#07101e" clip-path="url(#clip)"/>
+  <rect x="11" y="140" width="28" height="2.5" rx="1.25" fill="#3d5278" opacity="0.6"/>
+  <rect x="121" y="140" width="28" height="2.5" rx="1.25" fill="#3d5278" opacity="0.4"/>
+  <circle cx="80" cy="141" r="2" fill="#88c0d0" opacity="0.6"/>
+
+  <!-- Splitter ÜBER den Panels -->
+  <rect x="74" y="10" width="12" height="140" rx="6" fill="url(#spl)"/>
+
+  <!-- SC Pill GANZ OBEN in der Z-Reihenfolge -->
+  <rect x="66" y="72" width="28" height="18" rx="5" fill="#0a1322"/>
+  <rect x="66" y="72" width="28" height="18" rx="5" fill="none" stroke="#88c0d0" stroke-width="1.5" opacity="0.95"/>
+  <text x="80" y="84" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="700" fill="#ffffff" letter-spacing="0.8">SC</text>
 </svg>

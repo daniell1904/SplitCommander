@@ -110,7 +110,7 @@ install_icon() {
     print_step "Installiere Icon"
 
     local png="src/splitcommander_128.png"
-    local svg="logo.svg"
+    local svg="src/splitcommander.svg"
 
     if [ ! -f "$png" ]; then
         print_warn "$png nicht gefunden — überspringe Icon-Installation"
@@ -141,7 +141,13 @@ install_icon() {
     for size in "${sizes[@]}"; do
         local dir="/usr/share/icons/hicolor/${size}x${size}/apps"
         sudo mkdir -p "$dir"
-        convert -background none -resize "${size}x${size}" "$png" "/tmp/sc_${size}.png" 2>/dev/null
+        if command -v rsvg-convert &>/dev/null; then
+            rsvg-convert -w "$size" -h "$size" "$svg" -o "/tmp/sc_${size}.png" 2>/dev/null
+        elif command -v convert &>/dev/null; then
+            convert -background none -resize "${size}x${size}" "$png" "/tmp/sc_${size}.png" 2>/dev/null
+        else
+            cp "$png" "/tmp/sc_${size}.png"
+        fi
         sudo cp "/tmp/sc_${size}.png" "$dir/splitcommander.png"
         rm -f "/tmp/sc_${size}.png"
     done
