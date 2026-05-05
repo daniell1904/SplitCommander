@@ -684,6 +684,50 @@ void PaneToolbar::setSelected(int count)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// MillerItemDelegate — zeigt New-File-Indicator Streifen
+// ─────────────────────────────────────────────────────────────────────────────
+class MillerItemDelegate : public QStyledItemDelegate {
+public:
+    explicit MillerItemDelegate(QObject *parent = nullptr) : QStyledItemDelegate(parent) {}
+
+    void paint(QPainter *p, const QStyleOptionViewItem &opt, const QModelIndex &idx) const override {
+        QStyledItemDelegate::paint(p, opt, idx);
+
+        if (!AgeBadgeDialog::showNewIndicator()) return;
+
+        const QString path = idx.data(Qt::UserRole).toString();
+        if (path.isEmpty()) return;
+
+        QFileInfo fi(path);
+        qint64 ageSecs = 0;
+
+        if (fi.isDir()) {
+            // Neueste direkte Kind-Datei suchen
+            qint64 newest = std::numeric_limits<qint64>::max();
+            const QDateTime now = QDateTime::currentDateTime();
+            for (const QFileInfo &child : QDir(path).entryInfoList(
+                     QDir::Files | QDir::NoDotAndDotDot)) {
+                qint64 s = child.lastModified().secsTo(now);
+                if (s < newest) newest = s;
+            }
+            ageSecs = (newest == std::numeric_limits<qint64>::max()) ? 0 : newest;
+        } else {
+            ageSecs = fi.lastModified().secsTo(QDateTime::currentDateTime());
+        }
+
+        if (ageSecs <= 0 || ageSecs >= 86400 * 2) return;
+
+        // Farbe aus Age-Badge-System
+        QColor col;
+        if      (ageSecs < 3600)  col = SettingsDialog::ageBadgeColor(0); // < 1h
+        else                      col = SettingsDialog::ageBadgeColor(1); // < 1 Tag
+
+        QRect strip(opt.rect.left(), opt.rect.top(), 3, opt.rect.height());
+        p->fillRect(strip, col);
+    }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // MillerColumn
 // ─────────────────────────────────────────────────────────────────────────────
 MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent)
@@ -815,6 +859,7 @@ void MillerColumn::populateDir(const QString &path)
 
     m_list->clear();
     m_list->setStyleSheet(TM().ssColInactive().toUtf8().constData());
+    m_list->setItemDelegate(new MillerItemDelegate(m_list));
 
     QDir::Filters filters = QDir::Dirs | QDir::NoDotAndDotDot;
     {

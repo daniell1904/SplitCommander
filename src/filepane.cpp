@@ -2,6 +2,7 @@
 #include "thememanager.h"
 #include "settingsdialog.h"
 #include "tagmanager.h"
+#include "agebadgedialog.h"
 #include <QScrollBar>
 #include <QResizeEvent>
 #include <QTimer>
@@ -163,6 +164,16 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const
     QColor dc = (sel || hov) ? QColor(TM().colors().textLight) : QColor(TM().colors().textMuted);
 
     if (col == FP_NAME) {
+        // New-File-Indicator: vertikaler Streifen links
+        if (AgeBadgeDialog::showNewIndicator()) {
+            qint64 ageSecs = idx.data(Qt::UserRole + 2).toLongLong();
+            if (ageSecs > 0 && ageSecs < 86400 * 2) {
+                QColor stripColor = ageColor(ageSecs);
+                QRect strip(o.rect.left(), o.rect.top(), 3, o.rect.height());
+                p->fillRect(strip, stripColor);
+            }
+        }
+
         QIcon icon = qvariant_cast<QIcon>(idx.data(Qt::DecorationRole));
         if (!icon.isNull()) {
             p->drawPixmap(r.left(), r.top() + (r.height() - 16) / 2, icon.pixmap(16, 16));
@@ -305,6 +316,7 @@ void FilePane::buildRow(const QFileInfo &fi, QList<QStandardItem*> &items) {
             it->setIcon(m_iconProv.icon(fi));
             it->setData(fi.absoluteFilePath(), Qt::UserRole);
             it->setData(isDir?0:1, Qt::UserRole+10);
+            it->setData(secs, Qt::UserRole+2); // Alter in Sekunden für New-File-Indicator
             break;
         }
         case FP_TYP:      it->setText(typ); break;

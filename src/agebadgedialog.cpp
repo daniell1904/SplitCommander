@@ -112,6 +112,11 @@ AgeBadgeDialog::AgeBadgeDialog(QWidget *parent)
         updateDynamicColors();
     });
 
+    // Checkbox: Neue Dateien hervorheben
+    m_indicatorCheck = new QCheckBox(tr("Neue Dateien hervorheben (< 2 Tage)"), grpAge);
+    m_indicatorCheck->setChecked(ageS.value("showNewIndicator", false).toBool());
+    ageLay->addWidget(m_indicatorCheck);
+
     lay->addWidget(grpAge);
     lay->addStretch();
     outerLay->addWidget(content, 1);
@@ -168,6 +173,13 @@ void AgeBadgeDialog::applyAndSave()
     QSettings s("SplitCommander", "AgeBadge");
     s.setValue("saturation", m_sSlider->value());
     s.setValue("lightness",  m_lSlider->value());
+    s.setValue("showNewIndicator", m_indicatorCheck->isChecked());
     s.sync();
     accept();
+}
+
+bool AgeBadgeDialog::showNewIndicator()
+{
+    QSettings s("SplitCommander", "AgeBadge");
+    return s.value("showNewIndicator", false).toBool();
 }
