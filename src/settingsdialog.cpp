@@ -167,7 +167,7 @@ static QString dialogSS()
         "QCheckBox { color:%2; font-size:11px; spacing:8px; }"
         "QCheckBox::indicator { width:16px; height:16px; border-radius:3px; border:1px solid %7; background:%3; }"
         "QCheckBox::indicator:checked { background:%4; border-color:%5; image:url(none); }"
-        "QCheckBox::indicator:checked::after { content:''; }"
+        ""
         "QRadioButton { color:%2; font-size:11px; spacing:8px; }"
         "QRadioButton::indicator { width:14px; height:14px; border-radius:7px; border:1px solid %7; background:%3; }"
         "QRadioButton::indicator:checked { background:%4; border-color:%5; }"

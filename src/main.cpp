@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     app.setApplicationName("SplitCommander");
     app.setOrganizationName("SplitCommander");
+    app.setDesktopFileName("splitcommander");
 
     // Theme vor MainWindow laden — Sidebar liest Farben beim Aufbau
     TM().apply();

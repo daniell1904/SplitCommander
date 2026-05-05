@@ -284,13 +284,13 @@ QString ThemeManager::ssColActive() const {
         "QListWidget{background:%1;border:none;color:%2;outline:none;}"
         "QListWidget::item{padding:3px 8px;border-bottom:1px solid %3;}"
         "QListWidget::item:selected{background:%4;color:%5;}"
-        "QListWidget::item:hover{background:%1;}"
+        "QListWidget::item:hover{background:%6;}"
         "QListWidget QScrollBar:vertical{width:0px;background:transparent;border:none;}"
         "QListWidget QScrollBar::handle:vertical{background:transparent;}"
         "QListWidget:hover QScrollBar::handle:vertical{background:transparent;}"
         "QListWidget QScrollBar::add-line:vertical,QListWidget QScrollBar::sub-line:vertical{height:0;}"
         "QListWidget QScrollBar:horizontal{height:0;}")
-        .arg(c.bgList, c.textPrimary, c.border, c.bgHover, c.textAccent);
+        .arg(c.bgList, c.textPrimary, c.border, c.bgHover, c.textAccent, c.bgHover);
 }
 
 QString ThemeManager::ssColInactive() const {

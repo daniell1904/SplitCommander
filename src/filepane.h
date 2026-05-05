@@ -92,6 +92,7 @@ public:
     bool hasFocus() const;
     QString currentPath() const;
     QTreeView *view() { return m_view; }
+    QList<QUrl> selectedUrls() const;
 
 signals:
     void fileActivated(const QString &path);

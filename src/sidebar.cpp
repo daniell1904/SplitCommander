@@ -6,6 +6,7 @@
 #include "propertiesdialog.h"
 #include "settingsdialog.h"
 #include "thememanager.h"
+#include "terminalutils.h"
 #include <QTimer>
 
 #include <KIO/CopyJob>
@@ -127,45 +128,6 @@ const QString HEADER_LABEL = QStringLiteral(
 // ─────────────────────────────────────────────────────────────────────────────
 // Hilfsfunktionen (file-scope)
 // ─────────────────────────────────────────────────────────────────────────────
-
-static QString sc_detectTerminal()
-{
-    static QString s_term;
-    static bool    s_done = false;
-    if (s_done) return s_term;
-    s_done = true;
-
-    QProcess p;
-    p.start("kreadconfig6", {"--group", "General", "--key", "TerminalApplication"});
-    p.waitForFinished(500);
-    s_term = QString::fromUtf8(p.readAllStandardOutput()).trimmed();
-    if (!s_term.isEmpty()) return s_term;
-
-    QProcess p2;
-    p2.start("gsettings", {"get", "org.gnome.desktop.default-applications.terminal", "exec"});
-    p2.waitForFinished(500);
-    s_term = QString::fromUtf8(p2.readAllStandardOutput()).trimmed().remove('\'');
-    if (!s_term.isEmpty()) return s_term;
-
-    for (const QString &t : {"konsole", "ptyxis", "gnome-terminal", "kitty", "alacritty", "xterm"})
-        if (QProcess::execute("which", {t}) == 0) { s_term = t; return s_term; }
-
-    return s_term;
-}
-
-static void sc_openTerminal(const QString &path)
-{
-    const QString term = sc_detectTerminal();
-    if (term.isEmpty()) return;
-    if (term.contains("ptyxis") || term.contains("gnome-terminal"))
-        QProcess::startDetached(term, {"--working-directory", path});
-    else if (term.contains("konsole"))
-        QProcess::startDetached(term, {"--new-window", "--workdir", path});
-    else if (term.contains("kitty") || term.contains("alacritty"))
-        QProcess::startDetached(term, {"--directory", path});
-    else
-        QProcess::startDetached(term, {path});
-}
 
 static void sc_applyMenuShadow(QMenu *menu)
 {
@@ -378,9 +340,8 @@ Sidebar::Sidebar(QWidget *parent) : QWidget(parent)
     buildLogo(outerLay);
     buildDrivesSection(outerLay);
     buildGroupsSection(outerLay);
-    buildTagsSection(outerLay);
     buildNewGroupFixedSection(outerLay);
-    buildFooter(outerLay);
+    buildTagsSection(outerLay);
 
     setupTags();
     updateDrives();
@@ -723,7 +684,6 @@ void Sidebar::buildFooter(QVBoxLayout *parent)
 
     auto *settingsBtn = makeBtn("preferences-system",    tr("Einstellungen"));
     auto *infoBtn     = makeBtn("dialog-information",    tr("Über"));
-    auto *layoutBtn   = makeBtn("view-split-left-right", tr("Layout wählen"));
     auto *searchBtn   = makeBtn("system-search",         tr("Suchen"));
     auto *printBtn    = makeBtn("document-print",        tr("Drucken"));
     auto *chatBtn     = makeBtn("mail-message-new",      tr("Nachricht"));
@@ -732,8 +692,6 @@ void Sidebar::buildFooter(QVBoxLayout *parent)
     lay->addWidget(settingsBtn);
     lay->addStretch();
     lay->addWidget(infoBtn);
-    lay->addStretch();
-    lay->addWidget(layoutBtn);
     lay->addStretch();
     lay->addWidget(searchBtn);
     lay->addStretch();
@@ -758,60 +716,6 @@ void Sidebar::buildFooter(QVBoxLayout *parent)
         // noch s_instance->m_ageColors lesen — die zwar korrekt sind, aber
         // das Timing ist nicht garantiert auf allen Qt-Versionen.
         QTimer::singleShot(0, this, [this]() { emit settingsChanged(); });
-    });
-
-    // Layout-Picker
-    connect(layoutBtn, &QToolButton::clicked, this, [this, layoutBtn]() {
-        auto *popup = new QDialog(this, Qt::Popup | Qt::FramelessWindowHint);
-        popup->setAttribute(Qt::WA_DeleteOnClose);
-        popup->setStyleSheet(
-            "QDialog { background:#1e2330; border:1px solid #2c3245; border-radius:6px; }"
-            "QPushButton { background:#23283a; border:1px solid #2c3245; color:#ccd4e8; border-radius:4px; padding:8px; font-size:10px; }"
-            "QPushButton:hover { background:#3b4252; border-color:#5e81ac; }"
-            "QPushButton:checked { background:#3b4252; border:2px solid #5e81ac; color:#88c0d0; }");
-
-        auto *lay2 = new QHBoxLayout(popup);
-        lay2->setContentsMargins(8, 8, 8, 8);
-        lay2->setSpacing(6);
-
-        struct ModeEntry { QString label, sub, icon; int mode; };
-        const QList<ModeEntry> modes = {
-            { tr("Klassisch"), tr("Einzeln"),  "view-list-details",     0 },
-            { tr("Standard"),  tr("Dual"),     "view-split-left-right", 1 },
-            { tr("Spalten"),   tr("Dual"),     "view-split-top-bottom", 2 },
-        };
-
-        auto *grp = new QButtonGroup(popup);
-        QSettings s("SplitCommander", "UI");
-        int current = s.value("layoutMode", 1).toInt();
-
-        for (const auto &entry : modes) {
-            auto *btn = new QPushButton();
-            btn->setCheckable(true);
-            btn->setChecked(entry.mode == current);
-            btn->setFixedSize(72, 68);
-
-            auto *vl = new QVBoxLayout(btn);
-            vl->setContentsMargins(4, 6, 4, 4);
-            vl->setSpacing(3);
-            auto *ic  = new QLabel(); ic->setPixmap(QIcon::fromTheme(entry.icon).pixmap(24, 24)); ic->setAlignment(Qt::AlignCenter); ic->setStyleSheet("background:transparent;border:none;");
-            auto *lb1 = new QLabel(entry.label); lb1->setAlignment(Qt::AlignCenter); lb1->setStyleSheet("background:transparent;border:none;font-weight:bold;font-size:10px;");
-            auto *lb2 = new QLabel(entry.sub);   lb2->setAlignment(Qt::AlignCenter); lb2->setStyleSheet("background:transparent;border:none;color:#4c566a;font-size:9px;");
-            vl->addWidget(ic); vl->addWidget(lb1); vl->addWidget(lb2);
-
-            grp->addButton(btn, entry.mode);
-            lay2->addWidget(btn);
-
-            connect(btn, &QPushButton::clicked, this, [this, popup, entry]() {
-                QSettings ss("SplitCommander", "UI");
-                ss.setValue("layoutMode", entry.mode);
-                emit layoutChangeRequested(entry.mode);
-                popup->close();
-            });
-        }
-
-        popup->move(layoutBtn->mapToGlobal(QPoint(0, layoutBtn->height() + 2)));
-        popup->exec();
     });
 }
 
@@ -1266,7 +1170,7 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     list->setSpacing(0);
     list->setStyleSheet(TM().ssListWidget());
-    list->setItemDelegate(new DriveDelegate(true, this));
+    list->setItemDelegate(new DriveDelegate(false, this));
     list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     list->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 

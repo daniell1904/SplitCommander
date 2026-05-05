@@ -3,7 +3,11 @@
 #include "settingsdialog.h"
 #include "tagmanager.h"
 #include "agebadgedialog.h"
+#include "terminalutils.h"
+#include <QKeyEvent>
+#include <QFileDialog>
 #include <QScrollBar>
+#include <QStandardPaths>
 #include <QResizeEvent>
 #include <QTimer>
 #include <QDir>
@@ -30,6 +34,7 @@
 #include <KIO/RenameDialog>
 #include <KIO/PasteJob>
 #include <KIO/JobUiDelegateFactory>
+#include <KJobWidgets>
 
 static QString menuStyle() {
     return TM().ssMenu() +
@@ -188,20 +193,24 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const
         QString age = formatAge(secs);
         QColor bc = ageColor(secs); // Holt die Live-Farbe aus dem Dialog
 
-        const int BW = 44, BH = 16;
+        const int BW = 44, BH = 14;
         QRect br(r.left() + (r.width() - BW) / 2, r.top() + (r.height() - BH) / 2, BW, BH);
 
+        // Kein Antialiasing – scharfe Kanten, keine runden Ecken
         p->setRenderHint(QPainter::Antialiasing, false);
+        p->setRenderHint(QPainter::TextAntialiasing, true);
         p->setBrush(bc);
         p->setPen(Qt::NoPen);
         p->drawRect(br);
 
-        // Textfarbe automatisch anpassen (Schwarz auf hellen Farben, Weiß auf dunklen)
-        p->setPen(bc.lightness() > 150 ? Qt::black : Qt::white);
+        // Reines Weiß oder Schwarz – kein subpixel blur
+        QColor textCol = (bc.lightness() > 140) ? QColor(0,0,0) : QColor(255,255,255);
+        p->setPen(textCol);
 
         QFont fb = f;
-        fb.setBold(true);
-        fb.setPointSize(8);
+        fb.setBold(false);
+        fb.setPointSizeF(7.5);
+        fb.setHintingPreference(QFont::PreferFullHinting);
         p->setFont(fb);
         p->drawText(br, Qt::AlignCenter, age);
         p->setFont(f);
@@ -215,17 +224,17 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const
             int BW = qMin(textW + 12, r.width()), BH = 16;
             QRect br(r.left() + (r.width() - BW) / 2, r.top() + (r.height() - BH) / 2, BW, BH);
 
-            p->setRenderHint(QPainter::Antialiasing, true);
+            p->setRenderHint(QPainter::Antialiasing, false);
             p->setBrush(tagCol.darker(180));
             p->setPen(QPen(tagCol, 1));
-            p->drawRoundedRect(br, 4, 4);
-            p->setRenderHint(QPainter::Antialiasing, false);
+            p->drawRect(br);
 
             QFont fb = f;
-            fb.setBold(true);
-            fb.setPointSize(8);
+            fb.setBold(false);
+            fb.setPointSizeF(7.5);
+            fb.setHintingPreference(QFont::PreferFullHinting);
             p->setFont(fb);
-            p->setPen(tagCol.lighter(160));
+            p->setPen(QColor(255, 255, 255));
             p->drawText(br, Qt::AlignCenter, o.fontMetrics.elidedText(tagName, Qt::ElideRight, BW - 6));
             p->setFont(f);
         }
@@ -785,6 +794,18 @@ void FilePane::showTaggedFiles(const QString &tagName) {
 }
 
 QString FilePane::currentPath() const { return m_currentPath; }
+
+QList<QUrl> FilePane::selectedUrls() const
+{
+    QList<QUrl> urls;
+    const auto indexes = m_view->selectionModel()->selectedRows();
+    for (const auto &idx : indexes) {
+        const QString p = m_model->item(idx.row(), 0)
+            ? m_model->item(idx.row(), 0)->data(Qt::UserRole).toString() : QString();
+        if (!p.isEmpty()) urls << QUrl::fromLocalFile(p);
+    }
+    return urls;
+}
 bool FilePane::hasFocus() const { return m_view->hasFocus(); }
 
 void FilePane::onItemActivated(const QModelIndex &index) {
@@ -889,38 +910,38 @@ void FilePane::showContextMenu(const QPoint &pos) {
     }
     QFileInfo info(path);
     bool isDir      = info.isDir();
-    QString dirPath = isDir ? path : info.dir().absolutePath();
+    QString dirPath = info.dir().absolutePath(); // immer Elternverzeichnis, nicht das Item selbst
     QUrl    itemUrl = QUrl::fromLocalFile(path);
 
     QMenu menu(this);
     fp_applyMenuShadow(&menu);
     menu.setStyleSheet(menuStyle());
 
-    // ── Öffnen / Öffnen mit ───────────────────────────────────────────────
+    // ── MIME-Daten für Öffnen-mit ─────────────────────────────────────────
+    QMimeDatabase mdb;
+    KService::List apps;
+    bool isArchive = false;
     if (hasItem) {
-        menu.addAction(QIcon::fromTheme("document-open"), tr("Öffnen"), this,
+        QMimeType mime = isDir ? mdb.mimeTypeForName("inode/directory")
+                               : mdb.mimeTypeForFile(path);
+        apps = KApplicationTrader::queryByMimeType(mime.name());
+        const QString mt = mime.name();
+        isArchive = mt.contains("zip") || mt.contains("tar") || mt.contains("rar")
+                 || mt.contains("7z") || mt.contains("gzip") || mt.contains("bzip")
+                 || mt.contains("xz") || mt.contains("archive") || mt.contains("compressed");
+    }
+
+    // ── 1. Öffnen mit ─────────────────────────────────────────────────────
+    if (hasItem) {
+        auto *openWithMenu = menu.addMenu(QIcon::fromTheme("document-open"), tr("Öffnen mit"));
+        openWithMenu->setStyleSheet(menuStyle());
+        // Standard-Aktion: direkt öffnen (erstes Item)
+        openWithMenu->addAction(QIcon::fromTheme("document-open"), tr("Standard"), this,
             [path, isDir, this]() {
                 if (isDir) setRootPath(path);
                 else QDesktopServices::openUrl(QUrl::fromLocalFile(path));
             });
-
-        QMimeDatabase mdb;
-        QMimeType mime = isDir ? mdb.mimeTypeForName("inode/directory")
-                               : mdb.mimeTypeForFile(path);
-        KService::List apps = KApplicationTrader::queryByMimeType(mime.name());
-
-        // Erste App als direkten Eintrag (Mittelklick-App)
-        if (!apps.isEmpty()) {
-            KService::Ptr preferred = apps.first();
-            QString prefDesktop = preferred->desktopEntryName();
-            menu.addAction(QIcon::fromTheme(preferred->icon()),
-                tr("Mit %1 öffnen").arg(preferred->name()), this,
-                [this, prefDesktop, path]() { openWithApp(prefDesktop, path); });
-        }
-
-        // "Öffnen mit" Untermenü
-        auto *openWithMenu = menu.addMenu(QIcon::fromTheme("document-open"), tr("Öffnen mit"));
-        openWithMenu->setStyleSheet(menuStyle());
+        openWithMenu->addSeparator();
         for (const KService::Ptr &svc : apps) {
             if (svc->noDisplay()) continue;
             QString desktop = svc->desktopEntryName();
@@ -933,80 +954,52 @@ void FilePane::showContextMenu(const QPoint &pos) {
                 QProcess::startDetached("kioclient6",
                     {"openWith", QUrl::fromLocalFile(path).toString()});
             });
-
         menu.addSeparator();
     }
 
-    // ── Ausschneiden / Kopieren / Einfügen ───────────────────────────────
-    if (hasItem) {
-        menu.addAction(QIcon::fromTheme("edit-cut"), tr("Ausschneiden"), this,
-            [itemUrl]() {
-                auto *mime = new QMimeData();
-                mime->setUrls({itemUrl});
-                mime->setData("x-kde-cut-selection", "1");
-                QGuiApplication::clipboard()->setMimeData(mime);
-            });
-        menu.addAction(QIcon::fromTheme("edit-copy"), tr("Kopieren"), this,
-            [itemUrl]() {
-                auto *mime = new QMimeData();
-                mime->setUrls({itemUrl});
-                QGuiApplication::clipboard()->setMimeData(mime);
-            });
-    }
-
-    const QMimeData *clip = QGuiApplication::clipboard()->mimeData();
-    bool canPaste = clip && clip->hasUrls();
-    auto *pasteAct = menu.addAction(QIcon::fromTheme("edit-paste"), tr("Einfügen"), this,
-        [this, dirPath, clip]() {
-            if (!clip || !clip->hasUrls()) return;
-            bool isCut = clip->data("x-kde-cut-selection") == "1";
-            QList<QUrl> urls = clip->urls();
-            if (isCut)
-                KIO::move(urls, QUrl::fromLocalFile(dirPath),
-                          KIO::HideProgressInfo)->uiDelegate()->setAutoErrorHandlingEnabled(true);
-            else
-                KIO::copy(urls, QUrl::fromLocalFile(dirPath),
-                          KIO::HideProgressInfo)->uiDelegate()->setAutoErrorHandlingEnabled(true);
-        });
-    pasteAct->setEnabled(canPaste);
-
-    if (hasItem) {
-        menu.addAction(QIcon::fromTheme("edit-copy"), tr("Adresse kopieren"), this,
-            [path]() { QGuiApplication::clipboard()->setText(path); });
-
-        // Hier duplizieren
-        menu.addAction(QIcon::fromTheme("edit-copy"), tr("Hier duplizieren"), this,
-            [this, path, dirPath, itemUrl]() {
-                QString baseName = QFileInfo(path).completeBaseName();
-                QString suffix   = QFileInfo(path).suffix();
-                QString copyName = suffix.isEmpty()
-                    ? baseName + tr(" (Kopie)")
-                    : baseName + tr(" (Kopie).") + suffix;
-                QUrl dest = QUrl::fromLocalFile(dirPath + "/" + copyName);
-                KIO::copy({itemUrl}, dest, KIO::HideProgressInfo)
-                    ->uiDelegate()->setAutoErrorHandlingEnabled(true);
-            });
-    }
-
-    menu.addSeparator();
-
-    // ── Neu ───────────────────────────────────────────────────────────────
+    // ── 2. Neu ────────────────────────────────────────────────────────────
     auto *newMenu = menu.addMenu(QIcon::fromTheme("folder-new"), tr("Neu"));
     newMenu->setStyleSheet(menuStyle());
     newMenu->addAction(QIcon::fromTheme("folder-new"), tr("Ordner …"), this,
         [this, dirPath]() {
-            QString name = QInputDialog::getText(this, tr("Neuer Ordner"), tr("Name:"));
-            if (!name.isEmpty()) QDir(dirPath).mkdir(name);
+            bool ok; QString name = QInputDialog::getText(this, tr("Neuer Ordner"), tr("Name:"),
+                QLineEdit::Normal, QString(), &ok);
+            if (ok && !name.isEmpty()) QDir(dirPath).mkdir(name);
+        });
+    newMenu->addAction(QIcon::fromTheme("text-plain"), tr("Textdatei …"), this,
+        [this, dirPath]() {
+            bool ok; QString name = QInputDialog::getText(this, tr("Neue Textdatei"), tr("Name:"),
+                QLineEdit::Normal, tr("Neue Datei.txt"), &ok);
+            if (ok && !name.isEmpty()) { QFile f(dirPath + "/" + name); (void)f.open(QIODevice::WriteOnly); }
+        });
+    newMenu->addAction(QIcon::fromTheme("text-html"), tr("HTML-Datei …"), this,
+        [this, dirPath]() {
+            bool ok; QString name = QInputDialog::getText(this, tr("Neue HTML-Datei"), tr("Name:"),
+                QLineEdit::Normal, tr("index.html"), &ok);
+            if (!ok || name.isEmpty()) return;
+            QFile f(dirPath + "/" + name);
+            if (f.open(QIODevice::WriteOnly | QIODevice::Text))
+                f.write("<!DOCTYPE html>\n<html>\n<head><meta charset=\"utf-8\"><title></title></head>\n<body>\n\n</body>\n</html>\n");
         });
     newMenu->addAction(QIcon::fromTheme("document-new"), tr("Leere Datei …"), this,
         [this, dirPath]() {
-            QString name = QInputDialog::getText(this, tr("Neue Datei"), tr("Name:"));
-            if (!name.isEmpty()) { QFile f(dirPath + "/" + name); (void)f.open(QIODevice::WriteOnly); }
+            bool ok; QString name = QInputDialog::getText(this, tr("Leere Datei"), tr("Name:"),
+                QLineEdit::Normal, tr("Neue Datei"), &ok);
+            if (ok && !name.isEmpty()) { QFile f(dirPath + "/" + name); (void)f.open(QIODevice::WriteOnly); }
+        });
+    newMenu->addSeparator();
+    newMenu->addAction(QIcon::fromTheme("inode-symlink"), tr("Verknüpfung zu Datei oder Ordner …"), this,
+        [this, dirPath]() {
+            QString target = QFileDialog::getExistingDirectory(this, tr("Ziel wählen"), dirPath);
+            if (target.isEmpty())
+                target = QFileDialog::getOpenFileName(this, tr("Ziel wählen"), dirPath);
+            if (target.isEmpty()) return;
+            bool ok; QString name = QInputDialog::getText(this, tr("Verknüpfungsname"), tr("Name:"),
+                QLineEdit::Normal, QFileInfo(target).fileName(), &ok);
+            if (ok && !name.isEmpty()) QFile::link(target, dirPath + "/" + name);
         });
 
-    menu.addSeparator();
-
-    // ── Umbenennen ────────────────────────────────────────────────────────
+    // ── 3. Umbenennen ─────────────────────────────────────────────────────
     if (hasItem) {
         menu.addAction(QIcon::fromTheme("edit-rename"), tr("Umbenennen …"), this,
             [this, path, itemUrl, dirPath]() {
@@ -1019,45 +1012,194 @@ void FilePane::showContextMenu(const QPoint &pos) {
                     job->uiDelegate()->setAutoErrorHandlingEnabled(true);
                 }
             });
-
-        menu.addSeparator();
-
-        // ── In den Papierkorb ─────────────────────────────────────────────
-        menu.addAction(QIcon::fromTheme("edit-delete"), tr("In den Papierkorb verschieben"), this,
-            [itemUrl]() {
-                auto *job = new KIO::DeleteOrTrashJob({itemUrl},
-                    KIO::AskUserActionInterface::Trash,
-                    KIO::AskUserActionInterface::DefaultConfirmation, nullptr);
-                job->uiDelegate()->setAutoErrorHandlingEnabled(true);
-                job->start();
-            });
     }
 
     menu.addSeparator();
 
-    // ── Aktionen Untermenü ────────────────────────────────────────────────
-    auto *actMenu = menu.addMenu(QIcon::fromTheme("system-run"), tr("Aktionen"));
-    actMenu->setStyleSheet(menuStyle());
+    // ── 4. In den Papierkorb / Löschen (Shift) ───────────────────────────
+    if (hasItem) {
+        auto *removeAct = new QAction(&menu);
+        auto setTrash = [removeAct]() {
+            removeAct->setText(QObject::tr("In den Papierkorb verschieben"));
+            removeAct->setIcon(QIcon::fromTheme("edit-delete"));
+        };
+        auto setDelete = [removeAct]() {
+            removeAct->setText(QObject::tr("Unwiderruflich löschen"));
+            removeAct->setIcon(QIcon::fromTheme("edit-delete-shred"));
+        };
+        if (QGuiApplication::keyboardModifiers() & Qt::ShiftModifier) setDelete();
+        else setTrash();
 
-    actMenu->addAction(QIcon::fromTheme("utilities-terminal"),
-        tr("Terminal hier öffnen"), this, [dirPath]() {
-            QProcess p;
-            p.start("kreadconfig6", {"--group","General","--key","TerminalApplication"});
-            p.waitForFinished(500);
-            QString term = QString::fromUtf8(p.readAllStandardOutput()).trimmed();
-            if (term.isEmpty())
-                for (const QString &t : {"konsole","ptyxis","gnome-terminal","kitty","alacritty","xterm"})
-                    if (QProcess::execute("which",{t}) == 0) { term = t; break; }
-            if (term.isEmpty()) return;
-            if (term.contains("konsole"))
-                QProcess::startDetached(term, {"--new-window","--workdir", dirPath});
-            else if (term.contains("ptyxis") || term.contains("gnome-terminal"))
-                QProcess::startDetached(term, {"--working-directory", dirPath});
-            else
-                QProcess::startDetached(term, {"--directory", dirPath});
+        struct ShiftFilter : public QObject {
+            std::function<void()> onPress, onRelease;
+            ShiftFilter(QObject *p, std::function<void()> pr, std::function<void()> re)
+                : QObject(p), onPress(pr), onRelease(re) {}
+            bool eventFilter(QObject *, QEvent *e) override {
+                if (e->type() == QEvent::KeyPress || e->type() == QEvent::KeyRelease) {
+                    auto *ke = static_cast<QKeyEvent *>(e);
+                    if (ke->key() == Qt::Key_Shift) {
+                        if (e->type() == QEvent::KeyPress) onPress();
+                        else onRelease();
+                    }
+                }
+                return false;
+            }
+        };
+        menu.installEventFilter(new ShiftFilter(&menu, setDelete, setTrash));
+
+        connect(removeAct, &QAction::triggered, this, [this, itemUrl]() {
+            const bool shift = QGuiApplication::keyboardModifiers() & Qt::ShiftModifier;
+            auto *job = new KIO::DeleteOrTrashJob({itemUrl},
+                shift ? KIO::AskUserActionInterface::Delete : KIO::AskUserActionInterface::Trash,
+                KIO::AskUserActionInterface::DefaultConfirmation, this);
+            job->start();
+        });
+        menu.addAction(removeAct);
+        menu.addSeparator();
+    }
+
+
+    // ── 5. Senden an ──────────────────────────────────────────────────────
+    if (hasItem) {
+        auto *sendMenu = menu.addMenu(QIcon::fromTheme("document-send"), tr("Senden an"));
+        sendMenu->setStyleSheet(menuStyle());
+
+        sendMenu->addAction(QIcon::fromTheme("user-desktop"), tr("Desktop (Verknüpfung erstellen)"),
+            this, [path]() {
+                const QString desk = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+                QFile::link(path, desk + "/" + QFileInfo(path).fileName());
+            });
+
+        sendMenu->addAction(QIcon::fromTheme("folder-documents"), tr("Dokumente"),
+            this, [this, path]() {
+                const QString docs = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+                auto *job = KIO::copy({QUrl::fromLocalFile(path)},
+                    QUrl::fromLocalFile(docs), KIO::DefaultFlags);
+                job->uiDelegate()->setAutoErrorHandlingEnabled(true);
+            });
+
+        sendMenu->addAction(QIcon::fromTheme("mail-send"), tr("E-Mail-Empfänger"),
+            this, [path]() {
+                QUrl mail(QString("mailto:?subject=%1&attachment=%2")
+                    .arg(QFileInfo(path).fileName(),
+                         QUrl::fromLocalFile(path).toString()));
+                QDesktopServices::openUrl(mail);
+            });
+
+        sendMenu->addAction(QIcon::fromTheme("application-zip"), tr("ZIP-komprimierter Ordner"),
+            this, [path, dirPath]() {
+                QProcess::startDetached("ark", {"--batch", "--add-to",
+                    dirPath + "/" + QFileInfo(path).fileName() + ".zip", path});
+            });
+
+        sendMenu->addAction(QIcon::fromTheme("bluetooth"), tr("Bluetooth-Gerät"),
+            this, [path]() {
+                QProcess::startDetached("bluedevil-sendfile",
+                    {"-u", QUrl::fromLocalFile(path).toString()});
+            });
+    }
+
+    // ── 5. Bearbeiten (Ausschneiden/Kopieren/Einfügen/Duplizieren) ───────
+    {
+        auto *editMenu = menu.addMenu(QIcon::fromTheme("edit-copy"), tr("Bearbeiten"));
+        editMenu->setStyleSheet(menuStyle());
+
+        if (hasItem) {
+            editMenu->addAction(QIcon::fromTheme("edit-cut"), tr("Ausschneiden"), this,
+                [itemUrl]() {
+                    auto *mime = new QMimeData();
+                    mime->setUrls({itemUrl});
+                    mime->setData("x-kde-cut-selection", "1");
+                    QGuiApplication::clipboard()->setMimeData(mime);
+                });
+            editMenu->addAction(QIcon::fromTheme("edit-copy"), tr("Kopieren"), this,
+                [itemUrl]() {
+                    auto *mime = new QMimeData();
+                    mime->setUrls({itemUrl});
+                    QGuiApplication::clipboard()->setMimeData(mime);
+                });
+        }
+
+        const QMimeData *clip = QGuiApplication::clipboard()->mimeData();
+        bool canPaste = clip && clip->hasUrls();
+        auto *pasteAct = editMenu->addAction(QIcon::fromTheme("edit-paste"), tr("Einfügen"), this,
+            [this, dirPath, clip]() {
+                if (!clip || !clip->hasUrls()) return;
+                bool isCut = clip->data("x-kde-cut-selection") == "1";
+                QList<QUrl> urls = clip->urls();
+                if (isCut)
+                    KIO::move(urls, QUrl::fromLocalFile(dirPath), KIO::HideProgressInfo)
+                        ->uiDelegate()->setAutoErrorHandlingEnabled(true);
+                else
+                    KIO::copy(urls, QUrl::fromLocalFile(dirPath), KIO::HideProgressInfo)
+                        ->uiDelegate()->setAutoErrorHandlingEnabled(true);
+            });
+        pasteAct->setEnabled(canPaste);
+
+        if (hasItem) {
+            editMenu->addSeparator();
+            editMenu->addAction(QIcon::fromTheme("edit-copy"), tr("Adresse kopieren"), this,
+                [path]() { QGuiApplication::clipboard()->setText(path); });
+            editMenu->addAction(QIcon::fromTheme("edit-copy"), tr("Hier duplizieren"), this,
+                [this, path, dirPath, itemUrl]() {
+                    QString baseName = QFileInfo(path).completeBaseName();
+                    QString suffix   = QFileInfo(path).suffix();
+                    QString copyName = suffix.isEmpty()
+                        ? baseName + tr(" (Kopie)")
+                        : baseName + tr(" (Kopie).") + suffix;
+                    QUrl dest = QUrl::fromLocalFile(dirPath + "/" + copyName);
+                    KIO::copy({itemUrl}, dest, KIO::HideProgressInfo)
+                        ->uiDelegate()->setAutoErrorHandlingEnabled(true);
+                });
+        }
+    }
+
+    menu.addSeparator();
+
+    // ── 6. Komprimieren / Entpacken ───────────────────────────────────────
+    if (hasItem) {
+        auto *compressMenu = menu.addMenu(QIcon::fromTheme("archive-insert"), tr("Komprimieren"));
+        compressMenu->setStyleSheet(menuStyle());
+        compressMenu->addAction(tr("nach '%1.zip'").arg(QFileInfo(path).fileName()),
+            this, [path, dirPath]() {
+                QProcess::startDetached("ark", {"--batch", "--add-to",
+                    dirPath + "/" + QFileInfo(path).fileName() + ".zip", path});
+            });
+        compressMenu->addAction(tr("nach '%1.tar.gz'").arg(QFileInfo(path).fileName()),
+            this, [path, dirPath]() {
+                QProcess::startDetached("ark", {"--batch", "--add-to",
+                    dirPath + "/" + QFileInfo(path).fileName() + ".tar.gz", path});
+            });
+        compressMenu->addAction(tr("nach …"), this, [path]() {
+            QProcess::startDetached("ark", {"--batch", "--add", path});
         });
 
+        if (isArchive) {
+            auto *extractMenu = menu.addMenu(QIcon::fromTheme("archive-extract"), tr("Entpacken"));
+            extractMenu->setStyleSheet(menuStyle());
+            extractMenu->addAction(tr("Hierher entpacken"), this, [path]() {
+                QProcess::startDetached("ark", {"--batch", "--autodestination", "--autosubfolder", path});
+            });
+            extractMenu->addAction(tr("Entpacken und in Papierkorb"), this, [this, path, dirPath]() {
+                QProcess::startDetached("ark", {"--batch", "--autodestination", "--autosubfolder", path});
+                auto *job = new KIO::DeleteOrTrashJob({QUrl::fromLocalFile(path)},
+                    KIO::AskUserActionInterface::Trash,
+                    KIO::AskUserActionInterface::DefaultConfirmation, this);
+                job->start();
+            });
+            extractMenu->addAction(tr("Entpacken nach …"), this, [path]() {
+                QProcess::startDetached("ark", {"--extract", path});
+            });
+        }
+    }
+
+    // ── 7. Aktionen ───────────────────────────────────────────────────────
+    auto *actMenu = menu.addMenu(QIcon::fromTheme("system-run"), tr("Aktionen"));
+    actMenu->setStyleSheet(menuStyle());
+    actMenu->addAction(QIcon::fromTheme("utilities-terminal"),
+        tr("Terminal hier öffnen"), this, [dirPath]() { sc_openTerminal(dirPath); });
     if (hasItem) {
+        actMenu->addSeparator();
         actMenu->addAction(QIcon::fromTheme("document-encrypt"),
             tr("Datei verschlüsseln …"), this, [path]() {
                 QProcess::startDetached("kleopatra", {"--encrypt", path});
@@ -1084,9 +1226,7 @@ void FilePane::showContextMenu(const QPoint &pos) {
             });
     }
 
-    menu.addSeparator();
-
-    // ── Tag ───────────────────────────────────────────────────────────────
+    // ── 8. Tag ────────────────────────────────────────────────────────────
     if (hasItem) {
         auto *tagMenu = menu.addMenu(QIcon::fromTheme("tag"), tr("Tag"));
         tagMenu->setStyleSheet(menuStyle());
