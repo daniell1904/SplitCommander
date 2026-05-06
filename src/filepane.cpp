@@ -30,6 +30,7 @@
 #include <KApplicationTrader>
 #include <KService>
 #include <KIO/CopyJob>
+#include <KPropertiesDialog>
 #include <KIO/DeleteOrTrashJob>
 #include <KIO/RenameDialog>
 #include <KIO/PasteJob>
@@ -1441,9 +1442,11 @@ void FilePane::showContextMenu(const QPoint &pos) {
     // ── Eigenschaften ─────────────────────────────────────────────────────
     if (hasItem) {
         menu.addAction(QIcon::fromTheme("document-properties"), tr("Eigenschaften"), this,
-            [path]() {
-                QProcess::startDetached("kioclient6",
-                    {"properties", QUrl::fromLocalFile(path).toString()});
+            [this, path]() {
+                KPropertiesDialog *dlg = new KPropertiesDialog(
+                    QUrl::fromLocalFile(path), this);
+                dlg->setAttribute(Qt::WA_DeleteOnClose);
+                dlg->show();
             });
     }
 

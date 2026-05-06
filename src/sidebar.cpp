@@ -233,7 +233,7 @@ void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QM
     const QString  path    = idx.data(Qt::UserRole).toString();
     const int      iconSz  = 16;
     const int      iconX   = r.left() + 8;
-    const int      iconY   = r.top() + (r.height() - iconSz) / 2 - 2;
+    const int      iconY   = r.top() + (r.height() - iconSz) / 2;
     const int      textX   = r.left() + 32;
     const int      textW   = r.width() - 40;
 
@@ -571,7 +571,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
         m->addSeparator();
         m->addAction(QIcon::fromTheme("network-connect"), tr("Netzwerklaufwerk verbinden"),
                      this, []() { QProcess::startDetached("knetattach", {}); });
-        m->addAction(QIcon::fromTheme("im-google"), tr("Google Drive verbinden"),
+        m->addAction(QIcon::fromTheme("folder-gdrive"), tr("Google Drive verbinden"),
                      this, []() { QProcess::startDetached("kcmshell6", {"kcm_kaccounts"}); });
         m->addSeparator();
         m->addAction(QIcon::fromTheme("multimedia-player"), tr("Telefon durchsuchen (MTP)"),
@@ -1012,14 +1012,21 @@ void Sidebar::updateDrives()
 
     // Gespeicherte Netzwerkplätze (persistent)
     QSettings netSettings("SplitCommander", "NetworkPlaces");
-    const QStringList savedPlaces = netSettings.value("places").toStringList();
+    // gdrive-Einträge aus NetworkPlaces entfernen (werden via KIO geladen)
+    QStringList savedPlaces = netSettings.value("places").toStringList();
+    savedPlaces.removeIf([](const QString &p) { return p.startsWith("gdrive:"); });
     for (const QString &p : savedPlaces) {
         if (shownPaths.contains(p)) continue;
         shownPaths.insert(p);
         hasNet = true;
         const QString savedName = netSettings.value("name_" + QString(p).replace("/","_"), QDir(p).dirName()).toString();
+        // Icon je nach Protokoll
+        const QString scheme = QUrl(p).scheme().toLower();
+        QString savedIcon = scheme == "smb" ? "network-workgroup"
+                          : scheme == "sftp" || scheme == "ssh" ? "network-connect"
+                          : "network-server";
         if (m_netList) {
-            auto *it = new QListWidgetItem(QIcon::fromTheme("network-server"), savedName, m_netList);
+            auto *it = new QListWidgetItem(QIcon::fromTheme(savedIcon), savedName, m_netList);
             it->setData(Qt::UserRole, p);
             it->setData(Qt::UserRole + 1, p);
             it->setSizeHint(QSize(0, 36));
@@ -1061,7 +1068,11 @@ void Sidebar::updateDrives()
         shownPaths.insert(p);
         hasNet = true;
         if (m_netList) {
-            auto *it = new QListWidgetItem(QIcon::fromTheme("im-google"), acc, m_netList);
+            QIcon gIcon = QIcon::fromTheme("folder-gdrive");
+            if (gIcon.isNull()) gIcon = QIcon::fromTheme("folder-remote");
+            if (gIcon.isNull()) gIcon = QIcon::fromTheme("folder");
+            auto *it = new QListWidgetItem(gIcon, acc, m_netList);
+            it->setData(Qt::DecorationRole, gIcon);
             it->setData(Qt::UserRole,     p);
             it->setData(Qt::UserRole + 1, "Google Drive");
             it->setSizeHint(QSize(0, 36));

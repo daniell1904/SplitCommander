@@ -25,7 +25,9 @@
 #include <QButtonGroup>
 #include <QClipboard>
 #include <QMimeData>
+#include <QFile>
 #include <QFileDialog>
+#include <QXmlStreamReader>
 #include <QStandardPaths>
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -875,6 +877,38 @@ void MillerColumn::populateDrives()
             it->setForeground(QColor(TM().colors().textMuted));
         }
     }
+
+    // ── Netzwerklaufwerke (FUSE-gemountet) ──
+    for (const QStorageInfo &storage : QStorageInfo::mountedVolumes()) {
+        if (!storage.isValid() || !storage.isReady()) continue;
+        const QString fs = storage.fileSystemType();
+        if (fs != "cifs" && fs != "smb3" && fs != "nfs" && fs != "nfs4"
+            && fs != "sshfs" && fs != "fuse.sshfs" && fs != "davfs"
+            && fs != "fuse.davfs2" && !fs.startsWith("fuse.")) continue;
+        const QString path = storage.rootPath();
+        QString name = storage.name().isEmpty() ? QDir(path).dirName() : storage.name();
+        if (name.isEmpty()) name = path;
+        QString icon = (fs == "cifs" || fs == "smb3") ? "network-workgroup"
+                     : (fs == "sshfs" || fs == "fuse.sshfs") ? "network-connect"
+                     : "network-server";
+        auto *it = new QListWidgetItem(m_list);
+        it->setData(Qt::DisplayRole,    name);
+        it->setData(Qt::DecorationRole, QIcon::fromTheme(icon));
+        it->setData(Qt::UserRole,        path);
+        it->setData(Qt::UserRole + 1,    fs);
+        it->setSizeHint(QSize(0, 44));
+    }
+
+    // ── Google Drive Accounts (via KIO::listDir) ──
+    // Wird async geladen - populateDrives wird erneut aufgerufen wenn Accounts bekannt
+    for (const QString &acc : m_gdriveAccounts) {
+        auto *it = new QListWidgetItem(m_list);
+        it->setData(Qt::DisplayRole,    acc);
+        it->setData(Qt::DecorationRole, QIcon::fromTheme("folder-gdrive"));
+        it->setData(Qt::UserRole,        "gdrive:/" + acc);
+        it->setData(Qt::UserRole + 1,    "gdrive");
+        it->setSizeHint(QSize(0, 44));
+    }
 }
 
 void MillerColumn::populateDir(const QString &path)
@@ -1070,7 +1104,15 @@ void MillerArea::init()
 
 void MillerArea::appendColumn(const QString &path)
 {
-    // DER BLOCK FÜR DEN TRENNER (QFrame) WURDE HIER ENTFERNT
+    // KIO-URLs (gdrive:/, smb://, sftp:// etc.) direkt in FilePane navigieren
+    static const QStringList kioSchemes = {
+        "gdrive","smb","sftp","ftp","ftps","mtp","remote","nfs","fish","davs","dav"
+    };
+    const QUrl url(path);
+    if (!url.scheme().isEmpty() && kioSchemes.contains(url.scheme().toLower())) {
+        emit kioPathRequested(path);
+        return;
+    }
 
     auto *col = new MillerColumn();
     col->populateDir(path); col->setActive(true);
@@ -1082,7 +1124,13 @@ void MillerArea::appendColumn(const QString &path)
         trimAfter(src);
         for (auto *c : m_cols) c->setActive(false);
         src->setActive(true); m_activeCol = src;
-        if (QFileInfo(p2).isDir()) appendColumn(p2);
+        // KIO-URL oder lokales Verzeichnis
+        const QUrl u2(p2);
+        static const QStringList ks = {"gdrive","smb","sftp","ftp","ftps","mtp","remote","nfs","fish","davs","dav"};
+        if (!u2.scheme().isEmpty() && ks.contains(u2.scheme().toLower()))
+            appendColumn(p2);
+        else if (QFileInfo(p2).isDir())
+            appendColumn(p2);
         emit pathChanged(p2);
     });
     connect(col, &MillerColumn::activated, this, [this](MillerColumn *src) {
@@ -1121,7 +1169,7 @@ QString MillerArea::activePath() const
     return m_activeCol ? m_activeCol->path() : QString();
 }
 
-void MillerArea::navigateTo(const QString &path)
+void MillerArea::navigateTo(const QString &path, bool clearForward)
 {
     if (path.isEmpty() || !QFileInfo::exists(path)) return;
 
@@ -1900,6 +1948,9 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     connect(m_miller, &MillerArea::pathChanged,     this, [this](const QString &path) {
         if (QFileInfo(path).isDir()) navigateTo(path);
     });
+    connect(m_miller, &MillerArea::kioPathRequested, this, [this](const QString &path) {
+        navigateTo(path);
+    });
     connect(m_miller, &MillerArea::focusRequested,  this, &PaneWidget::focusRequested);
     connect(m_miller, &MillerArea::headerClicked,   this,
             [pathStack, breadcrumbBtn, this](const QString &path) {
@@ -2035,7 +2086,7 @@ QString PaneWidget::currentPath() const
     return m_pathEdit ? m_pathEdit->text() : QDir::homePath();
 }
 
-void PaneWidget::navigateTo(const QString &path)
+void PaneWidget::navigateTo(const QString &path, bool clearForward)
 {
     if (path.isEmpty() || path == "__drives__") return;
     const QString cur = currentPath();
@@ -2282,8 +2333,25 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         activePane()->filePane()->showTaggedFiles(tagName);
     });
     connect(m_sidebar, &Sidebar::drivesChanged, this, [this]() {
+        // GDrive-Accounts an alle Miller-Spalten weitergeben
+        const QStringList accs = m_sidebar->gdriveAccounts();
+        auto updateCols = [&accs](MillerArea *m) {
+            for (auto *col : m->cols()) col->setGdriveAccounts(accs);
+        };
+        updateCols(m_leftPane->miller());
+        updateCols(m_rightPane->miller());
         m_leftPane->miller()->refreshDrives();
         m_rightPane->miller()->refreshDrives();
+    });
+    // Beim Start: nach kurzer Verzögerung nochmal refreshen wenn gdrive geladen
+    QTimer::singleShot(2000, this, [this]() {
+        const QStringList accs = m_sidebar->gdriveAccounts();
+        if (!accs.isEmpty()) {
+            for (auto *col : m_leftPane->miller()->cols()) col->setGdriveAccounts(accs);
+            for (auto *col : m_rightPane->miller()->cols()) col->setGdriveAccounts(accs);
+            m_leftPane->miller()->refreshDrives();
+            m_rightPane->miller()->refreshDrives();
+        }
     });
 
     // ── Settings-Änderungen live anwenden ─────────────────────────────────

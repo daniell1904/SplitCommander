@@ -65,6 +65,7 @@ public:
 
 public slots:
     void updateDrives();
+    QStringList gdriveAccounts() const { return m_gdriveAccounts; }
     void setupPlaces();
     void addPlace(const QString &path);
     void addToGroup(const QString &groupName, QListWidget *list, const QString &path);

@@ -48,6 +48,7 @@ private:
 class MillerColumn : public QWidget {
     Q_OBJECT
 public:
+    void setGdriveAccounts(const QStringList &accounts) { m_gdriveAccounts = accounts; }
     explicit MillerColumn(QWidget *parent = nullptr);
     void populateDrives();
     void populateDir(const QString &path);
@@ -65,6 +66,7 @@ private:
     QListWidget  *m_list;
     QPushButton  *m_header;
     QString       m_path;
+    QStringList   m_gdriveAccounts;
 };
 
 // ── Miller-Bereich ────────────────────────────────────────────────────────────
@@ -74,7 +76,7 @@ public:
     explicit MillerArea(QWidget *parent = nullptr);
     void init();
     void refreshDrives();
-    void navigateTo(const QString &path); // neues API
+    void navigateTo(const QString &path, bool clearForward = true); // neues API
     QString activePath() const;
     void setFocused(bool f);
     const QList<MillerColumn*>& cols() const { return m_cols; }
@@ -82,6 +84,7 @@ signals:
     void pathChanged(const QString &path);
     void focusRequested();
     void headerClicked(const QString &path);
+    void kioPathRequested(const QString &path);
 protected:
     void resizeEvent(QResizeEvent *e) override;
 private:
@@ -111,7 +114,7 @@ public:
     bool isFocused() const { return m_focused; }
     QString currentPath() const;
     FilePane *filePane() { return m_filePane; }
-    void navigateTo(const QString &path);
+    void navigateTo(const QString &path, bool clearForward = true);
     void updateFooter(const QString &path);
     MillerArea *miller() { return m_miller; }
     PaneToolbar *toolbar() { return m_toolbar; }
