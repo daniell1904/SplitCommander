@@ -1254,14 +1254,6 @@ void FilePane::showContextMenu(const QPoint &pos) {
                 QFile::link(path, desk + "/" + QFileInfo(path).fileName());
             });
 
-        sendMenu->addAction(QIcon::fromTheme("folder-documents"), tr("Dokumente"),
-            this, [this, path]() {
-                const QString docs = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-                auto *job = KIO::copy({QUrl::fromLocalFile(path)},
-                    QUrl::fromLocalFile(docs), KIO::DefaultFlags);
-                job->uiDelegate()->setAutoErrorHandlingEnabled(true);
-            });
-
         sendMenu->addAction(QIcon::fromTheme("mail-send"), tr("E-Mail-Empfänger"),
             this, [path]() {
                 QUrl mail(QString("mailto:?subject=%1&attachment=%2")

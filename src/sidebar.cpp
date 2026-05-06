@@ -4,6 +4,8 @@
 
 #include "sidebar.h"
 #include "propertiesdialog.h"
+#include <KPropertiesDialog>
+#include <QUrl>
 #include "settingsdialog.h"
 #include "thememanager.h"
 #include "terminalutils.h"
@@ -151,36 +153,39 @@ static void sc_buildPlaceMenu(QMenu &menu, const QString &path, QWidget *parent,
             menu.addAction(QIcon::fromTheme("list-remove"), QObject::tr("Aus Gruppe entfernen")),
             &QAction::triggered, removeAction);
 
-    menu.addAction(QIcon::fromTheme("document-edit"), QObject::tr("Bearbeiten …"),
-        [path, parent, editAction]() {
-            QDialog dlg(parent);
-            dlg.setWindowTitle(QObject::tr("Eintrag bearbeiten"));
-            dlg.setMinimumWidth(400);
-            dlg.setStyleSheet(
-                "QDialog{background:#1e2330;color:#ccd4e8;}"
-                "QLabel{color:#ccd4e8;}"
-                "QLineEdit{background:#23283a;border:1px solid #2c3245;color:#ccd4e8;padding:4px;border-radius:4px;}"
-                "QPushButton{background:#3b4252;color:#ccd4e8;border:1px solid #2c3245;padding:4px 12px;border-radius:4px;}");
-
-            auto *vl   = new QVBoxLayout(&dlg);
-            auto *grid = new QWidget(&dlg);
-            auto *gl   = new QGridLayout(grid);
-            gl->setContentsMargins(0, 0, 0, 0);
-            gl->addWidget(new QLabel(QObject::tr("Beschriftung:")), 0, 0);
-            auto *nameEdit = new QLineEdit(QFileInfo(path).fileName(), &dlg);
-            gl->addWidget(nameEdit, 0, 1);
-            gl->addWidget(new QLabel(QObject::tr("Adresse:")), 1, 0);
-            auto *pathEdit = new QLineEdit(path, &dlg);
-            gl->addWidget(pathEdit, 1, 1);
-            vl->addWidget(grid);
-
-            auto *btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-            QObject::connect(btns, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
-            QObject::connect(btns, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
-            vl->addWidget(btns);
-
-            if (dlg.exec() == QDialog::Accepted && editAction)
-                editAction(nameEdit->text().trimmed(), pathEdit->text().trimmed());
+    // Bearbeiten-Untermenü (wie Detailliste)
+    auto *editMenu = menu.addMenu(QIcon::fromTheme("document-edit"), QObject::tr("Bearbeiten"));
+    editMenu->setStyleSheet(menu.styleSheet());
+    editMenu->addAction(QIcon::fromTheme("edit-cut"), QObject::tr("Ausschneiden"),
+        [path]() {
+            auto *mime = new QMimeData();
+            mime->setUrls({QUrl::fromLocalFile(path)});
+            mime->setData("x-special/gnome-copied-files", QByteArray("cut\n") + QUrl::fromLocalFile(path).toEncoded());
+            QGuiApplication::clipboard()->setMimeData(mime);
+        });
+    editMenu->addAction(QIcon::fromTheme("edit-copy"), QObject::tr("Kopieren"),
+        [path]() {
+            auto *mime = new QMimeData();
+            mime->setUrls({QUrl::fromLocalFile(path)});
+            QGuiApplication::clipboard()->setMimeData(mime);
+        });
+    editMenu->addAction(QIcon::fromTheme("edit-paste"), QObject::tr("Einfügen"),
+        [path]() {
+            const QMimeData *mime = QGuiApplication::clipboard()->mimeData();
+            if (!mime->hasUrls()) return;
+            for (const QUrl &u : mime->urls()) {
+                const QString src = u.toLocalFile();
+                if (src.isEmpty()) continue;
+                QFile::copy(src, path + "/" + QFileInfo(src).fileName());
+            }
+        });
+    editMenu->addSeparator();
+    editMenu->addAction(QIcon::fromTheme("edit-copy"), QObject::tr("Adresse kopieren"),
+        [path]() { QGuiApplication::clipboard()->setText(path); });
+    editMenu->addAction(QIcon::fromTheme("edit-copy-path"), QObject::tr("Hier duplizieren"),
+        [path]() {
+            const QString newPath = path + " (Kopie)";
+            QFile::copy(path, newPath);
         });
 
     menu.addSeparator();
@@ -202,7 +207,7 @@ static void sc_buildPlaceMenu(QMenu &menu, const QString &path, QWidget *parent,
     menu.addSeparator();
     menu.addAction(QIcon::fromTheme("document-properties"), QObject::tr("Eigenschaften"),
         [path, parent]() {
-            auto *d = new PropertiesDialog(path, parent);
+            auto *d = new KPropertiesDialog(QUrl::fromLocalFile(path), parent);
             d->setAttribute(Qt::WA_DeleteOnClose);
             d->show();
         });
@@ -350,6 +355,11 @@ Sidebar::Sidebar(QWidget *parent) : QWidget(parent)
     updateDrives();
     loadGDriveAccountsAsync();  // KIO async, überschreibt xbel-Daten
     connectDriveList();
+    setupDriveContextMenu();
+    connect(Solid::DeviceNotifier::instance(), &Solid::DeviceNotifier::deviceAdded,
+            this, [this](const QString &) { updateDrives(); emit drivesChanged(); });
+    connect(Solid::DeviceNotifier::instance(), &Solid::DeviceNotifier::deviceRemoved,
+            this, [this](const QString &) { updateDrives(); emit drivesChanged(); });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -926,12 +936,16 @@ void Sidebar::updateDrives()
     const auto devices = Solid::Device::listFromType(Solid::DeviceInterface::StorageAccess);
     for (const Solid::Device &device : devices) {
         const auto *access = device.as<Solid::StorageAccess>();
-        if (!access || !access->isAccessible()) continue;
+        if (!access) continue;
 
-        const QString path = access->filePath();
-        if (path.isEmpty() || shownPaths.contains(path)) continue;
-        if (path.startsWith("/boot") || path.startsWith("/efi")
-            || path.startsWith("/snap") || path == "/home") continue;
+        const bool mounted = access->isAccessible();
+        const QString path = mounted ? access->filePath() : QString();
+
+        if (mounted) {
+            if (path.isEmpty() || shownPaths.contains(path)) continue;
+            if (path.startsWith("/boot") || path.startsWith("/efi")
+                || path.startsWith("/snap") || path == "/home") continue;
+        }
 
         const auto *vol = device.as<Solid::StorageVolume>();
         if (vol) {
@@ -940,37 +954,42 @@ void Sidebar::updateDrives()
             if (lbl == "BOOT" || lbl == "EFI" || lbl == "EFI SYSTEM PARTITION" || lbl == "ESP") continue;
             if (fsType == "iso9660" || fsType == "udf") continue;
         }
-        shownPaths.insert(path);
 
-        QString name = (path == "/") ? "Fedora" : device.description();
+        if (mounted) shownPaths.insert(path);
+
+        QString name = (mounted && path == "/") ? "Fedora" : device.description();
         if (name.isEmpty() && vol) name = vol->label();
-        if (name.isEmpty()) name = QDir(path).dirName();
+        if (name.isEmpty()) name = device.udi().section('/', -1);
 
         QString iconName;
         if (const auto *drv = device.as<Solid::StorageDrive>()) {
             if (drv->driveType() == Solid::StorageDrive::CdromDrive)
                 iconName = "drive-optical";
-            else if (drv->isRemovable() || drv->isHotpluggable() || path.startsWith("/run/media/"))
+            else if (drv->isRemovable() || drv->isHotpluggable()
+                     || (mounted && path.startsWith("/run/media/")))
                 iconName = "drive-removable-media";
             else
                 iconName = "drive-harddisk";
         } else {
             iconName = device.icon().isEmpty()
-                ? (path.startsWith("/run/media/") ? "drive-removable-media" : "drive-harddisk")
+                ? ((mounted && path.startsWith("/run/media/")) ? "drive-removable-media" : "drive-harddisk")
                 : device.icon();
         }
 
-        QStorageInfo info(path);
         QString freeStr;
-        if (info.isValid())
-            freeStr = QString("%1 GB frei / %2 GB")
-                .arg(info.bytesFree() / 1073741824.0, 0, 'f', 0)
-                .arg(info.bytesTotal() / 1073741824.0, 0, 'f', 0);
+        if (mounted) {
+            QStorageInfo info(path);
+            if (info.isValid())
+                freeStr = QString("%1 GB frei / %2 GB")
+                    .arg(info.bytesFree() / 1073741824.0, 0, 'f', 0)
+                    .arg(info.bytesTotal() / 1073741824.0, 0, 'f', 0);
+        }
 
         auto *it = new QListWidgetItem(QIcon::fromTheme(iconName), name, m_driveList);
-        it->setData(Qt::UserRole,     path);
+        it->setData(Qt::UserRole,     mounted ? path : QString("solid:") + device.udi());
         it->setData(Qt::UserRole + 1, freeStr);
-        it->setData(Qt::UserRole + 2, device.udi()); // UDI für teardown
+        it->setData(Qt::UserRole + 2, device.udi());
+        if (!mounted) it->setForeground(QColor(TM().colors().textMuted));
     }
 
     // ── Nicht gemountete Block-Geräte ──
@@ -1113,15 +1132,7 @@ void Sidebar::updateDrives()
     m_driveList->updateGeometry();
 
     // ── Hot-Plug (einmalig verbinden) ──
-    static bool connected = false;
-    if (!connected) {
-        connected = true;
-        connect(Solid::DeviceNotifier::instance(), &Solid::DeviceNotifier::deviceAdded,
-                this, [this](const QString &) { updateDrives(); });
-        connect(Solid::DeviceNotifier::instance(), &Solid::DeviceNotifier::deviceRemoved,
-                this, [this](const QString &) { updateDrives(); });
-        setupDriveContextMenu();
-    }
+
 
     s_updating = false;
 }
@@ -1222,7 +1233,7 @@ void Sidebar::setupDriveContextMenu()
             menu.addSeparator();
             menu.addAction(QIcon::fromTheme("document-properties"), tr("Eigenschaften"),
                            this, [this, path]() {
-                auto *dlg = new PropertiesDialog(path, this);
+                auto *dlg = new KPropertiesDialog(QUrl::fromLocalFile(path), this);
                 dlg->setAttribute(Qt::WA_DeleteOnClose);
                 dlg->show();
             });

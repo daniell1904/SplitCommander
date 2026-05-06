@@ -26,3 +26,5 @@ compile_commands.json
 # Backups
 versions/
 src/Sicherung/
+release.sh
+gcp

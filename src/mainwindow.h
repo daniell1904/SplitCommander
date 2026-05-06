@@ -62,6 +62,9 @@ signals:
     void headerClicked(const QString &path);
     void teardownRequested(const QString &udi);   // Laufwerk aushängen
     void setupRequested(const QString &udi);      // Laufwerk einhängen
+    void openInLeft(const QString &path);
+    void openInRight(const QString &path);
+    void propertiesRequested(const QString &path);
 private:
     QListWidget  *m_list;
     QPushButton  *m_header;
@@ -85,6 +88,9 @@ signals:
     void focusRequested();
     void headerClicked(const QString &path);
     void kioPathRequested(const QString &path);
+    void openInLeft(const QString &path);
+    void openInRight(const QString &path);
+    void propertiesRequested(const QString &path);
 protected:
     void resizeEvent(QResizeEvent *e) override;
 private:
@@ -126,6 +132,8 @@ protected:
 signals:
     void focusRequested();
     void pathUpdated(const QString &path);
+    void openInLeftRequested(const QString &path);
+    void openInRightRequested(const QString &path);
     void openSettingsRequested(int page);
     void hiddenFilesToggled(bool show);
     void extensionsToggled(bool show);

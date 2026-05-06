@@ -16,6 +16,7 @@
 #include <KJobWidgets>
 #include <Solid/Device>
 #include <Solid/DeviceNotifier>
+#include <KPropertiesDialog>
 #include <Solid/StorageAccess>
 #include <Solid/StorageDrive>
 #include <Solid/StorageVolume>
@@ -808,12 +809,14 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent)
             }
         } else {
             // ── Ordner-Menü ────────────────────────────────────────────────
+            mw_applyMenuShadow(&menu);
             menu.addAction(QIcon::fromTheme("folder-open"), tr("Öffnen"), this,
                 [this, itemPath]() { emit entryClicked(itemPath, this); });
 
             auto *openInMenu = menu.addMenu(QIcon::fromTheme("folder-open"), tr("Öffnen in"));
             openInMenu->setStyleSheet(TM().ssMenu());
-            openInMenu->addAction(tr("Linker Ansicht"),  this, [this, itemPath]() { emit entryClicked(itemPath, this); });
+            openInMenu->addAction(tr("Linke Ansicht"),  this, [this, itemPath]() { emit openInLeft(itemPath); });
+            openInMenu->addAction(tr("Rechte Ansicht"), this, [this, itemPath]() { emit openInRight(itemPath); });
 
             menu.addSeparator();
             menu.addAction(QIcon::fromTheme("utilities-terminal"), tr("Terminal hier öffnen"), this,
@@ -821,6 +824,9 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent)
             menu.addSeparator();
             menu.addAction(QIcon::fromTheme("edit-copy"), tr("Pfad kopieren"), this,
                 [itemPath]() { QGuiApplication::clipboard()->setText(itemPath); });
+            menu.addSeparator();
+            menu.addAction(QIcon::fromTheme("document-properties"), tr("Eigenschaften"), this,
+                [this, itemPath]() { emit propertiesRequested(itemPath); });
         }
 
         menu.exec(m_list->mapToGlobal(pos));
@@ -1100,6 +1106,9 @@ void MillerArea::init()
         }, Qt::SingleShotConnection);
         acc->setup();
     });
+    connect(col, &MillerColumn::openInLeft,          this, &MillerArea::openInLeft);
+    connect(col, &MillerColumn::openInRight,         this, &MillerArea::openInRight);
+    connect(col, &MillerColumn::propertiesRequested, this, &MillerArea::propertiesRequested);
 }
 
 void MillerArea::appendColumn(const QString &path)
@@ -1139,6 +1148,9 @@ void MillerArea::appendColumn(const QString &path)
         src->setActive(true); m_activeCol = src;
     });
     connect(col, &MillerColumn::headerClicked, this, &MillerArea::headerClicked);
+    connect(col, &MillerColumn::openInLeft,          this, &MillerArea::openInLeft);
+    connect(col, &MillerColumn::openInRight,         this, &MillerArea::openInRight);
+    connect(col, &MillerColumn::propertiesRequested, this, &MillerArea::propertiesRequested);
     updateVisibleColumns();
 }
 
@@ -1252,7 +1264,7 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     tabLay->setSpacing(2);
 
     auto *pathStack = new QStackedWidget();
-    pathStack->setStyleSheet("background:transparent;");
+    pathStack->setStyleSheet("");
     pathStack->setFixedHeight(26);
 
     m_pathEdit = new QLineEdit(QDir::homePath());
@@ -1685,8 +1697,17 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
 
     connect(actAbout, &QAction::triggered, this, [this]() {
         QMessageBox::about(this, tr("Über SplitCommander"),
-            tr("<b>SplitCommander</b><br>Ein nativer KDE-Dateimanager.<br><br>"
-               "Lizenz: GPL-3.0<br>Stack: Qt6 + KF6 + C++"));
+            tr("<b>SplitCommander</b> &nbsp;<small>v0.3.0</small><br>"
+               "<small>Ein nativer KDE-Dateimanager für den täglichen Einsatz.</small>"
+               "<br><br>"
+               "<b>Stack:</b> Qt6 · KF6 · C++20 · Solid · KIO<br>"
+               "<b>Lizenz:</b> GPL-3.0<br>"
+               "<b>Autor:</b> D. Lange<br>"
+               "<br>"
+               "<b>Features:</b> Miller-Columns · Dual-Pane · Tags · Batch-Rename · "
+               "Vorschau · Themes · Hot-Plug USB<br>"
+               "<br>"
+               "<small>Build: ") + QString(__DATE__) + tr(" · ") + QString(__TIME__) + tr("</small>"));
     });
 
     // ── Such-Panel ──
@@ -1950,6 +1971,13 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     });
     connect(m_miller, &MillerArea::kioPathRequested, this, [this](const QString &path) {
         navigateTo(path);
+    });
+    connect(m_miller, &MillerArea::openInLeft,  this, &PaneWidget::openInLeftRequested);
+    connect(m_miller, &MillerArea::openInRight, this, &PaneWidget::openInRightRequested);
+    connect(m_miller, &MillerArea::propertiesRequested, this, [this](const QString &path) {
+        auto *dlg = new KPropertiesDialog(QUrl::fromLocalFile(path), this);
+        dlg->setAttribute(Qt::WA_DeleteOnClose);
+        dlg->show();
     });
     connect(m_miller, &MillerArea::focusRequested,  this, &PaneWidget::focusRequested);
     connect(m_miller, &MillerArea::headerClicked,   this,
@@ -2317,6 +2345,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(m_sidebar, &Sidebar::driveClicked, this, [this, mountAndNavigate](const QString &path) {
         mountAndNavigate(path, !m_rightPane->isFocused());
     });
+    // Öffnen in Linke/Rechte Ansicht – fix, unabhängig von der Quell-Pane
+    for (auto *pane : {m_leftPane, m_rightPane}) {
+        connect(pane, &PaneWidget::openInLeftRequested, this, [this](const QString &path) {
+            m_leftPane->navigateTo(path); m_leftPane->setFocused(true); m_rightPane->setFocused(false);
+        });
+        connect(pane, &PaneWidget::openInRightRequested, this, [this](const QString &path) {
+            m_rightPane->navigateTo(path); m_rightPane->setFocused(true); m_leftPane->setFocused(false);
+        });
+    }
     connect(m_sidebar, &Sidebar::driveClickedRight, this, [mountAndNavigate](const QString &path) {
         mountAndNavigate(path, false);
     });
@@ -2389,10 +2426,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(Solid::DeviceNotifier::instance(), &Solid::DeviceNotifier::deviceAdded,
             this, [this](const QString &) {
         m_leftPane->miller()->refreshDrives(); m_rightPane->miller()->refreshDrives();
+        m_sidebar->updateDrives();
     });
     connect(Solid::DeviceNotifier::instance(), &Solid::DeviceNotifier::deviceRemoved,
             this, [this](const QString &) {
         m_leftPane->miller()->refreshDrives(); m_rightPane->miller()->refreshDrives();
+        m_sidebar->updateDrives();
     });
 
     // Spalten-Sync
