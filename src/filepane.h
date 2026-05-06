@@ -1,5 +1,4 @@
-#ifndef FILEPANE_H
-#define FILEPANE_H
+#pragma once
 
 #include <QUrl>
 #include <QWidget>
@@ -139,4 +138,3 @@ private:
 
     static const QList<FPColDef>& colDefs();
 };
-#endif

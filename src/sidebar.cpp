@@ -3,7 +3,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 #include "sidebar.h"
-#include "propertiesdialog.h"
 #include <KPropertiesDialog>
 #include <QUrl>
 #include "settingsdialog.h"
@@ -59,6 +58,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Hilfsfunktionen (file-scope)
 // ─────────────────────────────────────────────────────────────────────────────
+
+static QString sc_rootVolumeName()
+{
+    const QString name = QStorageInfo(QStringLiteral("/")).name();
+    return name.isEmpty() ? QObject::tr("System") : name;
+}
 
 static void sc_applyMenuShadow(QMenu *menu)
 {
@@ -882,7 +887,7 @@ void Sidebar::updateDrives()
 
         if (mounted) shownPaths.insert(path);
 
-        QString name = (mounted && path == "/") ? "Fedora" : device.description();
+        QString name = (mounted && path == "/") ? sc_rootVolumeName() : device.description();
         if (name.isEmpty() && vol) name = vol->label();
         if (name.isEmpty()) name = device.udi().section('/', -1);
 

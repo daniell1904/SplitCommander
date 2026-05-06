@@ -1,5 +1,4 @@
-#ifndef SETTINGSDIALOG_H
-#define SETTINGSDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <QCheckBox>
@@ -106,4 +105,3 @@ private:
     QList<QKeySequenceEdit*> m_shortcutEdits;
 };
 
-#endif // SETTINGSDIALOG_H

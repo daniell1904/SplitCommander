@@ -3,6 +3,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 #include "mainwindow.h"
+#include "panewidgets.h"
 #include "settingsdialog.h"
 #include "shortcutdialog.h"
 #include "themedialog.h"
@@ -57,6 +58,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // StyleSheet-Konstanten
 
+static QString sc_rootVolumeName()
+{
+    const QString name = QStorageInfo(QStringLiteral("/")).name();
+    return name.isEmpty() ? QObject::tr("System") : name;
+}
+
 static void mw_applyMenuShadow(QMenu *menu)
 {
     if (!menu) return;
@@ -66,514 +73,6 @@ static void mw_applyMenuShadow(QMenu *menu)
     shadow->setColor(QColor(0, 0, 0, 140));
     menu->setGraphicsEffect(shadow);
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// MillerStrip — schmaler Streifen für zurückliegende Miller-Spalten
-// ─────────────────────────────────────────────────────────────────────────────
-class MillerStrip : public QWidget {
-    Q_OBJECT
-public:
-    explicit MillerStrip(const QString &label, QWidget *parent = nullptr)
-        : QWidget(parent), m_label(label) {
-        setFixedWidth(22);
-        setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
-        setCursor(Qt::PointingHandCursor);
-        setToolTip(label);
-    }
-    void setLabel(const QString &l) { m_label = l; update(); }
-
-signals:
-    void clicked();
-
-protected:
-    void paintEvent(QPaintEvent *) override {
-        QPainter p(this);
-        p.fillRect(rect(), QColor(m_hovered ? TM().colors().bgBox : TM().colors().bgPanel));
-        p.setPen(QColor(TM().colors().borderAlt));
-        p.drawLine(width() - 1, 0, width() - 1, height());
-        p.save();
-        p.translate(width() / 2 + 4, height() - 8);
-        p.rotate(-90);
-        p.setPen(QColor(m_hovered ? TM().colors().textPrimary : TM().colors().textAccent));
-        QFont f = p.font(); f.setPointSize(8); p.setFont(f);
-        p.drawText(0, 0, p.fontMetrics().elidedText(m_label, Qt::ElideRight, height() - 16));
-        p.restore();
-    }
-    void mousePressEvent(QMouseEvent *) override { emit clicked(); }
-    void enterEvent(QEnterEvent *)       override { m_hovered = true;  update(); }
-    void leaveEvent(QEvent *)            override { m_hovered = false; update(); }
-
-private:
-    QString m_label;
-    bool    m_hovered = false;
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// PaneSplitterHandle — custom Handle mit Grip-Strichen und Collapse-Pfeilen
-// ─────────────────────────────────────────────────────────────────────────────
-class PaneSplitterHandle : public QSplitterHandle {
-    Q_OBJECT
-public:
-    PaneSplitterHandle(Qt::Orientation o, QSplitter *parent)
-        : QSplitterHandle(o, parent) {
-        setStyleSheet(QString("background:%1;").arg(TM().colors().splitter));
-        connect(parent, &QSplitter::splitterMoved, this, [this](int, int) { update(); });
-    }
-
-    // 0 = beide offen, 1 = links eingeklappt, 2 = rechts eingeklappt
-    int collapseState() const {
-        QList<int> sz = splitter()->sizes();
-        if (sz.size() < 2) return 0;
-        if (sz[0] == 0)    return 1;
-        if (sz[1] == 0)    return 2;
-        return 0;
-    }
-
-protected:
-    void paintEvent(QPaintEvent *) override {
-        QPainter p(this);
-        p.setRenderHint(QPainter::Antialiasing);
-        p.fillRect(rect(), QColor(TM().colors().splitter));
-
-        const int cx    = width() / 2;
-        const int cy    = height() / 2;
-        const int state = collapseState();
-
-        if (state == 0) {
-            // Grip-Striche
-            p.setPen(QPen(QColor(255, 255, 255, m_hovered ? 140 : 50), 1));
-            for (int i = -3; i <= 4; ++i) {
-                const int y = cy + i * 4 - 2;
-                p.drawLine(cx - 2, y, cx + 2, y);
-            }
-            // Pfeil oben (<)
-            QIcon::fromTheme("go-previous").paint(&p, cx - 7, cy - 34 - 7, 14, 14);
-            QIcon::fromTheme("go-next").paint(&p, cx - 7, cy + 34 - 7, 14, 14);
-        } else {
-            p.setPen(QPen(QColor(255, 255, 255, m_hovered ? 240 : 150), 2.0,
-                          Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-            QIcon::fromTheme(state == 1 ? "go-next" : "go-previous").paint(&p, cx - 7, cy - 7, 14, 14);
-        }
-    }
-
-    void mousePressEvent(QMouseEvent *e) override {
-        if (e->button() != Qt::LeftButton) return;
-        m_pressGlobal  = e->globalPosition().toPoint();
-        m_sizesAtPress = splitter()->sizes();
-        QSplitterHandle::mousePressEvent(e);
-    }
-
-    void mouseReleaseEvent(QMouseEvent *e) override {
-        if (e->button() != Qt::LeftButton) {
-            QSplitterHandle::mouseReleaseEvent(e); return;
-        }
-        const int moved = qAbs(e->globalPosition().toPoint().x() - m_pressGlobal.x());
-        if (moved < 4) {
-            QList<int> sz    = splitter()->sizes();
-            if (sz.size() < 2) return;
-            const int total  = sz[0] + sz[1];
-            const int state  = collapseState();
-            if (state != 0) {
-                splitter()->setSizes({total / 2, total / 2});
-            } else {
-                if (e->pos().y() < height() / 2)
-                    splitter()->setSizes({0, total});
-                else
-                    splitter()->setSizes({total, 0});
-            }
-        }
-        QSplitterHandle::mouseReleaseEvent(e);
-    }
-
-    void enterEvent(QEnterEvent *) override { m_hovered = true;  update(); }
-    void leaveEvent(QEvent *)      override { m_hovered = false; update(); }
-
-private:
-    QPoint      m_pressGlobal;
-    QList<int>  m_sizesAtPress;
-    bool        m_hovered = false;
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// PaneSplitter — QSplitter mit custom Handle
-// ─────────────────────────────────────────────────────────────────────────────
-class PaneSplitter : public QSplitter {
-    Q_OBJECT
-public:
-    PaneSplitter(Qt::Orientation o, QWidget *parent = nullptr)
-        : QSplitter(o, parent) {}
-protected:
-    QSplitterHandle *createHandle() override {
-        return new PaneSplitterHandle(orientation(), this);
-    }
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// SidebarHandle — Leiste zum Ein-/Ausklappen und Verbreitern der Sidebar
-// ─────────────────────────────────────────────────────────────────────────────
-class SidebarHandle : public QWidget {
-    Q_OBJECT
-public:
-    explicit SidebarHandle(QWidget *sidebar, QWidget *parent = nullptr)
-        : QWidget(parent), m_sidebar(sidebar) {
-        setFixedWidth(10);
-        setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
-        setMouseTracking(true);
-        setToolTip("Sidebar ein-/ausklappen / ziehen");
-
-        m_icons << QIcon::fromTheme("preferences-system")
-                << QIcon::fromTheme("dialog-information")
-                << QIcon::fromTheme("view-split-left-right")
-                << QIcon::fromTheme("system-search")
-                << QIcon::fromTheme("document-print")
-                << QIcon::fromTheme("mail-message-new");
-    }
-
-protected:
-    void paintEvent(QPaintEvent *) override {
-        QPainter p(this);
-        p.setRenderHint(QPainter::Antialiasing);
-        p.fillRect(rect(), QColor(TM().colors().splitter));
-
-        const int cx = width() / 2;
-        const int cy = height() / 2;
-
-        if (m_sidebar->isVisible()) {
-            // ── Ausgeklappt: Grip-Striche + Pfeil links ──
-            p.setPen(QPen(QColor(255, 255, 255, 30), 1));
-            p.drawLine(width() - 1, 0, width() - 1, height());
-
-            p.setPen(QPen(QColor(255, 255, 255, m_hov ? 140 : 50), 1));
-            for (int i = -3; i <= 4; ++i) {
-                const int y = cy + 10 + i * 4;
-                p.drawLine(cx - 2, y, cx + 2, y);
-            }
-            QIcon::fromTheme("go-previous").paint(&p, cx - 7, cy - 34 - 7, 14, 14);
-        } else {
-            // ── Eingeklappt: Text + Grip-Striche + Pfeil rechts + Icons ──
-
-            // "SplitCommander" vertikal
-            p.save();
-            p.translate(cx + 4, 200);
-            p.rotate(-90);
-            QFont f = p.font();
-            f.setPointSize(9);
-            f.setWeight(QFont::Light);
-            p.setFont(f);
-            p.setPen(QColor(TM().colors().textPrimary));
-            p.drawText(0, 0, "Split");
-            const int x1 = p.fontMetrics().horizontalAdvance("Split");
-            f.setWeight(QFont::Medium);
-            p.setFont(f);
-            p.setPen(QColor(TM().colors().textAccent));
-            p.drawText(x1, 0, "Commander");
-            const int x2 = x1 + p.fontMetrics().horizontalAdvance("Commander");
-            f.setPointSize(7); f.setWeight(QFont::Light);
-            p.setFont(f);
-            p.setPen(QColor(TM().colors().textMuted));
-            p.drawText(x2 + 4, 0, "| Dateimanager");
-            p.restore();
-
-            // Grip-Striche
-            p.setPen(QPen(QColor(255, 255, 255, m_hov ? 140 : 50), 1));
-            for (int i = -3; i <= 4; ++i) {
-                const int y = cy + 10 + i * 4;
-                p.drawLine(cx - 2, y, cx + 2, y);
-            }
-
-            // Pfeil rechts
-            QIcon::fromTheme("go-next").paint(&p, cx - 7, cy + 44 - 7, 14, 14);
-
-            // Footer-Icons
-            const int iconSize = 16;
-            const int spacing  = 8;
-            const int total    = m_icons.size() * (iconSize + spacing) - spacing;
-            const int startY   = height() - total - 14;
-            for (int i = 0; i < m_icons.size(); ++i) {
-                const int iy   = startY + i * (iconSize + spacing);
-                const int ix   = cx - iconSize / 2;
-                const bool hov = m_hovIcon == i;
-                if (hov) {
-                    p.setPen(Qt::NoPen);
-                    p.setBrush(QColor(TM().colors().bgList));
-                    p.drawRoundedRect(ix - 4, iy - 3, iconSize + 8, iconSize + 6, 4, 4);
-                }
-                p.setOpacity(hov ? 1.0 : (m_hov ? 0.7 : 0.4));
-                p.drawPixmap(ix, iy, m_icons[i].pixmap(iconSize, iconSize));
-                p.setOpacity(1.0);
-            }
-        }
-    }
-
-    void mousePressEvent(QMouseEvent *e) override {
-        if (e->button() != Qt::LeftButton) return;
-        m_pressGlobal = e->globalPosition().toPoint();
-        m_pressWidth  = m_sidebar->isVisible() ? m_sidebar->width() : 0;
-        m_dragging    = false;
-    }
-
-    void mouseMoveEvent(QMouseEvent *e) override {
-        if (!(e->buttons() & Qt::LeftButton)) {
-            // Hover-Erkennung für Icons (eingeklappt)
-            if (!m_sidebar->isVisible()) {
-                const int iconSize = 16, spacing = 8;
-                const int total    = m_icons.size() * (iconSize + spacing) - spacing;
-                const int startY   = height() - total - 14;
-                const int cx       = width() / 2;
-                const int prev     = m_hovIcon;
-                m_hovIcon = -1;
-                for (int i = 0; i < m_icons.size(); ++i) {
-                    QRect r(cx - iconSize / 2 - 4, startY + i * (iconSize + spacing) - 3,
-                            iconSize + 8, iconSize + 6);
-                    if (r.contains(e->pos())) { m_hovIcon = i; break; }
-                }
-                if (m_hovIcon != prev) update();
-            }
-            return;
-        }
-
-        const int dx = e->globalPosition().toPoint().x() - m_pressGlobal.x();
-        if (qAbs(dx) > 3) m_dragging = true;
-        if (!m_dragging) return;
-
-        if (!m_sidebar->isVisible()) {
-            m_sidebar->setVisible(true);
-            setFixedWidth(10);
-            setCursor(Qt::SizeHorCursor);
-        }
-
-        const int newW = qBound(32, m_pressWidth + dx, 350);
-        if (newW < 150) {
-            m_sidebar->setVisible(false);
-            setFixedWidth(newW);
-        } else {
-            m_sidebar->setVisible(true);
-            m_sidebar->setFixedWidth(newW);
-            setFixedWidth(10);
-        }
-    }
-
-    void mouseReleaseEvent(QMouseEvent *e) override {
-        if (e->button() != Qt::LeftButton) return;
-        if (m_dragging && !m_sidebar->isVisible()) {
-            setFixedWidth(32);
-            setCursor(Qt::PointingHandCursor);
-            m_dragging = false;
-            update(); return;
-        }
-        if (!m_dragging) {
-            const bool show = !m_sidebar->isVisible();
-            m_sidebar->setVisible(show);
-            if (show) m_sidebar->setFixedWidth(250);
-            setFixedWidth(show ? 10 : 32);
-            setCursor(show ? Qt::SizeHorCursor : Qt::PointingHandCursor);
-        }
-        m_dragging = false;
-        update();
-    }
-
-    void enterEvent(QEnterEvent *) override {
-        m_hov = true;
-        setCursor(m_sidebar->isVisible() ? Qt::SizeHorCursor : Qt::PointingHandCursor);
-        update();
-    }
-    void leaveEvent(QEvent *) override {
-        m_hov     = false;
-        m_hovIcon = -1;
-        setCursor(Qt::ArrowCursor);
-        update();
-    }
-
-private:
-    QWidget      *m_sidebar;
-    QList<QIcon>  m_icons;
-    bool          m_hov      = false;
-    bool          m_dragging = false;
-    int           m_hovIcon  = -1;
-    QPoint        m_pressGlobal;
-    int           m_pressWidth = 0;
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// FooterWidget — zusammenklappbare Vorschau-/Info-Leiste am Pane-Rand
-// ─────────────────────────────────────────────────────────────────────────────
-class FooterWidget : public QWidget {
-public:
-    QLabel *countLbl    = nullptr;
-    QLabel *selectedLbl = nullptr;
-    QLabel *sizeLbl     = nullptr;
-    QLabel *previewIcon = nullptr;
-    QLabel *previewInfo = nullptr;
-
-    std::function<void()> onHeightChanged;
-
-    explicit FooterWidget(QWidget *parent) : QWidget(parent) {
-        setAttribute(Qt::WA_StyledBackground, true);
-        setStyleSheet(QString("background:%1;border-top:1px solid %2;").arg(TM().colors().bgList,TM().colors().bgDeep));
-        setFixedHeight(CLOSED_H);
-
-        m_mainLay = new QVBoxLayout(this);
-        m_mainLay->setContentsMargins(0, 0, 0, 0);
-        m_mainLay->setSpacing(0);
-
-        // ── Leisten-Zeile ──
-        m_barRow = new QFrame();
-        m_barRow->setFixedHeight(CLOSED_H);
-        m_barRow->setStyleSheet(
-            QString("QFrame { border:none; background: qlineargradient(x1:0,y1:0,x2:0,y2:1,"
-            "stop:0 rgba(10,13,20,100), stop:0.4 %1, stop:1 %1); }").arg(TM().colors().bgList));
-        auto *barLay = new QHBoxLayout(m_barRow);
-        barLay->setContentsMargins(8, 0, 8, 0);
-        barLay->setSpacing(4);
-
-        countLbl = new QLabel("0 Elemente");
-        countLbl->setStyleSheet(QString("color:%1;font-size:10px;background:transparent;").arg(TM().colors().textPrimary));
-        selectedLbl = new QLabel();
-        selectedLbl->setStyleSheet(QString("color:%1;font-size:10px;background:transparent;").arg(TM().colors().textAccent));
-        selectedLbl->hide();
-        sizeLbl = new QLabel();
-        sizeLbl->setStyleSheet(QString("color:%1;font-size:10px;background:transparent;").arg(TM().colors().textPrimary));
-
-        barLay->addWidget(countLbl);
-        barLay->addWidget(selectedLbl);
-        barLay->addStretch(1);
-        barLay->addSpacing(90);
-        barLay->addWidget(sizeLbl);
-        m_mainLay->addWidget(m_barRow);
-        m_barRow->setMouseTracking(true);
-        m_barRow->installEventFilter(this);
-
-        // ── Inhalt (ausgeklappt) ──
-        m_content = new QWidget();
-        m_content->hide();
-        auto *cLay = new QHBoxLayout(m_content);
-        cLay->setContentsMargins(0, 0, 0, 0);
-        cLay->setSpacing(0);
-
-        auto *pvSide = new QWidget();
-        pvSide->setStyleSheet(TM().ssPane());
-        auto *pvLay = new QVBoxLayout(pvSide);
-        pvLay->setContentsMargins(8, 8, 8, 8);
-        pvLay->setSpacing(0);
-        previewIcon = new QLabel();
-        previewIcon->setFixedSize(80, 80);
-        previewIcon->setAlignment(Qt::AlignCenter);
-        previewIcon->setStyleSheet("background:transparent; border:none;");
-        previewIcon->setFrameShape(QFrame::NoFrame);
-        previewIcon->setScaledContents(true);
-        pvLay->addStretch();
-        pvLay->addWidget(previewIcon, 0, Qt::AlignCenter);
-        pvLay->addStretch();
-
-        auto *divContainer = new QWidget();
-        auto *divLay = new QVBoxLayout(divContainer);
-        divLay->setContentsMargins(0, 12, 0, 12);
-        auto *div = new QWidget(); div->setFixedWidth(1); div->setStyleSheet(QString("background:%1;").arg(TM().colors().bgDeep));
-        divLay->addWidget(div);
-
-        auto *infoSide = new QWidget();
-        infoSide->setStyleSheet(TM().ssPane());
-        auto *infoLay = new QVBoxLayout(infoSide);
-        infoLay->setContentsMargins(8, 8, 8, 8);
-        infoLay->setSpacing(4);
-        previewInfo = new QLabel();
-        previewInfo->setStyleSheet(QString("color:%1;font-size:10px;background:transparent;border:none;").arg(TM().colors().textPrimary));
-        previewInfo->setAlignment(Qt::AlignTop | Qt::AlignLeft);
-        previewInfo->setWordWrap(true);
-        previewInfo->setFrameShape(QFrame::NoFrame);
-        previewInfo->setTextFormat(Qt::RichText);
-        infoLay->addWidget(previewInfo);
-        infoLay->addStretch();
-
-        cLay->addWidget(pvSide, 1);
-        cLay->addWidget(divContainer);
-        cLay->addWidget(infoSide, 1);
-        m_mainLay->addWidget(m_content, 1);
-    }
-
-    void setExpanded(bool on) {
-        if (m_expanded == on) return;
-        m_expanded = on;
-        if (on) { m_content->show(); setFixedHeight(OPEN_H); }
-        else    { m_content->hide(); setFixedHeight(CLOSED_H); }
-        update();
-        if (onHeightChanged) onHeightChanged();
-    }
-
-protected:
-    bool eventFilter(QObject *obj, QEvent *ev) override {
-        if (obj != m_barRow) return false;
-
-        if (ev->type() == QEvent::Paint) {
-            QPainter p(m_barRow);
-            p.setRenderHint(QPainter::Antialiasing);
-            const int cx = m_barRow->width() / 2;
-            const int cy = m_barRow->height() / 2;
-
-            p.setPen(QPen(QColor(255, 255, 255, m_arrowHov ? 140 : 50), 1));
-            for (int i = -3; i <= 4; ++i) {
-                const int x = cx + i * 4 - 2;
-                p.drawLine(x, cy - 2, x, cy + 2);
-            }
-            p.setPen(QPen(QColor(255, 255, 255, m_arrowHov ? 220 : 100), 1.5,
-                          Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-            const int arrowX = cx + 24;
-            QIcon::fromTheme(m_expanded ? "go-down" : "go-up").paint(&p, arrowX - 7, cy - 7, 14, 14);
-        }
-        if (ev->type() == QEvent::MouseButtonPress) {
-            auto *e = static_cast<QMouseEvent *>(ev);
-            if (e->button() != Qt::LeftButton) return false;
-            m_pressY = e->globalPosition().toPoint().y();
-            m_pressH = height();
-            m_dragging = false;
-            const int cx = m_barRow->width() / 2;
-            const int cy = m_barRow->height() / 2;
-            m_clickOnArrow = QRect(cx + 16, cy - 8, 20, 16).contains(e->pos());
-            m_barRow->grabMouse();
-        }
-        if (ev->type() == QEvent::MouseMove) {
-            auto *e = static_cast<QMouseEvent *>(ev);
-            if (!(e->buttons() & Qt::LeftButton)) {
-                const int cx = m_barRow->width() / 2;
-                const int cy = m_barRow->height() / 2;
-                const bool ah = QRect(cx - 20, cy - 10, 60, 20).contains(e->pos());
-                if (ah != m_arrowHov) { m_arrowHov = ah; m_barRow->update(); }
-                return false;
-            }
-            if (m_clickOnArrow) return false;
-            const int dy = m_pressY - e->globalPosition().toPoint().y();
-            if (qAbs(dy) > 3) {
-                m_dragging = true;
-                const int newH = qBound((int)CLOSED_H, m_pressH + dy, 320);
-                if (newH > (int)CLOSED_H + 10 && !m_expanded) { m_expanded = true; m_content->show(); }
-                setFixedHeight(newH);
-                m_barRow->update();
-                if (onHeightChanged) onHeightChanged();
-            }
-        }
-        if (ev->type() == QEvent::MouseButtonRelease) {
-            auto *e = static_cast<QMouseEvent *>(ev);
-            if (e->button() != Qt::LeftButton) return false;
-            m_barRow->releaseMouse();
-            if (m_clickOnArrow && !m_dragging) setExpanded(!m_expanded);
-            if (m_dragging && height() < (int)CLOSED_H + 20) setExpanded(false);
-            m_dragging = m_clickOnArrow = false;
-        }
-        return false;
-    }
-
-private:
-    enum { CLOSED_H = 22, OPEN_H = 160 };
-    QVBoxLayout *m_mainLay     = nullptr;
-    QWidget     *m_barRow      = nullptr;
-    QWidget     *m_content     = nullptr;
-    bool         m_expanded    = false;
-    bool         m_dragging    = false;
-    bool         m_clickOnArrow = false;
-    bool         m_arrowHov    = false;
-    int          m_pressY      = 0;
-    int          m_pressH      = 0;
-};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PaneToolbar
@@ -691,50 +190,6 @@ void PaneToolbar::setSelected(int count)
     if (count > 0) { m_selectedLabel->setText(tr("%1 ausgewählt").arg(count)); m_selectedLabel->show(); }
     else             m_selectedLabel->hide();
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// MillerItemDelegate — zeigt New-File-Indicator Streifen
-// ─────────────────────────────────────────────────────────────────────────────
-class MillerItemDelegate : public QStyledItemDelegate {
-public:
-    explicit MillerItemDelegate(QObject *parent = nullptr) : QStyledItemDelegate(parent) {}
-
-    void paint(QPainter *p, const QStyleOptionViewItem &opt, const QModelIndex &idx) const override {
-        QStyledItemDelegate::paint(p, opt, idx);
-
-        if (!AgeBadgeDialog::showNewIndicator()) return;
-
-        const QString path = idx.data(Qt::UserRole).toString();
-        if (path.isEmpty()) return;
-
-        QFileInfo fi(path);
-        qint64 ageSecs = 0;
-
-        if (fi.isDir()) {
-            // Neueste direkte Kind-Datei suchen
-            qint64 newest = std::numeric_limits<qint64>::max();
-            const QDateTime now = QDateTime::currentDateTime();
-            for (const QFileInfo &child : QDir(path).entryInfoList(
-                     QDir::Files | QDir::NoDotAndDotDot)) {
-                qint64 s = child.lastModified().secsTo(now);
-                if (s < newest) newest = s;
-            }
-            ageSecs = (newest == std::numeric_limits<qint64>::max()) ? 0 : newest;
-        } else {
-            ageSecs = fi.lastModified().secsTo(QDateTime::currentDateTime());
-        }
-
-        if (ageSecs <= 0 || ageSecs >= 86400 * 2) return;
-
-        // Farbe aus Age-Badge-System
-        QColor col;
-        if      (ageSecs < 3600)  col = SettingsDialog::ageBadgeColor(0); // < 1h
-        else                      col = SettingsDialog::ageBadgeColor(1); // < 1 Tag
-
-        QRect strip(opt.rect.left(), opt.rect.top(), 3, opt.rect.height());
-        p->fillRect(strip, col);
-    }
-};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MillerColumn
@@ -857,7 +312,7 @@ void MillerColumn::populateDrives()
 
         shownUdis.insert(dev.udi());
 
-        QString driveName = mounted && (p == "/") ? QStringLiteral("Fedora") : dev.description();
+        QString driveName = mounted && (p == "/") ? sc_rootVolumeName() : dev.description();
         if (driveName.isEmpty()) driveName = mounted ? QDir(p).dirName() : dev.udi().section('/', -1);
 
         QString iconName = dev.icon().isEmpty() ? "drive-harddisk" : dev.icon();
@@ -919,7 +374,7 @@ void MillerColumn::populateDir(const QString &path)
 
     QString name = QDir(path).dirName();
     if (name.isEmpty() && path == "/") {
-        name = QStringLiteral("Fedora");
+        name = sc_rootVolumeName();
     }
     m_header->setText(name);
 
@@ -1750,7 +1205,7 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
                           this, []() { QProcess::startDetached("kcmshell6", {"kcm_baloofile"}); });
     filterBtn->setMenu(filterMenu);
 
-    auto *searchByName = new bool(true);
+    auto searchByName = std::make_shared<bool>(true);
     connect(actNames,   &QAction::toggled, this, [searchByName](bool on) { *searchByName =  on; });
     connect(actContent, &QAction::toggled, this, [searchByName](bool on) { *searchByName = !on; });
 
@@ -1851,11 +1306,20 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
                                    qMin(300, m_vSplit->height()));
         searchOverlay->show(); searchOverlay->raise(); spTabRow->show();
 
+        if (m_searchProc) {
+            m_searchProc->disconnect();
+            m_searchProc->kill();
+            m_searchProc->deleteLater();
+            m_searchProc = nullptr;
+        }
         auto *proc = new QProcess(this);
+        m_searchProc = proc;
         proc->setProgram("baloosearch6");
         proc->setArguments({term});
         connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                this, [proc, searchResults](int, QProcess::ExitStatus) {
+                this, [this, proc, searchResults](int, QProcess::ExitStatus) {
+            if (proc != m_searchProc) { proc->deleteLater(); return; }
+            m_searchProc = nullptr;
             const QString out = proc->readAllStandardOutput().trimmed();
             proc->deleteLater();
             searchResults->clear();
@@ -2126,7 +1590,8 @@ void PaneWidget::buildFooter(QVBoxLayout *rootLay)
     auto *fw = new FooterWidget(this);
     fw->onHeightChanged = [this]() {
         positionFooterPanel();
-        updateFooter(currentPath());
+        const QString p = m_lastPreviewPath.isEmpty() ? currentPath() : m_lastPreviewPath;
+        updateFooter(p);
     };
     m_footerBar      = fw;
     m_footerCount    = fw->countLbl;
@@ -2150,6 +1615,7 @@ void PaneWidget::updateFooter(const QString &path)
     if (!m_footerCount) return;
     const QFileInfo fi(path);
     if (!fi.exists()) return;
+    m_lastPreviewPath = path;
 
     if (fi.isDir()) {
         const QDir dir(path);
@@ -2176,7 +1642,18 @@ void PaneWidget::updateFooter(const QString &path)
     const int footerH  = m_footerBar ? m_footerBar->height() : 120;
     const int iconSize = qBound(32, footerH - 40, 300);
     m_previewIcon->setFixedSize(iconSize, iconSize);
-    m_previewIcon->setPixmap(QFileIconProvider().icon(fi).pixmap(iconSize, iconSize));
+    static const QStringList IMG_EXT = {"jpg","jpeg","png","gif","bmp","webp","tiff","tif","ico","ppm","pgm"};
+    const QString ext = fi.suffix().toLower();
+    if (!fi.isDir() && IMG_EXT.contains(ext)) {
+        QPixmap px(path);
+        if (!px.isNull()) {
+            m_previewIcon->setPixmap(px.scaled(iconSize, iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        } else {
+            m_previewIcon->setPixmap(QFileIconProvider().icon(fi).pixmap(iconSize, iconSize));
+        }
+    } else {
+        m_previewIcon->setPixmap(QFileIconProvider().icon(fi).pixmap(iconSize, iconSize));
+    }
 
     QString info = QString("<table cellpadding='1' cellspacing='0' style='color:%1;font-size:11px;'>").arg(TM().colors().textPrimary);
     auto addRow = [&info](const QString &label, const QString &val) {

@@ -1,5 +1,4 @@
-#ifndef BATCHRENAMER_H
-#define BATCHRENAMER_H
+#pragma once
 
 #include <QDialog>
 #include <QLineEdit>
@@ -24,4 +23,3 @@ private:
     QListWidget *m_previewList;
 };
 
-#endif

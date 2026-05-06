@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
+#include <QProcess>
 
 #include <QMainWindow>
 #include <QHBoxLayout>
@@ -160,6 +160,8 @@ private:
     QLabel   *m_previewIcon    = nullptr;
     QLabel   *m_previewInfo    = nullptr;
     bool      m_footerExpanded = false;
+    QString   m_lastPreviewPath;
+    QProcess *m_searchProc = nullptr;
 };
 
 // ── MainWindow ────────────────────────────────────────────────────────────────
@@ -185,4 +187,3 @@ private:
     QList<QShortcut*> m_shortcuts;
 };
 
-#endif

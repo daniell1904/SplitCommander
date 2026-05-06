@@ -18,12 +18,12 @@ public:
                       "QLabel { color: #d8dee9; font-size: 11px; } "
                       "QProgressBar { background: #3b4252; border: none; height: 4px; text-align: transparent; } "
                       "QProgressBar::chunk { background: #88c0d0; }");
-
+        
         auto *vl = new QVBoxLayout(this);
         m_label = new QLabel("Bereite vor...", this);
         m_progress = new QProgressBar(this);
         m_progress->setRange(0, 100);
-
+        
         vl->addWidget(m_label);
         vl->addWidget(m_progress);
         hide();

@@ -19,13 +19,13 @@ find_package(KF6 REQUIRED COMPONENTS
 
 add_executable(splitcommander
     src/main.cpp
+    src/panewidgets.cpp
     src/mainwindow.cpp
     src/filetablemodel.cpp
     src/filepane.cpp
     src/previewpanel.cpp
     src/sidebar.cpp
     src/tagmanager.cpp
-    src/propertiesdialog.cpp
     src/batchrenamer.cpp
     src/jobprogresswidget.cpp
     src/fileoperations.cpp

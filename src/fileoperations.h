@@ -1,5 +1,4 @@
-#ifndef FILEOPERATIONS_H
-#define FILEOPERATIONS_H
+#pragma once
 
 #include <QObject>
 #include <QStringList>
@@ -24,4 +23,3 @@ private:
     QString m_dest;
 };
 
-#endif

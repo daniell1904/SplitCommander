@@ -1,5 +1,4 @@
-#ifndef THEMEDIALOG_H
-#define THEMEDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <QCheckBox>
@@ -29,4 +28,3 @@ private:
     QPushButton  *m_applyBtn   = nullptr;
 };
 
-#endif // THEMEDIALOG_H

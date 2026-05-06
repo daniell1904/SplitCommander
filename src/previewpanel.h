@@ -18,6 +18,8 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private:
+    void scalePixmap();
+
     QLabel    *m_imgLabel   = nullptr;
     QLabel    *m_metaLabel  = nullptr;
     QTextEdit *m_textEdit   = nullptr;

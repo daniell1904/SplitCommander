@@ -1,5 +1,4 @@
-#ifndef AGEBADGEDIALOG_H
-#define AGEBADGEDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <QSlider>
@@ -30,4 +29,3 @@ private:
     QList<QColor> m_ageColors;
 };
 
-#endif // AGEBADGEDIALOG_H

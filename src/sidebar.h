@@ -1,5 +1,4 @@
-#ifndef SIDEBAR_H
-#define SIDEBAR_H
+#pragma once
 
 #include <QWidget>
 #include <QScrollBar>
@@ -136,4 +135,3 @@ private:
     QWidget     *m_tagsBox       = nullptr;
 };
 
-#endif // SIDEBAR_H

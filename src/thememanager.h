@@ -1,5 +1,4 @@
-#ifndef THEMEMANAGER_H
-#define THEMEMANAGER_H
+#pragma once
 
 #include <QObject>
 #include <QColor>
@@ -97,4 +96,3 @@ private:
 // Kurzschreibweise
 inline ThemeManager &TM() { return ThemeManager::instance(); }
 
-#endif // THEMEMANAGER_H

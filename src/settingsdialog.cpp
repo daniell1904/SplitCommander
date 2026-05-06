@@ -566,6 +566,7 @@ QWidget *SettingsDialog::buildPageDesign()
         updateDynamicColors();    // Ruft die Logik am Ende der Datei auf
     });
 
+
     lay->addWidget(grpAge);
     lay->addStretch();
 
@@ -827,3 +828,4 @@ void SettingsDialog::updateDynamicColors()
     // aller Widgets triggern, während der Dialog noch per exec() läuft → Crash.
     // themeChanged wird erst beim Apply/OK-Klick emittiert.
 } // <--- Diese Klammer schließt die Funktion (muss da sein!)
+
