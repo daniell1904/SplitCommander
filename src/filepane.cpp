@@ -34,6 +34,8 @@
 #include <KIO/RenameDialog>
 #include <KIO/PasteJob>
 #include <KIO/JobUiDelegateFactory>
+#include <KIO/ListJob>
+#include <KIO/StatJob>
 #include <KJobWidgets>
 
 static QString menuStyle() {
@@ -470,6 +472,103 @@ void FilePane::populate(const QString &path) {
     }
 }
 
+// ── KIO-URL Verzeichnis laden ──────────────────────────────────────────────
+void FilePane::populateKio(const QUrl &url)
+{
+    m_model->removeRows(0, m_model->rowCount());
+
+    auto *job = KIO::listDir(url, KIO::HideProgressInfo);
+    job->setProperty("sc_url", url);
+
+    connect(job, &KIO::ListJob::entries, this,
+        [this](KIO::Job *, const KIO::UDSEntryList &entries) {
+        QSettings gs("SplitCommander", "General");
+        bool showHidden = gs.value("showHidden", false).toBool();
+
+        for (const KIO::UDSEntry &entry : entries) {
+            const QString name = entry.stringValue(KIO::UDSEntry::UDS_NAME);
+            if (name == "." || name == "..") continue;
+            if (!showHidden && name.startsWith('.')) continue;
+
+            const bool isDir = entry.isDir();
+            const qint64 size = entry.numberValue(KIO::UDSEntry::UDS_SIZE, 0);
+            const qint64 mtime = entry.numberValue(KIO::UDSEntry::UDS_MODIFICATION_TIME, 0);
+            const QString linkDest = entry.stringValue(KIO::UDSEntry::UDS_LINK_DEST);
+            const QString iconName = entry.stringValue(KIO::UDSEntry::UDS_ICON_NAME);
+            const QString mimeType = entry.stringValue(KIO::UDSEntry::UDS_MIME_TYPE);
+
+            // URL zusammenbauen
+            QUrl entryUrl = m_currentUrl;
+            entryUrl.setPath(m_currentUrl.path().endsWith('/')
+                ? m_currentUrl.path() + name
+                : m_currentUrl.path() + '/' + name);
+
+            QList<QStandardItem*> items;
+            int visIdx = 0;
+            for (const auto &d : colDefs()) {
+                if (!m_colVisible[d.id]) continue;
+                auto *it = new QStandardItem();
+                it->setEditable(false);
+
+                switch (d.id) {
+                case FP_NAME: {
+                    it->setText(name);
+                    it->setData(entryUrl.toString(), Qt::UserRole);
+                    it->setData(entryUrl.toString(), Qt::UserRole + 1);
+                    // Icon
+                    QIcon icon;
+                    if (!iconName.isEmpty())
+                        icon = QIcon::fromTheme(iconName);
+                    if (icon.isNull())
+                        icon = QIcon::fromTheme(isDir ? "folder" : "text-x-generic");
+                    it->setIcon(icon);
+                    it->setData(name.toLower(), Qt::UserRole + 5); // sort key
+                    break;
+                }
+                case FP_TYP:
+                    it->setText(isDir ? "Ordner" : (mimeType.isEmpty() ? "Datei" : mimeType.section('/', -1)));
+                    break;
+                case FP_GROESSE:
+                    if (!isDir) {
+                        it->setText(size < 1024 ? QString("%1 B").arg(size)
+                            : size < 1048576 ? QString("%1 KiB").arg(size/1024.0, 0,'f',1)
+                            : size < 1073741824 ? QString("%1 MiB").arg(size/1048576.0, 0,'f',1)
+                            : QString("%1 GiB").arg(size/1073741824.0, 0,'f',2));
+                        it->setData(size, Qt::UserRole);
+                    }
+                    break;
+                case FP_DATUM:
+                    if (mtime > 0) {
+                        it->setText(QDateTime::fromSecsSinceEpoch(mtime)
+                            .toString("dd.MM.yyyy hh:mm"));
+                        it->setData(mtime, Qt::UserRole);
+                    }
+                    break;
+                case FP_ALTER: {
+                    qint64 ageSecs = mtime > 0
+                        ? QDateTime::currentSecsSinceEpoch() - mtime : -1;
+                    it->setData(ageSecs, Qt::UserRole + 3);
+                    it->setData(ageSecs, Qt::UserRole);
+                    break;
+                }
+                default:
+                    break;
+                }
+                items << it;
+                visIdx++;
+            }
+            if (!items.isEmpty())
+                m_model->appendRow(items);
+        }
+    });
+
+    connect(job, &KJob::result, this, [this](KJob *job) {
+        if (job->error() && job->error() != KJob::KilledJobError) {
+            qWarning() << "KIO listDir error:" << job->errorString();
+        }
+    });
+}
+
 FilePane::FilePane(QWidget *parent) : QWidget(parent) {
     auto *lay=new QVBoxLayout(this);
     lay->setContentsMargins(0,0,0,0);
@@ -671,7 +770,35 @@ void FilePane::setNameFilter(const QString &pattern) {
     m_proxy->setFilterKeyColumn(0);
 }
 
+void FilePane::setRootUrl(const QUrl &url)
+{
+    m_kioMode = true;
+    m_currentUrl = url;
+    m_currentPath = url.toString();
+    m_currentTagFilter.clear();
+    if (!m_watcher->directories().isEmpty())
+        m_watcher->removePaths(m_watcher->directories());
+    populateKio(url);
+}
+
 void FilePane::setRootPath(const QString &path) {
+    // KIO-URLs erkennen (gdrive:/, smb://, sftp://, ftp://, mtp:/, remote:/)
+    if (!path.startsWith("/") && !path.startsWith("~") && !path.isEmpty()) {
+        const QUrl url(path);
+        const QString scheme = url.scheme().toLower();
+        static const QStringList kioSchemes = {
+            "gdrive", "smb", "sftp", "ftp", "ftps", "mtp",
+            "remote", "network", "bluetooth", "davs", "dav",
+            "nfs", "fish", "webdav", "webdavs"
+        };
+        if (!scheme.isEmpty() && kioSchemes.contains(scheme)) {
+            setRootUrl(url);
+            return;
+        }
+    }
+    // Normaler lokaler Pfad
+    m_kioMode = false;
+    m_currentUrl = QUrl();
     if(path.isEmpty()||!QFileInfo::exists(path)) return;
     m_currentTagFilter.clear();
     if(!m_watcher->directories().isEmpty())
@@ -774,6 +901,8 @@ void FilePane::setViewMode(int mode) {
 void FilePane::reload() {
     if (!m_currentTagFilter.isEmpty())
         showTaggedFiles(m_currentTagFilter);
+    else if (m_kioMode && m_currentUrl.isValid())
+        populateKio(m_currentUrl);
     else if (!m_currentPath.isEmpty())
         populate(m_currentPath);
 }
@@ -800,9 +929,15 @@ QList<QUrl> FilePane::selectedUrls() const
     QList<QUrl> urls;
     const auto indexes = m_view->selectionModel()->selectedRows();
     for (const auto &idx : indexes) {
-        const QString p = m_model->item(idx.row(), 0)
-            ? m_model->item(idx.row(), 0)->data(Qt::UserRole).toString() : QString();
-        if (!p.isEmpty()) urls << QUrl::fromLocalFile(p);
+        const auto srcIdx = m_proxy->mapToSource(idx);
+        const QString p = m_model->item(srcIdx.row(), 0)
+            ? m_model->item(srcIdx.row(), 0)->data(Qt::UserRole).toString() : QString();
+        if (p.isEmpty()) continue;
+        // KIO-URL oder lokaler Pfad
+        if (m_kioMode || (!p.startsWith("/") && p.contains(":/")))
+            urls << QUrl(p);
+        else
+            urls << QUrl::fromLocalFile(p);
     }
     return urls;
 }
@@ -814,6 +949,35 @@ void FilePane::onItemActivated(const QModelIndex &index) {
     auto *it=m_model->item(src.row(),0);
     if(!it) return;
     QString path=it->data(Qt::UserRole).toString();
+
+    // KIO-URL (gdrive:/, smb://, sftp:// etc.)
+    if (m_kioMode || (!path.startsWith("/") && path.contains("://"))) {
+        const QUrl url(path);
+        const QString scheme = url.scheme().toLower();
+        static const QStringList kioSchemes = {
+            "gdrive", "smb", "sftp", "ftp", "ftps", "mtp",
+            "remote", "network", "bluetooth", "davs", "dav",
+            "nfs", "fish", "webdav", "webdavs"
+        };
+        if (!scheme.isEmpty() && kioSchemes.contains(scheme)) {
+            // Prüfen ob Verzeichnis via KIO StatJob
+            auto *statJob = KIO::stat(url, KIO::StatJob::SourceSide, KIO::StatBasic, KIO::HideProgressInfo);
+            connect(statJob, &KJob::result, this, [this, url, statJob]() {
+                if (!statJob->error()) {
+                    const KIO::UDSEntry entry = statJob->statResult();
+                    if (entry.isDir()) {
+                        setRootUrl(url);
+                        emit fileActivated(url.toString());
+                    } else {
+                        QDesktopServices::openUrl(url);
+                    }
+                }
+            });
+            return;
+        }
+    }
+
+    // Lokaler Pfad
     if(QFileInfo(path).isDir()){
         setRootPath(path);
         emit fileActivated(path);
@@ -907,6 +1071,25 @@ void FilePane::showContextMenu(const QPoint &pos) {
         path = it ? it->data(Qt::UserRole).toString() : m_currentPath;
     } else {
         path = m_currentPath;
+    }
+    // KIO-Modus: QUrl direkt, keine lokalen QFileInfo
+    if (m_kioMode || (!path.startsWith("/") && path.contains(":/"))) {
+        QUrl kioUrl(path);
+        QMenu menu(this);
+        fp_applyMenuShadow(&menu);
+        menu.setStyleSheet(menuStyle());
+        if (hasItem) {
+            menu.addAction(QIcon::fromTheme("document-open"), tr("Öffnen"), this,
+                [this, path]() { setRootPath(path); });
+            menu.addSeparator();
+            menu.addAction(QIcon::fromTheme("edit-copy"), tr("Adresse kopieren"), this,
+                [path]() { QGuiApplication::clipboard()->setText(path); });
+        } else {
+            menu.addAction(QIcon::fromTheme("utilities-terminal"), tr("Terminal hier öffnen"), this,
+                [this]() { sc_openTerminal(m_currentPath); });
+        }
+        menu.exec(m_view->viewport()->mapToGlobal(pos));
+        return;
     }
     QFileInfo info(path);
     bool isDir      = info.isDir();

@@ -10,6 +10,7 @@
 #include <QTimer>
 
 #include <KIO/CopyJob>
+#include <KIO/ListJob>
 #include <Solid/Device>
 #include <Solid/DeviceNotifier>
 #include <Solid/OpticalDrive>
@@ -25,6 +26,7 @@
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QFile>
+#include <QXmlStreamReader>
 #include <QFileIconProvider>
 #include <QFileInfo>
 #include <QGraphicsDropShadowEffect>
@@ -344,8 +346,9 @@ Sidebar::Sidebar(QWidget *parent) : QWidget(parent)
     buildTagsSection(outerLay);
 
     setupTags();
+    loadUserPlaces();  // xbel zuerst laden als sofortiger Fallback
     updateDrives();
-    loadGDriveAccountsAsync();
+    loadGDriveAccountsAsync();  // KIO async, überschreibt xbel-Daten
     connectDriveList();
 }
 
@@ -424,7 +427,9 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     auto *hLay = new QHBoxLayout(header);
     hLay->setContentsMargins(12, 10, 8, 6);
     hLay->setSpacing(0);
-    auto *lbl = new QLabel(tr("GERÄTE"));
+    QSettings driveBoxSettings("SplitCommander", "UI");
+    const QString driveBoxLabel = driveBoxSettings.value("driveBoxLabel", tr("LAUFWERKE")).toString();
+    auto *lbl = new QLabel(driveBoxLabel);
     lbl->setStyleSheet(QString("font-size:12px;font-weight:normal;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
     hLay->addWidget(lbl, 1);
 
@@ -444,7 +449,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     auto *listCont = new QWidget();
     listCont->setStyleSheet("background:transparent; border:none;");
     auto *listLay = new QVBoxLayout(listCont);
-    listLay->setContentsMargins(6, 0, 6, 4);
+    listLay->setContentsMargins(6, 0, 6, 0);
     listLay->setSizeConstraint(QLayout::SetMinAndMaxSize);
     m_driveList = new QListWidget();
     m_driveList->setFrameShape(QFrame::NoFrame);
@@ -453,7 +458,26 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     m_driveList->setStyleSheet(TM().ssListWidget());
     m_driveList->setItemDelegate(new DriveDelegate(this));
     listLay->addWidget(m_driveList);
+    m_netBox = new QWidget();
+    m_netBox->setVisible(false);
+    auto *netWLay = new QVBoxLayout(m_netBox);
+    netWLay->setContentsMargins(6, 0, 6, 4);
+    m_netBox->setStyleSheet("margin-top:0px; padding-top:0px;");
+    netWLay->setSpacing(0);
+
+
+    m_netList = new QListWidget();
+    m_netList->setFrameShape(QFrame::NoFrame);
+    m_netList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_netList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_netList->setStyleSheet(TM().ssListWidget());
+    m_netList->setItemDelegate(new DriveDelegate(false, this));
+    netWLay->addWidget(m_netList);
+
+    // Netzwerk-Box in vbox einfügen (nach listCont, vor Toggle)
+
     vbox->addWidget(listCont);
+    vbox->addWidget(m_netBox);
 
     // Toggle
     auto *toggleBtn = new QPushButton();
@@ -463,21 +487,85 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     toggleBtn->setFixedHeight(12);
     toggleBtn->setStyleSheet(QString("QPushButton{background:transparent !important;font-size:7px;border:none;color:%1;}").arg(TM().colors().textMuted));
     vbox->addWidget(toggleBtn, 0, Qt::AlignCenter);
-    connect(toggleBtn, &QPushButton::toggled, this, [listCont, toggleBtn](bool on) {
+    connect(toggleBtn, &QPushButton::toggled, this, [this, listCont, toggleBtn](bool on) {
         listCont->setVisible(!on);
+        if (m_netBox) m_netBox->setVisible(!on && !m_gdriveAccounts.isEmpty());
         toggleBtn->setIcon(QIcon::fromTheme(on ? "go-down" : "go-up"));
     });
+
+    // ── Netzwerk-Untersektion innerhalb der Geräte-Box ──────────────────
 
     wLay->addWidget(box);
     parent->addWidget(wrapper);
 
-    m_netList = nullptr;
+    connect(m_netList, &QListWidget::itemClicked, this, [this](QListWidgetItem *it) {
+        const QString p = it->data(Qt::UserRole).toString();
+        if (!p.isEmpty()) emit driveClicked(p);
+    });
+
+    // Rechtsklick Netzwerk-Liste
+    m_netList->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_netList, &QListWidget::customContextMenuRequested, this,
+            [this](const QPoint &pos) {
+        auto *item = m_netList->itemAt(pos);
+        if (!item) return;
+        const QString path = item->data(Qt::UserRole).toString();
+        const QString name = item->text();
+
+        QMenu menu(this);
+        sc_applyMenuShadow(&menu);
+        menu.setStyleSheet(TM().ssMenu());
+        menu.addAction(QIcon::fromTheme("folder-open"), tr("Öffnen"), this,
+            [this, path]() { emit driveClicked(path); });
+        menu.addAction(QIcon::fromTheme("folder-open"), tr("In rechter Pane öffnen"), this,
+            [this, path]() { emit driveClickedRight(path); });
+        menu.addSeparator();
+        menu.addAction(QIcon::fromTheme("bookmark-new"), tr("Zu Laufwerken hinzufügen"), this,
+            [this, path, name]() {
+                QSettings s("SplitCommander", "NetworkPlaces");
+                QStringList saved = s.value("places").toStringList();
+                if (!saved.contains(path)) {
+                    saved << path;
+                    s.setValue("places", saved);
+                    s.setValue("name_" + QString(path).replace("/","_"), name);
+                    s.sync();
+                }
+                updateDrives();
+                emit drivesChanged();
+            });
+        // Netzwerklaufwerk trennen
+        menu.addAction(QIcon::fromTheme("media-eject"), tr("Trennen"), this,
+            [this, path]() {
+                auto *proc = new QProcess(this);
+                connect(proc, QOverload<int,QProcess::ExitStatus>::of(&QProcess::finished),
+                        this, [this, proc](int, QProcess::ExitStatus) {
+                    updateDrives(); emit drivesChanged(); proc->deleteLater();
+                });
+                proc->start("umount", {path});
+            });
+        menu.addSeparator();
+        menu.addAction(QIcon::fromTheme("edit-copy"), tr("Pfad kopieren"), this,
+            [path]() { QGuiApplication::clipboard()->setText(path); });
+        menu.exec(m_netList->mapToGlobal(pos));
+    });
 
     // Drives-Menü
-    connect(menuBtn, &QPushButton::clicked, this, [this, menuBtn]() {
+    connect(menuBtn, &QPushButton::clicked, this, [this, menuBtn, lbl]() {
         auto *m = new QMenu(this);
         sc_applyMenuShadow(m);
         m->setStyleSheet(TM().ssMenu());
+        m->addAction(QIcon::fromTheme("edit-rename"), tr("Box umbenennen …"), this, [this, lbl]() {
+            bool ok;
+            QString name = QInputDialog::getText(this, tr("Box umbenennen"),
+                tr("Name:"), QLineEdit::Normal, lbl->text(), &ok);
+            if (ok && !name.isEmpty()) {
+                lbl->setText(name);
+                QSettings s("SplitCommander", "UI");
+                s.setValue("driveBoxLabel", name);
+                s.sync();
+            }
+        });
+        m->addSeparator();
         m->addAction(QIcon::fromTheme("view-refresh"), tr("Alles aktualisieren"),
                      this, [this]() { updateDrives(); })->setShortcut(Qt::Key_F5);
         m->addSeparator();
@@ -738,20 +826,24 @@ void Sidebar::connectDriveList()
 // ─────────────────────────────────────────────────────────────────────────────
 void Sidebar::loadGDriveAccountsAsync()
 {
-    auto *proc = new QProcess(this);
-    connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, [this, proc](int, QProcess::ExitStatus) {
-        m_gdriveAccounts.clear();
-        const QString out = QString::fromUtf8(proc->readAllStandardOutput()).trimmed();
-        for (const QString &line : out.split('\n', Qt::SkipEmptyParts)) {
-            QString acc = line.trimmed().replace("/", "");
-            if (!acc.isEmpty() && acc != "." && acc != "new-account" && acc != "gdrive")
-                m_gdriveAccounts << acc;
+    auto *job = KIO::listDir(QUrl("gdrive:/"), KIO::HideProgressInfo);
+    bool *found = new bool(false);
+    connect(job, &KIO::ListJob::entries, this,
+        [this, found](KIO::Job *, const KIO::UDSEntryList &entries) {
+        for (const KIO::UDSEntry &e : entries) {
+            const QString name = e.stringValue(KIO::UDSEntry::UDS_NAME);
+            if (name.isEmpty() || name == "." || name == ".." || name == "new-account") continue;
+            if (!e.isDir()) continue;
+            *found = true;
+            if (!m_gdriveAccounts.contains(name)) m_gdriveAccounts << name;
         }
-        proc->deleteLater();
-        updateDrives();
     });
-    proc->start("kioclient5", {"ls", "gdrive:/"});
+    connect(job, &KJob::result, this, [this, found](KJob *j) {
+        if (j->error() && j->error() != KJob::KilledJobError)
+            qDebug() << "gdrive:" << j->errorString();
+        if (*found) updateDrives();
+        delete found;
+    });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -770,6 +862,54 @@ void Sidebar::resizeEvent(QResizeEvent *e)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Sidebar::loadUserPlaces
+// ─────────────────────────────────────────────────────────────────────────────
+void Sidebar::loadUserPlaces()
+{
+    const QString xbelPath = QStandardPaths::locate(
+        QStandardPaths::GenericDataLocation, "user-places.xbel");
+    if (xbelPath.isEmpty()) return;
+
+    QFile f(xbelPath);
+    if (!f.open(QIODevice::ReadOnly)) return;
+
+    QXmlStreamReader xml(&f);
+    QString href, title;
+    while (!xml.atEnd()) {
+        xml.readNext();
+        if (xml.isStartElement()) {
+            if (xml.name() == QLatin1String("bookmark")) {
+                href = xml.attributes().value("href").toString();
+                title.clear();
+            } else if (xml.name() == QLatin1String("title")) {
+                title = xml.readElementText();
+            }
+        } else if (xml.isEndElement() && xml.name() == QLatin1String("bookmark")) {
+            if (href.isEmpty()) continue;
+            const QUrl url(href);
+            const QString scheme = url.scheme().toLower();
+
+            // gdrive ausschliesslich via KIO::listDir
+
+            // Andere Netzwerkplätze persistent speichern
+            static const QStringList netSchemes = {
+                "smb","sftp","ftp","ftps","davs","dav","nfs","fish","webdav","webdavs"
+            };
+            if (netSchemes.contains(scheme)) {
+                QSettings s("SplitCommander", "NetworkPlaces");
+                QStringList saved = s.value("places").toStringList();
+                if (!saved.contains(href)) {
+                    saved << href;
+                    s.setValue("places", saved);
+                    const QString n = title.isEmpty() ? url.host() : title;
+                    s.setValue("name_" + QString(href).replace("/","_"), n);
+                    s.sync();
+                }
+            }
+        }
+    }
+}
+
 // Sidebar::updateDrives
 // ─────────────────────────────────────────────────────────────────────────────
 void Sidebar::updateDrives()
@@ -864,14 +1004,29 @@ void Sidebar::updateDrives()
         it->setData(Qt::UserRole + 1, QString("Nicht eingehängt – klicken zum Einhängen"));
     }
 
-    // ── Google Drive ──
-    for (const QString &acc : m_gdriveAccounts) {
-        auto *it = new QListWidgetItem(QIcon::fromTheme("im-google"), acc, m_driveList);
-        it->setData(Qt::UserRole,     "gdrive:/" + acc);
-        it->setData(Qt::UserRole + 1, "Google Drive");
+    // ── Google Drive → wird in Netzwerk-Sektion angezeigt (siehe unten) ──
+
+    // ── Netzwerklaufwerke in m_netList ──
+    if (m_netList) m_netList->clear();
+    bool hasNet = false;
+
+    // Gespeicherte Netzwerkplätze (persistent)
+    QSettings netSettings("SplitCommander", "NetworkPlaces");
+    const QStringList savedPlaces = netSettings.value("places").toStringList();
+    for (const QString &p : savedPlaces) {
+        if (shownPaths.contains(p)) continue;
+        shownPaths.insert(p);
+        hasNet = true;
+        const QString savedName = netSettings.value("name_" + QString(p).replace("/","_"), QDir(p).dirName()).toString();
+        if (m_netList) {
+            auto *it = new QListWidgetItem(QIcon::fromTheme("network-server"), savedName, m_netList);
+            it->setData(Qt::UserRole, p);
+            it->setData(Qt::UserRole + 1, p);
+            it->setSizeHint(QSize(0, 36));
+        }
     }
 
-    // ── Netzwerklaufwerke ──
+    // Aktiv gemountete Netzwerklaufwerke
     for (const QStorageInfo &storage : QStorageInfo::mountedVolumes()) {
         if (!storage.isValid() || !storage.isReady()) continue;
         const QString fs = storage.fileSystemType();
@@ -882,6 +1037,7 @@ void Sidebar::updateDrives()
         const QString path = storage.rootPath();
         if (shownPaths.contains(path)) continue;
         shownPaths.insert(path);
+        hasNet = true;
 
         QString name = storage.name().isEmpty() ? QDir(path).dirName() : storage.name();
         if (name.isEmpty()) name = path;
@@ -890,9 +1046,42 @@ void Sidebar::updateDrives()
                      : (fs == "sshfs" || fs == "fuse.sshfs") ? "network-connect"
                      : "network-server";
 
-        auto *it = new QListWidgetItem(QIcon::fromTheme(icon), name, m_driveList);
-        it->setData(Qt::UserRole,     path);
-        it->setData(Qt::UserRole + 1, fs + " – " + path);
+        if (m_netList) {
+            auto *it = new QListWidgetItem(QIcon::fromTheme(icon), name, m_netList);
+            it->setData(Qt::UserRole,     path);
+            it->setData(Qt::UserRole + 1, fs + " – " + path);
+            it->setSizeHint(QSize(0, 36));
+        }
+    }
+
+    // gdrive-Accounts in Netzwerk-Sektion
+    for (const QString &acc : m_gdriveAccounts) {
+        const QString p = "gdrive:/" + acc;
+        if (shownPaths.contains(p)) continue;
+        shownPaths.insert(p);
+        hasNet = true;
+        if (m_netList) {
+            auto *it = new QListWidgetItem(QIcon::fromTheme("im-google"), acc, m_netList);
+            it->setData(Qt::UserRole,     p);
+            it->setData(Qt::UserRole + 1, "Google Drive");
+            it->setSizeHint(QSize(0, 36));
+        }
+    }
+
+    // Netzwerk-Sektion ein-/ausblenden
+    if (m_netBox) {
+        m_netBox->setVisible(hasNet);
+        if (hasNet) {
+            if (m_netList) {
+                int netH = 0;
+                for (int i = 0; i < m_netList->count(); ++i)
+                    netH += m_netList->sizeHintForRow(i);
+                if (netH > 0) m_netList->setFixedHeight(netH);
+            }
+            m_netBox->adjustSize();
+            if (m_netBox->parentWidget())
+                m_netBox->parentWidget()->adjustSize();
+        }
     }
 
     // ── Höhe anpassen ──

@@ -43,6 +43,9 @@ install_deps() {
                 kf6-ki18n kf6-kiconthemes kf6-kconfigwidgets kf6-kxmlgui \
                 kf6-kio kf6-kwidgetsaddons kf6-kwindowsystem kf6-solid \
                 kf6-karchive kf6-kservice
+            # Optional: Google Drive, MTP
+            sudo pacman -Sy --needed --noconfirm --asdeps \
+                kio-gdrive kio-extras 2>/dev/null || true
             ;;
         fedora)
             sudo dnf install -y \
@@ -53,6 +56,8 @@ install_deps() {
                 kf6-kxmlgui-devel kf6-kio-devel kf6-kwidgetsaddons-devel \
                 kf6-kwindowsystem-devel kf6-solid-devel kf6-karchive-devel \
                 kf6-kservice-devel
+            # Optional: Google Drive, MTP
+            sudo dnf install -y kio-gdrive kio-extras 2>/dev/null || true
             ;;
         ubuntu|debian|linuxmint|pop)
             sudo apt-get update
@@ -64,6 +69,8 @@ install_deps() {
                 libkf6xmlgui-dev libkf6kio-dev libkf6widgetsaddons-dev \
                 libkf6windowsystem-dev libkf6solid-dev libkf6archive-dev \
                 libkf6service-dev
+            # Optional: Google Drive, MTP
+            sudo apt-get install -y kio-gdrive kio-extras 2>/dev/null || true
             ;;
         opensuse*|suse)
             sudo zypper install -y \
@@ -74,6 +81,8 @@ install_deps() {
                 kf6-kxmlgui-devel kf6-kio-devel kf6-kwidgetsaddons-devel \
                 kf6-kwindowsystem-devel kf6-solid-devel kf6-karchive-devel \
                 kf6-kservice-devel
+            # Optional: Google Drive, MTP
+            sudo dnf install -y kio-gdrive kio-extras 2>/dev/null || true
             ;;
         *)
             print_warn "Unbekannte Distro '$distro' — überspringe automatische Dep-Installation."

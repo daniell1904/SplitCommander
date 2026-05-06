@@ -97,6 +97,7 @@ private:
     // ── Laufwerke ──────────────────────────────────────────────────────────────
     void setupDriveContextMenu();
     void loadGDriveAccountsAsync();
+    void loadUserPlaces();
     void connectDriveList();
 
     // ── Gruppen ────────────────────────────────────────────────────────────────
@@ -127,6 +128,7 @@ private:
     QWidget     *m_newGroupBox   = nullptr;
     QListWidget *m_favList       = nullptr;
     QListWidget *m_netList       = nullptr;
+    QWidget     *m_netBox        = nullptr;
 
     QListWidget *m_tagList       = nullptr;
     QWidget     *m_tagsWrap      = nullptr;

@@ -770,7 +770,14 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent)
     connect(m_list, &QListWidget::itemClicked, this, [this](QListWidgetItem *it) {
         emit activated(this);
         const QString p = it->data(Qt::UserRole).toString();
-        if (!p.isEmpty()) emit entryClicked(p, this);
+        if (p.isEmpty()) return;
+        if (p.startsWith("solid:")) {
+            // Nicht eingehängtes Laufwerk – einhängen
+            const QString udi = it->data(Qt::UserRole + 1).toString();
+            if (!udi.isEmpty()) emit setupRequested(udi);
+        } else {
+            emit entryClicked(p, this);
+        }
     });
 
     connect(m_list, &QListWidget::customContextMenuRequested, this, [this](const QPoint &pos) {
@@ -846,12 +853,13 @@ void MillerColumn::populateDrives()
         QString driveName = mounted && (p == "/") ? QStringLiteral("Fedora") : dev.description();
         if (driveName.isEmpty()) driveName = mounted ? QDir(p).dirName() : dev.udi().section('/', -1);
 
-        QString iconName = "drive-harddisk";
+        QString iconName = dev.icon().isEmpty() ? "drive-harddisk" : dev.icon();
         if (const auto *drv = dev.as<Solid::StorageDrive>()) {
             if (drv->driveType() == Solid::StorageDrive::CdromDrive)
                 iconName = "drive-optical";
-            else if (drv->isRemovable() || (mounted && p.startsWith("/run/media/")))
-                iconName = "drive-removable-media";
+            else if (drv->isRemovable() || drv->isHotpluggable()
+                     || (mounted && p.startsWith("/run/media/")))
+                iconName = dev.icon().isEmpty() ? "drive-removable-media" : dev.icon();
         }
 
         auto *it = new QListWidgetItem(m_list);

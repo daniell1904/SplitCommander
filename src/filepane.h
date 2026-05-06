@@ -1,6 +1,7 @@
 #ifndef FILEPANE_H
 #define FILEPANE_H
 
+#include <QUrl>
 #include <QWidget>
 #include <QTreeView>
 #include <QStandardItemModel>
@@ -87,6 +88,7 @@ class FilePane : public QWidget {
 public:
     explicit FilePane(QWidget *parent=nullptr);
     void setRootPath(const QString &path);
+    void setRootUrl(const QUrl &url);
     void setNameFilter(const QString &pattern);
     void setFoldersFirst(bool on);
     bool hasFocus() const;
@@ -114,6 +116,7 @@ protected:
 
 private:
     void populate(const QString &path);
+    void populateKio(const QUrl &url);
     void buildRow(const QFileInfo &fi, QList<QStandardItem*> &items);
     void fetchMetaAsync(const QFileInfo &fi, int row);
     void setupColumns();
@@ -129,6 +132,8 @@ private:
     QFileIconProvider      m_iconProv;
     QString                m_currentPath;
     QString                m_currentTagFilter; // leer = normaler Ordner-Modus
+    QUrl                   m_currentUrl;       // für KIO-URLs
+    bool                   m_kioMode = false;
     QString                m_filter;
     bool                   m_foldersFirst = true;
     QList<bool>            m_colVisible;  // Sichtbarkeit pro FPCol
