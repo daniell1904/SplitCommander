@@ -134,7 +134,7 @@ static void sc_buildPlaceMenu(QMenu &menu, const QString &path, QWidget *parent,
     menu.addSeparator();
     menu.addAction(QIcon::fromTheme("document-properties"), QObject::tr("Eigenschaften"),
         [path, parent]() {
-            auto *d = new KPropertiesDialog(QUrl::fromLocalFile(path), parent);
+            auto *d = new KPropertiesDialog(QUrl::fromLocalFile(path), nullptr);
             d->setAttribute(Qt::WA_DeleteOnClose);
             d->show();
         });
@@ -1157,7 +1157,7 @@ void Sidebar::setupDriveContextMenu()
             menu.addSeparator();
             menu.addAction(QIcon::fromTheme("document-properties"), tr("Eigenschaften"),
                            this, [this, path]() {
-                auto *dlg = new KPropertiesDialog(QUrl::fromLocalFile(path), this);
+                auto *dlg = new KPropertiesDialog(QUrl::fromLocalFile(path), nullptr);
                 dlg->setAttribute(Qt::WA_DeleteOnClose);
                 dlg->show();
             });

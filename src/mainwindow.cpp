@@ -1961,7 +1961,7 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     connect(m_miller, &MillerArea::openInLeft,  this, &PaneWidget::openInLeftRequested);
     connect(m_miller, &MillerArea::openInRight, this, &PaneWidget::openInRightRequested);
     connect(m_miller, &MillerArea::propertiesRequested, this, [this](const QString &path) {
-        auto *dlg = new KPropertiesDialog(QUrl::fromLocalFile(path), this);
+        auto *dlg = new KPropertiesDialog(QUrl::fromLocalFile(path), nullptr);
         dlg->setAttribute(Qt::WA_DeleteOnClose);
         dlg->show();
     });

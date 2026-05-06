@@ -1432,7 +1432,7 @@ void FilePane::showContextMenu(const QPoint &pos) {
         menu.addAction(QIcon::fromTheme("document-properties"), tr("Eigenschaften"), this,
             [this, path]() {
                 KPropertiesDialog *dlg = new KPropertiesDialog(
-                    QUrl::fromLocalFile(path), this);
+                    QUrl::fromLocalFile(path), nullptr);
                 dlg->setAttribute(Qt::WA_DeleteOnClose);
                 dlg->show();
             });
