@@ -677,9 +677,17 @@ void Sidebar::buildTagsSection(QVBoxLayout *parent)
         QString name = QInputDialog::getText(this, tr("Neuer Tag"), tr("Tag-Name:"),
                                              QLineEdit::Normal, "", &ok);
         if (!ok || name.trimmed().isEmpty()) return;
-        QColor col = QColorDialog::getColor(QColor(TM().colors().textAccent), this, tr("Farbe wählen"));
+        QColorDialog dlg(QColor(TM().colors().textAccent), this);
+        dlg.setWindowTitle(tr("Farbe wählen"));
+        dlg.setOptions(QColorDialog::DontUseNativeDialog);
+        dlg.setStyleSheet(TM().ssDialog());
+        if (dlg.exec() != QDialog::Accepted) return;
+        QColor col = dlg.currentColor();
         if (!col.isValid()) return;
         addTagItem(name.trimmed(), col.name());
+        adjustListHeight(m_tagList);
+        if (m_tagsBox)  m_tagsBox->updateGeometry();
+        if (m_tagsWrap) m_tagsWrap->updateGeometry();
         saveTags();
     });
 
@@ -1645,7 +1653,7 @@ void Sidebar::setupTags()
     }
     s.endArray();
 
-    m_tagList->setFixedHeight(m_tagList->count() * 32);
+    adjustListHeight(m_tagList);
     if (m_tagsBox)  m_tagsBox->updateGeometry();
     if (m_tagsWrap) m_tagsWrap->updateGeometry();
 
@@ -1664,8 +1672,12 @@ void Sidebar::setupTags()
 
         menu.addAction(QIcon::fromTheme("color-picker"), tr("Farbe ändern …"), this,
             [this, item]() {
-                QColor col = QColorDialog::getColor(
-                    QColor(item->data(Qt::UserRole).toString()), this, tr("Farbe wählen"));
+                QColorDialog dlg(QColor(item->data(Qt::UserRole).toString()), this);
+                dlg.setWindowTitle(tr("Farbe wählen"));
+                dlg.setOptions(QColorDialog::DontUseNativeDialog);
+                dlg.setStyleSheet(TM().ssDialog());
+                if (dlg.exec() != QDialog::Accepted) return;
+                QColor col = dlg.currentColor();
                 if (!col.isValid()) return;
                 item->setData(Qt::UserRole, col.name());
                 QPixmap pix(10, 10); pix.fill(Qt::transparent);
@@ -1685,7 +1697,7 @@ void Sidebar::setupTags()
         menu.addAction(QIcon::fromTheme("edit-delete"), tr("Löschen"), this,
             [this, item]() {
                 delete m_tagList->takeItem(m_tagList->row(item));
-                m_tagList->setFixedHeight(m_tagList->count() * 32);
+                adjustListHeight(m_tagList);
                 if (m_tagsBox)  m_tagsBox->updateGeometry();
                 if (m_tagsWrap) m_tagsWrap->updateGeometry();
                 saveTags();
