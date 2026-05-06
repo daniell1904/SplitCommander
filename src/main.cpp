@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QCommandLineParser>
 #include <QMessageLogContext>
 #include <QIcon>
 #include <QDir>
@@ -26,7 +27,13 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     app.setApplicationName("SplitCommander");
     app.setOrganizationName("SplitCommander");
+    app.setApplicationVersion(QStringLiteral("0.2.5"));
     app.setDesktopFileName("splitcommander");
+
+    QCommandLineParser parser;
+    parser.addVersionOption();
+    parser.addHelpOption();
+    parser.process(app);
 
     // Theme vor MainWindow laden — Sidebar liest Farben beim Aufbau
     TM().apply();
