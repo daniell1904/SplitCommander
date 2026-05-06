@@ -37,7 +37,7 @@ bool FileOperationWorker::copyRecursively(const QString &srcPath, const QString 
     QDir srcDir(srcPath);
     if (!srcDir.exists()) return false;
     QDir().mkpath(dstPath);
-    for (const auto &f : srcDir.entryList(QDir::Files)) 
+    for (const auto &f : srcDir.entryList(QDir::Files))
         QFile::copy(srcPath + "/" + f, dstPath + "/" + f);
     for (const auto &d : srcDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
         copyRecursively(srcPath + "/" + d, dstPath + "/" + d);

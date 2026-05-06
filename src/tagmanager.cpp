@@ -10,7 +10,6 @@ static QString decodeKey(const QString &key)
     return QString::fromUtf8(QByteArray::fromBase64(key.toLatin1()));
 }
 
-
 TagManager::TagManager()
     : QObject(nullptr)
     , m_settings(new QSettings("SplitCommander", "Tags", this))

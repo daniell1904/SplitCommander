@@ -12,7 +12,6 @@
 #include <QPainter>
 #include <QListView>
 #include <QStackedWidget>
-#include <QPainter>
 #include <QDateTime>
 #include <QFileSystemWatcher>
 #include <QFileIconProvider>

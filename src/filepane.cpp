@@ -594,12 +594,10 @@ FilePane::FilePane(QWidget *parent) : QWidget(parent) {
     m_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_view->setMouseTracking(true);
 
-    // WICHTIG: Diese 4 Zeilen müssen exakt so dort stehen
     m_view->setFrameStyle(QFrame::NoFrame);
     m_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_view->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-    // Das hier zwingt den Header, den Scrollbar-Platz zu ignorieren:
     m_view->header()->setMinimumSectionSize(0);
 
     m_view->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -674,7 +672,6 @@ FilePane::FilePane(QWidget *parent) : QWidget(parent) {
     });
     connect(m_overlayBar, &QScrollBar::valueChanged, native, &QScrollBar::setValue);
 
-
     m_iconView = new QListView(this);
     m_iconView->setModel(m_proxy);
     m_iconView->setSelectionModel(m_view->selectionModel());
@@ -711,7 +708,7 @@ FilePane::FilePane(QWidget *parent) : QWidget(parent) {
         QSettings gs("SplitCommander", "General");
         if (gs.value("singleClick", false).toBool()) onItemActivated(idx);
     });
-    
+
     connect(m_iconView,&QListView::customContextMenuRequested,this,&FilePane::showContextMenu);
     connect(m_iconView,&QListView::activated,this,&FilePane::onItemActivated);
     connect(m_view->selectionModel(),&QItemSelectionModel::currentChanged,
@@ -837,7 +834,7 @@ void FilePane::setViewMode(int mode) {
     // 0: Details, 1: Kompakt, 2: Liste, 3: Grid
     bool changed = false;
     QList<bool> newVis = m_colVisible;
-    
+
     if (mode == 0) {
         m_stack->setCurrentWidget(m_view);
         for(int i=1; i<FP_COUNT; i++) newVis[i] = false;
@@ -1241,7 +1238,6 @@ void FilePane::showContextMenu(const QPoint &pos) {
         menu.addAction(removeAct);
         menu.addSeparator();
     }
-
 
     // ── 5. Senden an ──────────────────────────────────────────────────────
     if (hasItem) {

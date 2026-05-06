@@ -5,7 +5,7 @@
 #include <QFileInfo>
 
 BatchRenamer::BatchRenamer(const QStringList &files, QWidget *parent)
-    : QDialog(parent), m_originalFiles(files) 
+    : QDialog(parent), m_originalFiles(files)
 {
     setWindowTitle(tr("Batch Rename - %1 Dateien").arg(files.size()));
     resize(600, 450);
@@ -15,12 +15,12 @@ BatchRenamer::BatchRenamer(const QStringList &files, QWidget *parent)
 
     // Eingabefelder
     auto *formLayout = new QGridLayout();
-    
+
     m_searchEdit = new QLineEdit();
     m_searchEdit->setPlaceholderText("Suchen...");
     m_replaceEdit = new QLineEdit();
     m_replaceEdit->setPlaceholderText("Ersetzen durch...");
-    
+
     m_prefixEdit = new QLineEdit();
     m_prefixEdit->setPlaceholderText("Präfix hinzufügen...");
     m_suffixEdit = new QLineEdit();
@@ -55,7 +55,7 @@ BatchRenamer::BatchRenamer(const QStringList &files, QWidget *parent)
     auto *cancelBtn = new QPushButton("Abbrechen");
     okBtn->setStyleSheet("background: #5e81ac; padding: 8px; font-weight: bold;");
     cancelBtn->setStyleSheet("background: #4c566a; padding: 8px;");
-    
+
     btnLayout->addStretch();
     btnLayout->addWidget(cancelBtn);
     btnLayout->addWidget(okBtn);

@@ -583,7 +583,6 @@ PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent)
     setFixedHeight(96);
     setAttribute(Qt::WA_StyledBackground, true);
 
-    // KORREKTUR: Hintergrundfarbe auf #202530 gesetzt (Sidebar-Box-Farbe)
     setStyleSheet(TM().ssToolbar());
 
     auto *vlay = new QVBoxLayout(this);
@@ -873,13 +872,11 @@ void MillerColumn::populateDrives()
         auto *it = new QListWidgetItem(m_list);
         it->setData(Qt::DisplayRole,    driveName);
         it->setData(Qt::DecorationRole, QIcon::fromTheme(iconName));
-        // UserRole: bei eingehängt = Pfad, bei ausgehängt = "solid:" + UDI
         it->setData(Qt::UserRole, mounted ? p : QString("solid:") + dev.udi());
-        it->setData(Qt::UserRole + 1, dev.udi()); // UDI immer verfügbar
+        it->setData(Qt::UserRole + 1, dev.udi());
         it->setSizeHint(QSize(0, 44));
 
-        // Ausgegraut wenn nicht eingehängt
-        if (!mounted) {
+            if (!mounted) {
             it->setForeground(QColor(TM().colors().textMuted));
         }
     }
@@ -906,7 +903,6 @@ void MillerColumn::populateDrives()
     }
 
     // ── Google Drive Accounts (via KIO::listDir) ──
-    // Wird async geladen - populateDrives wird erneut aufgerufen wenn Accounts bekannt
     for (const QString &acc : m_gdriveAccounts) {
         auto *it = new QListWidgetItem(m_list);
         it->setData(Qt::DisplayRole,    acc);
@@ -921,7 +917,6 @@ void MillerColumn::populateDir(const QString &path)
 {
     m_path = path;
 
-    // KORREKTUR: Wenn der Pfad "/" ist (Wurzelverzeichnis), setze den Namen auf "Fedora"
     QString name = QDir(path).dirName();
     if (name.isEmpty() && path == "/") {
         name = QStringLiteral("Fedora");
@@ -950,7 +945,6 @@ void MillerColumn::refreshStyle()
     setActive(m_list->styleSheet() != TM().ssColInactive());
 }
 
-// Diese Funktion fehlte beim letzten Build und verursachte den Linker-Fehler
 void MillerColumn::setActive(bool active)
 {
     m_list->setStyleSheet(
@@ -1025,7 +1019,7 @@ void MillerArea::updateVisibleColumns()
         });
     }
 
-    // 3. RADIKALE LÖSUNG: Alle alten Trenner physisch löschen
+    // Alte Trenner entfernen und neu aufbauen
     for (auto *sep : m_colSeparators) {
         m_colLayout->removeWidget(sep);
         sep->deleteLater();
@@ -1034,20 +1028,18 @@ void MillerArea::updateVisibleColumns()
 
     m_stripDivider->setVisible(stripCount > 0);
 
-    // 4. Spalten zeigen und Trenner FRISCH einfügen
+    // Spalten ein-/ausblenden und Trenner neu aufbauen
     for (int i = 0; i < n; ++i) {
         const bool vis = (i >= n - FULL_COLS);
         m_cols[i]->setVisible(vis);
         m_colLayout->setStretchFactor(m_cols[i], vis ? 1 : 0);
 
-        // Trenner nur erzeugen, wenn die Spalte sichtbar ist UND nicht die erste sichtbare ist
-        if (vis && i > stripCount) {
+            if (vis && i > stripCount) {
             QFrame *sep = new QFrame(m_colContainer);
             sep->setFixedWidth(1);
             sep->setStyleSheet(QString("background:%1;border:none;").arg(TM().colors().separator));
 
-            // Trenner im Layout direkt vor der Spalte platzieren
-            int layoutIdx = m_colLayout->indexOf(m_cols[i]);
+                int layoutIdx = m_colLayout->indexOf(m_cols[i]);
             m_colLayout->insertWidget(layoutIdx, sep);
             m_colSeparators.append(sep);
         }
@@ -1084,7 +1076,7 @@ void MillerArea::init()
     connect(col, &MillerColumn::headerClicked, this, &MillerArea::headerClicked);
 
     connect(col, &MillerColumn::teardownRequested, this, [this](const QString &udi) {
-        // Dolphin-Ansatz: zuerst zu homePath navigieren, damit das Laufwerk nicht belegt ist
+        // Vor dem Aushängen zu homePath navigieren, damit das Laufwerk nicht belegt ist
         navigateTo(QDir::homePath());
 
         Solid::Device dev(udi);
@@ -1191,7 +1183,6 @@ void MillerArea::navigateTo(const QString &path, bool clearForward)
         last->deleteLater();
     }
 
-    // Pfad-Segmente aufbauen
     QStringList segments;
     QString cur = path;
     while (true) {
@@ -1203,7 +1194,6 @@ void MillerArea::navigateTo(const QString &path, bool clearForward)
         cur = up;
     }
 
-    // Laufwerk selektieren
     if (!m_cols.isEmpty()) {
         QListWidget *driveList = m_cols[0]->list();
         for (int i = 0; i < driveList->count(); ++i) {
@@ -1655,10 +1645,6 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
         if (ok && !name.isEmpty()) QFile::link(target, dir + "/" + name);
     });
 
-
-
-
-
     connect(actHidden, &QAction::toggled, this, [this](bool checked) {
         QSettings s("SplitCommander", "General");
         s.setValue("showHidden", checked);
@@ -1965,7 +1951,7 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
         }
     });
 
-    // ── Verbindungen ──
+    // Verbindungen
     connect(m_miller, &MillerArea::pathChanged,     this, [this](const QString &path) {
         if (QFileInfo(path).isDir()) navigateTo(path);
     });
@@ -2023,7 +2009,6 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
             KIO::AskUserActionInterface::DefaultConfirmation, this);
         job->start();
     });
-
 
     connect(m_toolbar, &PaneToolbar::copyClicked, this, [this]() {
         auto *mw = qobject_cast<MainWindow*>(window()); if (!mw) return;
@@ -2273,7 +2258,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_panesSplitter->addWidget(m_rightPane);
     rootLay->addWidget(m_panesSplitter, 1);
 
-    // Fokus-Verwaltung
     connect(m_leftPane,  &PaneWidget::focusRequested, this, [this]() {
         m_leftPane->setFocused(true); m_rightPane->setFocused(false);
     });
@@ -2281,7 +2265,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         m_rightPane->setFocused(true); m_leftPane->setFocused(false);
     });
 
-    // Hamburger-Menü Signals beider Panes
     auto connectHamburger = [this](PaneWidget *pane) {
         connect(pane, &PaneWidget::newFolderRequested, this, [this, pane]() {
             bool ok;
@@ -2310,7 +2293,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connectHamburger(m_leftPane);
     connectHamburger(m_rightPane);
 
-    // Navigation (inkl. Solid-Mount)
     auto mountAndNavigate = [this](const QString &path, bool leftPane) {
         auto navigate = [this, leftPane](const QString &p) {
             if (leftPane) { m_leftPane->navigateTo(p);  m_leftPane->setFocused(true);  m_rightPane->setFocused(false); }
@@ -2370,8 +2352,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         activePane()->filePane()->showTaggedFiles(tagName);
     });
     connect(m_sidebar, &Sidebar::drivesChanged, this, [this]() {
-        // GDrive-Accounts an alle Miller-Spalten weitergeben
-        const QStringList accs = m_sidebar->gdriveAccounts();
+            const QStringList accs = m_sidebar->gdriveAccounts();
         auto updateCols = [&accs](MillerArea *m) {
             for (auto *col : m->cols()) col->setGdriveAccounts(accs);
         };
@@ -2380,7 +2361,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         m_leftPane->miller()->refreshDrives();
         m_rightPane->miller()->refreshDrives();
     });
-    // Beim Start: nach kurzer Verzögerung nochmal refreshen wenn gdrive geladen
     QTimer::singleShot(2000, this, [this]() {
         const QStringList accs = m_sidebar->gdriveAccounts();
         if (!accs.isEmpty()) {
@@ -2406,16 +2386,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         // Shortcuts neu registrieren falls geändert
         registerShortcuts();
     });
-    // ThemeManager::themeChanged → alle dynamischen Stylesheets neu setzen + Views updaten
     connect(&TM(), &ThemeManager::themeChanged, this, [this]() {
         // Miller-Spalten neu stylen
         for (auto *col : m_leftPane->miller()->cols())  col->refreshStyle();
         for (auto *col : m_rightPane->miller()->cols()) col->refreshStyle();
-        // Badge-Farben neu zeichnen — beide PaneWidgets
-        m_leftPane->filePane()->view()->viewport()->update();
+            m_leftPane->filePane()->view()->viewport()->update();
         m_rightPane->filePane()->view()->viewport()->update();
-        // Alle Widgets neu polieren
-        for (QWidget *w : QApplication::topLevelWidgets()) {
+            for (QWidget *w : QApplication::topLevelWidgets()) {
             w->style()->unpolish(w);
             w->style()->polish(w);
             w->update();
@@ -2434,7 +2411,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         m_sidebar->updateDrives();
     });
 
-    // Spalten-Sync
     connect(m_leftPane->filePane(), &FilePane::columnsChanged, this,
             [this](int colId, bool visible) { m_rightPane->filePane()->setColumnVisible(colId, visible); });
     connect(m_rightPane->filePane(), &FilePane::columnsChanged, this,
@@ -2451,9 +2427,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         m_rightPane->setFocused(false);
     });
 
-    // Theme wurde bereits in main.cpp vor MainWindow-Konstruktion geladen
-
-    // Shortcuts beim Start registrieren
     registerShortcuts();
 }
 

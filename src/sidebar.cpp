@@ -52,82 +52,9 @@
 #include <QStandardPaths>
 #include <QStorageInfo>
 #include <QTextStream>
-#include <QTimer>
 #include <QToolButton>
-#include <QUrl>
 #include <QVBoxLayout>
 #include <QApplication>
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Farbkonstanten
-// ─────────────────────────────────────────────────────────────────────────────
-namespace SC_Colors {
-    #define BG_MAIN      TM().colors().bgMain
-    #define BG_BOX       TM().colors().bgBox
-    #define BG_LIST      TM().colors().bgList
-    #define BG_HOVER     TM().colors().bgHover
-    #define BG_SELECT    TM().colors().bgSelect
-    #define BORDER       TM().colors().border
-    #define BORDER_ALT   TM().colors().borderAlt
-    #define TEXT_PRIMARY TM().colors().textPrimary
-    #define TEXT_ACCENT  TM().colors().textAccent
-    #define TEXT_LIGHT   TM().colors().textLight
-    #define TEXT_MUTED   TM().colors().textMuted
-    #define ACCENT       TM().colors().accent
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// StyleSheet-Konstanten
-// ─────────────────────────────────────────────────────────────────────────────
-namespace SC_Styles {
-    const QString MENU = QStringLiteral(
-        "QMenu { background:#2e3440; color:#eceff4; border:1px solid #434c5e; }"
-        "QMenu::item { padding:6px 20px; }"
-        "QMenu::item:selected { background:#434c5e; }"
-        "QMenu::separator { background:rgba(236,239,244,120); height:1px; margin:4px 8px; }");
-
-    const QString BOX = QStringLiteral(
-        "background-color:%1; border-radius:8px; border:1px solid %2;");
-
-    const QString LIST = QStringLiteral(
-        "QListWidget { background:#2e3440; border:1px solid #2c3245; border-radius:0px; outline:none; }"
-        "QListWidget::item { color:#ccd4e8; border-bottom:1px solid #3b4252; padding:2px 8px; }"
-        "QListWidget::item:hover { background:#3b4252; }"
-        "QListWidget::item:selected { background:#434c5e; color:#eceff4; }"
-        "QListWidget QScrollBar:vertical { width:5px; background:transparent; border:none; }"
-        "QListWidget QScrollBar::handle:vertical { background:#4c566a; border-radius:2px; min-height:20px; }"
-        "QListWidget QScrollBar::add-line:vertical, QListWidget QScrollBar::sub-line:vertical { height:0; }");
-
-    const QString BTN_ICON = QStringLiteral(
-        "QPushButton { font-size:14px; font-weight:bold; color:#eceff4; background:transparent; border:none; border-radius:4px; }"
-        "QPushButton:hover { background:#3b4252; }");
-
-    const QString BTN_ADD = QStringLiteral(
-        "QPushButton { font-size:16px; font-weight:bold; color:#eceff4; background:transparent; border:none; border-radius:4px; }"
-        "QPushButton:hover { background:#3b4252; }");
-
-    const QString BTN_TOGGLE = QStringLiteral(
-        "QPushButton { background:transparent !important; font-size:7px; border:none; color:#4c566a; }");
-
-// In sidebar.cpp, Namespace SC_Styles
-const QString HEADER_LABEL = QStringLiteral(
-    "font-size:12px; font-weight:normal; text-transform:uppercase; background:transparent;");
-
-    const QString SCROLL_AREA = QStringLiteral(
-        "QScrollArea { border:none; background:%1; }"
-        "QScrollBar:vertical { width:4px; background:transparent; border:none; }"
-        "QScrollBar::handle:vertical { background:rgba(255,255,255,40); border-radius:2px; min-height:20px; }"
-        "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height:0; }"
-        "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background:transparent; }");
-
-    const QString DIALOG = QStringLiteral(
-        "QDialog { background:#1e2330; color:#ccd4e8; }"
-        "QLabel { color:#ccd4e8; font-size:11px; }"
-        "QLineEdit { background:#23283a; border:1px solid #2c3245; color:#ccd4e8; padding:5px; border-radius:4px; font-size:11px; }"
-        "QPushButton { background:#3b4252; color:#ccd4e8; border:1px solid #2c3245; padding:7px 14px; border-radius:4px; font-size:11px; }"
-        "QPushButton:hover { background:#4c566a; }"
-        "QPushButton:checked { background:#5e81ac; border-color:#81a1c1; color:#eceff4; }");
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Hilfsfunktionen (file-scope)
@@ -351,9 +278,9 @@ Sidebar::Sidebar(QWidget *parent) : QWidget(parent)
     buildTagsSection(outerLay);
 
     setupTags();
-    loadUserPlaces();  // xbel zuerst laden als sofortiger Fallback
+    loadUserPlaces();
     updateDrives();
-    loadGDriveAccountsAsync();  // KIO async, überschreibt xbel-Daten
+    loadGDriveAccountsAsync();
     connectDriveList();
     setupDriveContextMenu();
     connect(Solid::DeviceNotifier::instance(), &Solid::DeviceNotifier::deviceAdded,
@@ -474,7 +401,6 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     netWLay->setContentsMargins(6, 0, 6, 4);
     m_netBox->setStyleSheet("margin-top:0px; padding-top:0px;");
     netWLay->setSpacing(0);
-
 
     m_netList = new QListWidget();
     m_netList->setFrameShape(QFrame::NoFrame);
@@ -738,7 +664,6 @@ void Sidebar::buildTagsSection(QVBoxLayout *parent)
 
     connect(toggleBtn, &QPushButton::toggled, this, [listCont, toggleBtn](bool on) {
         listCont->setVisible(!on);
-        // WICHTIG: Hier muss setIcon statt setText stehen!
         toggleBtn->setIcon(QIcon::fromTheme(on ? "go-down" : "go-up"));
     });
 
@@ -1133,7 +1058,6 @@ void Sidebar::updateDrives()
 
     // ── Hot-Plug (einmalig verbinden) ──
 
-
     s_updating = false;
 }
 
@@ -1388,7 +1312,6 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     // Liste zum Container-Layout hinzufügen
     listLay->addWidget(list);
 
-    // WICHTIG: Jetzt den Container zur vbox hinzufügen, nicht die Liste direkt
     adjustListHeight(list);
     vbox->addWidget(listCont);
 
@@ -1406,7 +1329,6 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
 
     connect(toggleBtn, &QPushButton::toggled, this, [listCont, toggleBtn](bool on) {
         listCont->setVisible(!on);
-        // WICHTIG: setIcon statt setText verwenden!
         toggleBtn->setIcon(QIcon::fromTheme(on ? "go-down" : "go-up"));
     });
 

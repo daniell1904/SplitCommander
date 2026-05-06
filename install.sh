@@ -167,7 +167,8 @@ install_icon() {
         sudo cp "$svg" /usr/share/icons/hicolor/scalable/apps/splitcommander.svg
     fi
 
-    sudo gtk-update-icon-cache /usr/share/icons/hicolor 2>/dev/null || true
+    sudo gtk-update-icon-cache -f -t /usr/share/icons/hicolor 2>/dev/null || true
+    kbuildsycoca6 --noincremental 2>/dev/null || true
     print_ok "Icon installiert (${sizes[*]} px)"
 }
 

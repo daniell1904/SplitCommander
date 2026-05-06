@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 
     std::cout << "Erstelle MainWindow..." << std::endl;
     MainWindow w;
-    
+
     std::cout << "Zeige Fenster..." << std::endl;
     w.show();
     w.raise();
