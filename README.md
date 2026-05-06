@@ -143,6 +143,14 @@ sudo cmake --install build-release
 - KDE Frameworks 6 — KIO, Solid, IconThemes, ConfigWidgets, XmlGui, WidgetsAddons, WindowSystem, Archive, Service, I18n
 - CMake ≥ 3.18, Ninja, GCC/Clang with C++20
 
+### Hinweis
+
+Dieses Projekt wurde mit Unterstützung von KI (Claude von Anthropic) entwickelt.
+
+### Note
+
+This project was developed with AI assistance (Claude by Anthropic).
+
 ### License
 
 GPL-3.0 — see [LICENSE](LICENSE)
