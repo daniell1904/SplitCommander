@@ -284,13 +284,13 @@ QString ThemeManager::ssColActive() const {
         "QListWidget{background:%1;border:none;color:%2;outline:none;}"
         "QListWidget::item{padding:3px 8px;border-bottom:1px solid %3;}"
         "QListWidget::item:selected{background:%4;color:%5;}"
-        "QListWidget::item:hover{background:%1;}"
+        "QListWidget::item:hover{background:%6;}"
         "QListWidget QScrollBar:vertical{width:0px;background:transparent;border:none;}"
         "QListWidget QScrollBar::handle:vertical{background:transparent;}"
         "QListWidget:hover QScrollBar::handle:vertical{background:transparent;}"
         "QListWidget QScrollBar::add-line:vertical,QListWidget QScrollBar::sub-line:vertical{height:0;}"
         "QListWidget QScrollBar:horizontal{height:0;}")
-        .arg(c.bgList, c.textPrimary, c.border, c.bgHover, c.textAccent);
+        .arg(c.bgList, c.textPrimary, c.border, c.bgHover, c.textAccent, c.bgHover);
 }
 
 QString ThemeManager::ssColInactive() const {
@@ -356,12 +356,23 @@ QString ThemeManager::ssDialog() const {
     const auto &c = m_colors;
     return QString(
         "QDialog{background:%1;color:%2;}"
-        "QLabel{color:%2;font-size:11px;}"
+        "QFrame{background:%1;border:none;}"
+        "QGroupBox{background:%1;color:%2;border:1px solid %4;border-radius:4px;margin-top:6px;padding-top:6px;font-size:11px;}"
+        "QGroupBox::title{subcontrol-origin:margin;left:8px;padding:0 4px;color:%2;}"
+        "QLabel{color:%2;font-size:11px;background:transparent;}"
         "QLineEdit{background:%3;border:1px solid %4;color:%2;padding:5px;border-radius:4px;font-size:11px;}"
+        "QSpinBox{background:%3;border:1px solid %4;color:%2;padding:2px 4px;border-radius:4px;font-size:11px;}"
+        "QSpinBox::up-button,QSpinBox::down-button{background:%5;border:none;width:14px;}"
+        "QSpinBox::up-button:hover,QSpinBox::down-button:hover{background:%6;}"
         "QPushButton{background:%5;color:%2;border:1px solid %4;padding:7px 14px;border-radius:4px;font-size:11px;}"
         "QPushButton:hover{background:%6;}"
-        "QPushButton:checked{background:%7;border-color:%8;color:%9;}")
-        .arg(c.bgBox, c.textPrimary, c.bgInput, c.borderAlt,
+        "QPushButton:checked{background:%7;border-color:%8;color:%9;}"
+        "QToolButton{background:%5;color:%2;border:1px solid %4;border-radius:4px;padding:3px;}"
+        "QToolButton:hover{background:%6;}"
+        "QScrollBar:vertical{background:%1;width:8px;border:none;}"
+        "QScrollBar::handle:vertical{background:%4;border-radius:4px;min-height:20px;}"
+        "QScrollBar::add-line:vertical,QScrollBar::sub-line:vertical{height:0;}")
+        .arg(c.bgList, c.textPrimary, c.bgInput, c.borderAlt,
              c.bgHover, c.bgSelect, c.accent, c.accentHover, c.textLight);
 }
 

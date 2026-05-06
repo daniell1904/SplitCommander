@@ -82,7 +82,6 @@ void sc_openTerminal(const QString &path)
             term = full;
     }
 
-    qDebug() << "sc_openTerminal: term=" << term << "path=" << path;
 
     const QString bin = term.section('/', -1);
     bool ok = false;

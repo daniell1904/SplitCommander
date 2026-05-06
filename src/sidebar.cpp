@@ -55,6 +55,41 @@
 #include <QVBoxLayout>
 #include <QApplication>
 
+// Themed input dialog - styled like QMenu
+static QString sc_getText(QWidget *parent, const QString &title, const QString &label,
+                          const QString &defaultText = QString())
+{
+    QDialog dlg(nullptr);
+    dlg.setAttribute(Qt::WA_StyledBackground, true);
+    dlg.setWindowTitle(title);
+    dlg.setStyleSheet(TM().ssDialog());
+    auto *lay = new QVBoxLayout(&dlg);
+    lay->setSpacing(4);
+    lay->setContentsMargins(12, 10, 12, 10);
+    auto *lbl = new QLabel(label, &dlg);
+    auto *edit = new QLineEdit(defaultText, &dlg);
+    auto *btnRow = new QHBoxLayout();
+    auto *ok  = new QPushButton(QIcon::fromTheme("dialog-ok"),     "OK",         &dlg);
+    auto *can = new QPushButton(QIcon::fromTheme("dialog-cancel"), "Abbrechen",  &dlg);
+    ok->setDefault(true);
+    btnRow->addStretch();
+    btnRow->addWidget(ok);
+    btnRow->addWidget(can);
+    lay->addWidget(lbl);
+    lay->addWidget(edit);
+    lay->addLayout(btnRow);
+    QObject::connect(ok,  &QPushButton::clicked, &dlg, &QDialog::accept);
+    QObject::connect(can, &QPushButton::clicked, &dlg, &QDialog::reject);
+    dlg.adjustSize();
+    if (parent) {
+        QPoint center = parent->mapToGlobal(parent->rect().center());
+        dlg.move(center - QPoint(dlg.width() / 2, dlg.height() / 2));
+    }
+    if (dlg.exec() != QDialog::Accepted) return {};
+    return edit->text();
+}
+
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Hilfsfunktionen (file-scope)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -497,8 +532,8 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
         m->setStyleSheet(TM().ssMenu());
         m->addAction(QIcon::fromTheme("edit-rename"), tr("Box umbenennen …"), this, [this, lbl]() {
             bool ok;
-            QString name = QInputDialog::getText(this, tr("Box umbenennen"),
-                tr("Name:"), QLineEdit::Normal, lbl->text(), &ok);
+            QString name = sc_getText(this, tr("Box umbenennen"), tr("Name:"), lbl->text());
+            ok = !name.isNull();
             if (ok && !name.isEmpty()) {
                 lbl->setText(name);
                 QSettings s("SplitCommander", "UI");
@@ -674,8 +709,8 @@ void Sidebar::buildTagsSection(QVBoxLayout *parent)
 
     connect(addBtn, &QPushButton::clicked, this, [this]() {
         bool ok;
-        QString name = QInputDialog::getText(this, tr("Neuer Tag"), tr("Tag-Name:"),
-                                             QLineEdit::Normal, "", &ok);
+        QString name = sc_getText(this, tr("Neuer Tag"), tr("Tag-Name:"));
+        ok = !name.isNull();
         if (!ok || name.trimmed().isEmpty()) return;
         QColorDialog dlg(QColor(TM().colors().textAccent), this);
         dlg.setWindowTitle(tr("Farbe wählen"));
@@ -1395,8 +1430,8 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
         connect(m->addAction(QIcon::fromTheme("edit-rename"), tr("Gruppe umbenennen")),
                 &QAction::triggered, this, [this, lbl, sharedName]() {
             bool ok;
-            QString newName = QInputDialog::getText(this, tr("Gruppe umbenennen"), tr("Neuer Name:"),
-                                                    QLineEdit::Normal, *sharedName, &ok);
+            QString newName = sc_getText(this, tr("Gruppe umbenennen"), tr("Neuer Name:"), *sharedName);
+            ok = !newName.isNull();
             if (!ok || newName.trimmed().isEmpty() || newName.trimmed() == *sharedName) return;
             const QString oldName = *sharedName;
             *sharedName = newName.trimmed();
@@ -1689,8 +1724,8 @@ void Sidebar::setupTags()
         menu.addAction(QIcon::fromTheme("edit-rename"), tr("Umbenennen …"), this,
             [this, item]() {
                 bool ok;
-                QString name = QInputDialog::getText(this, tr("Tag umbenennen"),
-                    tr("Name:"), QLineEdit::Normal, item->text(), &ok);
+                QString name = sc_getText(this, tr("Tag umbenennen"), tr("Name:"), item->text());
+                ok = !name.isNull();
                 if (ok && !name.isEmpty()) { item->setText(name); saveTags(); }
             });
         menu.addSeparator();

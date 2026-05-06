@@ -184,10 +184,10 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const
         }
 
         QIcon icon = qvariant_cast<QIcon>(idx.data(Qt::DecorationRole));
-        const int ic = qBound(12, rowHeight - 6, 48);
-        if (!icon.isNull())
-            p->drawPixmap(r.left(), r.top() + (r.height() - ic) / 2, icon.pixmap(ic, ic));
-        r.setLeft(r.left() + ic + 4);
+        if (!icon.isNull()) {
+            p->drawPixmap(r.left(), r.top() + (r.height() - 16) / 2, icon.pixmap(16, 16));
+        }
+        r.setLeft(r.left() + 22);
         p->setPen(tc);
         p->drawText(r, Qt::AlignVCenter | Qt::AlignLeft,
                     o.fontMetrics.elidedText(idx.data().toString(), Qt::ElideRight, r.width()));

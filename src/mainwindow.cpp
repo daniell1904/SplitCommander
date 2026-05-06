@@ -43,10 +43,13 @@
 #include <QInputDialog>
 #include <QMenu>
 #include <QWidgetAction>
+#include <QSlider>
 #include <QMessageBox>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QProcess>
+#include <QtConcurrent>
+#include <QFutureWatcher>
 #include <QResizeEvent>
 #include <QScrollBar>
 #include <QSettings>
@@ -983,6 +986,38 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
 
     hamburgerMenu->addSeparator();
 
+    // Zeilenhöhe
+    auto *rhWidget = new QWidget();
+    rhWidget->setStyleSheet(QString("QWidget{background:%1;border:none;}").arg(TM().colors().bgList));
+    auto *rhLay = new QHBoxLayout(rhWidget);
+    rhLay->setContentsMargins(12, 6, 12, 6);
+    rhLay->setSpacing(8);
+    auto *rhLbl = new QLabel(tr("Zeilenhöhe:"));
+    rhLbl->setStyleSheet(QString("color:%1;font-size:11px;background:transparent;").arg(TM().colors().textPrimary));
+    auto *rhSlider = new QSlider(Qt::Horizontal);
+    rhSlider->setRange(18, 52);
+    rhSlider->setValue(QSettings().value("FilePane/rowHeight", 26).toInt());
+    rhSlider->setFixedWidth(100);
+    rhSlider->setStyleSheet(QString(
+        "QSlider::groove:horizontal{height:4px;background:%1;border-radius:2px;}"
+        "QSlider::handle:horizontal{width:12px;height:12px;margin:-4px 0;border-radius:6px;background:%2;}"
+        "QSlider::sub-page:horizontal{background:%2;border-radius:2px;}")
+        .arg(TM().colors().borderAlt, TM().colors().accent));
+    auto *rhValLbl = new QLabel(QString::number(rhSlider->value()));
+    rhValLbl->setStyleSheet(QString("color:%1;font-size:11px;background:transparent;min-width:20px;").arg(TM().colors().textAccent));
+    rhLay->addWidget(rhLbl);
+    rhLay->addWidget(rhSlider);
+    rhLay->addWidget(rhValLbl);
+    auto *rhAction = new QWidgetAction(hamburgerMenu);
+    rhAction->setDefaultWidget(rhWidget);
+    hamburgerMenu->addAction(rhAction);
+    connect(rhSlider, &QSlider::valueChanged, this, [this, rhValLbl](int val) {
+        rhValLbl->setText(QString::number(val));
+        m_filePane->setRowHeight(val);
+    });
+
+    hamburgerMenu->addSeparator();
+
     // Über
     auto *actAbout = hamburgerMenu->addAction(QIcon::fromTheme("help-about"), tr("Über SplitCommander"));
 
@@ -1621,13 +1656,25 @@ void PaneWidget::updateFooter(const QString &path)
         const QDir dir(path);
         m_footerCount->setText(tr("%1 Elemente").arg(
             dir.entryList(QDir::AllEntries | QDir::NoDotAndDotDot).count()));
-        quint64 sz = 0;
-        for (const QFileInfo &e : dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot))
-            sz += e.size();
-        if      (sz < 1024)        m_footerSize->setText(QString("%1 B").arg(sz));
-        else if (sz < 1024 * 1024) m_footerSize->setText(QString("%1 KB").arg(sz / 1024));
-        else                       m_footerSize->setText(QString("%1 MB").arg(sz / (1024 * 1024)));
+        m_footerSize->setText(tr("…"));
         if (m_footerSelected) m_footerSelected->hide();
+
+        auto *watcher = new QFutureWatcher<quint64>(this);
+        connect(watcher, &QFutureWatcher<quint64>::finished, this,
+                [this, watcher]() {
+            const quint64 sz = watcher->result();
+            watcher->deleteLater();
+            if (!m_footerSize) return;
+            if      (sz < 1024)        m_footerSize->setText(QString("%1 B").arg(sz));
+            else if (sz < 1024 * 1024) m_footerSize->setText(QString("%1 KB").arg(sz / 1024));
+            else                       m_footerSize->setText(QString("%1 MB").arg(sz / (1024 * 1024)));
+        });
+        watcher->setFuture(QtConcurrent::run([path]() -> quint64 {
+            quint64 sz = 0;
+            for (const QFileInfo &e : QDir(path).entryInfoList(QDir::Files | QDir::NoDotAndDotDot))
+                sz += e.size();
+            return sz;
+        }));
     } else {
         m_footerCount->setText(QDir(fi.absolutePath()).dirName());
         const quint64 sz = fi.size();
@@ -2060,4 +2107,3 @@ void MainWindow::applyLayout(int mode)
     }
 }
 
-#include "mainwindow.moc"

@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     app.setApplicationName("SplitCommander");
     app.setOrganizationName("SplitCommander");
-    app.setApplicationVersion(QStringLiteral("0.2.6"));
+    app.setApplicationVersion(QStringLiteral(SC_VERSION));
     app.setDesktopFileName("splitcommander");
 
     QCommandLineParser parser;
