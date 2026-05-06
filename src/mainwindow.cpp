@@ -1172,18 +1172,20 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     });
 
     connect(actAbout, &QAction::triggered, this, [this]() {
-        QMessageBox::about(this, tr("Über SplitCommander"),
-            tr("<b>SplitCommander</b> &nbsp;<small>v0.3.0</small><br>"
-               "<small>Ein nativer KDE-Dateimanager für den täglichen Einsatz.</small>"
-               "<br><br>"
-               "<b>Stack:</b> Qt6 · KF6 · C++20 · Solid · KIO<br>"
-               "<b>Lizenz:</b> GPL-3.0<br>"
-               "<b>Autor:</b> D. Lange<br>"
-               "<br>"
-               "<b>Features:</b> Miller-Columns · Dual-Pane · Tags · Batch-Rename · "
-               "Vorschau · Themes · Hot-Plug USB<br>"
-               "<br>"
-               "<small>Build: ") + QString(__DATE__) + tr(" · ") + QString(__TIME__) + tr("</small>"));
+        const QString body =
+            tr("<b>SplitCommander</b> &nbsp;<small>v%1</small><br>").arg(QCoreApplication::applicationVersion()) +
+            QString("<small>Ein nativer KDE-Dateimanager für den täglichen Einsatz.</small>"
+                    "<br><br>"
+                    "<b>Stack:</b> Qt6 · KF6 · C++20 · Solid · KIO<br>"
+                    "<b>Lizenz:</b> GPL-3.0<br>"
+                    "<b>Autor:</b> D. Lange<br>"
+                    "<br>"
+                    "<b>Features:</b> Miller-Columns · Dual-Pane · Tags · Batch-Rename · "
+                    "Vorschau · Themes · Hot-Plug USB<br>"
+                    "<br>"
+                    "<small>Build: ") +
+            QString(__DATE__) + " · " + QString(__TIME__) + "</small>";
+        QMessageBox::about(this, tr("Über SplitCommander"), body);
     });
 
     // ── Such-Panel ──
