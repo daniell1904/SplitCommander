@@ -2003,7 +2003,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(m_leftPane,  &PaneWidget::layoutChangeRequested, this, &MainWindow::applyLayout);
     connect(m_rightPane, &PaneWidget::layoutChangeRequested, this, &MainWindow::applyLayout);
     connect(m_sidebar, &Sidebar::tagClicked, this, [this](const QString &tagName) {
-        activePane()->filePane()->showTaggedFiles(tagName);
+        auto *pane = activePane();
+        const QString cur = pane->currentPath();
+        const bool isKio = !cur.startsWith("/") && cur.contains(":/");
+        if (isKio) {
+            // KIO-Modus verlassen ohne History-Eintrag
+            pane->filePane()->setRootPath(QDir::homePath());
+        }
+        pane->filePane()->showTaggedFiles(tagName);
     });
     connect(m_sidebar, &Sidebar::drivesChanged, this, [this]() {
         m_leftPane->miller()->refreshDrives();
