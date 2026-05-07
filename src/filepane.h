@@ -123,7 +123,7 @@ public:
 class FilePane : public QWidget {
     Q_OBJECT
 public:
-    explicit FilePane(QWidget *parent = nullptr);
+    explicit FilePane(QWidget *parent = nullptr, const QString &settingsKey = "default");
 
     void setRootPath(const QString &path);
     void setRootUrl(const QUrl &url);
@@ -179,6 +179,7 @@ private:
     KNewFileMenu             *m_newFileMenu = nullptr;
 
     QString  m_currentPath;
+    QString  m_settingsKey; // pane-spezifischer Settings-Key
     QUrl     m_currentUrl;
     bool     m_kioMode    = false;
     QString  m_filter;

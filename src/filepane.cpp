@@ -493,8 +493,13 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const
         }
         QIcon icon = qvariant_cast<QIcon>(idx.data(Qt::DecorationRole));
         const int ic = qBound(12, rowHeight - 6, 48);
-        if (!icon.isNull())
-            p->drawPixmap(r.left(), r.top() + (r.height() - ic) / 2, icon.pixmap(ic, ic));
+        if (!icon.isNull()) {
+            QPixmap pm = icon.pixmap(QSize(32, 32));
+            if (pm.isNull()) pm = icon.pixmap(QSize(16, 16));
+            if (!pm.isNull())
+                p->drawPixmap(r.left(), r.top() + (r.height() - ic) / 2,
+                    pm.scaled(ic, ic, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        }
         r.setLeft(r.left() + ic + 4);
         p->setPen(tc);
         p->drawText(r, Qt::AlignVCenter | Qt::AlignLeft,
@@ -598,8 +603,9 @@ void FilePane::setupColumns()
 // ─────────────────────────────────────────────────────────────────────────────
 // FilePane Konstruktor
 // ─────────────────────────────────────────────────────────────────────────────
-FilePane::FilePane(QWidget *parent) : QWidget(parent)
+FilePane::FilePane(QWidget *parent, const QString &settingsKey) : QWidget(parent)
 {
+    m_settingsKey = "FilePane/" + settingsKey + "/";
     auto *lay = new QVBoxLayout(this);
     lay->setContentsMargins(0, 0, 0, 0);
 
@@ -643,7 +649,7 @@ FilePane::FilePane(QWidget *parent) : QWidget(parent)
     m_view->setItemDelegate(m_delegate);
     m_view->installEventFilter(this);
 
-    const int savedHeight = QSettings().value("FilePane/rowHeight", 26).toInt();
+    const int savedHeight = QSettings().value(m_settingsKey + "rowHeight", 26).toInt();
     m_delegate->rowHeight = savedHeight;
     m_delegate->fontSize  = qBound(9, savedHeight / 3, 16);
     m_view->setIconSize(QSize(qBound(12, savedHeight-6, 48), qBound(12, savedHeight-6, 48)));
@@ -890,7 +896,7 @@ void FilePane::setRowHeight(int height)
         m_delegate->fontSize  = qBound(9, height/3, 16);
         m_view->setIconSize(QSize(qBound(12,height-6,48), qBound(12,height-6,48)));
     }
-    QSettings().setValue("FilePane/rowHeight", height);
+    QSettings().setValue(m_settingsKey + "rowHeight", height);
     m_view->update();
 }
 

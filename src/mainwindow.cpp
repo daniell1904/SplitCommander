@@ -1484,7 +1484,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     lowerLay->setContentsMargins(0, 0, 0, 0);
     lowerLay->setSpacing(0);
     m_toolbar  = new PaneToolbar();
-    m_filePane = new FilePane();
+    m_filePane = new FilePane(nullptr, m_settingsKey);
     m_filePane->setStyleSheet(QString("border:none;background:%1;").arg(TM().colors().bgDeep));
     lowerLay->addWidget(m_toolbar);
     lowerLay->addWidget(m_filePane, 1);
