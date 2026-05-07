@@ -3,6 +3,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 #include "mainwindow.h"
+#include "filepane.h"
 #include "panewidgets.h"
 #include "settingsdialog.h"
 #include "shortcutdialog.h"
@@ -51,6 +52,7 @@
 #include <QtConcurrent>
 #include <QFutureWatcher>
 #include <QResizeEvent>
+#include <QCloseEvent>
 #include <QScrollBar>
 #include <QSettings>
 #include <QShortcut>
@@ -251,19 +253,54 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent)
         if (m_path == QLatin1String("__drives__")) {
             // ── Laufwerk-Menü ──────────────────────────────────────────────
             const QString udi = it->data(Qt::UserRole + 1).toString();
-            if (udi.isEmpty()) { menu.exec(m_list->mapToGlobal(pos)); return; }
-            Solid::Device dev(udi);
-            const auto *acc = dev.as<Solid::StorageAccess>();
-            if (!acc) { menu.exec(m_list->mapToGlobal(pos)); return; }
-            if (acc->isAccessible()) {
-                menu.addAction(QIcon::fromTheme("media-eject"), tr("Aushängen"), this, [this, udi]() {
-                    emit teardownRequested(udi);
-                });
-            } else {
-                menu.addAction(QIcon::fromTheme("drive-harddisk"), tr("Einhängen"), this, [this, udi]() {
-                    emit setupRequested(udi);
-                });
+            mw_applyMenuShadow(&menu);
+
+            // Öffnen + Öffnen in für alle navigierbaren Einträge
+            if (!itemPath.isEmpty() && !itemPath.startsWith("solid:")) {
+                menu.addAction(QIcon::fromTheme("folder-open"), tr("Öffnen"), this,
+                    [this, itemPath]() { emit entryClicked(itemPath, this); });
+                auto *openInMenu = menu.addMenu(QIcon::fromTheme("folder-open"), tr("Öffnen in"));
+                openInMenu->setStyleSheet(TM().ssMenu());
+                openInMenu->addAction(tr("Linke Ansicht"),  this, [this, itemPath]() { emit openInLeft(itemPath); });
+                openInMenu->addAction(tr("Rechte Ansicht"), this, [this, itemPath]() { emit openInRight(itemPath); });
+                menu.addSeparator();
             }
+
+            // NetworkPlaces: aus Liste entfernen
+            {
+                QSettings netCheck("SplitCommander", "NetworkPlaces");
+                if (netCheck.value("places").toStringList().contains(itemPath)) {
+                    menu.addAction(QIcon::fromTheme("list-remove"), tr("Aus Laufwerken entfernen"), this,
+                        [this, itemPath]() {
+                            QSettings s("SplitCommander", "NetworkPlaces");
+                            QStringList saved = s.value("places").toStringList();
+                            saved.removeAll(itemPath);
+                            s.setValue("places", saved);
+                            s.remove("name_" + QString(itemPath).replace("/","_").replace(":","_"));
+                            s.sync();
+                            emit removeFromPlacesRequested(itemPath);
+                        });
+                    menu.addSeparator();
+                }
+            }
+
+            // Solid: Aushängen/Einhängen
+            if (!udi.isEmpty()) {
+                Solid::Device dev(udi);
+                const auto *acc = dev.as<Solid::StorageAccess>();
+                if (acc) {
+                    if (acc->isAccessible())
+                        menu.addAction(QIcon::fromTheme("media-eject"), tr("Aushängen"), this,
+                            [this, udi]() { emit teardownRequested(udi); });
+                    else
+                        menu.addAction(QIcon::fromTheme("drive-harddisk"), tr("Einhängen"), this,
+                            [this, udi]() { emit setupRequested(udi); });
+                    menu.addSeparator();
+                }
+            }
+
+            menu.addAction(QIcon::fromTheme("edit-copy"), tr("Pfad kopieren"), this,
+                [itemPath]() { QGuiApplication::clipboard()->setText(itemPath); });
         } else {
             // ── Ordner-Menü ────────────────────────────────────────────────
             mw_applyMenuShadow(&menu);
@@ -276,7 +313,7 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent)
             openInMenu->addAction(tr("Rechte Ansicht"), this, [this, itemPath]() { emit openInRight(itemPath); });
 
             menu.addSeparator();
-            menu.addAction(QIcon::fromTheme("utilities-terminal"), tr("Terminal hier öffnen"), this,
+            menu.addAction(QIcon::fromTheme("utilities-terminal"), tr("Im Terminal öffnen"), this,
                 [itemPath]() { sc_openTerminal(itemPath); });
             menu.addSeparator();
             menu.addAction(QIcon::fromTheme("edit-copy"), tr("Pfad kopieren"), this,
@@ -304,6 +341,9 @@ void MillerColumn::populateDrives()
         const auto *acc = dev.as<Solid::StorageAccess>();
         if (!acc) continue;
 
+        // Bereits gezeigtes UDI überspringen
+        if (shownUdis.contains(dev.udi())) continue;
+
         const bool mounted = acc->isAccessible();
         const QString p = acc->filePath();
 
@@ -311,6 +351,18 @@ void MillerColumn::populateDrives()
         if (mounted) {
             if (p.isEmpty()) continue;
             if (p.startsWith("/boot") || p.startsWith("/efi") || p.startsWith("/snap")) continue;
+        }
+
+        // Nicht-gemountete Geräte: nur anzeigen wenn echtes Filesystem-Volume
+        if (!mounted) {
+            const auto *vol = dev.as<Solid::StorageVolume>();
+            if (!vol) continue;
+            if (vol->usage() != Solid::StorageVolume::FileSystem
+                && vol->usage() != Solid::StorageVolume::Other) continue;
+            const QString lbl = vol->label().toUpper();
+            const QString fs  = vol->fsType().toLower();
+            if (lbl == "BOOT" || lbl == "EFI" || lbl == "EFI SYSTEM PARTITION" || lbl == "ESP") continue;
+            if (fs == "iso9660" || fs == "udf") continue;
         }
 
         shownUdis.insert(dev.udi());
@@ -360,14 +412,28 @@ void MillerColumn::populateDrives()
         it->setSizeHint(QSize(0, 44));
     }
 
-    // ── Google Drive Accounts (via KIO::listDir) ──
-    for (const QString &acc : m_gdriveAccounts) {
-        auto *it = new QListWidgetItem(m_list);
-        it->setData(Qt::DisplayRole,    acc);
-        it->setData(Qt::DecorationRole, QIcon::fromTheme("folder-gdrive"));
-        it->setData(Qt::UserRole,        "gdrive:/" + acc);
-        it->setData(Qt::UserRole + 1,    "gdrive");
-        it->setSizeHint(QSize(0, 44));
+    // ── Gespeicherte Netzwerkplätze (NetworkPlaces) ──
+    {
+        QSettings netSettings("SplitCommander", "NetworkPlaces");
+        const QStringList savedPlaces = netSettings.value("places").toStringList();
+        for (const QString &p : savedPlaces) {
+            const QString scheme = QUrl(p).scheme().toLower();
+            const QString savedName = netSettings.value(
+                "name_" + QString(p).replace("/","_").replace(":","_"),
+                scheme == "gdrive" ? "Google Drive" : QDir(p).dirName()).toString();
+            QString iconName = scheme == "gdrive"    ? "folder-gdrive"
+                             : scheme == "smb"       ? "network-workgroup"
+                             : scheme == "sftp"      ? "network-connect"
+                             : scheme == "mtp"       ? "multimedia-player"
+                             : scheme == "bluetooth" ? "bluetooth"
+                             : "network-server";
+            auto *it = new QListWidgetItem(m_list);
+            it->setData(Qt::DisplayRole,    savedName);
+            it->setData(Qt::DecorationRole, QIcon::fromTheme(iconName));
+            it->setData(Qt::UserRole,        p);
+            it->setData(Qt::UserRole + 1,    scheme);
+            it->setSizeHint(QSize(0, 44));
+        }
     }
 }
 
@@ -556,6 +622,7 @@ void MillerArea::init()
         }, Qt::SingleShotConnection);
         acc->setup();
     });
+    connect(col, &MillerColumn::removeFromPlacesRequested, this, &MillerArea::removeFromPlacesRequested);
     connect(col, &MillerColumn::openInLeft,          this, &MillerArea::openInLeft);
     connect(col, &MillerColumn::openInRight,         this, &MillerArea::openInRight);
     connect(col, &MillerColumn::propertiesRequested, this, &MillerArea::propertiesRequested);
@@ -696,7 +763,8 @@ void MillerArea::setFocused(bool f)
 // ─────────────────────────────────────────────────────────────────────────────
 // PaneWidget
 // ─────────────────────────────────────────────────────────────────────────────
-PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
+PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
+    : QWidget(parent), m_settingsKey(settingsKey)
 {
     setStyleSheet(QString("background:%1;").arg(TM().colors().bgDeep));
     auto *rootLay = new QVBoxLayout(this);
@@ -819,7 +887,7 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     auto *menuTerminal = hamburgerMenu->addMenu(QIcon::fromTheme("utilities-terminal"), tr("Terminal"));
     menuTerminal->setStyleSheet(TM().ssMenu());
 
-    menuTerminal->addAction(QIcon::fromTheme("utilities-terminal"), tr("Terminal hier öffnen"),
+    menuTerminal->addAction(QIcon::fromTheme("utilities-terminal"), tr("Im Terminal öffnen"),
         this, [this]() {
             const QString path = this->currentPath();
             sc_openTerminal(path.isEmpty() ? QDir::homePath() : path);
@@ -1425,32 +1493,63 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     m_vSplit->setStretchFactor(0, 0);
     m_vSplit->setStretchFactor(1, 1);
 
-    // Gespeicherte Position wiederherstellen
+    // Gespeicherte Position wiederherstellen (pane-spezifischer Key)
     {
         QSettings s("SplitCommander", "UI");
-        const QByteArray state = s.value("vSplitState").toByteArray();
+        const QString key = m_settingsKey + "/vSplitState";
+        const QByteArray state = s.value(key).toByteArray();
         if (!state.isEmpty())
             m_vSplit->restoreState(state);
     }
 
-    // Position beim Verschieben speichern
+    // Position beim Verschieben speichern — nur als Backup bei Drag
     connect(m_vSplit, &QSplitter::splitterMoved, this, [this](int, int) {
-        QSettings s("SplitCommander", "UI");
-        s.setValue("vSplitState", m_vSplit->saveState());
-        s.sync();
+        // m_millerCollapsed nicht über splitterMoved setzen — nur über Toggle
+        // State wird beim App-Beenden in saveState() gespeichert
     });
 
     connect(millerToggle, &QToolButton::toggled, this, [this, millerToggle](bool checked) {
         if (checked) {
-            m_vSplit->setSizes({200, 450});
+            // Aufklappen: gespeicherte Größe wiederherstellen
+            QSettings s("SplitCommander", "UI");
+            const QByteArray saved = s.value(m_settingsKey + "/vSplitState").toByteArray();
+            if (!saved.isEmpty()) {
+                m_vSplit->restoreState(saved);
+                if (m_vSplit->sizes().value(0) == 0)
+                    m_vSplit->setSizes({200, 450});
+            } else {
+                m_vSplit->setSizes({200, 450});
+            }
             millerToggle->setIcon(QIcon::fromTheme("go-up"));
             millerToggle->setToolTip("Miller-Columns ausklappen");
+            m_millerCollapsed = false;
         } else {
+            // Einklappen: aktuelle Größe vorher sichern
+            if (m_vSplit->sizes().value(0) > 0) {
+                QSettings s("SplitCommander", "UI");
+                s.setValue(m_settingsKey + "/vSplitState", m_vSplit->saveState());
+                s.sync();
+            }
             m_vSplit->setSizes({0, 1});
             millerToggle->setIcon(QIcon::fromTheme("go-down"));
             millerToggle->setToolTip("Miller-Columns einblenden");
+            m_millerCollapsed = true;
         }
     });
+
+    // Miller-Toggle-State beim Start setzen
+    {
+        QSettings s("SplitCommander", "UI");
+        if (s.value(m_settingsKey + "/millerCollapsed", false).toBool()) {
+            m_millerCollapsed = true;
+            millerToggle->blockSignals(true);
+            millerToggle->setChecked(false);
+            millerToggle->setIcon(QIcon::fromTheme("go-down"));
+            millerToggle->setToolTip("Miller-Columns einblenden");
+            millerToggle->blockSignals(false);
+            m_vSplit->setSizes({0, 1});
+        }
+    }
 
     // Verbindungen
     connect(m_miller, &MillerArea::pathChanged,     this, [this](const QString &path) {
@@ -1480,7 +1579,9 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     });
     connect(m_filePane, &FilePane::fileActivated, this, [this](const QString &path) {
         emit focusRequested();
-        if (QFileInfo(path).isDir()) navigateTo(path);
+        // KIO-URL oder lokales Verzeichnis
+        const bool isKio = !path.startsWith("/") && path.contains(":/");
+        if (isKio || QFileInfo(path).isDir()) navigateTo(path);
     });
 
     // Toolbar-Verbindungen
@@ -1495,17 +1596,15 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     connect(m_toolbar, &PaneToolbar::deleteClicked, this, [this]() {
         QModelIndex cur = m_filePane->view()->currentIndex();
         if (!cur.isValid()) return;
-        auto *proxy = static_cast<QSortFilterProxyModel *>(m_filePane->view()->model());
-        auto *src   = qobject_cast<QStandardItemModel *>(proxy->sourceModel());
-        if (!src) return;
-        auto *it = src->item(proxy->mapToSource(cur).row(), 0);
-        if (!it) return;
-        const QString path = it->data(Qt::UserRole).toString();
+        auto *proxy = static_cast<FPColumnsProxy *>(m_filePane->view()->model());
+        KFileItem item = proxy->fileItem(cur);
+        if (item.isNull()) return;
+        const QString path = item.localPath().isEmpty() ? item.url().toString() : item.localPath();
         if (path.isEmpty()) return;
         if (QMessageBox::question(this, tr("Löschen"),
-                tr("'%1' in den Papierkorb?").arg(QFileInfo(path).fileName()),
+                tr("'%1' in den Papierkorb?").arg(item.name()),
                 QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes) return;
-        auto *job = new KIO::DeleteOrTrashJob({QUrl::fromLocalFile(path)},
+        auto *job = new KIO::DeleteOrTrashJob({item.url()},
             KIO::AskUserActionInterface::Trash,
             KIO::AskUserActionInterface::DefaultConfirmation, this);
         job->start();
@@ -1541,10 +1640,10 @@ PaneWidget::PaneWidget(QWidget *parent) : QWidget(parent)
     connect(m_toolbar, &PaneToolbar::viewModeChanged, this,
             [this](int mode) { m_filePane->setViewMode(mode); });
     connect(m_toolbar, &PaneToolbar::backClicked, this, [this]() {
-        if (!m_histBack.isEmpty()) { m_histFwd.push(currentPath()); navigateTo(m_histBack.pop()); }
+        if (!m_histBack.isEmpty()) { m_histFwd.push(currentPath()); navigateTo(m_histBack.pop(), false); }
     });
     connect(m_toolbar, &PaneToolbar::forwardClicked, this, [this]() {
-        if (!m_histFwd.isEmpty()) { m_histBack.push(currentPath()); navigateTo(m_histFwd.pop()); }
+        if (!m_histFwd.isEmpty()) { m_histBack.push(currentPath()); navigateTo(m_histFwd.pop(), false); }
     });
     connect(m_pathEdit, &QLineEdit::returnPressed, this,
             [this]() { navigateTo(m_pathEdit->text()); });
@@ -1602,22 +1701,30 @@ QString PaneWidget::currentPath() const
 
 void PaneWidget::navigateTo(const QString &path, bool clearForward)
 {
+    const bool isKio = !path.startsWith("/") && path.contains(":/");
     if (path.isEmpty() || path == "__drives__") return;
+    // Lokale Pfade die nicht existieren überspringen; KIO-URLs immer durchlassen
+    if (!isKio && !QFileInfo::exists(path)) return;
+
     const QString cur = currentPath();
     if (!cur.isEmpty() && cur != path) m_histBack.push(cur);
-    m_histFwd.clear();
+    if (clearForward) m_histFwd.clear();
     m_filePane->setRootPath(path);
     m_pathEdit->setText(path);
     m_toolbar->setPath(path);
-    if (!m_miller->cols().isEmpty() && m_miller->cols().size() > 1)
+    if (!isKio && !m_miller->cols().isEmpty() && m_miller->cols().size() > 1)
         m_miller->navigateTo(path);
 
-    const QDir dir(path);
-    int cnt = dir.entryList(QDir::AllEntries | QDir::NoDotAndDotDot).count();
-    qint64 sz = 0;
-    for (const QFileInfo &fi : dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot))
-        sz += fi.size();
-    m_toolbar->setCount(cnt, sz);
+    if (!isKio) {
+        const QDir dir(path);
+        int cnt = dir.entryList(QDir::AllEntries | QDir::NoDotAndDotDot).count();
+        qint64 sz = 0;
+        for (const QFileInfo &fi : dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot))
+            sz += fi.size();
+        m_toolbar->setCount(cnt, sz);
+    } else {
+        m_toolbar->setCount(0, 0);
+    }
     emit pathUpdated(path);
     updateFooter(path);
 }
@@ -1760,7 +1867,12 @@ void PaneWidget::resizeEvent(QResizeEvent *e)
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     setWindowTitle("SplitCommander");
-    resize(1280, 900);
+    {
+        QSettings s("SplitCommander", "UI");
+        const QByteArray geo = s.value("windowGeometry").toByteArray();
+        if (!geo.isEmpty()) restoreGeometry(geo);
+        else resize(1280, 900);
+    }
 
     auto *central = new QWidget(this);
     setCentralWidget(central);
@@ -1769,17 +1881,30 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     rootLay->setSpacing(0);
 
     m_sidebar = new Sidebar(this);
-    m_sidebar->setFixedWidth(250);
+    {
+        QSettings s("SplitCommander", "UI");
+        const int  sidebarW   = s.value("sidebarWidth",   250).toInt();
+        const bool sidebarVis = s.value("sidebarVisible", true).toBool();
+        m_sidebar->setFixedWidth(sidebarW);
+        m_sidebar->setVisible(sidebarVis);
+    }
     rootLay->addWidget(m_sidebar);
-    rootLay->addWidget(new SidebarHandle(m_sidebar, central));
+    auto *sidebarHandle = new SidebarHandle(m_sidebar, central);
+    {
+        QSettings s("SplitCommander", "UI");
+        const bool sidebarVis = s.value("sidebarVisible", true).toBool();
+        sidebarHandle->setFixedWidth(sidebarVis ? 10 : 32);
+        if (!sidebarVis) sidebarHandle->setCursor(Qt::PointingHandCursor);
+    }
+    rootLay->addWidget(sidebarHandle);
 
     m_panesSplitter = new PaneSplitter(Qt::Horizontal, central);
     m_panesSplitter->setHandleWidth(12);
     m_panesSplitter->setChildrenCollapsible(true);
     m_panesSplitter->setStyleSheet(TM().ssSplitter());
 
-    m_leftPane  = new PaneWidget();
-    m_rightPane = new PaneWidget();
+    m_leftPane  = new PaneWidget("leftPane");
+    m_rightPane = new PaneWidget("rightPane");
     m_panesSplitter->addWidget(m_leftPane);
     m_panesSplitter->addWidget(m_rightPane);
     rootLay->addWidget(m_panesSplitter, 1);
@@ -1853,6 +1978,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(m_sidebar, &Sidebar::driveClicked, this, [this, mountAndNavigate](const QString &path) {
         mountAndNavigate(path, !m_rightPane->isFocused());
     });
+    connect(m_sidebar, &Sidebar::driveClickedLeft, this, [this, mountAndNavigate](const QString &path) {
+        mountAndNavigate(path, true); // immer links
+    });
+    connect(m_sidebar, &Sidebar::driveClickedRight, this, [mountAndNavigate](const QString &path) {
+        mountAndNavigate(path, false); // immer rechts
+    });
     // Öffnen in Linke/Rechte Ansicht – fix, unabhängig von der Quell-Pane
     for (auto *pane : {m_leftPane, m_rightPane}) {
         connect(pane, &PaneWidget::openInLeftRequested, this, [this](const QString &path) {
@@ -1862,9 +1993,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
             m_rightPane->navigateTo(path); m_rightPane->setFocused(true); m_leftPane->setFocused(false);
         });
     }
-    connect(m_sidebar, &Sidebar::driveClickedRight, this, [mountAndNavigate](const QString &path) {
-        mountAndNavigate(path, false);
-    });
     connect(m_sidebar, &Sidebar::addCurrentPathToPlaces, this, [this]() {
         m_sidebar->addPlace(m_leftPane->currentPath());
     });
@@ -1878,23 +2006,22 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         activePane()->filePane()->showTaggedFiles(tagName);
     });
     connect(m_sidebar, &Sidebar::drivesChanged, this, [this]() {
-            const QStringList accs = m_sidebar->gdriveAccounts();
-        auto updateCols = [&accs](MillerArea *m) {
-            for (auto *col : m->cols()) col->setGdriveAccounts(accs);
-        };
-        updateCols(m_leftPane->miller());
-        updateCols(m_rightPane->miller());
         m_leftPane->miller()->refreshDrives();
         m_rightPane->miller()->refreshDrives();
     });
+
+    // NetworkPlace aus Millers entfernen — sofort refreshen
+    auto doRemoveFromPlaces = [this](const QString &url) {
+        m_sidebar->updateDrives();
+        m_leftPane->miller()->refreshDrives();
+        m_rightPane->miller()->refreshDrives();
+        emit m_sidebar->drivesChanged();
+    };
+    connect(m_leftPane->miller(),  &MillerArea::removeFromPlacesRequested, this, doRemoveFromPlaces);
+    connect(m_rightPane->miller(), &MillerArea::removeFromPlacesRequested, this, doRemoveFromPlaces);
     QTimer::singleShot(2000, this, [this]() {
-        const QStringList accs = m_sidebar->gdriveAccounts();
-        if (!accs.isEmpty()) {
-            for (auto *col : m_leftPane->miller()->cols()) col->setGdriveAccounts(accs);
-            for (auto *col : m_rightPane->miller()->cols()) col->setGdriveAccounts(accs);
-            m_leftPane->miller()->refreshDrives();
-            m_rightPane->miller()->refreshDrives();
-        }
+        m_leftPane->miller()->refreshDrives();
+        m_rightPane->miller()->refreshDrives();
     });
 
     // ── Settings-Änderungen live anwenden ─────────────────────────────────
@@ -1942,9 +2069,48 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(m_rightPane->filePane(), &FilePane::columnsChanged, this,
             [this](int colId, bool visible) { m_leftPane->filePane()->setColumnVisible(colId, visible); });
 
+    // Delete-Taste direkt aus dem View abfangen
+    auto doDelete = [this]() {
+        const QList<QUrl> urls = activePane()->filePane()->selectedUrls();
+        if (urls.isEmpty()) return;
+        const bool shift = QGuiApplication::keyboardModifiers() & Qt::ShiftModifier;
+        auto *job = new KIO::DeleteOrTrashJob(urls,
+            shift ? KIO::AskUserActionInterface::Delete
+                  : KIO::AskUserActionInterface::Trash,
+            KIO::AskUserActionInterface::DefaultConfirmation, this);
+        job->start();
+    };
+    connect(m_leftPane->filePane(),  &FilePane::deleteRequested, this, doDelete);
+    connect(m_rightPane->filePane(), &FilePane::deleteRequested, this, doDelete);
+
+    // KIO-Einträge zu Laufwerken hinzufügen
+    auto doAddToPlaces = [this](const QString &url, const QString &name) {
+        QSettings s("SplitCommander", "NetworkPlaces");
+        QStringList saved = s.value("places").toStringList();
+        if (!saved.contains(url)) {
+            saved << url;
+            s.setValue("places", saved);
+            s.setValue("name_" + QString(url).replace("/", "_").replace(":", "_"), name);
+            s.sync();
+        }
+        m_sidebar->updateDrives();
+        m_leftPane->miller()->refreshDrives();
+        m_rightPane->miller()->refreshDrives();
+        emit m_sidebar->drivesChanged();
+    };
+    connect(m_leftPane->filePane(),  &FilePane::addToPlacesRequested, this, doAddToPlaces);
+    connect(m_rightPane->filePane(), &FilePane::addToPlacesRequested, this, doAddToPlaces);
+
     QSettings s("SplitCommander", "UI");
     m_currentMode = s.value("layoutMode", 1).toInt();
     applyLayout(m_currentMode);
+
+    connect(m_panesSplitter, &QSplitter::splitterMoved, this, [this](int, int) {
+        QSettings ss("SplitCommander", "UI");
+        ss.setValue("panesSplitterState", m_panesSplitter->saveState());
+        ss.sync();
+    });
+
     m_leftPane->setFocused(true);
     m_rightPane->setFocused(false);
 
@@ -2031,11 +2197,11 @@ void MainWindow::registerShortcuts()
     // Navigation zurück/vorwärts
     add("nav_back", [this]() {
         auto *p = activePane();
-        if (!p->histBack().isEmpty()) { p->histFwd().push(p->currentPath()); p->navigateTo(p->histBack().pop()); }
+        if (!p->histBack().isEmpty()) { p->histFwd().push(p->currentPath()); p->navigateTo(p->histBack().pop(), false); }
     });
     add("nav_forward", [this]() {
         auto *p = activePane();
-        if (!p->histFwd().isEmpty()) { p->histBack().push(p->currentPath()); p->navigateTo(p->histFwd().pop()); }
+        if (!p->histFwd().isEmpty()) { p->histBack().push(p->currentPath()); p->navigateTo(p->histFwd().pop(), false); }
     });
 
     // Datei löschen (Entf = Papierkorb, Shift+Entf = permanent)
@@ -2073,10 +2239,57 @@ void MainWindow::registerShortcuts()
         QGuiApplication::clipboard()->setMimeData(mime);
     });
 
+    add("file_move", [this]() {
+        const QList<QUrl> urls = activePane()->filePane()->selectedUrls();
+        if (urls.isEmpty()) return;
+        auto *mime = new QMimeData();
+        mime->setUrls(urls);
+        mime->setData("x-kde-cut-selection", QByteArray("1"));
+        QGuiApplication::clipboard()->setMimeData(mime);
+    });
+
     // Neuer Ordner
     add("file_newfolder", [this]() {
         emit activePane()->newFolderRequested();
     });
+}
+
+void PaneWidget::saveState() const
+{
+    if (m_settingsKey.isEmpty() || !m_vSplit) return;
+    QSettings s("SplitCommander", "UI");
+    // Größe speichern — aber nur wenn nicht gerade eingeklappt
+    if (!m_millerCollapsed)
+        s.setValue(m_settingsKey + "/vSplitState", m_vSplit->saveState());
+    s.setValue(m_settingsKey + "/millerCollapsed", m_millerCollapsed);
+    s.sync();
+}
+
+void MainWindow::saveWindowState()
+{
+    QSettings s("SplitCommander", "UI");
+
+    // Fenster-Geometrie
+    s.setValue("windowGeometry", saveGeometry());
+
+    // Sidebar
+    s.setValue("sidebarVisible", m_sidebar->isVisible());
+    s.setValue("sidebarWidth",   m_sidebar->width());
+
+    // Pane-Splitter (links/rechts bzw. oben/unten)
+    s.setValue("panesSplitterState", m_panesSplitter->saveState());
+
+    // Beide Panes: Miller-Größe und collapsed-State
+    m_leftPane->saveState();
+    m_rightPane->saveState();
+
+    s.sync();
+}
+
+void MainWindow::closeEvent(QCloseEvent *e)
+{
+    saveWindowState();
+    QMainWindow::closeEvent(e);
 }
 
 void MainWindow::applyLayout(int mode)
@@ -2106,6 +2319,14 @@ void MainWindow::applyLayout(int mode)
             m_panesSplitter->setSizes({h / 2, h / 2});
         }
         break;
+    }
+
+    // Gespeicherten State wiederherstellen — nur beim initialen Aufruf
+    if (!m_panesSplitterRestored) {
+        m_panesSplitterRestored = true;
+        const QByteArray paneState = s.value("panesSplitterState").toByteArray();
+        if (!paneState.isEmpty())
+            m_panesSplitter->restoreState(paneState);
     }
 }
 

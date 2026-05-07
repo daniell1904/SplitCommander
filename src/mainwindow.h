@@ -62,6 +62,7 @@ signals:
     void headerClicked(const QString &path);
     void teardownRequested(const QString &udi);   // Laufwerk aushängen
     void setupRequested(const QString &udi);      // Laufwerk einhängen
+    void removeFromPlacesRequested(const QString &url); // NetworkPlace entfernen
     void openInLeft(const QString &path);
     void openInRight(const QString &path);
     void propertiesRequested(const QString &path);
@@ -91,6 +92,7 @@ signals:
     void openInLeft(const QString &path);
     void openInRight(const QString &path);
     void propertiesRequested(const QString &path);
+    void removeFromPlacesRequested(const QString &url);
 protected:
     void resizeEvent(QResizeEvent *e) override;
 private:
@@ -115,7 +117,7 @@ private:
 class PaneWidget : public QWidget {
     Q_OBJECT
 public:
-    explicit PaneWidget(QWidget *parent = nullptr);
+    explicit PaneWidget(const QString &settingsKey, QWidget *parent = nullptr);
     void setFocused(bool f);
     bool isFocused() const { return m_focused; }
     QString currentPath() const;
@@ -126,6 +128,7 @@ public:
     PaneToolbar *toolbar() { return m_toolbar; }
     QStack<QString> &histBack() { return m_histBack; }
     QStack<QString> &histFwd()  { return m_histFwd; }
+    void saveState() const;
 protected:
     bool eventFilter(QObject *obj, QEvent *ev) override;
     void resizeEvent(QResizeEvent *e) override;
@@ -149,6 +152,9 @@ private:
     QLineEdit   *m_pathEdit;
     QSplitter   *m_vSplit = nullptr;
     bool         m_focused = false;
+    bool         m_millerCollapsed = false;
+    QString      m_settingsKey;
+
     QStack<QString> m_histBack, m_histFwd;
 
     // Footer
@@ -169,15 +175,19 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
     explicit MainWindow(QWidget *parent = nullptr);
+protected:
+    void closeEvent(QCloseEvent *e) override;
 private slots:
     void applyLayout(int mode);
 private:
+    void saveWindowState();
     Sidebar    *m_sidebar;
     PaneWidget *m_leftPane;
     PaneWidget *m_rightPane;
     QSplitter  *m_panesSplitter;
     QSplitter  *m_vSplit = nullptr;
     int         m_currentMode = 1;
+    bool        m_panesSplitterRestored = false;
 public:
     void registerShortcuts();
     PaneWidget *activePane() const { return m_rightPane->isFocused() ? m_rightPane : m_leftPane; }

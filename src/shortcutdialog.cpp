@@ -21,7 +21,7 @@ QList<ShortcutEntry> ShortcutDialog::allShortcuts()
         { "nav_forward",      tr("Vorwärts"),                "Alt+Right"    },
         { "nav_up",           tr("Übergeordneter Ordner"),   "Alt+Up"       },
         { "nav_home",         tr("Home-Verzeichnis"),        "Alt+Home"     },
-        { "nav_reload",       tr("Neu laden"),               "F5"           },
+        { "nav_reload",       tr("Neu laden"),               "Ctrl+R"       },
         { "pane_focus_left",  tr("Linke Pane fokussieren"),  "Ctrl+Left"    },
         { "pane_focus_right", tr("Rechte Pane fokussieren"), "Ctrl+Right"   },
         { "pane_swap",        tr("Panes tauschen"),          "Ctrl+U"       },

@@ -18,6 +18,7 @@
 #include <QFileInfo>
 #include <QDateTime>
 #include <QStorageInfo>
+#include <QSettings>
 #include <QGuiApplication>
 #include <limits>
 
@@ -283,6 +284,10 @@ void SidebarHandle::mouseMoveEvent(QMouseEvent *e)
         m_sidebar->setVisible(true);
         m_sidebar->setFixedWidth(newW);
         setFixedWidth(10);
+        QSettings s("SplitCommander", "UI");
+        s.setValue("sidebarWidth",   newW);
+        s.setValue("sidebarVisible", true);
+        s.sync();
     }
 }
 
@@ -299,9 +304,16 @@ void SidebarHandle::mouseReleaseEvent(QMouseEvent *e)
     if (!m_dragging) {
         const bool show = !m_sidebar->isVisible();
         m_sidebar->setVisible(show);
-        if (show) m_sidebar->setFixedWidth(250);
+        if (show) {
+            QSettings s("SplitCommander", "UI");
+            m_sidebar->setFixedWidth(s.value("sidebarWidth", 250).toInt());
+        }
         setFixedWidth(show ? 10 : 32);
         setCursor(show ? Qt::SizeHorCursor : Qt::PointingHandCursor);
+        QSettings s("SplitCommander", "UI");
+        if (!show) s.setValue("sidebarWidth", m_sidebar->width());
+        s.setValue("sidebarVisible", show);
+        s.sync();
     }
     m_dragging = false;
     update();

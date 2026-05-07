@@ -64,6 +64,7 @@ public:
 
 public slots:
     void updateDrives();
+    void renameNetworkPlace(const QString &path, const QString &newName);
     QStringList gdriveAccounts() const { return m_gdriveAccounts; }
     void setupPlaces();
     void addPlace(const QString &path);
@@ -74,6 +75,7 @@ public slots:
 signals:
     void driveClicked(const QString &path);
     void driveClickedRight(const QString &path);
+    void driveClickedLeft(const QString &path);
     void drivesChanged();
     void addCurrentPathToPlaces();
     void requestActivePath(QString *outPath);
