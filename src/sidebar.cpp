@@ -1656,8 +1656,11 @@ void Sidebar::loadCustomGroups()
                     scheme == "mtp"       ? "multimedia-player"  :
                     scheme == "bluetooth" ? "bluetooth"          :
                     "network-server");
+            } else {
+                QFileIconProvider ip;
+                ico = ip.icon(QFileInfo(path));
             }
-            if (ico.isNull()) ico = QIcon::fromTheme(QFileInfo(path).isDir() ? "folder" : "text-x-generic");
+            if (ico.isNull()) ico = QIcon::fromTheme("folder");
             auto *it = new QListWidgetItem(ico, itemName, list);
             it->setData(Qt::UserRole, path);
         }
@@ -1691,7 +1694,8 @@ void Sidebar::addToGroup(const QString &groupName, QListWidget *list, const QStr
             scheme == "afc"       ? "phone"              :
             "network-server");
     } else {
-        ico = QIcon::fromTheme(QFileInfo(path).isDir() ? "folder" : "text-x-generic");
+        QFileIconProvider ip;
+        ico = ip.icon(QFileInfo(path));
     }
     if (ico.isNull()) ico = QIcon::fromTheme("folder");
 
