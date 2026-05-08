@@ -54,6 +54,7 @@ public:
 
     // Alle verfügbaren Themes (intern + extern)
     QList<ThemeColors> allThemes();
+    void loadExternalThemes();
 
     // Direkter Zugriff auf Farben
     const ThemeColors &colors() const { return m_colors; }
@@ -77,10 +78,14 @@ public:
     QString ssBox()         const;
     QString ssFooterBtn()   const;
 
-    // Vordefinierte Themes (Hartcodiert als Fallback)
+    // Vordefinierte Themes (Nur noch als Vorlagen für den Export)
+private:
     static ThemeColors nordTheme();
     static ThemeColors catppuccinTheme();
     static ThemeColors gruvboxTheme();
+    static ThemeColors draculaTheme();
+    static ThemeColors oneDarkTheme();
+    static ThemeColors solarizedDarkTheme();
 
 signals:
     void themeChanged();
@@ -90,7 +95,7 @@ private:
     ThemeColors m_colors;
     QList<ThemeColors> m_externalThemes;
 
-    void loadExternalThemes();
+    void exportDefaultThemes(const QString &destDir);
     void buildAppStyleSheet();
     static ThemeColors themeFromJson(const QByteArray &data);
 };

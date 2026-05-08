@@ -129,6 +129,7 @@ public:
     void setRootUrl(const QUrl &url);
     void setNameFilter(const QString &pattern);
     void setFoldersFirst(bool on);
+    void setShowHiddenFiles(bool show);
     [[nodiscard]] bool    hasFocus()    const;
     [[nodiscard]] const QString& currentPath() const;
     QTreeView *view()     { return m_view; }

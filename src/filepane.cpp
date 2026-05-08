@@ -620,6 +620,7 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey) : QWidget(parent
     m_lister = new KDirLister(this);
     m_lister->setAutoUpdate(true);
     m_lister->setMainWindow(window());
+    m_lister->setShowHiddenFiles(SettingsDialog::showHiddenFiles());
 
     m_dirModel = new KDirModel(this);
     m_dirModel->setDirLister(m_lister);
@@ -849,23 +850,20 @@ void FilePane::setRootPath(const QString &path)
 
 void FilePane::setRootUrl(const QUrl &url)
 {
-    m_kioMode    = true;
+    m_kioMode = true;
     m_currentUrl = url;
-    m_currentPath = url.toString();
-    m_proxy->setTagFilter(QString()); // Tag-Filter zurücksetzen
-
+    m_currentPath = QString();
     m_lister->openUrl(url);
-    connect(m_lister, &KDirLister::completed, this, [this, url]() {
-        QModelIndex dirIdx = m_dirModel->indexForUrl(url);
-        if (dirIdx.isValid()) {
-            QModelIndex sortIdx  = m_sortProxy->mapFromSource(dirIdx);
-            QModelIndex proxyIdx = m_proxy->mapFromSource(sortIdx);
-            m_view->setRootIndex(proxyIdx);
-            m_iconView->setRootIndex(proxyIdx);
-        }
-        // Fallback: wenn indexForUrl nichts findet (root-level), kein rootIndex nötig
-    }, Qt::SingleShotConnection);
 }
+
+void FilePane::setShowHiddenFiles(bool show)
+{
+    if (m_lister->showHiddenFiles() == show) return;
+    m_lister->setShowHiddenFiles(show);
+    // Erneutes Laden erzwingen um Filter anzuwenden
+    m_lister->openUrl(m_lister->url(), KDirLister::NoFlags);
+}
+
 
 const QString& FilePane::currentPath() const
 {

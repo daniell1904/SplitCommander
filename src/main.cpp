@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     qInstallMessageHandler(scMessageHandler);
     QApplication app(argc, argv);
     app.setApplicationName("SplitCommander");
-    app.setOrganizationName("SplitCommander");
+    // OrganizationName entfernt für flachere Ordnerstruktur
     app.setApplicationVersion(QStringLiteral(SC_VERSION));
     app.setDesktopFileName("splitcommander");
 

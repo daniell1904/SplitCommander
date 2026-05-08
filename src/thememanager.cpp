@@ -12,6 +12,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QFile>
+#include <QElapsedTimer>
 #include <QDebug>
 
 // --- Singleton ---
@@ -115,15 +116,55 @@ ThemeColors ThemeManager::gruvboxTheme()
     return c;
 }
 
-// --- allThemes — Liste aller verfügbaren Designs ---
+ThemeColors ThemeManager::draculaTheme()
+{
+    ThemeColors c;
+    c.name = "Dracula";
+    c.bgMain = "#282a36"; c.bgDeep = "#1e1f29"; c.bgBox = "#44475a";
+    c.bgList = "#282a36"; c.bgAlternate = "#343746"; c.bgHover = "#44475a";
+    c.bgSelect = "#6272a4"; c.bgPanel = "#1e1f29"; c.bgTab = "#1e1f29";
+    c.bgInput = "#282a36"; c.border = "#44475a"; c.borderAlt = "#6272a4";
+    c.separator = "#44475a"; c.textPrimary = "#f8f8f2"; c.textAccent = "#bd93f9";
+    c.textLight = "#ffffff"; c.textMuted = "#6272a4"; c.textInactive = "#44475a";
+    c.accent = "#bd93f9"; c.accentHover = "#ff79c6"; c.splitter = "#191a21";
+    c.colActive = "#bd93f9";
+    return c;
+}
+
+ThemeColors ThemeManager::oneDarkTheme()
+{
+    ThemeColors c;
+    c.name = "One Dark";
+    c.bgMain = "#21252b"; c.bgDeep = "#181a1f"; c.bgBox = "#2c313a";
+    c.bgList = "#282c34"; c.bgAlternate = "#2c313a"; c.bgHover = "#3e4451";
+    c.bgSelect = "#528bff"; c.bgPanel = "#181a1f"; c.bgTab = "#181a1f";
+    c.bgInput = "#21252b"; c.border = "#3e4451"; c.borderAlt = "#528bff";
+    c.separator = "#181a1f"; c.textPrimary = "#abb2bf"; c.textAccent = "#61afef";
+    c.textLight = "#ffffff"; c.textMuted = "#5c6370"; c.textInactive = "#3e4451";
+    c.accent = "#61afef"; c.accentHover = "#98c379"; c.splitter = "#181a1f";
+    c.colActive = "#61afef";
+    return c;
+}
+
+ThemeColors ThemeManager::solarizedDarkTheme()
+{
+    ThemeColors c;
+    c.name = "Solarized Dark";
+    c.bgMain = "#002b36"; c.bgDeep = "#001e26"; c.bgBox = "#073642";
+    c.bgList = "#002b36"; c.bgAlternate = "#073642"; c.bgHover = "#073642";
+    c.bgSelect = "#268bd2"; c.bgPanel = "#001e26"; c.bgTab = "#001e26";
+    c.bgInput = "#002b36"; c.border = "#073642"; c.borderAlt = "#268bd2";
+    c.separator = "#001e26"; c.textPrimary = "#839496"; c.textAccent = "#268bd2";
+    c.textLight = "#93a1a1"; c.textMuted = "#586e75"; c.textInactive = "#073642";
+    c.accent = "#268bd2"; c.accentHover = "#2aa198"; c.splitter = "#001e26";
+    c.colActive = "#268bd2";
+    return c;
+}
+
+// --- allThemes — Liste aller verfügbaren Designs (Statisch seit Start) ---
 QList<ThemeColors> ThemeManager::allThemes()
 {
-    QList<ThemeColors> list;
-    list << nordTheme();
-    list << catppuccinTheme();
-    list << gruvboxTheme();
-    list << m_externalThemes;
-    return list;
+    return m_externalThemes;
 }
 
 // --- loadExternalThemes — scannt den themes-Ordner ---
@@ -131,19 +172,29 @@ void ThemeManager::loadExternalThemes()
 {
     m_externalThemes.clear();
     const QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/themes";
+    
     QDir dir(path);
     if (!dir.exists()) {
         dir.mkpath(".");
-        return;
     }
+
+    // Standard-Themes exportieren, falls sie fehlen
+    exportDefaultThemes(path);
 
     QDirIterator it(path, QStringList() << "*.json", QDir::Files);
     while (it.hasNext()) {
-        QFile f(it.next());
+        it.next();
+        QFile f(it.filePath());
         if (f.open(QIODevice::ReadOnly)) {
             ThemeColors c = themeFromJson(f.readAll());
-            if (!c.name.isEmpty())
-                m_externalThemes << c;
+            if (!c.name.isEmpty()) {
+                // Duplikate nach Name vermeiden (z.B. falls nord.json und nord_neu.json existieren)
+                bool exists = false;
+                for (const auto &already : m_externalThemes) {
+                    if (already.name == c.name) { exists = true; break; }
+                }
+                if (!exists) m_externalThemes << c;
+            }
         }
     }
 }
@@ -188,9 +239,9 @@ void ThemeManager::apply()
 
     const QString name = SettingsDialog::selectedTheme();
     
-    // Zuerst in externen Themes suchen
+    // In geladenen Themes suchen
     bool found = false;
-    for (const auto &c : m_externalThemes) {
+    for (const auto &c : allThemes()) {
         if (c.name == name) {
             m_colors = c;
             found = true;
@@ -199,16 +250,77 @@ void ThemeManager::apply()
     }
 
     if (!found) {
-        if (name == "Catppuccin Mocha")
-            m_colors = catppuccinTheme();
-        else if (name == "Gruvbox Dark")
-            m_colors = gruvboxTheme();
-        else
-            m_colors = nordTheme();
+        // Fallback: Wenn gar nichts gefunden wird (Ordner leer), Nord-Design nutzen
+        m_colors = nordTheme();
     }
 
     buildAppStyleSheet();
     emit themeChanged();
+}
+
+void ThemeManager::exportDefaultThemes(const QString &destDir)
+{
+    auto exportTheme = [&](const ThemeColors &c) {
+        QString fileName = c.name.toLower().replace(" ", "_") + ".json";
+        QFile file(destDir + "/" + fileName);
+        if (file.exists()) return; // Nicht überschreiben, falls der Nutzer sie schon angepasst hat
+
+        if (file.open(QIODevice::WriteOnly)) {
+            QJsonObject obj;
+            obj["name"]         = c.name;
+            obj["bgMain"]       = c.bgMain;
+            obj["bgDeep"]       = c.bgDeep;
+            obj["bgBox"]        = c.bgBox;
+            obj["bgList"]       = c.bgList;
+            obj["bgAlternate"]  = c.bgAlternate;
+            obj["bgHover"]      = c.bgHover;
+            obj["bgSelect"]     = c.bgSelect;
+            obj["bgPanel"]      = c.bgPanel;
+            obj["bgTab"]        = c.bgTab;
+            obj["bgInput"]      = c.bgInput;
+            obj["border"]       = c.border;
+            obj["borderAlt"]    = c.borderAlt;
+            obj["separator"]    = c.separator;
+            obj["textPrimary"]  = c.textPrimary;
+            obj["textAccent"]   = c.textAccent;
+            obj["textLight"]    = c.textLight;
+            obj["textMuted"]    = c.textMuted;
+            obj["textInactive"] = c.textInactive;
+            obj["accent"]       = c.accent;
+            obj["accentHover"]  = c.accentHover;
+            obj["splitter"]     = c.splitter;
+            obj["colActive"]    = c.colActive;
+
+            QJsonDocument doc(obj);
+            file.write(doc.toJson());
+        }
+    };
+
+    exportTheme(nordTheme());
+    exportTheme(catppuccinTheme());
+    exportTheme(gruvboxTheme());
+    exportTheme(draculaTheme());
+    exportTheme(oneDarkTheme());
+    exportTheme(solarizedDarkTheme());
+
+    // Ausführliche Anleitung exportieren
+    QFile guide(destDir + "/00_ANLEITUNG_THEME_ERSTELLEN.json");
+    if (!guide.exists() && guide.open(QIODevice::WriteOnly)) {
+        QJsonObject obj;
+        obj["_HINWEIS_1"]   = "Kopiere diese Datei, um ein eigenes Theme zu erstellen!";
+        obj["_HINWEIS_2"]   = "Ändere den 'name', damit es als neues Theme im Menü erscheint.";
+        obj["name"]         = "Mein neues Design";
+        obj["bgMain"]       = "#1e1e2e (Sidebar & App-Hintergrund)";
+        obj["bgDeep"]       = "#11111b (Hintergrund der Dateilisten)";
+        obj["bgBox"]        = "#313244 (Hintergrund der Karten/Favoriten)";
+        obj["textPrimary"]  = "#cdd6f4 (Haupt-Schriftfarbe)";
+        obj["textAccent"]   = "#cba6f7 (Farbe für Pfade und Highlights)";
+        obj["accent"]       = "#f5c2e7 (Buttons und Markierungen)";
+        obj["border"]       = "#313244 (Rahmenlinien)";
+        
+        QJsonDocument doc(obj);
+        guide.write(doc.toJson());
+    }
 }
 
 // --- themeFromJson — Parsen einer Theme-Datei ---

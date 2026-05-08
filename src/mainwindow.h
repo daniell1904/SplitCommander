@@ -81,6 +81,7 @@ public:
     void init();
     void refreshDrives();
     void navigateTo(const QString &path, bool clearForward = true); // neues API
+    void refresh();
     QString activePath() const;
     void setFocused(bool f);
     const QList<MillerColumn*>& cols() const { return m_cols; }

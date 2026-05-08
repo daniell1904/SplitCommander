@@ -40,6 +40,8 @@
 #include <QGraphicsDropShadowEffect>
 #include <QHeaderView>
 #include <QInputDialog>
+#include <QDesktopServices>
+#include <QUrl>
 #include <QMenu>
 #include <QWidgetAction>
 #include <QSlider>
@@ -619,6 +621,16 @@ void MillerArea::init()
     connect(col, &MillerColumn::propertiesRequested, this, &MillerArea::propertiesRequested);
 }
 
+void MillerArea::refresh()
+{
+    for (auto *col : m_cols) {
+        if (col->path() == "__drives__")
+            col->populateDrives();
+        else
+            col->populateDir(col->path());
+    }
+}
+
 void MillerArea::appendColumn(const QString &path)
 {
     // KIO-URLs (gdrive:/, smb://, sftp:// etc.) direkt in FilePane navigieren
@@ -979,18 +991,67 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     twLay->addWidget(twSep);
     twLay->addSpacing(4);
 
-    // Radio-Buttons für eigene Themes
+    // Radio-Buttons für eigene Themes dynamisch beim Öffnen laden
     auto *twThemeGroup = new QButtonGroup(themeWidget);
-    const QString curTheme = SettingsDialog::selectedTheme();
-    const auto allThemes = TM().allThemes();
-    for (int i = 0; i < allThemes.size(); ++i) {
-        const auto &t = allThemes.at(i);
-        auto *rb = new QRadioButton(t.name, themeWidget);
-        rb->setChecked(!SettingsDialog::useSystemTheme() && t.name == curTheme);
-        rb->setEnabled(!SettingsDialog::useSystemTheme());
-        twThemeGroup->addButton(rb, i);
-        twLay->addWidget(rb);
-    }
+    auto *twThemesContainer = new QWidget(themeWidget);
+    auto *twThemesLay = new QVBoxLayout(twThemesContainer);
+    twThemesLay->setContentsMargins(0, 0, 0, 0);
+    twThemesLay->setSpacing(2);
+    twLay->addWidget(twThemesContainer);
+
+    auto refreshThemeList = [twThemesLay, twThemeGroup, twThemesContainer, themeWidget]() {
+        // Alte Buttons löschen
+        QLayoutItem *child;
+        while ((child = twThemesLay->takeAt(0)) != nullptr) {
+            if (child->widget()) child->widget()->deleteLater();
+            delete child;
+        }
+        
+        const QString curTheme = SettingsDialog::selectedTheme();
+        const auto allThemes = TM().allThemes();
+        const auto &colors = TM().colors();
+        themeWidget->setStyleSheet(QString("QWidget{background:%1;color:%2;font-size:11px;}")
+                                   .arg(colors.bgList, colors.textPrimary));
+
+        for (int i = 0; i < allThemes.size(); ++i) {
+            const auto &t = allThemes.at(i);
+            auto *rb = new QRadioButton(t.name, twThemesContainer);
+            rb->setStyleSheet(QString(
+                "QRadioButton { color: %1; spacing: 8px; }"
+                "QRadioButton::indicator { width: 14px; height: 14px; border-radius: 7px; border: 1px solid %2; background: transparent; }"
+                "QRadioButton::indicator:checked { background: %3; border: 2px solid %3; }"
+                "QRadioButton:disabled { color: %4; }"
+            ).arg(colors.textPrimary, colors.borderAlt, colors.accent, colors.textMuted));
+            
+            rb->setChecked(!SettingsDialog::useSystemTheme() && t.name == curTheme);
+            rb->setEnabled(!SettingsDialog::useSystemTheme());
+            twThemeGroup->addButton(rb, i);
+            twThemesLay->addWidget(rb);
+        }
+        themeWidget->adjustSize();
+    };
+
+    connect(menuTheme, &QMenu::aboutToShow, themeWidget, refreshThemeList);
+    refreshThemeList(); 
+
+    // "Themes neu laden" Button ganz unten
+    auto *btnReload = new QPushButton(QIcon::fromTheme("view-refresh"), tr("Designs neu laden"), themeWidget);
+    btnReload->setStyleSheet(TM().ssToolBtn() + "QPushButton{margin-top:8px; font-size:10px; padding:4px;}");
+    twLay->addWidget(btnReload);
+
+    connect(btnReload, &QPushButton::clicked, themeWidget, [refreshThemeList]() {
+        TM().loadExternalThemes(); 
+        refreshThemeList();        
+    });
+
+    auto *btnGuide = new QPushButton(QIcon::fromTheme("help-about"), tr("Anleitung / Vorlage öffnen"), themeWidget);
+    btnGuide->setStyleSheet(TM().ssToolBtn() + "QPushButton{font-size:10px; padding:4px;}");
+    twLay->addWidget(btnGuide);
+
+    connect(btnGuide, &QPushButton::clicked, themeWidget, []() {
+        QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/themes/00_ANLEITUNG_THEME_ERSTELLEN.json";
+        QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+    });
 
     connect(twSysCheck, &QCheckBox::toggled, themeWidget, [twThemeGroup](bool checked) {
         for (auto *btn : twThemeGroup->buttons())
@@ -1025,6 +1086,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
         s.setValue("useSystemTheme", twSysCheck->isChecked());
         if (!twSysCheck->isChecked()) {
             int idx = twThemeGroup->checkedId();
+            // Hier nutzen wir direkt die aktuelle Liste vom Manager
             const auto allThemes = TM().allThemes();
             if (idx >= 0 && idx < allThemes.size())
                 s.setValue("theme", allThemes.at(idx).name);
@@ -1920,6 +1982,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         });
         connect(pane, &PaneWidget::hiddenFilesToggled, this, [this](bool show) {
             emit m_sidebar->hiddenFilesChanged(show);
+            m_leftPane->filePane()->setShowHiddenFiles(show);
+            m_rightPane->filePane()->setShowHiddenFiles(show);
+            m_leftPane->miller()->refresh();
+            m_rightPane->miller()->refresh();
         });
         connect(pane, &PaneWidget::extensionsToggled, this, [this](bool) {
             m_leftPane->filePane()->setRootPath(m_leftPane->currentPath());
@@ -1929,7 +1995,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
             auto *dlg = new SettingsDialog(this);
             dlg->setInitialPage(page);
             connect(dlg, &SettingsDialog::shortcutsChanged,   this, [this]() { emit m_sidebar->settingsChanged(); });
-            connect(dlg, &SettingsDialog::hiddenFilesChanged, this, [this](bool show) { emit m_sidebar->hiddenFilesChanged(show); });
+            connect(dlg, &SettingsDialog::hiddenFilesChanged, this, [this](bool show) {
+                emit m_sidebar->hiddenFilesChanged(show);
+                m_leftPane->filePane()->setShowHiddenFiles(show);
+                m_rightPane->filePane()->setShowHiddenFiles(show);
+                m_leftPane->miller()->refresh();
+                m_rightPane->miller()->refresh();
+            });
             connect(dlg, &SettingsDialog::singleClickChanged, this, [this]() { emit m_sidebar->settingsChanged(); });
             dlg->open();
         });
