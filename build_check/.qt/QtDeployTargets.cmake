@@ -1,2 +1,0 @@
-set(__QT_DEPLOY_TARGET_splitcommander_FILE /home/d.lange/SplitCommander/build_check/splitcommander)
-set(__QT_DEPLOY_TARGET_splitcommander_TYPE EXECUTABLE)
