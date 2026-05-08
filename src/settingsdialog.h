@@ -29,16 +29,6 @@ struct ShortcutEntry {
 };
 
 namespace SD_Styles {
-// --- ThemePreview --- (Vorschau-Struktur für ein Theme)
-struct ThemePreview {
-    QString name;
-    QString bg;
-    QString box;
-    QString accent;
-    QString text;
-    QString stylesheet;
-};
-extern const QList<ThemePreview> THEMES;
 extern const QString DIALOG;
 } // namespace SD_Styles
 

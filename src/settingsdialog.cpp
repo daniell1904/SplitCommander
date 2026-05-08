@@ -17,11 +17,7 @@
 SettingsDialog* SettingsDialog::s_instance = nullptr;
 
 // --- THEMES Definition ---
-const QList<SD_Styles::ThemePreview> SD_Styles::THEMES = {
-    { "Nord",             "#0f1218", "#202530", "#5e81ac", "#ccd4e8", "" },
-    { "Catppuccin Mocha", "#1e1e2e", "#313244", "#cba6f7", "#cdd6f4", "" },
-    { "Gruvbox Dark",     "#282828", "#3c3836", "#d79921", "#ebdbb2", "" },
-};
+// Statische Liste entfernt, wird jetzt dynamisch via ThemeManager::allThemes() geladen.
 
 const QString SD_Styles::DIALOG = "";
 
@@ -364,18 +360,19 @@ QWidget *SettingsDialog::buildPageDesign()
     themeLay->setSpacing(8);
     m_themeGroup = new QButtonGroup(m_themeBox);
 
-    for (int i = 0; i < SD_Styles::THEMES.size(); ++i) {
-        const auto &t = SD_Styles::THEMES.at(i);
+    const auto allThemes = TM().allThemes();
+    for (int i = 0; i < allThemes.size(); ++i) {
+        const auto &t = allThemes.at(i);
 
         // Karte: RadioButton unsichtbar, Karte selbst ist das visuelle Element
         auto *card = new QWidget(m_themeBox);
         card->setFixedHeight(56);
         card->setCursor(Qt::PointingHandCursor);
 
-        // Hintergrund der Karte = Theme-bg, mit Rand
+        // Hintergrund der Karte = Theme-bgMain, mit Rand
         card->setStyleSheet(QString(
             "QWidget { background:%1; border-radius:6px;"
-            " border:1px solid rgba(255,255,255,12); }").arg(t.bg));
+            " border:1px solid rgba(255,255,255,12); }").arg(t.bgMain));
 
         auto *cardLay = new QHBoxLayout(card);
         cardLay->setContentsMargins(12, 0, 12, 0);
@@ -392,21 +389,18 @@ QWidget *SettingsDialog::buildPageDesign()
         auto *nameLabel = new QLabel(t.name, card);
         nameLabel->setStyleSheet(QString(
             "color:%1; font-size:12px; font-weight:600;"
-            " background:transparent; border:none;").arg(t.text));
+            " background:transparent; border:none;").arg(t.textPrimary));
         cardLay->addWidget(nameLabel, 1);
 
-        // Farbstreifen: bg, box, accent, text — als breite Chips
-        const QStringList cols  = { t.bg,   t.box,   t.accent, t.text };
+        // Farbstreifen: bgMain, bgBox, accent, textPrimary — als breite Chips
+        const QStringList cols  = { t.bgMain, t.bgBox, t.accent, t.textPrimary };
         const QStringList tips  = { tr("Hintergrund"), tr("Box"), tr("Akzent"), tr("Text") };
         for (int ci = 0; ci < cols.size(); ++ci) {
             auto *chip = new QLabel(card);
             chip->setFixedSize(28, 28);
             chip->setToolTip(tips.at(ci));
-            chip->setStyleSheet(QString(
-                "background:%1; border-radius:4px;"
-                " border:1px solid rgba(255,255,255,18);"
-                " background:transparent; border:none;").arg(cols.at(ci)));
-            // Chip als Pixmap zeichnen damit border-radius greift
+            chip->setStyleSheet("background:transparent; border:none;");
+            
             QPixmap px(28, 28);
             px.fill(Qt::transparent);
             QPainter pp(&px);
@@ -423,19 +417,15 @@ QWidget *SettingsDialog::buildPageDesign()
             if (checked)
                 card->setStyleSheet(QString(
                     "QWidget { background:%1; border-radius:6px;"
-                    " border:2px solid %2; }").arg(t.bg, t.accent));
+                    " border:2px solid %2; }").arg(t.bgMain, t.accent));
             else
                 card->setStyleSheet(QString(
                     "QWidget { background:%1; border-radius:6px;"
-                    " border:1px solid rgba(255,255,255,12); }").arg(t.bg));
+                    " border:1px solid rgba(255,255,255,12); }").arg(t.bgMain));
         });
 
-        // Mausklick auf gesamte Karte (auch auf Labels/Chips) → Radio aktivieren
-        // Dafür wird ein EventFilter auf der Karte installiert
-        // Einfachste Lösung: card als QAbstractButton-Wrapper via Lambda auf installEventFilter
-        // → stattdessen: alle Kind-Widgets durch-reichen via setAttribute
+        // Event-Filter für Klicks auf die Karte
         card->setAttribute(Qt::WA_TransparentForMouseEvents, false);
-        // Karte selbst bekommt Klick-Handler über installEventFilter
         struct CardFilter : public QObject {
             QRadioButton *btn;
             CardFilter(QObject *parent, QRadioButton *b) : QObject(parent), btn(b) {}
@@ -446,10 +436,8 @@ QWidget *SettingsDialog::buildPageDesign()
         };
         auto *cf = new CardFilter(card, rb);
         card->installEventFilter(cf);
-        // Auch alle direkten Kind-Widgets weiterleiten außer dem RadioButton selbst
         for (auto *child : card->findChildren<QWidget*>(QString(), Qt::FindDirectChildrenOnly)) {
-            if (child != rb)
-                child->installEventFilter(cf);
+            if (child != rb) child->installEventFilter(cf);
         }
 
         themeLay->addWidget(card);
@@ -681,8 +669,9 @@ void SettingsDialog::loadValues()
 
     const QString cur = selectedTheme();
     bool found = false;
-    for (int i = 0; i < SD_Styles::THEMES.size(); ++i) {
-        if (SD_Styles::THEMES.at(i).name == cur) {
+    const auto allThemes = TM().allThemes();
+    for (int i = 0; i < allThemes.size(); ++i) {
+        if (allThemes.at(i).name == cur) {
             if (auto *rb = qobject_cast<QRadioButton*>(m_themeGroup->button(i)))
                 { rb->setChecked(true); found = true; break; }
         }
@@ -725,8 +714,9 @@ void SettingsDialog::applyAndSave()
             int idx = -1;
             if (m_themeGroup->checkedButton())
                 idx = m_themeGroup->id(m_themeGroup->checkedButton());
-            if (idx >= 0 && idx < SD_Styles::THEMES.size())
-                s.setValue("theme", SD_Styles::THEMES.at(idx).name);
+            const auto allThemes = TM().allThemes();
+            if (idx >= 0 && idx < allThemes.size())
+                s.setValue("theme", allThemes.at(idx).name);
         }
         s.sync();
 

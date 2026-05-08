@@ -45,15 +45,16 @@ ThemeDialog::ThemeDialog(QWidget *parent)
 
     const QString curTheme = SettingsDialog::selectedTheme();
 
-    for (int i = 0; i < SD_Styles::THEMES.size(); ++i) {
-        const auto &t = SD_Styles::THEMES.at(i);
+    const auto allThemes = TM().allThemes();
+    for (int i = 0; i < allThemes.size(); ++i) {
+        const auto &t = allThemes.at(i);
 
         auto *card = new QWidget(m_themeBox);
         card->setFixedHeight(56);
         card->setCursor(Qt::PointingHandCursor);
         card->setStyleSheet(QString(
             "QWidget { background:%1; border-radius:6px; border:1px solid rgba(255,255,255,12); }")
-            .arg(t.bg));
+            .arg(t.bgMain));
 
         auto *cardLay = new QHBoxLayout(card);
         cardLay->setContentsMargins(12, 0, 12, 0);
@@ -68,11 +69,12 @@ ThemeDialog::ThemeDialog(QWidget *parent)
         auto *nameLabel = new QLabel(t.name, card);
         nameLabel->setStyleSheet(QString(
             "color:%1; font-size:12px; font-weight:600; background:transparent; border:none;")
-            .arg(t.text));
+            .arg(t.textPrimary));
         cardLay->addWidget(nameLabel, 1);
 
         // Farbchips
-        for (const QString &col : { t.bg, t.box, t.accent, t.text }) {
+        const QStringList cols = { t.bgMain, t.bgBox, t.accent, t.textPrimary };
+        for (const QString &col : cols) {
             auto *chip = new QLabel(card);
             chip->setFixedSize(28, 28);
             QPixmap px(28, 28);
@@ -104,10 +106,10 @@ ThemeDialog::ThemeDialog(QWidget *parent)
         connect(rb, &QRadioButton::toggled, card, [card, t](bool checked) {
             if (checked)
                 card->setStyleSheet(QString(
-                    "QWidget { background:%1; border-radius:6px; border:2px solid %2; }").arg(t.bg, t.accent));
+                    "QWidget { background:%1; border-radius:6px; border:2px solid %2; }").arg(t.bgMain, t.accent));
             else
                 card->setStyleSheet(QString(
-                    "QWidget { background:%1; border-radius:6px; border:1px solid rgba(255,255,255,12); }").arg(t.bg));
+                    "QWidget { background:%1; border-radius:6px; border:1px solid rgba(255,255,255,12); }").arg(t.bgMain));
         });
 
         if (t.name == curTheme)
@@ -160,8 +162,9 @@ void ThemeDialog::applyAndSave()
 
     if (!useSys) {
         int idx = m_themeGroup->checkedId();
-        if (idx >= 0 && idx < SD_Styles::THEMES.size())
-            s.setValue("theme", SD_Styles::THEMES.at(idx).name);
+        const auto allThemes = TM().allThemes();
+        if (idx >= 0 && idx < allThemes.size())
+            s.setValue("theme", allThemes.at(idx).name);
     }
     s.sync();
 

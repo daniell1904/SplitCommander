@@ -6,8 +6,21 @@
 #include <QSettings>
 #include <QApplication>
 #include <QPalette>
+#include <QDir>
+#include <QDirIterator>
+#include <QStandardPaths>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QFile>
+#include <QDebug>
 
 // --- Singleton ---
+// --- Konstruktor ---
+ThemeManager::ThemeManager()
+{
+    loadExternalThemes();
+}
+
 ThemeManager &ThemeManager::instance()
 {
     static ThemeManager inst;
@@ -102,21 +115,50 @@ ThemeColors ThemeManager::gruvboxTheme()
     return c;
 }
 
+// --- allThemes — Liste aller verfügbaren Designs ---
+QList<ThemeColors> ThemeManager::allThemes()
+{
+    QList<ThemeColors> list;
+    list << nordTheme();
+    list << catppuccinTheme();
+    list << gruvboxTheme();
+    list << m_externalThemes;
+    return list;
+}
+
+// --- loadExternalThemes — scannt den themes-Ordner ---
+void ThemeManager::loadExternalThemes()
+{
+    m_externalThemes.clear();
+    const QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/themes";
+    QDir dir(path);
+    if (!dir.exists()) {
+        dir.mkpath(".");
+        return;
+    }
+
+    QDirIterator it(path, QStringList() << "*.json", QDir::Files);
+    while (it.hasNext()) {
+        QFile f(it.next());
+        if (f.open(QIODevice::ReadOnly)) {
+            ThemeColors c = themeFromJson(f.readAll());
+            if (!c.name.isEmpty())
+                m_externalThemes << c;
+        }
+    }
+}
+
 // --- apply — Theme aus Settings laden und anwenden ---
 void ThemeManager::apply()
 {
     if (SettingsDialog::useSystemTheme()) {
-        // KDE-Palette übernehmen
+        // ... KDE-Palette übernehmen ...
         qApp->setStyleSheet(QString());
         const QPalette &pal = qApp->palette();
 
-        // Farbhierarchie: bgMain = äußere Hülle (dunkelster Ton)
-        //                 bgBox  = Karten/Boxen (mittel)
-        //                 bgList = Inhalte in den Boxen (hellster Ton)
         QColor windowColor = pal.color(QPalette::Window);
         QColor baseColor   = pal.color(QPalette::Base);
 
-        // Dunkel nach hell: Window.darker > Window > Window.lighter > Base
         m_colors.bgMain      = windowColor.darker(130).name();
         m_colors.bgDeep      = windowColor.darker(115).name();
         m_colors.bgBox       = baseColor.name();
@@ -144,17 +186,63 @@ void ThemeManager::apply()
         return;
     }
 
-    // Eigenes Theme wählen
     const QString name = SettingsDialog::selectedTheme();
-    if (name == "Catppuccin Mocha")
-        m_colors = catppuccinTheme();
-    else if (name == "Gruvbox Dark")
-        m_colors = gruvboxTheme();
-    else
-        m_colors = nordTheme(); // Nord ist Default
+    
+    // Zuerst in externen Themes suchen
+    bool found = false;
+    for (const auto &c : m_externalThemes) {
+        if (c.name == name) {
+            m_colors = c;
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) {
+        if (name == "Catppuccin Mocha")
+            m_colors = catppuccinTheme();
+        else if (name == "Gruvbox Dark")
+            m_colors = gruvboxTheme();
+        else
+            m_colors = nordTheme();
+    }
 
     buildAppStyleSheet();
     emit themeChanged();
+}
+
+// --- themeFromJson — Parsen einer Theme-Datei ---
+ThemeColors ThemeManager::themeFromJson(const QByteArray &data)
+{
+    ThemeColors c;
+    QJsonDocument doc = QJsonDocument::fromJson(data);
+    if (doc.isNull() || !doc.isObject()) return c;
+
+    QJsonObject obj = doc.object();
+    c.name         = obj.value("name").toString();
+    c.bgMain       = obj.value("bgMain").toString();
+    c.bgDeep       = obj.value("bgDeep").toString();
+    c.bgBox        = obj.value("bgBox").toString();
+    c.bgList       = obj.value("bgList").toString();
+    c.bgAlternate  = obj.value("bgAlternate").toString();
+    c.bgHover      = obj.value("bgHover").toString();
+    c.bgSelect     = obj.value("bgSelect").toString();
+    c.bgPanel      = obj.value("bgPanel").toString();
+    c.bgTab        = obj.value("bgTab").toString();
+    c.bgInput      = obj.value("bgInput").toString();
+    c.border       = obj.value("border").toString();
+    c.borderAlt    = obj.value("borderAlt").toString();
+    c.separator    = obj.value("separator").toString();
+    c.textPrimary  = obj.value("textPrimary").toString();
+    c.textAccent   = obj.value("textAccent").toString();
+    c.textLight    = obj.value("textLight").toString();
+    c.textMuted    = obj.value("textMuted").toString();
+    c.textInactive = obj.value("textInactive").toString();
+    c.accent       = obj.value("accent").toString();
+    c.accentHover  = obj.value("accentHover").toString();
+    c.splitter     = obj.value("splitter").toString();
+    c.colActive    = obj.value("colActive").toString();
+    return c;
 }
 
 // --- buildAppStyleSheet — globales QSS für alle Standard-Qt-Widgets ---

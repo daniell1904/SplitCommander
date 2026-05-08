@@ -3,7 +3,7 @@
 #include <QObject>
 #include <QColor>
 #include <QString>
-#include <QApplication>
+#include <QList>
 
 // --- ThemeColors — alle semantischen Farben eines Themes ---
 struct ThemeColors {
@@ -52,10 +52,13 @@ public:
     // Aktuelles Theme anwenden (liest QSettings, emittiert themeChanged)
     void apply();
 
+    // Alle verfügbaren Themes (intern + extern)
+    QList<ThemeColors> allThemes();
+
     // Direkter Zugriff auf Farben
     const ThemeColors &colors() const { return m_colors; }
 
-    // Stylesheet-Generatoren für häufig genutzte Widget-Typen
+    // Stylesheet-Generatoren
     QString ssToolBtn()     const;
     QString ssActionBtn()   const;
     QString ssColActive()   const;
@@ -71,10 +74,10 @@ public:
     QString ssSearchPanel() const;
     QString ssPathEdit()    const;
     QString ssSplitter()    const;
-    QString ssBox()         const;  // Einheitlicher Box-Style für alle Sidebar-Boxen
-    QString ssFooterBtn()   const;  // Footer-Buttons
+    QString ssBox()         const;
+    QString ssFooterBtn()   const;
 
-    // Vordefinierte Themes
+    // Vordefinierte Themes (Hartcodiert als Fallback)
     static ThemeColors nordTheme();
     static ThemeColors catppuccinTheme();
     static ThemeColors gruvboxTheme();
@@ -83,10 +86,13 @@ signals:
     void themeChanged();
 
 private:
-    ThemeManager() = default;
+    ThemeManager();
     ThemeColors m_colors;
+    QList<ThemeColors> m_externalThemes;
 
+    void loadExternalThemes();
     void buildAppStyleSheet();
+    static ThemeColors themeFromJson(const QByteArray &data);
 };
 
 // Kurzschreibweise

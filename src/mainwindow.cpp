@@ -982,8 +982,9 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     // Radio-Buttons für eigene Themes
     auto *twThemeGroup = new QButtonGroup(themeWidget);
     const QString curTheme = SettingsDialog::selectedTheme();
-    for (int i = 0; i < SD_Styles::THEMES.size(); ++i) {
-        const auto &t = SD_Styles::THEMES.at(i);
+    const auto allThemes = TM().allThemes();
+    for (int i = 0; i < allThemes.size(); ++i) {
+        const auto &t = allThemes.at(i);
         auto *rb = new QRadioButton(t.name, themeWidget);
         rb->setChecked(!SettingsDialog::useSystemTheme() && t.name == curTheme);
         rb->setEnabled(!SettingsDialog::useSystemTheme());
@@ -1024,8 +1025,9 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
         s.setValue("useSystemTheme", twSysCheck->isChecked());
         if (!twSysCheck->isChecked()) {
             int idx = twThemeGroup->checkedId();
-            if (idx >= 0 && idx < SD_Styles::THEMES.size())
-                s.setValue("theme", SD_Styles::THEMES.at(idx).name);
+            const auto allThemes = TM().allThemes();
+            if (idx >= 0 && idx < allThemes.size())
+                s.setValue("theme", allThemes.at(idx).name);
         }
         s.sync();
         menuTheme->close();
