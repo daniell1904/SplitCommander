@@ -81,8 +81,8 @@ static QString fp_getText(QWidget *parent, const QString &title, const QString &
     auto *lbl  = new QLabel(label, &dlg);
     auto *edit = new QLineEdit(defaultText, &dlg);
     auto *btnRow = new QHBoxLayout();
-    auto *ok  = new QPushButton(QIcon::fromTheme("dialog-ok"),     "OK",                    &dlg);
-    auto *can = new QPushButton(QIcon::fromTheme("dialog-cancel"), QObject::tr("Abbrechen"), &dlg);
+    auto *ok  = new QPushButton(QIcon::fromTheme(QStringLiteral("dialog-ok")),     "OK",                    &dlg);
+    auto *can = new QPushButton(QIcon::fromTheme(QStringLiteral("dialog-cancel")), QObject::tr("Abbrechen"), &dlg);
     ok->setDefault(true);
     btnRow->addStretch();
     btnRow->addWidget(ok);
@@ -318,12 +318,12 @@ QVariant FPColumnsProxy::extraData(const KFileItem &item, FPCol col, int role) c
     case FP_ERSTELLT: {
         if (role != Qt::DisplayRole) return {};
         QDateTime dt = item.time(KFileItem::CreationTime);
-        return dt.isValid() ? dt.toString("yyyy-MM-dd") : QString();
+        return dt.isValid() ? dt.toString(QStringLiteral("yyyy-MM-dd")) : QString();
     }
     case FP_ZUGRIFF: {
         if (role != Qt::DisplayRole) return {};
         QDateTime dt = item.time(KFileItem::AccessTime);
-        return dt.isValid() ? dt.toString("yyyy-MM-dd") : QString();
+        return dt.isValid() ? dt.toString(QStringLiteral("yyyy-MM-dd")) : QString();
     }
     case FP_ERWEITERUNG:
         if (role != Qt::DisplayRole) return {};
@@ -566,7 +566,7 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const
         p->setPen(col == FP_GROESSE ? tc : dc);
         if (col == FP_RECHTE) {
             QFont fm = f;
-            fm.setFamily("monospace");
+            fm.setFamily(QStringLiteral("monospace"));
             fm.setPointSize(9);
             p->setFont(fm);
         }
@@ -591,8 +591,8 @@ void FilePane::setupColumns()
     for (int i = 0; i < FP_COUNT; i++) m_colVisible[i] = false;
     for (const auto &d : colDefs()) m_colVisible[d.id] = d.defaultVisible;
 
-    QSettings s("SplitCommander", "UI");
-    s.beginGroup("columns");
+    QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("UI"));
+    s.beginGroup(QStringLiteral("columns"));
     for (const auto &d : colDefs())
         if (s.contains(QString::number(d.id)))
             m_colVisible[d.id] = s.value(QString::number(d.id)).toBool();
@@ -769,12 +769,12 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey) : QWidget(parent
     connect(m_view, &QTreeView::customContextMenuRequested, this, &FilePane::showContextMenu);
     connect(m_view, &QTreeView::activated, this, &FilePane::onItemActivated);
     connect(m_view, &QTreeView::clicked, this, [this](const QModelIndex &idx) {
-        QSettings gs("SplitCommander", "General");
-        if (gs.value("singleClick", false).toBool()) onItemActivated(idx);
+        QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("General"));
+        if (gs.value(QStringLiteral("singleClick"), false).toBool()) onItemActivated(idx);
     });
     connect(m_iconView, &QListView::clicked, this, [this](const QModelIndex &idx) {
-        QSettings gs("SplitCommander", "General");
-        if (gs.value("singleClick", false).toBool()) onItemActivated(idx);
+        QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("General"));
+        if (gs.value(QStringLiteral("singleClick"), false).toBool()) onItemActivated(idx);
     });
     connect(m_iconView, &QListView::customContextMenuRequested, this, &FilePane::showContextMenu);
     connect(m_iconView, &QListView::activated, this, &FilePane::onItemActivated);
@@ -931,8 +931,8 @@ void FilePane::setColumnVisible(int colId, bool visible)
     if (colId < 0 || colId >= FP_COUNT) return;
     m_colVisible[colId] = visible;
 
-    QSettings s("SplitCommander", "UI");
-    s.beginGroup("columns");
+    QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("UI"));
+    s.beginGroup(QStringLiteral("columns"));
     s.setValue(QString::number(colId), visible);
     s.endGroup();
     s.sync();
@@ -999,7 +999,7 @@ void FilePane::onItemActivated(const QModelIndex &index)
     QString path = item.localPath().isEmpty()
         ? item.url().toString() : item.localPath();
 
-    if (path.contains("new-account")) {
+    if (path.contains(QStringLiteral("new-account"))) {
         QProcess::startDetached("kcmshell6", {"kcm_kaccounts"});
         return;
     }
@@ -1012,8 +1012,8 @@ void FilePane::onItemActivated(const QModelIndex &index)
         const QDir remoteDir("/usr/share/remoteview");
         for (const QFileInfo &fi : remoteDir.entryInfoList({"*.desktop"}, QDir::Files)) {
             QSettings ds(fi.absoluteFilePath(), QSettings::IniFormat);
-            ds.beginGroup("Desktop Entry");
-            const QString urlVal  = ds.value("URL").toString();
+            ds.beginGroup(QStringLiteral("Desktop Entry"));
+            const QString urlVal  = ds.value(QStringLiteral("URL")).toString();
             const QString baseName = fi.completeBaseName();
             if (!urlVal.isEmpty())
                 remoteViewMap.insert(baseName, urlVal);
@@ -1037,7 +1037,7 @@ void FilePane::onItemActivated(const QModelIndex &index)
     }
 
     // KIO oder Verzeichnis → navigieren
-    const bool isKio = !path.startsWith("/") && path.contains(":/");
+    const bool isKio = !path.startsWith("/") && path.contains(QStringLiteral(":/"));
     if (isKio || item.isDir()) {
         emit fileActivated(path);
         return;
@@ -1151,10 +1151,10 @@ void FilePane::showContextMenu(const QPoint &pos)
         }
     }
 
-    if (hasItem && path.contains("new-account")) return;
+    if (hasItem && path.contains(QStringLiteral("new-account"))) return;
 
     // Aktuelles Verzeichnis
-    const bool   isKioPath = m_kioMode || (!m_currentPath.startsWith("/") && m_currentPath.contains(":/"));
+    const bool   isKioPath = m_kioMode || (!m_currentPath.startsWith("/") && m_currentPath.contains(QStringLiteral(":/")));
     const QString dirPath  = isKioPath ? m_currentPath
                              : (hasItem && item.isDir()
                                 ? path : QFileInfo(path).absolutePath());
@@ -1166,9 +1166,9 @@ void FilePane::showContextMenu(const QPoint &pos)
         if (!hasItem) return false;
         QMimeDatabase mdb;
         const QString mt = mdb.mimeTypeForUrl(itemUrl).name();
-        return mt.contains("zip") || mt.contains("tar") || mt.contains("rar")
-            || mt.contains("7z")  || mt.contains("gzip")|| mt.contains("bzip")
-            || mt.contains("xz")  || mt.contains("archive")|| mt.contains("compressed");
+        return mt.contains(QStringLiteral("zip")) || mt.contains(QStringLiteral("tar")) || mt.contains(QStringLiteral("rar"))
+            || mt.contains(QStringLiteral("7z"))  || mt.contains(QStringLiteral("gzip"))|| mt.contains(QStringLiteral("bzip"))
+            || mt.contains(QStringLiteral("xz"))  || mt.contains(QStringLiteral("archive"))|| mt.contains(QStringLiteral("compressed"));
     }();
 
     QMenu menu(this);
@@ -1184,10 +1184,10 @@ void FilePane::showContextMenu(const QPoint &pos)
         actions->setItemListProperties(props);
 
         // "Öffnen mit" Untermenü
-        auto *openWithMenu = menu.addMenu(QIcon::fromTheme("document-open"), tr("Öffnen mit"));
+        auto *openWithMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("document-open")), tr("Öffnen mit"));
         openWithMenu->setStyleSheet(menuStyle());
         // Standard-Aktion
-        openWithMenu->addAction(QIcon::fromTheme("document-open"), tr("Standard"), this,
+        openWithMenu->addAction(QIcon::fromTheme(QStringLiteral("document-open")), tr("Standard"), this,
             [this, item]() {
                 if (item.isDir()) setRootPath(item.localPath().isEmpty()
                     ? item.url().toString() : item.localPath());
@@ -1197,7 +1197,7 @@ void FilePane::showContextMenu(const QPoint &pos)
         // KDE-Apps aus KFileItemActions
         actions->insertOpenWithActionsTo(nullptr, openWithMenu, {});
         openWithMenu->addSeparator();
-        openWithMenu->addAction(QIcon::fromTheme("application-x-executable"),
+        openWithMenu->addAction(QIcon::fromTheme(QStringLiteral("application-x-executable")),
             tr("Andere Anwendung …"), this, [this, path]() {
                 QProcess::startDetached("kioclient6",
                     {"openWith", QUrl::fromLocalFile(path).toString()});
@@ -1212,10 +1212,10 @@ void FilePane::showContextMenu(const QPoint &pos)
                 // Widget-Actions (Ordner-Farb-Picker) rausfiltern
                 if (qobject_cast<QWidgetAction*>(act)) continue;
                 const QString t = act->text().toLower();
-                if (t.contains("symbol")      || t.contains("icon")     ||
-                    t.contains("emblem")      || t.contains("stichwort") ||
-                    t.contains("keyword")     || t.contains("farb")      ||
-                    t.contains("colour")      || t.contains("color"))
+                if (t.contains(QStringLiteral("symbol"))      || t.contains(QStringLiteral("icon"))     ||
+                    t.contains(QStringLiteral("emblem"))      || t.contains(QStringLiteral("stichwort")) ||
+                    t.contains(QStringLiteral("keyword"))     || t.contains(QStringLiteral("farb"))      ||
+                    t.contains(QStringLiteral("colour"))      || t.contains(QStringLiteral("color")))
                     continue;
                 menu.addAction(act);
             }
@@ -1227,7 +1227,7 @@ void FilePane::showContextMenu(const QPoint &pos)
     if (m_newFileMenu) {
         m_newFileMenu->setWorkingDirectory(dirUrl);
         m_newFileMenu->checkUpToDate();
-        auto *newMenu = menu.addMenu(QIcon::fromTheme("folder-new"), tr("Neu"));
+        auto *newMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("folder-new")), tr("Neu"));
         newMenu->setStyleSheet(menuStyle());
         for (QAction *act : m_newFileMenu->menu()->actions())
             newMenu->addAction(act);
@@ -1235,7 +1235,7 @@ void FilePane::showContextMenu(const QPoint &pos)
 
     // --- 3. Umbenennen ---
     if (hasItem) {
-        menu.addAction(QIcon::fromTheme("edit-rename"), tr("Umbenennen …"), this,
+        menu.addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Umbenennen …"), this,
             [this, item, dirPath, isKioPath]() {
                 const QString currentName = isKioPath
                     ? item.url().fileName() : item.name();
@@ -1244,7 +1244,7 @@ void FilePane::showContextMenu(const QPoint &pos)
                 QUrl dest = isKioPath
                     ? QUrl(dirPath.endsWith('/') ? QString(dirPath+newName) : QString(dirPath+'/'+newName))
                     : QUrl::fromLocalFile(dirPath + "/" + newName);
-                auto *job = KIO::moveAs(item.url(), dest, KIO::HideProgressInfo);
+                auto *job = KIO::moveAs(item.url(), dest, KIO::DefaultFlags);
                 job->uiDelegate()->setAutoErrorHandlingEnabled(true);
             });
     }
@@ -1256,11 +1256,11 @@ void FilePane::showContextMenu(const QPoint &pos)
         auto *removeAct = new QAction(&menu);
         auto setTrash  = [removeAct]() {
             removeAct->setText(QObject::tr("In den Papierkorb verschieben"));
-            removeAct->setIcon(QIcon::fromTheme("edit-delete"));
+            removeAct->setIcon(QIcon::fromTheme(QStringLiteral("edit-delete")));
         };
         auto setDelete = [removeAct]() {
             removeAct->setText(QObject::tr("Unwiderruflich löschen"));
-            removeAct->setIcon(QIcon::fromTheme("edit-delete-shred"));
+            removeAct->setIcon(QIcon::fromTheme(QStringLiteral("edit-delete-shred")));
         };
         if (QGuiApplication::keyboardModifiers() & Qt::ShiftModifier) setDelete();
         else setTrash();
@@ -1296,25 +1296,25 @@ void FilePane::showContextMenu(const QPoint &pos)
 
     // --- 5. Senden an ---
     if (hasItem && !isKioPath) {
-        auto *sendMenu = menu.addMenu(QIcon::fromTheme("document-send"), tr("Senden an"));
+        auto *sendMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("document-send")), tr("Senden an"));
         sendMenu->setStyleSheet(menuStyle());
-        sendMenu->addAction(QIcon::fromTheme("user-desktop"), tr("Desktop (Verknüpfung erstellen)"),
+        sendMenu->addAction(QIcon::fromTheme(QStringLiteral("user-desktop")), tr("Desktop (Verknüpfung erstellen)"),
             this, [path]() {
                 const QString desk = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
                 QFile::link(path, desk + "/" + QFileInfo(path).fileName());
             });
-        sendMenu->addAction(QIcon::fromTheme("mail-send"), tr("E-Mail-Empfänger"),
+        sendMenu->addAction(QIcon::fromTheme(QStringLiteral("mail-send")), tr("E-Mail-Empfänger"),
             this, [path]() {
                 QUrl mail(QString("mailto:?subject=%1&attachment=%2")
                     .arg(QFileInfo(path).fileName(), QUrl::fromLocalFile(path).toString()));
                 QDesktopServices::openUrl(mail);
             });
-        sendMenu->addAction(QIcon::fromTheme("application-zip"), tr("ZIP-komprimierter Ordner"),
+        sendMenu->addAction(QIcon::fromTheme(QStringLiteral("application-zip")), tr("ZIP-komprimierter Ordner"),
             this, [path, dirPath]() {
                 QProcess::startDetached("ark", {"--batch","--add-to",
                     dirPath+"/"+QFileInfo(path).fileName()+".zip", path});
             });
-        sendMenu->addAction(QIcon::fromTheme("bluetooth"), tr("Bluetooth-Gerät"),
+        sendMenu->addAction(QIcon::fromTheme(QStringLiteral("bluetooth")), tr("Bluetooth-Gerät"),
             this, [path]() {
                 QProcess::startDetached("bluedevil-sendfile",
                     {"-u", QUrl::fromLocalFile(path).toString()});
@@ -1323,17 +1323,17 @@ void FilePane::showContextMenu(const QPoint &pos)
 
     // --- 6. Bearbeiten ---
     {
-        auto *editMenu = menu.addMenu(QIcon::fromTheme("edit-copy"), tr("Bearbeiten"));
+        auto *editMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("edit-copy")), tr("Bearbeiten"));
         editMenu->setStyleSheet(menuStyle());
         if (hasItem) {
-            editMenu->addAction(QIcon::fromTheme("edit-cut"), tr("Ausschneiden"), this,
+            editMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-cut")), tr("Ausschneiden"), this,
                 [itemUrl]() {
                     auto *mime = new QMimeData();
                     mime->setUrls({itemUrl});
                     mime->setData("x-kde-cut-selection", "1");
                     QGuiApplication::clipboard()->setMimeData(mime);
                 });
-            editMenu->addAction(QIcon::fromTheme("edit-copy"), tr("Kopieren"), this,
+            editMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-copy")), tr("Kopieren"), this,
                 [itemUrl]() {
                     auto *mime = new QMimeData();
                     mime->setUrls({itemUrl});
@@ -1342,25 +1342,25 @@ void FilePane::showContextMenu(const QPoint &pos)
         }
         const QMimeData *clip = QGuiApplication::clipboard()->mimeData();
         bool canPaste = clip && clip->hasUrls();
-        auto *pasteAct = editMenu->addAction(QIcon::fromTheme("edit-paste"), tr("Einfügen"), this,
+        auto *pasteAct = editMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-paste")), tr("Einfügen"), this,
             [dirUrl, isKioPath, clip]() {
                 if (!clip || !clip->hasUrls()) return;
                 bool isCut = clip->data("x-kde-cut-selection") == "1";
                 QList<QUrl> urls = clip->urls();
                 if (isCut)
-                    KIO::move(urls, dirUrl, KIO::HideProgressInfo)
+                    KIO::move(urls, dirUrl, KIO::DefaultFlags)
                         ->uiDelegate()->setAutoErrorHandlingEnabled(true);
                 else
-                    KIO::copy(urls, dirUrl, KIO::HideProgressInfo)
+                    KIO::copy(urls, dirUrl, KIO::DefaultFlags)
                         ->uiDelegate()->setAutoErrorHandlingEnabled(true);
             });
         pasteAct->setEnabled(canPaste);
         if (hasItem) {
             editMenu->addSeparator();
-            editMenu->addAction(QIcon::fromTheme("edit-copy"), tr("Adresse kopieren"), this,
+            editMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-copy")), tr("Adresse kopieren"), this,
                 [path]() { QGuiApplication::clipboard()->setText(path); });
             if (!isKioPath) {
-                editMenu->addAction(QIcon::fromTheme("edit-copy"), tr("Hier duplizieren"), this,
+                editMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-copy")), tr("Hier duplizieren"), this,
                     [this, path, dirPath, itemUrl]() {
                         QString baseName = QFileInfo(path).completeBaseName();
                         QString suffix   = QFileInfo(path).suffix();
@@ -1368,7 +1368,7 @@ void FilePane::showContextMenu(const QPoint &pos)
                             ? QString(baseName + tr(" (Kopie)"))
                             : QString(baseName + tr(" (Kopie).") + suffix);
                         KIO::copy({itemUrl}, QUrl::fromLocalFile(dirPath+"/"+copyName),
-                                  KIO::HideProgressInfo)
+                                  KIO::DefaultFlags)
                             ->uiDelegate()->setAutoErrorHandlingEnabled(true);
                     });
             }
@@ -1381,7 +1381,7 @@ void FilePane::showContextMenu(const QPoint &pos)
     if (hasItem && !isKioPath) {
         const QString baseName = QFileInfo(path).fileName();
         const QUrl    dirU     = QUrl::fromLocalFile(dirPath);
-        auto *compressMenu = menu.addMenu(QIcon::fromTheme("archive-insert"), tr("Komprimieren"));
+        auto *compressMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("archive-insert")), tr("Komprimieren"));
         compressMenu->setStyleSheet(menuStyle());
         const QString tgzName   = KFileUtils::suggestName(dirU, baseName+".tar.gz");
         const QString zipName   = KFileUtils::suggestName(dirU, baseName+".zip");
@@ -1394,7 +1394,7 @@ void FilePane::showContextMenu(const QPoint &pos)
         compressMenu->addAction(tr("Komprimieren nach ..."), this,
             [path]() { QProcess::startDetached("ark",{"--add","--changetofirstpath","--dialog",path}); });
         if (isArchive) {
-            auto *extractMenu = menu.addMenu(QIcon::fromTheme("archive-extract"), tr("Entpacken"));
+            auto *extractMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("archive-extract")), tr("Entpacken"));
             extractMenu->setStyleSheet(menuStyle());
             extractMenu->addAction(tr("Hierher entpacken"), this,
                 [path]() { QProcess::startDetached("ark",{"--batch","--autodestination","--autosubfolder",path}); });
@@ -1404,33 +1404,33 @@ void FilePane::showContextMenu(const QPoint &pos)
     }
 
     // --- 8. Aktionen ---
-    auto *actMenu = menu.addMenu(QIcon::fromTheme("system-run"), tr("Aktionen"));
+    auto *actMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("system-run")), tr("Aktionen"));
     actMenu->setStyleSheet(menuStyle());
-    actMenu->addAction(QIcon::fromTheme("utilities-terminal"), tr("Im Terminal öffnen"),
+    actMenu->addAction(QIcon::fromTheme(QStringLiteral("utilities-terminal")), tr("Im Terminal öffnen"),
         this, [dirPath]() { sc_openTerminal(dirPath); });
     if (hasItem && !isKioPath) {
         actMenu->addSeparator();
-        actMenu->addAction(QIcon::fromTheme("document-encrypt"), tr("Datei verschlüsseln …"),
+        actMenu->addAction(QIcon::fromTheme(QStringLiteral("document-encrypt")), tr("Datei verschlüsseln …"),
             this, [path]() { QProcess::startDetached("kleopatra",{"--encrypt",path}); });
-        actMenu->addAction(QIcon::fromTheme("document-sign"),    tr("Datei signieren & verschlüsseln …"),
+        actMenu->addAction(QIcon::fromTheme(QStringLiteral("document-sign")),    tr("Datei signieren & verschlüsseln …"),
             this, [path]() { QProcess::startDetached("kleopatra",{"--sign-encrypt",path}); });
-        actMenu->addAction(QIcon::fromTheme("document-sign"),    tr("Datei signieren …"),
+        actMenu->addAction(QIcon::fromTheme(QStringLiteral("document-sign")),    tr("Datei signieren …"),
             this, [path]() { QProcess::startDetached("kleopatra",{"--sign",path}); });
         actMenu->addSeparator();
-        actMenu->addAction(QIcon::fromTheme("folder-new"), tr("In neuen Ordner verschieben …"),
+        actMenu->addAction(QIcon::fromTheme(QStringLiteral("folder-new")), tr("In neuen Ordner verschieben …"),
             this, [this, itemUrl, dirPath]() {
                 QString folderName = fp_getText(this, tr("In neuen Ordner verschieben"),
                     tr("Ordnername:"), QFileInfo(itemUrl.toLocalFile()).baseName());
                 if (folderName.isEmpty()) return;
                 QString dest = dirPath + "/" + folderName;
                 QDir().mkdir(dest);
-                KIO::move({itemUrl}, QUrl::fromLocalFile(dest), KIO::HideProgressInfo);
+                KIO::move({itemUrl}, QUrl::fromLocalFile(dest), KIO::DefaultFlags);
             });
     }
 
     // --- 9. Tag ---
     if (hasItem && !isKioPath) {
-        auto *tagMenu = menu.addMenu(QIcon::fromTheme("tag"), tr("Tag"));
+        auto *tagMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("tag")), tr("Tag"));
         tagMenu->setStyleSheet(menuStyle());
         QString currentTag = TagManager::instance().fileTag(path);
         for (const auto &t : TagManager::instance().tags()) {
@@ -1450,7 +1450,7 @@ void FilePane::showContextMenu(const QPoint &pos)
         }
         if (!currentTag.isEmpty()) {
             tagMenu->addSeparator();
-            tagMenu->addAction(QIcon::fromTheme("edit-clear"), tr("Tag entfernen"), this,
+            tagMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-clear")), tr("Tag entfernen"), this,
                 [path]() { TagManager::instance().clearFileTag(path); });
         }
     }
@@ -1459,9 +1459,9 @@ void FilePane::showContextMenu(const QPoint &pos)
 
     // --- 10. Zu Laufwerken hinzufügen (nur KIO-Verzeichnisse) ---
     if (hasItem && isKioPath && isDir) {
-        QSettings netCheck("SplitCommander", "NetworkPlaces");
-        if (!netCheck.value("places").toStringList().contains(path)) {
-            menu.addAction(QIcon::fromTheme("bookmark-new"), tr("Zu Laufwerken hinzufügen"), this,
+        QSettings netCheck(QStringLiteral("SplitCommander"), QStringLiteral("NetworkPlaces"));
+        if (!netCheck.value(QStringLiteral("places")).toStringList().contains(path)) {
+            menu.addAction(QIcon::fromTheme(QStringLiteral("bookmark-new")), tr("Zu Laufwerken hinzufügen"), this,
                 [this, path, itemUrl, item]() {
                     QString displayName = item.name();
                     if (displayName.isEmpty())
@@ -1474,9 +1474,9 @@ void FilePane::showContextMenu(const QPoint &pos)
 
     // --- 11. Eigenschaften ---
     if (hasItem) {
-        menu.addAction(QIcon::fromTheme("document-properties"), tr("Eigenschaften"), this,
+        menu.addAction(QIcon::fromTheme(QStringLiteral("document-properties")), tr("Eigenschaften"), this,
             [this, itemUrl]() {
-                auto *dlg = new KPropertiesDialog(itemUrl, this);
+                auto *dlg = new KPropertiesDialog(itemUrl, nullptr);
                 dlg->setAttribute(Qt::WA_DeleteOnClose);
                 dlg->show();
             });

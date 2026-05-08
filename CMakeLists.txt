@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
-project(SplitCommander VERSION 0.2.9 LANGUAGES CXX)
+project(SplitCommander VERSION 0.3.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -28,8 +28,6 @@ add_executable(splitcommander
     src/sidebar.cpp
     src/tagmanager.cpp
     src/batchrenamer.cpp
-    src/jobprogresswidget.cpp
-    src/fileoperations.cpp
     src/settingsdialog.cpp
     src/themedialog.cpp
     src/agebadgedialog.cpp

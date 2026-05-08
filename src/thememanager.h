@@ -43,9 +43,6 @@ struct ThemeColors {
 };
 
 // --- ThemeManager — Singleton ---
-/**
- * @brief Zentrale Verwaltung der Farb- und Design-Themes der Anwendung.
- */
 class ThemeManager : public QObject {
     Q_OBJECT
 

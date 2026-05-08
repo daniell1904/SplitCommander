@@ -21,6 +21,7 @@
 #include <QStackedWidget>
 #include <QList>
 
+// --- ShortcutEntry --- (Struktur zur Speicherung eines Tastenkürzels)
 struct ShortcutEntry {
     QString id;
     QString label;
@@ -28,6 +29,7 @@ struct ShortcutEntry {
 };
 
 namespace SD_Styles {
+// --- ThemePreview --- (Vorschau-Struktur für ein Theme)
 struct ThemePreview {
     QString name;
     QString bg;
@@ -40,11 +42,7 @@ extern const QList<ThemePreview> THEMES;
 extern const QString DIALOG;
 } // namespace SD_Styles
 
-/**
- * @brief Der globale Einstellungsdialog (SettingsDialog).
- * 
- * Ermöglicht die Konfiguration des Verhaltens, der Ansicht und von Themes.
- */
+// --- SettingsDialog --- (Einstellungsfenster der Anwendung)
 class SettingsDialog : public QDialog {
     Q_OBJECT
 

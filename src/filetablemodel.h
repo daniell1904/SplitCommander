@@ -8,6 +8,7 @@
 #include <QMutex>
 #include "tagmanager.h"
 
+// --- FileTableModel --- (Datenmodell für die Dateitabelle)
 class FileTableModel : public QAbstractTableModel
 {
     Q_OBJECT

@@ -2225,7 +2225,7 @@ void MainWindow::registerShortcuts()
             tr("Neuer Name:"), QLineEdit::Normal, QFileInfo(path).fileName(), &ok);
         if (!ok || newName.isEmpty() || newName == QFileInfo(path).fileName()) return;
         QUrl dest = QUrl::fromLocalFile(QFileInfo(path).dir().absolutePath() + "/" + newName);
-        KIO::moveAs(urls.first(), dest, KIO::HideProgressInfo);
+        KIO::moveAs(urls.first(), dest, KIO::DefaultFlags);
     });
 
     // Kopieren in Zwischenablage

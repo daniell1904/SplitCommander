@@ -4,9 +4,7 @@
 #include <QList>
 #include <QKeySequenceEdit>
 
-/**
- * @brief Dialog zur Anpassung und Verwaltung von Tastenkürzeln (Shortcuts).
- */
+// --- ShortcutDialog --- (Dialogfenster zum Ändern von Tastenkombinationen)
 class ShortcutDialog : public QDialog {
     Q_OBJECT
 public:

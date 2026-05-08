@@ -8,6 +8,7 @@
 #include <QPushButton>
 #include <QCheckBox>
 
+// --- AgeBadgeDialog --- (Dialog zur Konfiguration der Alters-Plaketten (Farbkodierung für Dateialter))
 class AgeBadgeDialog : public QDialog
 {
     Q_OBJECT

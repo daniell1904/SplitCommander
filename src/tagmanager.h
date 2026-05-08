@@ -4,7 +4,7 @@
 #include <QMap>
 #include <QString>
 
-// Singleton für Tag-Verwaltung
+// --- TagManager --- (Verwaltet die Datei-Tags (Markierungen))
 class TagManager : public QObject
 {
     Q_OBJECT

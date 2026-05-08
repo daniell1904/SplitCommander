@@ -12,6 +12,7 @@
 #include <QPainter>
 #include <QPixmap>
 
+// --- ThemeDialog --- (Dialog zum Erstellen und Bearbeiten von Themes)
 class ThemeDialog : public QDialog
 {
     Q_OBJECT

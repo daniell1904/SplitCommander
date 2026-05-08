@@ -550,7 +550,6 @@ QWidget *SettingsDialog::buildPageDesign()
         updateDynamicColors();    // Ruft die Logik am Ende der Datei auf
     });
 
-
     lay->addWidget(grpAge);
     lay->addStretch();
 

@@ -14,9 +14,7 @@
 #include <QMenu>
 #include <functional>
 
-/**
- * @brief GroupDragHandle ermöglicht Drag-and-Drop-Umordnung von Gruppen.
- */
+// --- GroupDragHandle --- (Hilfsklasse für das Umordnen von Gruppen per Drag & Drop)
 class GroupDragHandle : public QWidget {
     Q_OBJECT
 public:
@@ -37,9 +35,7 @@ private:
     int      m_currentIndex = 0;
 };
 
-/**
- * @brief DriveDelegate zeichnet Laufwerkseinträge mit optionalem Speicher-Balken.
- */
+// --- DriveDelegate --- (Zeichnet Laufwerke und Netzwerkordner (inklusive Speicherplatz-Balken))
 class DriveDelegate : public QStyledItemDelegate {
     Q_OBJECT
 public:
@@ -53,9 +49,7 @@ private:
     bool m_showBars;
 };
 
-/**
- * @brief Sidebar ist die linke Navigationsleiste (Laufwerke, Gruppen, Tags).
- */
+// --- Sidebar --- (Linke Navigationsleiste (Laufwerke, Gruppen, Tags))
 class Sidebar : public QWidget {
     Q_OBJECT
 

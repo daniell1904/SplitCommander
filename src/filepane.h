@@ -22,9 +22,7 @@
 #include <KFileItem>
 #include <KNewFileMenu>
 
-/**
- * @brief Definition der verfügbaren Spalten-IDs (Name, Größe, Datum etc.)
- */
+// --- FPCol --- (Definition der Spalten-IDs (Name, Größe, Datum, etc.))
 enum FPCol {
     FP_NAME=0,
     FP_TYP,
@@ -62,6 +60,7 @@ enum FPCol {
     FP_COUNT
 };
 
+// --- FPColDef --- (Definition der Eigenschaften einer einzelnen Spalte)
 struct FPColDef {
     FPCol   id;
     QString label;
@@ -70,15 +69,11 @@ struct FPColDef {
     int     defaultWidth;
 };
 
-/**
- * @brief Proxy-Model, das die applikationsspezifischen Spalten-IDs auf das interne KDirModel abbildet.
- * KDirModel hat standardmäßig 5 Spalten: Name(0), Size(1), ModTime(2), Permissions(3), Owner(4).
- * Diese Klasse legt eine flexiblere Spaltenreihenfolge darüber.
- */
+// --- FPColumnsProxy --- (Proxy-Model zur Verwaltung der Spaltenreihenfolge und Sichtbarkeit)
 class FPColumnsProxy : public QAbstractProxyModel {
     Q_OBJECT
 public:
-    explicit FPColumnsProxy(QObject *parent = nullptr);
+        explicit FPColumnsProxy(QObject *parent = nullptr);
 
     void setVisibleCols(const QList<FPCol> &cols);
     const QList<FPCol>& visibleCols() const { return m_visCols; }
@@ -108,16 +103,15 @@ private:
     KDirModel                *m_kdirModel = nullptr;
 };
 
-/**
- * @brief Delegate zum Zeichnen der Datei-Zeilen (inklusive Altersfarben, Icons).
- */
+// --- FilePaneDelegate --- (Zeichnet die Einträge in der Dateiliste (Farben, Icons, Text))
 class FilePaneDelegate : public QStyledItemDelegate {
     Q_OBJECT
 public:
     bool focused   = true;
     int  rowHeight = 26;
     int  fontSize  = 11;
-    explicit FilePaneDelegate(QObject *par = nullptr);
+
+        explicit FilePaneDelegate(QObject *par = nullptr);
     void  paint(QPainter*, const QStyleOptionViewItem&, const QModelIndex&) const override;
     QSize sizeHint(const QStyleOptionViewItem&, const QModelIndex&) const override;
 
@@ -125,14 +119,11 @@ public:
     static QString  formatAge(qint64 secs);
 };
 
-/**
- * @brief Das Haupt-Widget für eine Dateiliste (FilePane). 
- * Verwaltet Ansicht (Liste/Icons), KDirModel-Anbindung und Benutzerinteraktionen.
- */
+// --- FilePane --- (Haupt-Widget für eine Dateiliste (enthält Liste, Icons, Modelle))
 class FilePane : public QWidget {
     Q_OBJECT
 public:
-    explicit FilePane(QWidget *parent = nullptr, const QString &settingsKey = "default");
+        explicit FilePane(QWidget *parent = nullptr, const QString &settingsKey = QStringLiteral("default"));
 
     void setRootPath(const QString &path);
     void setRootUrl(const QUrl &url);

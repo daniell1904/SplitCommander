@@ -5,9 +5,7 @@
 #include <QListWidget>
 #include <QLabel>
 
-/**
- * @brief Stellt Funktionen für die Massenumbenennung (Batch Rename) von Dateien bereit.
- */
+// --- BatchRenamer --- (Dialogfenster für die Massenumbenennung von Dateien)
 class BatchRenamer : public QDialog {
     Q_OBJECT
 public:

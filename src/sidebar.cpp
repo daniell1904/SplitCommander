@@ -67,8 +67,8 @@ static QString sc_getText(QWidget *parent, const QString &title, const QString &
     auto *lbl = new QLabel(label, &dlg);
     auto *edit = new QLineEdit(defaultText, &dlg);
     auto *btnRow = new QHBoxLayout();
-    auto *ok  = new QPushButton(QIcon::fromTheme("dialog-ok"),     "OK",         &dlg);
-    auto *can = new QPushButton(QIcon::fromTheme("dialog-cancel"), "Abbrechen",  &dlg);
+    auto *ok  = new QPushButton(QIcon::fromTheme(QStringLiteral("dialog-ok")),     "OK",         &dlg);
+    auto *can = new QPushButton(QIcon::fromTheme(QStringLiteral("dialog-cancel")), "Abbrechen",  &dlg);
     ok->setDefault(true);
     btnRow->addStretch();
     btnRow->addWidget(ok);
@@ -86,7 +86,6 @@ static QString sc_getText(QWidget *parent, const QString &title, const QString &
     if (dlg.exec() != QDialog::Accepted) return {};
     return edit->text();
 }
-
 
 // --- Hilfsfunktionen (file-scope) ---
 
@@ -114,26 +113,26 @@ static void sc_buildPlaceMenu(QMenu &menu, const QString &path, QWidget *parent,
     (void)editAction;
     if (removeAction)
         QObject::connect(
-            menu.addAction(QIcon::fromTheme("list-remove"), QObject::tr("Aus Gruppe entfernen")),
+            menu.addAction(QIcon::fromTheme(QStringLiteral("list-remove")), QObject::tr("Aus Gruppe entfernen")),
             &QAction::triggered, removeAction);
 
     // Bearbeiten-Untermenü (wie Detailliste)
-    auto *editMenu = menu.addMenu(QIcon::fromTheme("document-edit"), QObject::tr("Bearbeiten"));
+    auto *editMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("document-edit")), QObject::tr("Bearbeiten"));
     editMenu->setStyleSheet(menu.styleSheet());
-    editMenu->addAction(QIcon::fromTheme("edit-cut"), QObject::tr("Ausschneiden"),
+    editMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-cut")), QObject::tr("Ausschneiden"),
         [path]() {
             auto *mime = new QMimeData();
             mime->setUrls({QUrl::fromLocalFile(path)});
             mime->setData("x-special/gnome-copied-files", QByteArray("cut\n") + QUrl::fromLocalFile(path).toEncoded());
             QGuiApplication::clipboard()->setMimeData(mime);
         });
-    editMenu->addAction(QIcon::fromTheme("edit-copy"), QObject::tr("Kopieren"),
+    editMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-copy")), QObject::tr("Kopieren"),
         [path]() {
             auto *mime = new QMimeData();
             mime->setUrls({QUrl::fromLocalFile(path)});
             QGuiApplication::clipboard()->setMimeData(mime);
         });
-    editMenu->addAction(QIcon::fromTheme("edit-paste"), QObject::tr("Einfügen"),
+    editMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-paste")), QObject::tr("Einfügen"),
         [path]() {
             const QMimeData *mime = QGuiApplication::clipboard()->mimeData();
             if (!mime->hasUrls()) return;
@@ -144,21 +143,21 @@ static void sc_buildPlaceMenu(QMenu &menu, const QString &path, QWidget *parent,
             }
         });
     editMenu->addSeparator();
-    editMenu->addAction(QIcon::fromTheme("edit-copy"), QObject::tr("Adresse kopieren"),
+    editMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-copy")), QObject::tr("Adresse kopieren"),
         [path]() { QGuiApplication::clipboard()->setText(path); });
-    editMenu->addAction(QIcon::fromTheme("edit-copy-path"), QObject::tr("Hier duplizieren"),
+    editMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-copy-path")), QObject::tr("Hier duplizieren"),
         [path]() {
             const QString newPath = path + " (Kopie)";
             QFile::copy(path, newPath);
         });
 
     menu.addSeparator();
-    menu.addAction(QIcon::fromTheme("utilities-terminal"), QObject::tr("In Terminal öffnen"),
+    menu.addAction(QIcon::fromTheme(QStringLiteral("utilities-terminal")), QObject::tr("In Terminal öffnen"),
         [path]() { sc_openTerminal(path); });
     menu.addSeparator();
-    menu.addAction(QIcon::fromTheme("edit-copy"), QObject::tr("Pfad kopieren"),
+    menu.addAction(QIcon::fromTheme(QStringLiteral("edit-copy")), QObject::tr("Pfad kopieren"),
         [path]() { QGuiApplication::clipboard()->setText(path); });
-    menu.addAction(QIcon::fromTheme("emblem-symbolic-link"), QObject::tr("Verknüpfung erstellen"),
+    menu.addAction(QIcon::fromTheme(QStringLiteral("emblem-symbolic-link")), QObject::tr("Verknüpfung erstellen"),
         [path]() {
             QString d = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
             QFile f(d + "/" + QFileInfo(path).fileName() + ".desktop");
@@ -169,7 +168,7 @@ static void sc_buildPlaceMenu(QMenu &menu, const QString &path, QWidget *parent,
             }
         });
     menu.addSeparator();
-    menu.addAction(QIcon::fromTheme("document-properties"), QObject::tr("Eigenschaften"),
+    menu.addAction(QIcon::fromTheme(QStringLiteral("document-properties")), QObject::tr("Eigenschaften"),
         [path, parent]() {
             auto *d = new KPropertiesDialog(QUrl::fromLocalFile(path), nullptr);
             d->setAttribute(Qt::WA_DeleteOnClose);
@@ -246,7 +245,7 @@ void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QM
         p->setPen(QColor(unmounted ? TM().colors().textMuted : TM().colors().textPrimary));
         if (unmounted) {
             // Name linksbündig, Eject-Icon rechts
-            const QIcon ejectIcon = QIcon::fromTheme("media-eject");
+            const QIcon ejectIcon = QIcon::fromTheme(QStringLiteral("media-eject"));
             const int   eSz  = 12;
             const int   eX   = r.right() - eSz - 6;
             const int   eY   = r.top() + (r.height() - eSz) / 2;
@@ -331,7 +330,7 @@ void Sidebar::buildLogo(QVBoxLayout *parent)
     QPixmap pix;
 
     // 1. System-Theme (funktioniert nach sc-install)
-    QIcon themeIcon = QIcon::fromTheme("splitcommander");
+    QIcon themeIcon = QIcon::fromTheme(QStringLiteral("splitcommander"));
     if (!themeIcon.isNull()) {
         pix = themeIcon.pixmap(32, 32);
     }
@@ -346,7 +345,7 @@ void Sidebar::buildLogo(QVBoxLayout *parent)
 
     // 3. Letzter Fallback: generisches Icon
     if (pix.isNull())
-        pix = QIcon::fromTheme("system-file-manager").pixmap(32, 32);
+        pix = QIcon::fromTheme(QStringLiteral("system-file-manager")).pixmap(32, 32);
 
     iconLabel->setPixmap(pix.scaled(32, 32, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     iconLabel->setFixedSize(32, 32);
@@ -375,7 +374,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     wLay->setSpacing(0);
 
     auto *box = new QWidget(wrapper);
-    box->setObjectName("outerBox");
+    box->setObjectName(QStringLiteral("outerBox"));
     box->setStyleSheet(TM().ssBox());
     auto *vbox = new QVBoxLayout(box);
     vbox->setContentsMargins(0, 0, 0, 0);
@@ -386,15 +385,15 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     auto *hLay = new QHBoxLayout(header);
     hLay->setContentsMargins(12, 10, 8, 6);
     hLay->setSpacing(0);
-    QSettings driveBoxSettings("SplitCommander", "UI");
-    const QString driveBoxLabel = driveBoxSettings.value("driveBoxLabel", tr("LAUFWERKE")).toString();
+    QSettings driveBoxSettings(QStringLiteral("SplitCommander"), QStringLiteral("UI"));
+    const QString driveBoxLabel = driveBoxSettings.value(QStringLiteral("driveBoxLabel"), tr("LAUFWERKE")).toString();
     auto *lbl = new QLabel(driveBoxLabel);
     lbl->setStyleSheet(QString("font-size:12px;font-weight:normal;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
     hLay->addWidget(lbl, 1);
 
     auto *menuBtn = new QPushButton();
-    menuBtn->setIcon(QIcon::fromTheme("application-menu")); // KDE Standard für "Drei Punkte"
-    if (menuBtn->icon().isNull()) menuBtn->setIcon(QIcon::fromTheme("view-more-symbolic"));
+    menuBtn->setIcon(QIcon::fromTheme(QStringLiteral("application-menu"))); // KDE Standard für "Drei Punkte"
+    if (menuBtn->icon().isNull()) menuBtn->setIcon(QIcon::fromTheme(QStringLiteral("view-more-symbolic")));
     menuBtn->setFixedSize(26, 22);
     menuBtn->setCursor(Qt::PointingHandCursor);
     menuBtn->setStyleSheet(
@@ -437,7 +436,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     vbox->addWidget(listCont);
     vbox->addWidget(m_netBox);
     auto *toggleBtn = new QPushButton();
-    toggleBtn->setIcon(QIcon::fromTheme("go-up"));
+    toggleBtn->setIcon(QIcon::fromTheme(QStringLiteral("go-up")));
     toggleBtn->setIconSize(QSize(10, 10));
     toggleBtn->setCheckable(true);
     toggleBtn->setFixedHeight(12);
@@ -472,9 +471,9 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
         QMenu menu(this);
         sc_applyMenuShadow(&menu);
         menu.setStyleSheet(TM().ssMenu());
-        menu.addAction(QIcon::fromTheme("folder-open"), tr("Öffnen"), this,
+        menu.addAction(QIcon::fromTheme(QStringLiteral("folder-open")), tr("Öffnen"), this,
             [this, path]() { emit driveClicked(path); });
-        auto *openInMenu = menu.addMenu(QIcon::fromTheme("folder-open"), tr("Öffnen in"));
+        auto *openInMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("folder-open")), tr("Öffnen in"));
         openInMenu->setStyleSheet(TM().ssMenu());
         openInMenu->addAction(tr("Linke Pane"),  this, [this, path]() { emit driveClickedLeft(path); });
         openInMenu->addAction(tr("Rechte Pane"), this, [this, path]() { emit driveClickedRight(path); });
@@ -482,9 +481,9 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
 
         // Umbenennen — für alle NetworkPlaces-Einträge
         {
-            QSettings netCheck("SplitCommander", "NetworkPlaces");
-            if (netCheck.value("places").toStringList().contains(path)) {
-                menu.addAction(QIcon::fromTheme("edit-rename"), tr("Umbenennen"), this,
+            QSettings netCheck(QStringLiteral("SplitCommander"), QStringLiteral("NetworkPlaces"));
+            if (netCheck.value(QStringLiteral("places")).toStringList().contains(path)) {
+                menu.addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Umbenennen"), this,
                     [this, path, name]() {
                         bool ok;
                         const QString newName = QInputDialog::getText(
@@ -499,17 +498,17 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
 
         // Zu Laufwerken hinzufügen — nur wenn noch nicht drin
         {
-            QSettings netCheck("SplitCommander", "NetworkPlaces");
-            const QStringList netPlaces = netCheck.value("places").toStringList();
+            QSettings netCheck(QStringLiteral("SplitCommander"), QStringLiteral("NetworkPlaces"));
+            const QStringList netPlaces = netCheck.value(QStringLiteral("places")).toStringList();
             if (!netPlaces.contains(path)) {
-                menu.addAction(QIcon::fromTheme("bookmark-new"), tr("Zu Laufwerken hinzufügen"), this,
+                menu.addAction(QIcon::fromTheme(QStringLiteral("bookmark-new")), tr("Zu Laufwerken hinzufügen"), this,
                     [this, path, name]() {
-                        QSettings s("SplitCommander", "NetworkPlaces");
-                        QStringList saved = s.value("places").toStringList();
+                        QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("NetworkPlaces"));
+                        QStringList saved = s.value(QStringLiteral("places")).toStringList();
                         if (!saved.contains(path)) {
                             saved << path;
-                            s.setValue("places", saved);
-                            s.setValue("name_" + QString(path).replace("/","_").replace(":","_"), name);
+                            s.setValue(QStringLiteral("places"), saved);
+                            s.setValue(QStringLiteral("name_") + QString(path).replace("/","_").replace(":","_"), name);
                             s.sync();
                         }
                         updateDrives();
@@ -518,21 +517,21 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
             }
         }
         // Netzwerklaufwerk trennen (gemountet) oder aus Liste entfernen (KIO)
-        const bool isKioPlace = !path.startsWith("/") && path.contains(":/");
+        const bool isKioPlace = !path.startsWith("/") && path.contains(QStringLiteral(":/"));
         if (isKioPlace) {
-            menu.addAction(QIcon::fromTheme("list-remove"), tr("Aus Laufwerken entfernen"), this,
+            menu.addAction(QIcon::fromTheme(QStringLiteral("list-remove")), tr("Aus Laufwerken entfernen"), this,
                 [this, path]() {
-                    QSettings s("SplitCommander", "NetworkPlaces");
-                    QStringList saved = s.value("places").toStringList();
+                    QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("NetworkPlaces"));
+                    QStringList saved = s.value(QStringLiteral("places")).toStringList();
                     saved.removeAll(path);
-                    s.setValue("places", saved);
+                    s.setValue(QStringLiteral("places"), saved);
                     s.remove("name_" + QString(path).replace("/","_").replace(":","_"));
                     s.sync();
                     updateDrives();
                     emit drivesChanged();
                 });
         } else {
-            menu.addAction(QIcon::fromTheme("media-eject"), tr("Trennen"), this,
+            menu.addAction(QIcon::fromTheme(QStringLiteral("media-eject")), tr("Trennen"), this,
                 [this, path]() {
                     auto *proc = new QProcess(this);
                     connect(proc, QOverload<int,QProcess::ExitStatus>::of(&QProcess::finished),
@@ -543,7 +542,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
                 });
         }
         menu.addSeparator();
-        menu.addAction(QIcon::fromTheme("edit-copy"), tr("Pfad kopieren"), this,
+        menu.addAction(QIcon::fromTheme(QStringLiteral("edit-copy")), tr("Pfad kopieren"), this,
             [path]() { QGuiApplication::clipboard()->setText(path); });
         menu.exec(m_netList->mapToGlobal(pos));
     });
@@ -553,22 +552,22 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
         auto *m = new QMenu(this);
         sc_applyMenuShadow(m);
         m->setStyleSheet(TM().ssMenu());
-        m->addAction(QIcon::fromTheme("edit-rename"), tr("Box umbenennen …"), this, [this, lbl]() {
+        m->addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Box umbenennen …"), this, [this, lbl]() {
             bool ok;
             QString name = sc_getText(this, tr("Box umbenennen"), tr("Name:"), lbl->text());
             ok = !name.isNull();
             if (ok && !name.isEmpty()) {
                 lbl->setText(name);
-                QSettings s("SplitCommander", "UI");
-                s.setValue("driveBoxLabel", name);
+                QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("UI"));
+                s.setValue(QStringLiteral("driveBoxLabel"), name);
                 s.sync();
             }
         });
         m->addSeparator();
-        m->addAction(QIcon::fromTheme("view-refresh"), tr("Alles aktualisieren"),
+        m->addAction(QIcon::fromTheme(QStringLiteral("view-refresh")), tr("Alles aktualisieren"),
                      this, [this]() { updateDrives(); })->setShortcut(Qt::Key_F5);
         m->addSeparator();
-        m->addAction(QIcon::fromTheme("network-connect"), tr("Netzwerklaufwerk verbinden"),
+        m->addAction(QIcon::fromTheme(QStringLiteral("network-connect")), tr("Netzwerklaufwerk verbinden"),
                      this, [this]() { emit driveClicked("remote:/"); });
         m->popup(menuBtn->mapToGlobal(QPoint(0, menuBtn->height())));
     });
@@ -626,7 +625,7 @@ void Sidebar::buildNewGroupFixedSection(QVBoxLayout *parent)
     ngWLay->setSpacing(0);
 
     m_newGroupBox = new QWidget(ngWrapper);
-    m_newGroupBox->setObjectName("ngBox");
+    m_newGroupBox->setObjectName(QStringLiteral("ngBox"));
     m_newGroupBox->setStyleSheet(TM().ssBox());
 
     auto *ngLay = new QVBoxLayout(m_newGroupBox);
@@ -660,7 +659,7 @@ void Sidebar::buildTagsSection(QVBoxLayout *parent)
     wLay->setSpacing(0);
 
     m_tagsBox = new QWidget(m_tagsWrap);
-    m_tagsBox->setObjectName("tagsBox");
+    m_tagsBox->setObjectName(QStringLiteral("tagsBox"));
     m_tagsBox->setStyleSheet(TM().ssBox());
     auto *vbox = new QVBoxLayout(m_tagsBox);
     vbox->setContentsMargins(0, 0, 0, 0);
@@ -675,8 +674,8 @@ void Sidebar::buildTagsSection(QVBoxLayout *parent)
     lbl->setStyleSheet(QString("font-size:12px;font-weight:normal;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
     hLay->addWidget(lbl, 1);
     auto *addBtn = new QPushButton();
-    addBtn->setIcon(QIcon::fromTheme("list-add")); // KDE Standard für "+"
-    if (addBtn->icon().isNull()) addBtn->setIcon(QIcon::fromTheme("add-subtitle-symbolic"));
+    addBtn->setIcon(QIcon::fromTheme(QStringLiteral("list-add"))); // KDE Standard für "+"
+    if (addBtn->icon().isNull()) addBtn->setIcon(QIcon::fromTheme(QStringLiteral("add-subtitle-symbolic")));
     addBtn->setFixedSize(26, 22);
     addBtn->setCursor(Qt::PointingHandCursor);
     addBtn->setStyleSheet(QString(
@@ -701,7 +700,7 @@ void Sidebar::buildTagsSection(QVBoxLayout *parent)
     auto *toggleBtn = new QPushButton();
     toggleBtn->setCheckable(true);
     toggleBtn->setFixedHeight(16);
-    toggleBtn->setIcon(QIcon::fromTheme("go-up"));
+    toggleBtn->setIcon(QIcon::fromTheme(QStringLiteral("go-up")));
     toggleBtn->setIconSize(QSize(10, 10));
     // Entferne 'color:%1', da Icons über das Theme gesteuert werden
     toggleBtn->setStyleSheet("QPushButton{background:transparent !important; border:none;}");
@@ -836,7 +835,7 @@ void Sidebar::loadUserPlaces()
         xml.readNext();
         if (xml.isStartElement()) {
             if (xml.name() == QLatin1String("bookmark")) {
-                href = xml.attributes().value("href").toString();
+                href = xml.attributes().value(QStringLiteral("href")).toString();
                 title.clear();
             } else if (xml.name() == QLatin1String("title")) {
                 title = xml.readElementText();
@@ -853,13 +852,13 @@ void Sidebar::loadUserPlaces()
                 "smb","sftp","ftp","ftps","davs","dav","nfs","fish","webdav","webdavs"
             };
             if (netSchemes.contains(scheme)) {
-                QSettings s("SplitCommander", "NetworkPlaces");
-                QStringList saved = s.value("places").toStringList();
+                QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("NetworkPlaces"));
+                QStringList saved = s.value(QStringLiteral("places")).toStringList();
                 if (!saved.contains(href)) {
                     saved << href;
-                    s.setValue("places", saved);
+                    s.setValue(QStringLiteral("places"), saved);
                     const QString n = title.isEmpty() ? url.host() : title;
-                    s.setValue("name_" + QString(href).replace("/","_"), n);
+                    s.setValue(QStringLiteral("name_") + QString(href).replace("/","_"), n);
                     s.sync();
                 }
             }
@@ -872,21 +871,21 @@ void Sidebar::loadUserPlaces()
 void Sidebar::renameNetworkPlace(const QString &path, const QString &newName)
 {
     // NetworkPlaces aktualisieren
-    QSettings s("SplitCommander", "NetworkPlaces");
-    s.setValue("name_" + QString(path).replace("/","_").replace(":","_"), newName);
+    QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("NetworkPlaces"));
+    s.setValue(QStringLiteral("name_") + QString(path).replace("/","_").replace(":","_"), newName);
     s.sync();
 
     // CustomGroups Settings aktualisieren
-    QSettings gs("SplitCommander", "CustomGroups");
-    const QStringList groups = gs.value("groups").toStringList();
+    QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
+    const QStringList groups = gs.value(QStringLiteral("groups")).toStringList();
     for (const QString &grp : groups) {
         int cnt = gs.beginReadArray("group_" + grp);
         QList<QPair<QString,QString>> items;
         bool changed = false;
         for (int i = 0; i < cnt; ++i) {
             gs.setArrayIndex(i);
-            QString p = gs.value("path").toString();
-            QString n = gs.value("name").toString();
+            QString p = gs.value(QStringLiteral("path")).toString();
+            QString n = gs.value(QStringLiteral("name")).toString();
             if (p == path) { n = newName; changed = true; }
             items << qMakePair(p, n);
         }
@@ -896,8 +895,8 @@ void Sidebar::renameNetworkPlace(const QString &path, const QString &newName)
             gs.beginWriteArray("group_" + grp);
             for (int i = 0; i < items.size(); ++i) {
                 gs.setArrayIndex(i);
-                gs.setValue("path", items[i].first);
-                gs.setValue("name", items[i].second);
+                gs.setValue(QStringLiteral("path"), items[i].first);
+                gs.setValue(QStringLiteral("name"), items[i].second);
             }
             gs.endArray();
         }
@@ -1035,15 +1034,14 @@ void Sidebar::updateDrives()
     bool hasNet = false;
 
     // Gespeicherte Netzwerkplätze (persistent)
-    QSettings netSettings("SplitCommander", "NetworkPlaces");
-    QStringList savedPlaces = netSettings.value("places").toStringList();
+    QSettings netSettings(QStringLiteral("SplitCommander"), QStringLiteral("NetworkPlaces"));
+    QStringList savedPlaces = netSettings.value(QStringLiteral("places")).toStringList();
     for (const QString &p : savedPlaces) {
         if (shownPaths.contains(p)) continue;
         shownPaths.insert(p);
         hasNet = true;
         const QString scheme = QUrl(p).scheme().toLower();
-        const QString savedName = netSettings.value(
-            "name_" + QString(p).replace("/","_").replace(":","_"),
+        const QString savedName = netSettings.value(QStringLiteral("name_") + QString(p).replace("/","_").replace(":","_"),
             scheme == "gdrive" ? "Google Drive" : QDir(p).dirName()).toString();
         // Icon je nach Protokoll
         QString savedIcon = scheme == "gdrive"    ? "folder-gdrive"
@@ -1148,8 +1146,8 @@ void Sidebar::setupDriveContextMenu()
         sc_applyMenuShadow(&menu);
         menu.setStyleSheet(TM().ssMenu());
 
-        menu.addAction(QIcon::fromTheme("folder-open"), tr("Öffnen"), this, [this, path]() { emit driveClicked(path); });
-        auto *openInMenu = menu.addMenu(QIcon::fromTheme("folder-open"), tr("Öffnen in"));
+        menu.addAction(QIcon::fromTheme(QStringLiteral("folder-open")), tr("Öffnen"), this, [this, path]() { emit driveClicked(path); });
+        auto *openInMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("folder-open")), tr("Öffnen in"));
         openInMenu->setStyleSheet(TM().ssMenu());
         openInMenu->addAction(tr("Linke Pane"),  this, [this, path]() { emit driveClickedLeft(path); });
         openInMenu->addAction(tr("Rechte Pane"), this, [this, path]() { emit driveClickedRight(path); });
@@ -1157,7 +1155,7 @@ void Sidebar::setupDriveContextMenu()
 
         // Gemountetes Solid-Laufwerk: Aushängen via UDI
         if (isMountedSolid) {
-            menu.addAction(QIcon::fromTheme("media-eject"), tr("Aushängen"), this, [this, udi]() {
+            menu.addAction(QIcon::fromTheme(QStringLiteral("media-eject")), tr("Aushängen"), this, [this, udi]() {
                 Solid::Device dev(udi);
                 auto *acc = dev.as<Solid::StorageAccess>();
                 if (!acc) return;
@@ -1172,7 +1170,7 @@ void Sidebar::setupDriveContextMenu()
 
         // Nicht-gemountetes normales Laufwerk: umount
         if (!isSolid && !isMountedSolid && path != "/" && !path.isEmpty() && !isGdrive) {
-            menu.addAction(QIcon::fromTheme("media-eject"), tr("Auswerfen"), this, [this, path]() {
+            menu.addAction(QIcon::fromTheme(QStringLiteral("media-eject")), tr("Auswerfen"), this, [this, path]() {
                 auto *proc = new QProcess(this);
                 connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
                         this, [this, proc](int, QProcess::ExitStatus) {
@@ -1187,7 +1185,7 @@ void Sidebar::setupDriveContextMenu()
             auto *acc    = dev.as<Solid::StorageAccess>();
             bool mounted = acc && acc->isAccessible();
             if (mounted) {
-                menu.addAction(QIcon::fromTheme("media-eject"), tr("Aushängen"), this, [this, acc]() {
+                menu.addAction(QIcon::fromTheme(QStringLiteral("media-eject")), tr("Aushängen"), this, [this, acc]() {
                     emit driveClicked(QDir::homePath());
                     connect(acc, &Solid::StorageAccess::teardownDone, this,
                             [this](Solid::ErrorType, QVariant, const QString &) {
@@ -1196,7 +1194,7 @@ void Sidebar::setupDriveContextMenu()
                     acc->teardown();
                 });
             } else {
-                menu.addAction(QIcon::fromTheme("drive-harddisk"), tr("Einhängen"),
+                menu.addAction(QIcon::fromTheme(QStringLiteral("drive-harddisk")), tr("Einhängen"),
                                this, [this, path]() { emit driveClicked(path); });
             }
         }
@@ -1205,10 +1203,10 @@ void Sidebar::setupDriveContextMenu()
 
         // Für manuell gepinnte Netzwerkeinträge: umbenennen + aus Liste entfernen
         {
-            QSettings netCheck("SplitCommander", "NetworkPlaces");
-            const QStringList netPlaces = netCheck.value("places").toStringList();
+            QSettings netCheck(QStringLiteral("SplitCommander"), QStringLiteral("NetworkPlaces"));
+            const QStringList netPlaces = netCheck.value(QStringLiteral("places")).toStringList();
             if (netPlaces.contains(path)) {
-                menu.addAction(QIcon::fromTheme("edit-rename"), tr("Umbenennen"), this,
+                menu.addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Umbenennen"), this,
                     [this, path, name]() {
                         bool ok;
                         const QString newName = QInputDialog::getText(
@@ -1217,12 +1215,12 @@ void Sidebar::setupDriveContextMenu()
                         if (!ok || newName.trimmed().isEmpty()) return;
                         renameNetworkPlace(path, newName.trimmed());
                     });
-                menu.addAction(QIcon::fromTheme("list-remove"), tr("Aus Laufwerken entfernen"), this,
+                menu.addAction(QIcon::fromTheme(QStringLiteral("list-remove")), tr("Aus Laufwerken entfernen"), this,
                     [this, path]() {
-                        QSettings s("SplitCommander", "NetworkPlaces");
-                        QStringList saved = s.value("places").toStringList();
+                        QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("NetworkPlaces"));
+                        QStringList saved = s.value(QStringLiteral("places")).toStringList();
                         saved.removeAll(path);
-                        s.setValue("places", saved);
+                        s.setValue(QStringLiteral("places"), saved);
                         s.remove("name_" + QString(path).replace("/","_").replace(":","_"));
                         s.sync();
                         updateDrives();
@@ -1232,13 +1230,13 @@ void Sidebar::setupDriveContextMenu()
             }
         }
 
-        auto *copyMenu = menu.addMenu(QIcon::fromTheme("edit-copy"), tr("Kopieren"));
+        auto *copyMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("edit-copy")), tr("Kopieren"));
         copyMenu->setStyleSheet(TM().ssMenu());
         copyMenu->addAction(tr("Pfad kopieren"), this, [path]() { QGuiApplication::clipboard()->setText(path); });
         copyMenu->addAction(tr("Name kopieren"), this, [name]() { QGuiApplication::clipboard()->setText(name); });
 
         if (!isSolid && !isGdrive) {
-            menu.addAction(QIcon::fromTheme("emblem-symbolic-link"), tr("Verknüpfung erstellen"),
+            menu.addAction(QIcon::fromTheme(QStringLiteral("emblem-symbolic-link")), tr("Verknüpfung erstellen"),
                            this, [path]() {
                 QString desktop  = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
                 QFile f(desktop + "/" + QDir(path).dirName() + ".desktop");
@@ -1249,7 +1247,7 @@ void Sidebar::setupDriveContextMenu()
                 }
             });
             menu.addSeparator();
-            menu.addAction(QIcon::fromTheme("document-properties"), tr("Eigenschaften"),
+            menu.addAction(QIcon::fromTheme(QStringLiteral("document-properties")), tr("Eigenschaften"),
                            this, [this, path]() {
                 auto *dlg = new KPropertiesDialog(QUrl::fromLocalFile(path), nullptr);
                 dlg->setAttribute(Qt::WA_DeleteOnClose);
@@ -1300,11 +1298,11 @@ void Sidebar::onNewGroupDialog()
     const QString grpName = nameEdit->text().trimmed();
     if (grpName.isEmpty()) return;
 
-    QSettings s("SplitCommander", "CustomGroups");
-    QStringList groups = s.value("groups").toStringList();
+    QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
+    QStringList groups = s.value(QStringLiteral("groups")).toStringList();
     if (!groups.contains(grpName)) {
         groups << grpName;
-        s.setValue("groups", groups);
+        s.setValue(QStringLiteral("groups"), groups);
         s.sync();
     }
 
@@ -1330,12 +1328,12 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
 {
     // Äußere Box
     auto *outerBox = new QWidget();
-    outerBox->setObjectName("groupBox");
+    outerBox->setObjectName(QStringLiteral("groupBox"));
     outerBox->setStyleSheet(TM().ssBox());
     outerBox->setProperty("groupName", name);
 
-    QSettings pinSettings("SplitCommander", "CustomGroups");
-    const bool pinned = pinSettings.value("pinned_" + name, false).toBool();
+    QSettings pinSettings(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
+    const bool pinned = pinSettings.value(QStringLiteral("pinned_") + name, false).toBool();
     outerBox->setProperty("pinned", pinned);
 
     auto *vbox = new QVBoxLayout(outerBox);
@@ -1356,8 +1354,8 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
 
     // Menü-Button (KDE Style)
     auto *menuBtn = new QPushButton();
-    menuBtn->setIcon(QIcon::fromTheme("application-menu"));
-    if (menuBtn->icon().isNull()) menuBtn->setIcon(QIcon::fromTheme("view-more-symbolic"));
+    menuBtn->setIcon(QIcon::fromTheme(QStringLiteral("application-menu")));
+    if (menuBtn->icon().isNull()) menuBtn->setIcon(QIcon::fromTheme(QStringLiteral("view-more-symbolic")));
     menuBtn->setFixedSize(26, 22);
     menuBtn->setCursor(Qt::PointingHandCursor);
     menuBtn->setStyleSheet(
@@ -1368,8 +1366,8 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
 
     // Plus-Button (KDE Style)
     auto *addBtn = new QPushButton();
-    addBtn->setIcon(QIcon::fromTheme("list-add"));
-    if (addBtn->icon().isNull()) addBtn->setIcon(QIcon::fromTheme("add-subtitle-symbolic"));
+    addBtn->setIcon(QIcon::fromTheme(QStringLiteral("list-add")));
+    if (addBtn->icon().isNull()) addBtn->setIcon(QIcon::fromTheme(QStringLiteral("add-subtitle-symbolic")));
     addBtn->setFixedSize(26, 22);
     addBtn->setCursor(Qt::PointingHandCursor);
     addBtn->setStyleSheet(QString(
@@ -1410,7 +1408,7 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     auto *toggleBtn = new QPushButton(); // KEIN "▲" im Konstruktor
     toggleBtn->setCheckable(true);
     toggleBtn->setFixedHeight(16); // Etwas höher für bessere Klickbarkeit
-    toggleBtn->setIcon(QIcon::fromTheme("go-up"));
+    toggleBtn->setIcon(QIcon::fromTheme(QStringLiteral("go-up")));
     toggleBtn->setIconSize(QSize(10, 10));
 
     // font-size:7px entfernen, da Icons nicht auf Schriftgröße reagieren
@@ -1425,7 +1423,7 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
 
     // Wrapper mit dunklem Hintergrund (wie GERÄTE-Box)
     auto *wrapper = new QWidget();
-    wrapper->setObjectName("groupWrapper");
+    wrapper->setObjectName(QStringLiteral("groupWrapper"));
     wrapper->setStyleSheet(QString("background:%1;").arg(TM().colors().bgMain));
     auto *wLay = new QVBoxLayout(wrapper);
     wLay->setContentsMargins(10, 6, 6, 6);
@@ -1470,7 +1468,7 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
         m->setStyleSheet(TM().ssMenu());
 
         // Umbenennen
-        connect(m->addAction(QIcon::fromTheme("edit-rename"), tr("Gruppe umbenennen")),
+        connect(m->addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Gruppe umbenennen")),
                 &QAction::triggered, this, [this, lbl, sharedName]() {
             bool ok;
             QString newName = sc_getText(this, tr("Gruppe umbenennen"), tr("Neuer Name:"), *sharedName);
@@ -1480,16 +1478,16 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
             *sharedName = newName.trimmed();
             lbl->setText(sharedName->toUpper());
 
-            QSettings gs("SplitCommander", "CustomGroups");
-            QStringList grps = gs.value("groups").toStringList();
+            QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
+            QStringList grps = gs.value(QStringLiteral("groups")).toStringList();
             int i = grps.indexOf(oldName);
-            if (i != -1) { grps[i] = *sharedName; gs.setValue("groups", grps); }
+            if (i != -1) { grps[i] = *sharedName; gs.setValue(QStringLiteral("groups"), grps); }
 
             QVariantList items;
             int cnt = gs.beginReadArray("group_" + oldName);
             for (int j = 0; j < cnt; ++j) {
                 gs.setArrayIndex(j);
-                items << QVariantMap{{"path", gs.value("path")}, {"name", gs.value("name")}};
+                items << QVariantMap{{"path", gs.value(QStringLiteral("path"))}, {"name", gs.value(QStringLiteral("name"))}};
             }
             gs.endArray();
             gs.remove("group_" + oldName);
@@ -1497,7 +1495,7 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
             for (int j = 0; j < items.size(); ++j) {
                 gs.setArrayIndex(j);
                 auto map = items[j].toMap();
-                gs.setValue("path", map["path"]); gs.setValue("name", map["name"]);
+                gs.setValue(QStringLiteral("path"), map["path"]); gs.setValue(QStringLiteral("name"), map["name"]);
             }
             gs.endArray(); gs.sync();
         });
@@ -1511,8 +1509,8 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
                 &QAction::triggered, this, [this, outerBox, sharedName]() {
             const bool nowPinned = !outerBox->property("pinned").toBool();
             outerBox->setProperty("pinned", nowPinned);
-            QSettings gs("SplitCommander", "CustomGroups");
-            gs.setValue("pinned_" + *sharedName, nowPinned); gs.sync();
+            QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
+            gs.setValue(QStringLiteral("pinned_") + *sharedName, nowPinned); gs.sync();
 
             auto *vb = qobject_cast<QVBoxLayout *>(outerBox->layout());
             if (vb && vb->count() > 0) {
@@ -1536,11 +1534,11 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
         });
 
         m->addSeparator();
-        auto *upAct   = m->addAction(QIcon::fromTheme("go-up"),       tr("Nach oben"));
-        auto *downAct = m->addAction(QIcon::fromTheme("go-down"),     tr("Nach unten"));
+        auto *upAct   = m->addAction(QIcon::fromTheme(QStringLiteral("go-up")),       tr("Nach oben"));
+        auto *downAct = m->addAction(QIcon::fromTheme(QStringLiteral("go-down")),     tr("Nach unten"));
         if (isPinned) { upAct->setEnabled(false); downAct->setEnabled(false); }
         m->addSeparator();
-        auto *delAct = m->addAction(QIcon::fromTheme("edit-delete"), tr("Gruppe löschen"));
+        auto *delAct = m->addAction(QIcon::fromTheme(QStringLiteral("edit-delete")), tr("Gruppe löschen"));
 
         connect(upAct, &QAction::triggered, this, [this, wrapper]() {
             int idx = m_contentLayout->indexOf(wrapper);
@@ -1552,7 +1550,7 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
         });
         connect(delAct, &QAction::triggered, this, [this, wrapper, sharedName]() {
             m_contentLayout->removeWidget(wrapper); wrapper->deleteLater();
-            QSettings gs("SplitCommander", "CustomGroups");
+            QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
             gs.remove("group_" + *sharedName); gs.sync();
             saveGroupOrder();
         });
@@ -1573,16 +1571,16 @@ void Sidebar::saveGroupOrder()
         auto *ob = w->findChild<QWidget *>("groupBox");
         if (ob) order << ob->property("groupName").toString();
     }
-    QSettings gs("SplitCommander", "CustomGroups");
-    gs.setValue("groups", order);
+    QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
+    gs.setValue(QStringLiteral("groups"), order);
     gs.sync();
 }
 
 // --- Sidebar::loadCustomGroups ---
 void Sidebar::loadCustomGroups()
 {
-    QSettings s("SplitCommander", "CustomGroups");
-    const QStringList groups = s.value("groups").toStringList();
+    QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
+    const QStringList groups = s.value(QStringLiteral("groups")).toStringList();
     for (const QString &groupName : groups) {
         QListWidget *list = createGroupWidget(groupName, m_newGroupBox);
         if (groupName == "Favoriten") m_favList = list;
@@ -1590,8 +1588,8 @@ void Sidebar::loadCustomGroups()
         int cnt = s.beginReadArray("group_" + groupName);
         for (int i = 0; i < cnt; ++i) {
             s.setArrayIndex(i);
-            const QString path     = s.value("path").toString();
-            const QString itemName = s.value("name").toString();
+            const QString path     = s.value(QStringLiteral("path")).toString();
+            const QString itemName = s.value(QStringLiteral("name")).toString();
             if (path.isEmpty()) continue;
             QIcon ico;
             if (!path.startsWith("/")) {
@@ -1607,7 +1605,7 @@ void Sidebar::loadCustomGroups()
                 QFileIconProvider ip;
                 ico = ip.icon(QFileInfo(path));
             }
-            if (ico.isNull()) ico = QIcon::fromTheme("folder");
+            if (ico.isNull()) ico = QIcon::fromTheme(QStringLiteral("folder"));
             auto *it = new QListWidgetItem(ico, itemName, list);
             it->setData(Qt::UserRole, path);
         }
@@ -1642,19 +1640,19 @@ void Sidebar::addToGroup(const QString &groupName, QListWidget *list, const QStr
         QFileIconProvider ip;
         ico = ip.icon(QFileInfo(path));
     }
-    if (ico.isNull()) ico = QIcon::fromTheme("folder");
+    if (ico.isNull()) ico = QIcon::fromTheme(QStringLiteral("folder"));
 
     auto *it = new QListWidgetItem(ico, name, list);
     it->setData(Qt::UserRole, path);
     adjustListHeight(list);
 
-    QSettings gs("SplitCommander", "CustomGroups");
+    QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
     gs.remove("group_" + groupName);
     gs.beginWriteArray("group_" + groupName);
     for (int i = 0; i < list->count(); ++i) {
         gs.setArrayIndex(i);
-        gs.setValue("path", list->item(i)->data(Qt::UserRole).toString());
-        gs.setValue("name", list->item(i)->text());
+        gs.setValue(QStringLiteral("path"), list->item(i)->data(Qt::UserRole).toString());
+        gs.setValue(QStringLiteral("name"), list->item(i)->text());
     }
     gs.endArray();
     gs.sync();
@@ -1676,20 +1674,20 @@ void Sidebar::showPlaceContextMenu(QListWidgetItem *item, QListWidget *list,
     sc_applyMenuShadow(&menu);
     menu.setStyleSheet(TM().ssMenu());
 
-    auto *openIn = menu.addMenu(QIcon::fromTheme("folder-open"), tr("Öffnen in"));
+    auto *openIn = menu.addMenu(QIcon::fromTheme(QStringLiteral("folder-open")), tr("Öffnen in"));
     openIn->setStyleSheet(TM().ssMenu());
     openIn->addAction(tr("Linke Pane"),  this, [this, path]() { emit driveClicked(path); });
     openIn->addAction(tr("Rechte Pane"), this, [this, path]() { emit driveClickedRight(path); });
 
     auto saveList = [this, list, groupName]() {
         if (!groupName.isEmpty()) {
-            QSettings gs("SplitCommander", "CustomGroups");
+            QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
             gs.remove("group_" + groupName);
             gs.beginWriteArray("group_" + groupName);
             for (int i = 0; i < list->count(); ++i) {
                 gs.setArrayIndex(i);
-                gs.setValue("path", list->item(i)->data(Qt::UserRole).toString());
-                gs.setValue("name", list->item(i)->text());
+                gs.setValue(QStringLiteral("path"), list->item(i)->data(Qt::UserRole).toString());
+                gs.setValue(QStringLiteral("name"), list->item(i)->text());
             }
             gs.endArray(); gs.sync();
         }
@@ -1730,20 +1728,20 @@ void Sidebar::setupTags()
 {
     m_tagList->clear();
 
-    QSettings s("SplitCommander", "Tags");
+    QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("Tags"));
     int cnt = s.beginReadArray("tags");
     if (cnt == 0) {
         s.endArray();
         s.beginWriteArray("tags");
-        s.setArrayIndex(0); s.setValue("name", "Wichtig"); s.setValue("color", "#bf616a");
-        s.setArrayIndex(1); s.setValue("name", "Arbeit");  s.setValue("color", TM().colors().accentHover);
+        s.setArrayIndex(0); s.setValue(QStringLiteral("name"), "Wichtig"); s.setValue(QStringLiteral("color"), "#bf616a");
+        s.setArrayIndex(1); s.setValue(QStringLiteral("name"), "Arbeit");  s.setValue(QStringLiteral("color"), TM().colors().accentHover);
         s.endArray(); s.sync();
         cnt = 2;
         s.beginReadArray("tags");
     }
     for (int i = 0; i < cnt; ++i) {
         s.setArrayIndex(i);
-        addTagItem(s.value("name").toString(), s.value("color").toString(), s.value("font").toString());
+        addTagItem(s.value(QStringLiteral("name")).toString(), s.value(QStringLiteral("color")).toString(), s.value(QStringLiteral("font")).toString());
     }
     s.endArray();
 
@@ -1767,7 +1765,7 @@ void Sidebar::setupTags()
         sc_applyMenuShadow(&menu);
         menu.setStyleSheet(TM().ssMenu());
 
-        menu.addAction(QIcon::fromTheme("color-picker"), tr("Farbe ändern …"), this,
+        menu.addAction(QIcon::fromTheme(QStringLiteral("color-picker")), tr("Farbe ändern …"), this,
             [this, item]() {
                 QColorDialog dlg(QColor(item->data(Qt::UserRole).toString()), this);
                 dlg.setWindowTitle(tr("Farbe wählen"));
@@ -1783,7 +1781,7 @@ void Sidebar::setupTags()
                 item->setIcon(QIcon(pix));
                 saveTags();
             });
-        menu.addAction(QIcon::fromTheme("edit-rename"), tr("Umbenennen …"), this,
+        menu.addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Umbenennen …"), this,
             [this, item]() {
                 bool ok;
                 QString name = sc_getText(this, tr("Tag umbenennen"), tr("Name:"), item->text());
@@ -1791,7 +1789,7 @@ void Sidebar::setupTags()
                 if (ok && !name.isEmpty()) { item->setText(name); saveTags(); }
             });
         menu.addSeparator();
-        menu.addAction(QIcon::fromTheme("edit-delete"), tr("Löschen"), this,
+        menu.addAction(QIcon::fromTheme(QStringLiteral("edit-delete")), tr("Löschen"), this,
             [this, item]() {
                 delete m_tagList->takeItem(m_tagList->row(item));
                 adjustListHeight(m_tagList);
@@ -1806,13 +1804,13 @@ void Sidebar::setupTags()
 
 void Sidebar::saveTags()
 {
-    QSettings s("SplitCommander", "Tags");
+    QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("Tags"));
     s.beginWriteArray("tags");
     for (int i = 0; i < m_tagList->count(); ++i) {
         s.setArrayIndex(i);
-        s.setValue("name",  m_tagList->item(i)->text());
-        s.setValue("color", m_tagList->item(i)->data(Qt::UserRole).toString());
-        s.setValue("font",  m_tagList->item(i)->data(Qt::UserRole + 1).toString());
+        s.setValue(QStringLiteral("name"),  m_tagList->item(i)->text());
+        s.setValue(QStringLiteral("color"), m_tagList->item(i)->data(Qt::UserRole).toString());
+        s.setValue(QStringLiteral("font"),  m_tagList->item(i)->data(Qt::UserRole + 1).toString());
     }
     s.endArray();
     s.sync();
@@ -1824,7 +1822,7 @@ void Sidebar::setupRemotes() {}
 void Sidebar::savePlaces(QListWidget **list)
 {
     if (!list || !*list) return;
-    QSettings gs("SplitCommander", "CustomGroups");
+    QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
     gs.remove("group_Favoriten");
     gs.beginWriteArray("group_Favoriten");
     int idx = 0;
@@ -1832,8 +1830,8 @@ void Sidebar::savePlaces(QListWidget **list)
         auto *item = (*list)->item(i);
         if (item->data(Qt::UserRole + 1).toBool()) continue;
         gs.setArrayIndex(idx++);
-        gs.setValue("path", item->data(Qt::UserRole).toString());
-        gs.setValue("name", item->text());
+        gs.setValue(QStringLiteral("path"), item->data(Qt::UserRole).toString());
+        gs.setValue(QStringLiteral("name"), item->text());
     }
     gs.endArray();
     adjustListHeight(*list);

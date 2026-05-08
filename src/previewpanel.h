@@ -6,6 +6,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+// --- PreviewPanel --- (Vorschaubereich für Dateidetails (Bild, Text, etc.))
 class PreviewPanel : public QWidget
 {
     Q_OBJECT

@@ -18,7 +18,7 @@
 #include "thememanager.h"
 #include "filepane.h"
 
-// --- Toolbar über der Dateiliste ---
+// --- PaneToolbar --- (Kleine Werkzeugleiste über einer Dateiliste)
 class PaneToolbar : public QWidget {
     Q_OBJECT
 public:
@@ -44,7 +44,7 @@ private:
     QLabel *m_sizeLabel;
 };
 
-// --- Einzelne Miller-Spalte ---
+// --- MillerColumn --- (Einzelne Spalte für die Miller-Spalten-Ansicht)
 class MillerColumn : public QWidget {
     Q_OBJECT
 public:
@@ -73,7 +73,7 @@ private:
     QStringList   m_gdriveAccounts;
 };
 
-// --- Miller-Bereich ---
+// --- MillerArea --- (Bereich, der mehrere Miller-Spalten nebeneinander darstellt)
 class MillerArea : public QWidget {
     Q_OBJECT
 public:
@@ -113,7 +113,7 @@ private:
     bool                  m_focused   = false;
 };
 
-// --- Eine komplette Pane ---
+// --- PaneWidget --- (Ein komplettes Panel (inklusive Toolbar, Pfadleiste und Dateiliste))
 class PaneWidget : public QWidget {
     Q_OBJECT
 public:
@@ -170,12 +170,7 @@ private:
     QProcess *m_searchProc = nullptr;
 };
 
-// --- MainWindow ---
-/**
- * @brief Das Hauptfenster (MainWindow) der Anwendung.
- * 
- * Orchestriert die Split-Views (FilePanes), die Seitenleiste und allgemeine Aktionen.
- */
+// --- MainWindow --- (Das Hauptfenster der Anwendung (steuert die zwei Dateilisten und die Sidebar))
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
