@@ -1175,7 +1175,7 @@ void FilePane::showContextMenu(const QPoint &pos)
     fp_applyMenuShadow(&menu);
     menu.setStyleSheet(menuStyle());
 
-    // --- 1. Öffnen mit (KFileItemActions) ---
+    // --- 1. Öffnen & Öffnen mit ---
     if (hasItem) {
         KFileItemList items;
         items << item;
@@ -1183,40 +1183,57 @@ void FilePane::showContextMenu(const QPoint &pos)
         KFileItemListProperties props(items);
         actions->setItemListProperties(props);
 
-        // "Öffnen mit" Untermenü
-        auto *openWithMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("document-open")), tr("Öffnen mit"));
-        openWithMenu->setStyleSheet(menuStyle());
-        // Standard-Aktion
-        openWithMenu->addAction(QIcon::fromTheme(QStringLiteral("document-open")), tr("Standard"), this,
+        // Primäre Öffnen-Aktion (Standard)
+        menu.addAction(QIcon::fromTheme(QStringLiteral("document-open")), tr("Öffnen"), this,
             [this, item]() {
                 if (item.isDir()) setRootPath(item.localPath().isEmpty()
                     ? item.url().toString() : item.localPath());
                 else QDesktopServices::openUrl(item.url());
             });
-        openWithMenu->addSeparator();
-        // KDE-Apps aus KFileItemActions
-        actions->insertOpenWithActionsTo(nullptr, openWithMenu, {});
-        openWithMenu->addSeparator();
-        openWithMenu->addAction(QIcon::fromTheme(QStringLiteral("application-x-executable")),
-            tr("Andere Anwendung …"), this, [this, path]() {
-                QProcess::startDetached("kioclient6",
-                    {"openWith", QUrl::fromLocalFile(path).toString()});
-            });
+        
         menu.addSeparator();
 
-        // KDE-Dienste — unerwünschte Aktionen filtern
+        // KDE das "Öffnen mit..." Menü direkt einfügen lassen (verhindert Dopplung)
+        // Wir schließen 'splitcommander' aus, damit er sich nicht selbst anbietet.
+        actions->insertOpenWithActionsTo(nullptr, &menu, {QStringLiteral("splitcommander"), QStringLiteral("org.kde.splitcommander")});
+
+        // Falls KDE nichts eingefügt hat (selten), können wir noch "Andere Anwendung" anbieten
+        // Aber meistens regelt KDE das jetzt perfekt.
+        menu.addSeparator();
+
+        // KDE-Dienste — unerwünschte Aktionen filtern & Untermenüs auflösen
         {
             QMenu tmpMenu;
             actions->addActionsTo(&tmpMenu);
             for (QAction *act : tmpMenu.actions()) {
-                // Widget-Actions (Ordner-Farb-Picker) rausfiltern
                 if (qobject_cast<QWidgetAction*>(act)) continue;
+                
+                // Falls KDE ein "Bearbeiten" oder "Aktionen" Untermenü anbietet, ziehen wir die Inhalte direkt raus
+                if (act->menu()) {
+                    const QString mt = act->text().toLower();
+                    if (mt.contains(tr("bearbeiten")) || mt.contains(tr("aktionen"))) {
+                        for (QAction *subAct : act->menu()->actions()) {
+                            const QString st = subAct->text().toLower();
+                            // Auch hier filtern wir Dubletten oder Unnötiges
+                            if (st.contains(QStringLiteral("statistik")) || st.contains(QStringLiteral("verschlüsseln")) ||
+                                st.contains(QStringLiteral("signieren"))  || st.contains(QStringLiteral("packen")) ||
+                                st.contains(QStringLiteral("komprimieren"))) continue;
+                            menu.addAction(subAct);
+                        }
+                        continue;
+                    }
+                }
+
                 const QString t = act->text().toLower();
                 if (t.contains(QStringLiteral("symbol"))      || t.contains(QStringLiteral("icon"))     ||
                     t.contains(QStringLiteral("emblem"))      || t.contains(QStringLiteral("stichwort")) ||
                     t.contains(QStringLiteral("keyword"))     || t.contains(QStringLiteral("farb"))      ||
-                    t.contains(QStringLiteral("colour"))      || t.contains(QStringLiteral("color")))
+                    t.contains(QStringLiteral("colour"))      || t.contains(QStringLiteral("color"))     ||
+                    t.contains(QStringLiteral("statistik"))   || t.contains(QStringLiteral("verschlüsseln")) ||
+                    t.contains(QStringLiteral("signieren"))    || t.contains(QStringLiteral("packen"))    ||
+                    t.contains(QStringLiteral("komprimieren")))
                     continue;
+
                 menu.addAction(act);
             }
         }
@@ -1321,46 +1338,44 @@ void FilePane::showContextMenu(const QPoint &pos)
             });
     }
 
-    // --- 6. Bearbeiten ---
+    // --- 6. Bearbeiten (Direkt im Hauptmenü) ---
     {
-        auto *editMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("edit-copy")), tr("Bearbeiten"));
-        editMenu->setStyleSheet(menuStyle());
         if (hasItem) {
-            editMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-cut")), tr("Ausschneiden"), this,
+            menu.addAction(QIcon::fromTheme(QStringLiteral("edit-cut")), tr("Ausschneiden"), this,
                 [itemUrl]() {
                     auto *mime = new QMimeData();
                     mime->setUrls({itemUrl});
                     mime->setData("x-kde-cut-selection", "1");
                     QGuiApplication::clipboard()->setMimeData(mime);
                 });
-            editMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-copy")), tr("Kopieren"), this,
+            menu.addAction(QIcon::fromTheme(QStringLiteral("edit-copy")), tr("Kopieren"), this,
                 [itemUrl]() {
                     auto *mime = new QMimeData();
                     mime->setUrls({itemUrl});
                     QGuiApplication::clipboard()->setMimeData(mime);
                 });
         }
+        
         const QMimeData *clip = QGuiApplication::clipboard()->mimeData();
-        bool canPaste = clip && clip->hasUrls();
-        auto *pasteAct = editMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-paste")), tr("Einfügen"), this,
-            [dirUrl, isKioPath, clip]() {
-                if (!clip || !clip->hasUrls()) return;
-                bool isCut = clip->data("x-kde-cut-selection") == "1";
-                QList<QUrl> urls = clip->urls();
-                if (isCut)
-                    KIO::move(urls, dirUrl, KIO::DefaultFlags)
-                        ->uiDelegate()->setAutoErrorHandlingEnabled(true);
-                else
-                    KIO::copy(urls, dirUrl, KIO::DefaultFlags)
-                        ->uiDelegate()->setAutoErrorHandlingEnabled(true);
-            });
-        pasteAct->setEnabled(canPaste);
+        if (clip && clip->hasUrls()) {
+            menu.addAction(QIcon::fromTheme(QStringLiteral("edit-paste")), tr("Einfügen"), this,
+                [dirUrl, clip]() {
+                    bool isCut = clip->data("x-kde-cut-selection") == "1";
+                    QList<QUrl> urls = clip->urls();
+                    if (isCut)
+                        KIO::move(urls, dirUrl, KIO::DefaultFlags)
+                            ->uiDelegate()->setAutoErrorHandlingEnabled(true);
+                    else
+                        KIO::copy(urls, dirUrl, KIO::DefaultFlags)
+                            ->uiDelegate()->setAutoErrorHandlingEnabled(true);
+                });
+        }
+
         if (hasItem) {
-            editMenu->addSeparator();
-            editMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-copy")), tr("Adresse kopieren"), this,
+            menu.addAction(QIcon::fromTheme(QStringLiteral("edit-copy")), tr("Adresse kopieren"), this,
                 [path]() { QGuiApplication::clipboard()->setText(path); });
             if (!isKioPath) {
-                editMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-copy")), tr("Hier duplizieren"), this,
+                menu.addAction(QIcon::fromTheme(QStringLiteral("edit-copy")), tr("Hier duplizieren"), this,
                     [this, path, dirPath, itemUrl]() {
                         QString baseName = QFileInfo(path).completeBaseName();
                         QString suffix   = QFileInfo(path).suffix();
@@ -1372,6 +1387,7 @@ void FilePane::showContextMenu(const QPoint &pos)
                             ->uiDelegate()->setAutoErrorHandlingEnabled(true);
                     });
             }
+            menu.addSeparator();
         }
     }
 
@@ -1409,13 +1425,6 @@ void FilePane::showContextMenu(const QPoint &pos)
     actMenu->addAction(QIcon::fromTheme(QStringLiteral("utilities-terminal")), tr("Im Terminal öffnen"),
         this, [dirPath]() { sc_openTerminal(dirPath); });
     if (hasItem && !isKioPath) {
-        actMenu->addSeparator();
-        actMenu->addAction(QIcon::fromTheme(QStringLiteral("document-encrypt")), tr("Datei verschlüsseln …"),
-            this, [path]() { QProcess::startDetached("kleopatra",{"--encrypt",path}); });
-        actMenu->addAction(QIcon::fromTheme(QStringLiteral("document-sign")),    tr("Datei signieren & verschlüsseln …"),
-            this, [path]() { QProcess::startDetached("kleopatra",{"--sign-encrypt",path}); });
-        actMenu->addAction(QIcon::fromTheme(QStringLiteral("document-sign")),    tr("Datei signieren …"),
-            this, [path]() { QProcess::startDetached("kleopatra",{"--sign",path}); });
         actMenu->addSeparator();
         actMenu->addAction(QIcon::fromTheme(QStringLiteral("folder-new")), tr("In neuen Ordner verschieben …"),
             this, [this, itemUrl, dirPath]() {
