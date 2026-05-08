@@ -1,4 +1,7 @@
 #include "filepane.h"
+#include "mainwindow.h"
+#include "joboverlay.h"
+#include <KJob>
 #include "thememanager.h"
 #include "settingsdialog.h"
 #include "tagmanager.h"
@@ -1357,15 +1360,19 @@ void FilePane::showContextMenu(const QPoint &pos)
         const QMimeData *clip = QGuiApplication::clipboard()->mimeData();
         if (clip && clip->hasUrls()) {
             menu.addAction(QIcon::fromTheme(QStringLiteral("edit-paste")), tr("Einfügen"), this,
-                [dirUrl, clip]() {
+                [this, dirUrl, clip]() {
                     bool isCut = clip->data("x-kde-cut-selection") == "1";
                     QList<QUrl> urls = clip->urls();
-                    if (isCut)
-                        KIO::move(urls, dirUrl, KIO::DefaultFlags)
-                            ->uiDelegate()->setAutoErrorHandlingEnabled(true);
-                    else
-                        KIO::copy(urls, dirUrl, KIO::DefaultFlags)
-                            ->uiDelegate()->setAutoErrorHandlingEnabled(true);
+                    auto *mw = qobject_cast<MainWindow*>(window());
+                    if (isCut) {
+                        auto *job = KIO::move(urls, dirUrl, KIO::DefaultFlags);
+                        job->uiDelegate()->setAutoErrorHandlingEnabled(true);
+                        if (mw) mw->registerJob(job, tr("Verschiebe Dateien..."));
+                    } else {
+                        auto *job = KIO::copy(urls, dirUrl, KIO::DefaultFlags);
+                        job->uiDelegate()->setAutoErrorHandlingEnabled(true);
+                        if (mw) mw->registerJob(job, tr("Kopiere Dateien..."));
+                    }
                 });
         }
 
@@ -1380,9 +1387,11 @@ void FilePane::showContextMenu(const QPoint &pos)
                         QString copyName = suffix.isEmpty()
                             ? QString(baseName + tr(" (Kopie)"))
                             : QString(baseName + tr(" (Kopie).") + suffix);
-                        KIO::copy({itemUrl}, QUrl::fromLocalFile(dirPath+"/"+copyName),
-                                  KIO::DefaultFlags)
-                            ->uiDelegate()->setAutoErrorHandlingEnabled(true);
+                        auto *job = KIO::copy({itemUrl}, QUrl::fromLocalFile(dirPath+"/"+copyName),
+                                  KIO::DefaultFlags);
+                        job->uiDelegate()->setAutoErrorHandlingEnabled(true);
+                        auto *mw = qobject_cast<MainWindow*>(window());
+                        if (mw) mw->registerJob(job, tr("Dupliziere Datei..."));
                     });
             }
             menu.addSeparator();

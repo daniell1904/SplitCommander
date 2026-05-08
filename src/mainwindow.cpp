@@ -3,6 +3,7 @@
 #include "mainwindow.h"
 #include "filepane.h"
 #include "panewidgets.h"
+#include "joboverlay.h"
 #include "settingsdialog.h"
 #include "shortcutdialog.h"
 #include "themedialog.h"
@@ -1664,6 +1665,8 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
         auto *job = new KIO::DeleteOrTrashJob({item.url()},
             KIO::AskUserActionInterface::Trash,
             KIO::AskUserActionInterface::DefaultConfirmation, this);
+        auto *mw = qobject_cast<MainWindow*>(window());
+        if (mw) mw->registerJob(job, tr("In den Papierkorb verschieben"));
         job->start();
     });
 
@@ -1675,6 +1678,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
         if (urls.isEmpty() || dest->currentPath().isEmpty()) return;
         auto *job = KIO::copy(urls, QUrl::fromLocalFile(dest->currentPath()), KIO::DefaultFlags);
         job->uiDelegate()->setAutoErrorHandlingEnabled(true);
+        if (mw) mw->registerJob(job, tr("Kopiere Dateien..."));
     });
 
     connect(m_toolbar, &PaneToolbar::sortClicked, this, [this]() {
@@ -1919,6 +1923,23 @@ void PaneWidget::resizeEvent(QResizeEvent *e)
 }
 
 // --- MainWindow ---
+MainWindow::~MainWindow()
+{
+}
+
+void MainWindow::registerJob(KJob *job, const QString &title)
+{
+    if (m_jobOverlay) {
+        m_jobOverlay->addJob(job, title);
+    }
+}
+
+PaneWidget *MainWindow::activePane() const
+{
+    if (m_leftPane && m_leftPane->isFocused()) return m_leftPane;
+    return m_rightPane;
+}
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     setWindowTitle("SplitCommander");
@@ -1936,6 +1957,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     rootLay->setSpacing(0);
 
     m_sidebar = new Sidebar(this);
+    m_jobOverlay = new JobOverlay(this);
     {
         QSettings s("SplitCommander", "UI");
         const int  sidebarW   = s.value("sidebarWidth",   250).toInt();

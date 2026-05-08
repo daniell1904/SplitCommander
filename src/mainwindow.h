@@ -1,6 +1,5 @@
 #pragma once
 #include <QProcess>
-
 #include <QMainWindow>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -14,11 +13,16 @@
 #include <QTimer>
 #include <QPushButton>
 #include <QStackedWidget>
+#include <QShortcut>
+#include <QApplication>
+#include <QButtonGroup>
+#include <KJob>
+#include <KIO/Job>
 #include "sidebar.h"
 #include "thememanager.h"
 #include "filepane.h"
 
-// --- PaneToolbar --- (Kleine Werkzeugleiste über einer Dateiliste)
+// --- PaneToolbar ---
 class PaneToolbar : public QWidget {
     Q_OBJECT
 public:
@@ -44,12 +48,12 @@ private:
     QLabel *m_sizeLabel;
 };
 
-// --- MillerColumn --- (Einzelne Spalte für die Miller-Spalten-Ansicht)
+// --- MillerColumn ---
 class MillerColumn : public QWidget {
     Q_OBJECT
 public:
-    void setGdriveAccounts(const QStringList &accounts) { m_gdriveAccounts = accounts; }
     explicit MillerColumn(QWidget *parent = nullptr);
+    void setGdriveAccounts(const QStringList &accounts) { m_gdriveAccounts = accounts; }
     void populateDrives();
     void populateDir(const QString &path);
     void setActive(bool active);
@@ -60,9 +64,9 @@ signals:
     void entryClicked(const QString &path, MillerColumn *self);
     void activated(MillerColumn *self);
     void headerClicked(const QString &path);
-    void teardownRequested(const QString &udi);   // Laufwerk aushängen
-    void setupRequested(const QString &udi);      // Laufwerk einhängen
-    void removeFromPlacesRequested(const QString &url); // NetworkPlace entfernen
+    void teardownRequested(const QString &udi);
+    void setupRequested(const QString &udi);
+    void removeFromPlacesRequested(const QString &url);
     void openInLeft(const QString &path);
     void openInRight(const QString &path);
     void propertiesRequested(const QString &path);
@@ -73,17 +77,18 @@ private:
     QStringList   m_gdriveAccounts;
 };
 
-// --- MillerArea --- (Bereich, der mehrere Miller-Spalten nebeneinander darstellt)
+// --- MillerArea ---
 class MillerArea : public QWidget {
     Q_OBJECT
 public:
     explicit MillerArea(QWidget *parent = nullptr);
     void init();
     void refreshDrives();
-    void navigateTo(const QString &path, bool clearForward = true); // neues API
+    void navigateTo(const QString &path, bool clearForward = true);
     void refresh();
     QString activePath() const;
     void setFocused(bool f);
+    void redistributeWidths();
     const QList<MillerColumn*>& cols() const { return m_cols; }
 signals:
     void pathChanged(const QString &path);
@@ -98,23 +103,22 @@ protected:
     void resizeEvent(QResizeEvent *e) override;
 private:
     void appendColumn(const QString &path);
-    void trimAfter(MillerColumn *col);
-    void redistributeWidths();
     void updateVisibleColumns();
-
-    QHBoxLayout          *m_rowLayout;
-    QWidget              *m_rowWidget;
-    QFrame               *m_stripDivider;
-    QHBoxLayout          *m_colLayout;
-    QWidget              *m_colContainer;
-    QList<QWidget*>       m_strips;
-    QList<QFrame*>        m_colSeparators;
-    QList<MillerColumn*>  m_cols;
-    MillerColumn         *m_activeCol = nullptr;
-    bool                  m_focused   = false;
+    void trimAfter(MillerColumn *col);
+    QList<MillerColumn*> m_cols;
+    MillerColumn* m_activeCol = nullptr;
+    QHBoxLayout *m_rowLayout = nullptr;
+    QWidget *m_rowWidget = nullptr;
+    QHBoxLayout *m_colLayout = nullptr;
+    QWidget *m_colContainer = nullptr;
+    QList<QFrame*> m_colSeparators;
+    QList<QWidget*> m_strips;
+    QFrame *m_stripDivider = nullptr;
+    bool m_focused = false;
 };
 
-// --- PaneWidget --- (Ein komplettes Panel (inklusive Toolbar, Pfadleiste und Dateiliste))
+// --- PaneWidget ---
+class JobOverlay;
 class PaneWidget : public QWidget {
     Q_OBJECT
 public:
@@ -122,79 +126,90 @@ public:
     void setFocused(bool f);
     bool isFocused() const { return m_focused; }
     QString currentPath() const;
-    FilePane *filePane() { return m_filePane; }
     void navigateTo(const QString &path, bool clearForward = true);
-    void updateFooter(const QString &path);
-    MillerArea *miller() { return m_miller; }
-    PaneToolbar *toolbar() { return m_toolbar; }
-    QStack<QString> &histBack() { return m_histBack; }
-    QStack<QString> &histFwd()  { return m_histFwd; }
+    FilePane *filePane() const { return m_filePane; }
     void saveState() const;
+
+    QStack<QString>& histBack() { return m_histBack; }
+    QStack<QString>& histFwd()  { return m_histFwd; }
+    MillerArea *miller() const { return m_miller; }
+
+signals:
+    void pathUpdated(const QString &path);
+    void focusRequested();
+    void newFolderRequested();
+    void hiddenFilesToggled(bool show);
+    void extensionsToggled(bool show);
+    void openSettingsRequested(int page);
+    void openInLeftRequested(const QString &path);
+    void openInRightRequested(const QString &path);
+    void layoutChangeRequested(int mode);
+
 protected:
     bool eventFilter(QObject *obj, QEvent *ev) override;
     void resizeEvent(QResizeEvent *e) override;
-signals:
-    void focusRequested();
-    void pathUpdated(const QString &path);
-    void openInLeftRequested(const QString &path);
-    void openInRightRequested(const QString &path);
-    void openSettingsRequested(int page);
-    void hiddenFilesToggled(bool show);
-    void extensionsToggled(bool show);
-    void newFolderRequested();
-    void layoutChangeRequested(int mode);
+
 private:
     void buildFooter(QVBoxLayout *rootLay);
     void positionFooterPanel();
+    void updateFooter(const QString &path);
 
-    MillerArea  *m_miller;
+    QString m_settingsKey;
+    QLineEdit *m_pathEdit;
+    FilePane *m_filePane;
+    MillerArea *m_miller;
     PaneToolbar *m_toolbar;
-    FilePane    *m_filePane;
-    QLineEdit   *m_pathEdit;
-    QSplitter   *m_vSplit = nullptr;
-    bool         m_focused = false;
-    bool         m_millerCollapsed = false;
-    QString      m_settingsKey;
-
-    QStack<QString> m_histBack, m_histFwd;
-
-    // Footer
-    QWidget  *m_footerBar      = nullptr; // eingeklappte Leiste
-    QWidget  *m_footerPanel    = nullptr; // ausgeklapptes Panel
-    QLabel   *m_footerCount    = nullptr;
-    QLabel   *m_footerSelected = nullptr;
-    QLabel   *m_footerSize     = nullptr;
-    QLabel   *m_previewIcon    = nullptr;
-    QLabel   *m_previewInfo    = nullptr;
-    bool      m_footerExpanded = false;
-    QString   m_lastPreviewPath;
+    QWidget *m_footerBar = nullptr;
+    QLabel *m_footerCount = nullptr;
+    QLabel *m_footerSelected = nullptr;
+    QLabel *m_footerSize = nullptr;
+    QLabel *m_previewIcon = nullptr;
+    QLabel *m_previewInfo = nullptr;
+    QString m_lastPreviewPath;
+    QSplitter *m_vSplit = nullptr;
+    bool m_millerCollapsed = false;
+    bool m_focused = false;
+    QStack<QString> m_histBack;
+    QStack<QString> m_histFwd;
     QProcess *m_searchProc = nullptr;
 };
 
-// --- MainWindow --- (Das Hauptfenster der Anwendung (steuert die zwei Dateilisten und die Sidebar))
+class Sidebar;
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
     explicit MainWindow(QWidget *parent = nullptr);
+    virtual ~MainWindow();
+    
+    void registerJob(KJob *job, const QString &title);
+    void registerShortcuts();
+    
+    PaneWidget *activePane() const;
+    PaneWidget *leftPane()   const { return m_leftPane; }
+    PaneWidget *rightPane()  const { return m_rightPane; }
+
 protected:
     void closeEvent(QCloseEvent *e) override;
+
 private slots:
     void applyLayout(int mode);
+
 private:
     void saveWindowState();
     Sidebar    *m_sidebar;
+    JobOverlay *m_jobOverlay;
     PaneWidget *m_leftPane;
     PaneWidget *m_rightPane;
     QSplitter  *m_panesSplitter;
     QSplitter  *m_vSplit = nullptr;
     int         m_currentMode = 1;
     bool        m_panesSplitterRestored = false;
-public:
-    void registerShortcuts();
-    PaneWidget *activePane() const { return m_rightPane->isFocused() ? m_rightPane : m_leftPane; }
-    PaneWidget *leftPane()   const { return m_leftPane; }
-    PaneWidget *rightPane()  const { return m_rightPane; }
-private:
     QList<QShortcut*> m_shortcuts;
 };
 
+inline MainWindow *MW() { 
+    for (auto *w : qApp->topLevelWidgets()) {
+        if (auto *mw = qobject_cast<MainWindow*>(w)) return mw;
+    }
+    return nullptr;
+}
