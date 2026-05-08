@@ -7,6 +7,9 @@
 #include <QFile>
 #include <QTextStream>
 #include <QMimeDatabase>
+#include <QtConcurrent>
+#include <QDateTime>
+#include <QPainter>
 
 static const QStringList IMG_EXT  = {"jpg","jpeg","png","gif","bmp","webp","tiff","tif","ico","ppm","pgm"};
 static const QStringList TEXT_EXT = {"txt","md","cpp","c","h","py","sh","bash","json",
@@ -72,6 +75,8 @@ PreviewPanel::PreviewPanel(QWidget *parent)
     infoL->addStretch();
 
     mainL->addWidget(infoWidget, 0);
+
+    connect(&m_watcher, &QFutureWatcher<PreviewResult>::finished, this, &PreviewPanel::onPreviewReady);
 }
 
 void PreviewPanel::clear()
@@ -95,98 +100,137 @@ static QString row(const QString &key, const QString &val)
              TM().colors().textMuted, TM().colors().textPrimary);
 }
 
-void PreviewPanel::showFile(const QString &path)
-{
-    clear();
+// --- loadPreviewData --- (Statische Hilfsfunktion für Hintergrund-Loading)
+static PreviewResult loadPreviewData(const QString &path) {
+    PreviewResult res;
+    res.path = path;
     QFileInfo fi(path);
-    const QString ext = fi.suffix().toLower();
+    if (!fi.exists()) return res;
 
+    const QString ext = fi.suffix().toLower();
+    
+    // --- Bild-Handling ---
     if (IMG_EXT.contains(ext) && !fi.isDir()) {
         QImageReader reader(path);
         reader.setAutoTransform(true);
-        QImage img = reader.read();
+        res.image = reader.read();
 
-        if (!img.isNull()) {
-            m_storedPixmap = QPixmap::fromImage(img);
-            // Bild wird in resizeEvent skaliert — hier nur Pixmap speichern
-            // Falls das Label bereits eine Größe hat, sofort skalieren
-            scalePixmap();
-
+        if (!res.image.isNull()) {
             QString depth;
-            switch (img.format()) {
-            case QImage::Format_Grayscale8:  depth = "Graustufen 8-bit";  break;
-            case QImage::Format_Grayscale16: depth = "Graustufen 16-bit"; break;
-            case QImage::Format_RGB32:
-            case QImage::Format_RGB888:      depth = "RGB 24-bit";        break;
-            case QImage::Format_ARGB32:
-            case QImage::Format_RGBA8888:    depth = "RGBA 32-bit";       break;
-            default: depth = QString("%1-bit").arg(img.depth());           break;
+            switch (res.image.format()) {
+                case QImage::Format_Grayscale8:  depth = "Graustufen 8-bit";  break;
+                case QImage::Format_Grayscale16: depth = "Graustufen 16-bit"; break;
+                case QImage::Format_RGB32:
+                case QImage::Format_RGB888:      depth = "RGB 24-bit";        break;
+                case QImage::Format_ARGB32:
+                case QImage::Format_RGBA8888:    depth = "RGBA 32-bit";       break;
+                default: depth = QString("%1-bit").arg(res.image.depth());   break;
             }
 
-            QString meta = "<table cellspacing='0' cellpadding='0'>";
-            meta += row("Datei",    fi.fileName());
-            meta += row("Typ",      fi.suffix().toUpper());
-            meta += row("Größe",    fmtSize(fi.size()));
-            meta += row("Aufl.",    QString("%1×%2").arg(img.width()).arg(img.height()));
-            meta += row("Format",   QString(reader.format()).toUpper());
-            meta += row("Tiefe",    depth);
-            if (img.dotsPerMeterX() > 0) {
-                meta += row("DPI", QString::number(qRound(img.dotsPerMeterX() * 0.0254)));
-                double wcm = img.width()  / (img.dotsPerMeterX() / 100.0);
-                double hcm = img.height() / (img.dotsPerMeterY() / 100.0);
-                meta += row("Maße", QString("%1×%2 cm").arg(wcm,0,'f',1).arg(hcm,0,'f',1));
+            res.meta = "<table cellspacing='0' cellpadding='0'>";
+            res.meta += row("Datei",    fi.fileName());
+            res.meta += row("Typ",      fi.suffix().toUpper());
+            res.meta += row("Größe",    fmtSize(fi.size()));
+            res.meta += row("Aufl.",    QString("%1×%2").arg(res.image.width()).arg(res.image.height()));
+            res.meta += row("Format",   QString(reader.format()).toUpper());
+            res.meta += row("Tiefe",    depth);
+            if (res.image.dotsPerMeterX() > 0) {
+                res.meta += row("DPI", QString::number(qRound(res.image.dotsPerMeterX() * 0.0254)));
+                double wcm = res.image.width()  / (res.image.dotsPerMeterX() / 100.0);
+                double hcm = res.image.height() / (res.image.dotsPerMeterY() / 100.0);
+                res.meta += row("Maße", QString("%1×%2 cm").arg(wcm,0,'f',1).arg(hcm,0,'f',1));
             }
-            meta += row("Geändert", fi.lastModified().toString("dd.MM.yy HH:mm"));
-            meta += "</table>";
-            m_metaLabel->setText(meta);
-            return;
+            res.meta += row("Geändert", fi.lastModified().toString("dd.MM.yy HH:mm"));
+            res.meta += "</table>";
+            return res;
         }
     }
 
+    // --- Text-Handling ---
     if (TEXT_EXT.contains(ext) && !fi.isDir()) {
-        m_imgLabel->hide();
-        m_textEdit->show();
+        res.isText = true;
         QFile f(path);
         if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
             QTextStream stream(&f);
             QStringList lines;
             int i = 0;
             while (!stream.atEnd() && i < 100) { lines << stream.readLine(); ++i; }
-            m_textEdit->setPlainText(lines.join("\n"));
+            res.text = lines.join("\n");
         }
         QMimeDatabase mdb;
         const QString mime = mdb.mimeTypeForFile(path).comment();
-        QString meta = "<table cellspacing='0' cellpadding='0'>";
-        meta += row("Datei",    fi.fileName());
-        meta += row("Typ",      mime.isEmpty() ? fi.suffix().toUpper() : mime);
-        meta += row("Größe",    fmtSize(fi.size()));
-        meta += row("Geändert", fi.lastModified().toString("dd.MM.yy HH:mm"));
-        meta += row("Erstellt", fi.birthTime().toString("dd.MM.yy HH:mm"));
-        meta += "</table>";
-        m_metaLabel->setText(meta);
+        res.meta = "<table cellspacing='0' cellpadding='0'>";
+        res.meta += row("Datei",    fi.fileName());
+        res.meta += row("Typ",      mime.isEmpty() ? fi.suffix().toUpper() : mime);
+        res.meta += row("Größe",    fmtSize(fi.size()));
+        res.meta += row("Geändert", fi.lastModified().toString("dd.MM.yy HH:mm"));
+        res.meta += row("Erstellt", fi.birthTime().toString("dd.MM.yy HH:mm"));
+        res.meta += "</table>";
+        return res;
+    }
+
+    // --- Allgemein ---
+    QMimeDatabase mdb;
+    const QString mime = mdb.mimeTypeForFile(path).comment();
+    res.meta = "<table cellspacing='0' cellpadding='0'>";
+    res.meta += row("Name",     fi.fileName());
+    res.meta += row("Typ",      fi.isDir() ? "Ordner" : (mime.isEmpty() ? fi.suffix().toUpper() : mime));
+    if (!fi.isDir())
+        res.meta += row("Größe", fmtSize(fi.size()));
+    res.meta += row("Geändert", fi.lastModified().toString("dd.MM.yy HH:mm"));
+    res.meta += row("Erstellt", fi.birthTime().toString("dd.MM.yy HH:mm"));
+    if (fi.isSymLink())
+        res.meta += row("→", fi.symLinkTarget());
+    res.meta += "</table>";
+    
+    // Icon im Haupt-Thread laden, da QIcon/QPixmap nicht Thread-safe sind
+    return res;
+}
+
+void PreviewPanel::showFile(const QString &path)
+{
+    // Aktuellen Ladevorgang ggf. ignorieren (wird durch neuen ersetzt)
+    if (m_watcher.isRunning()) {
+        // Wir können einen laufenden Thread nicht einfach killen, 
+        // aber wir starten einen neuen. Der Watcher wird am Ende onPreviewReady()
+        // für das neuste Ergebnis aufrufen.
+    }
+    
+    m_watcher.setFuture(QtConcurrent::run(loadPreviewData, path));
+}
+
+void PreviewPanel::onPreviewReady()
+{
+    PreviewResult res = m_watcher.result();
+    
+    // UI aktualisieren
+    clear();
+    
+    if (!res.image.isNull()) {
+        m_storedPixmap = QPixmap::fromImage(res.image);
+        scalePixmap();
+        m_metaLabel->setText(res.meta);
         return;
     }
 
-    // Allgemein: Icon + Metadaten
+    if (res.isText) {
+        m_imgLabel->hide();
+        m_textEdit->show();
+        m_textEdit->setPlainText(res.text);
+        m_metaLabel->setText(res.meta);
+        return;
+    }
+
+    // Standard-Icon Fall
     QMimeDatabase mdb;
-    const QString mime = mdb.mimeTypeForFile(path).comment();
+    QFileInfo fi(res.path);
     const QIcon icon = QIcon::fromTheme(
-        mdb.mimeTypeForFile(path).iconName(),
+        mdb.mimeTypeForFile(res.path).iconName(),
         QIcon::fromTheme(fi.isDir() ? "folder" : "text-x-generic"));
     if (!icon.isNull())
         m_imgLabel->setPixmap(icon.pixmap(80, 80));
-
-    QString meta = "<table cellspacing='0' cellpadding='0'>";
-    meta += row("Name",     fi.fileName());
-    meta += row("Typ",      fi.isDir() ? "Ordner" : (mime.isEmpty() ? fi.suffix().toUpper() : mime));
-    if (!fi.isDir())
-        meta += row("Größe", fmtSize(fi.size()));
-    meta += row("Geändert", fi.lastModified().toString("dd.MM.yy HH:mm"));
-    meta += row("Erstellt", fi.birthTime().toString("dd.MM.yy HH:mm"));
-    if (fi.isSymLink())
-        meta += row("→", fi.symLinkTarget());
-    meta += "</table>";
-    m_metaLabel->setText(meta);
+    
+    m_metaLabel->setText(res.meta);
 }
 
 void PreviewPanel::scalePixmap()
