@@ -1,6 +1,4 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// thememanager.cpp — SplitCommander Theme-System
-// ─────────────────────────────────────────────────────────────────────────────
+// --- thememanager.cpp — SplitCommander Theme-System ---
 
 #include "thememanager.h"
 #include "settingsdialog.h"
@@ -9,18 +7,14 @@
 #include <QApplication>
 #include <QPalette>
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Singleton
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Singleton ---
 ThemeManager &ThemeManager::instance()
 {
     static ThemeManager inst;
     return inst;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Vordefinierte Themes
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Vordefinierte Themes ---
 ThemeColors ThemeManager::nordTheme()
 {
     ThemeColors c;
@@ -108,9 +102,7 @@ ThemeColors ThemeManager::gruvboxTheme()
     return c;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// apply — Theme aus Settings laden und anwenden
-// ─────────────────────────────────────────────────────────────────────────────
+// --- apply — Theme aus Settings laden und anwenden ---
 void ThemeManager::apply()
 {
     if (SettingsDialog::useSystemTheme()) {
@@ -165,9 +157,7 @@ void ThemeManager::apply()
     emit themeChanged();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// buildAppStyleSheet — globales QSS für alle Standard-Qt-Widgets
-// ─────────────────────────────────────────────────────────────────────────────
+// --- buildAppStyleSheet — globales QSS für alle Standard-Qt-Widgets ---
 void ThemeManager::buildAppStyleSheet()
 {
     const ThemeColors &c = m_colors;
@@ -257,9 +247,7 @@ void ThemeManager::buildAppStyleSheet()
     qApp->setStyleSheet(ss);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Stylesheet-Generatoren
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Stylesheet-Generatoren ---
 QString ThemeManager::ssToolBtn() const {
     const auto &c = m_colors;
     return QString(

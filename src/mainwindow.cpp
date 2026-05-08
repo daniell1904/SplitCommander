@@ -1,6 +1,4 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// mainwindow.cpp — SplitCommander Hauptfenster
-// ─────────────────────────────────────────────────────────────────────────────
+// --- mainwindow.cpp — SplitCommander Hauptfenster ---
 
 #include "mainwindow.h"
 #include "filepane.h"
@@ -60,7 +58,7 @@
 #include <QTreeWidget>
 #include <functional>
 
-// ─────────────────────────────────────────────────────────────────────────────
+// ---  ---
 // StyleSheet-Konstanten
 
 static QString sc_rootVolumeName()
@@ -79,9 +77,7 @@ static void mw_applyMenuShadow(QMenu *menu)
     menu->setGraphicsEffect(shadow);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PaneToolbar
-// ─────────────────────────────────────────────────────────────────────────────
+// --- PaneToolbar ---
 PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent)
 {
     setFixedHeight(96);
@@ -157,8 +153,7 @@ PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent)
     for (auto &v : {std::pair<const char *, const char *>
             {"view-list-tree",    "Details"},
             {"view-list-details", "Kompakt"},
-            {"view-list-icons",   "Liste"},
-            {"view-grid",         "Grid"}}) {
+            {"view-list-icons",   "Symbole"}}) {
         auto *b = new QToolButton();
         b->setIcon(QIcon::fromTheme(v.first));
         b->setIconSize(QSize(16, 16)); b->setFixedSize(28, 28);
@@ -196,9 +191,7 @@ void PaneToolbar::setSelected(int count)
     else             m_selectedLabel->hide();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MillerColumn
-// ─────────────────────────────────────────────────────────────────────────────
+// --- MillerColumn ---
 MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent)
 {
     setMinimumWidth(120);
@@ -251,7 +244,7 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent)
         menu.setStyleSheet(TM().ssMenu());
 
         if (m_path == QLatin1String("__drives__")) {
-            // ── Laufwerk-Menü ──────────────────────────────────────────────
+            // --- Laufwerk-Menü ---
             const QString udi = it->data(Qt::UserRole + 1).toString();
             mw_applyMenuShadow(&menu);
 
@@ -302,7 +295,7 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent)
             menu.addAction(QIcon::fromTheme("edit-copy"), tr("Pfad kopieren"), this,
                 [itemPath]() { QGuiApplication::clipboard()->setText(itemPath); });
         } else {
-            // ── Ordner-Menü ────────────────────────────────────────────────
+            // --- Ordner-Menü ---
             mw_applyMenuShadow(&menu);
             menu.addAction(QIcon::fromTheme("folder-open"), tr("Öffnen"), this,
                 [this, itemPath]() { emit entryClicked(itemPath, this); });
@@ -335,7 +328,7 @@ void MillerColumn::populateDrives()
     m_list->setStyleSheet(TM().ssColDrives().toUtf8().constData());
     m_list->setItemDelegate(new DriveDelegate(true, m_list));
 
-    // ── Eingehängte Laufwerke ──
+    // --- Eingehängte Laufwerke ---
     QSet<QString> shownUdis;
     for (const Solid::Device &dev : Solid::Device::listFromType(Solid::DeviceInterface::StorageAccess)) {
         const auto *acc = dev.as<Solid::StorageAccess>();
@@ -391,7 +384,7 @@ void MillerColumn::populateDrives()
         }
     }
 
-    // ── Netzwerklaufwerke (FUSE-gemountet) ──
+    // --- Netzwerklaufwerke (FUSE-gemountet) ---
     for (const QStorageInfo &storage : QStorageInfo::mountedVolumes()) {
         if (!storage.isValid() || !storage.isReady()) continue;
         const QString fs = storage.fileSystemType();
@@ -412,7 +405,7 @@ void MillerColumn::populateDrives()
         it->setSizeHint(QSize(0, 44));
     }
 
-    // ── Gespeicherte Netzwerkplätze (NetworkPlaces) ──
+    // --- Gespeicherte Netzwerkplätze (NetworkPlaces) ---
     {
         QSettings netSettings("SplitCommander", "NetworkPlaces");
         const QStringList savedPlaces = netSettings.value("places").toStringList();
@@ -476,9 +469,7 @@ void MillerColumn::setActive(bool active)
         : (active ? TM().ssColActive().toUtf8().constData() : TM().ssColInactive().toUtf8().constData()));
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MillerArea
-// ─────────────────────────────────────────────────────────────────────────────
+// --- MillerArea ---
 static constexpr int FULL_COLS = 3;
 
 MillerArea::MillerArea(QWidget *parent) : QWidget(parent)
@@ -700,6 +691,7 @@ QString MillerArea::activePath() const
 
 void MillerArea::navigateTo(const QString &path, bool clearForward)
 {
+    (void)clearForward;
     if (path.isEmpty() || !QFileInfo::exists(path)) return;
 
     while (m_cols.size() > 1) {
@@ -760,9 +752,7 @@ void MillerArea::setFocused(bool f)
     setStyleSheet(TM().ssPane());
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PaneWidget
-// ─────────────────────────────────────────────────────────────────────────────
+// --- PaneWidget ---
 PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     : QWidget(parent), m_settingsKey(settingsKey)
 {
@@ -771,7 +761,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     rootLay->setContentsMargins(0, 0, 0, 0);
     rootLay->setSpacing(0);
 
-    // ── Tab-Leiste mit Breadcrumb ──
+    // --- Tab-Leiste mit Breadcrumb ---
     auto *tabBar = new QWidget();
     tabBar->setFixedHeight(36);
     tabBar->setStyleSheet(QString("background:%1;border-bottom:1px solid %2;").arg(TM().colors().bgPanel,TM().colors().separator));
@@ -853,7 +843,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
         " QToolButton::menu-indicator { image: none; }");
     hamburgerBtn->setPopupMode(QToolButton::InstantPopup);
 
-    // ── Hamburger-Menü ────────────────────────────────────────────────────
+    // --- Hamburger-Menü ---
     auto *hamburgerMenu = new QMenu(hamburgerBtn);
     hamburgerMenu->setStyleSheet(TM().ssMenu());
 
@@ -1054,7 +1044,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
 
     hamburgerMenu->addSeparator();
 
-    // Zeilenhöhe
+    // Zeilenhöhe — nur für Detailliste, wird per aboutToShow ein/ausgeblendet
     auto *rhWidget = new QWidget();
     rhWidget->setStyleSheet(QString("QWidget{background:%1;border:none;}").arg(TM().colors().bgList));
     auto *rhLay = new QHBoxLayout(rhWidget);
@@ -1064,7 +1054,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     rhLbl->setStyleSheet(QString("color:%1;font-size:11px;background:transparent;").arg(TM().colors().textPrimary));
     auto *rhSlider = new QSlider(Qt::Horizontal);
     rhSlider->setRange(18, 52);
-    rhSlider->setValue(QSettings().value("FilePane/rowHeight", 26).toInt());
+    rhSlider->setValue(QSettings().value(m_settingsKey + "/rowHeight", 26).toInt());
     rhSlider->setFixedWidth(100);
     rhSlider->setStyleSheet(QString(
         "QSlider::groove:horizontal{height:4px;background:%1;border-radius:2px;}"
@@ -1079,9 +1069,12 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     auto *rhAction = new QWidgetAction(hamburgerMenu);
     rhAction->setDefaultWidget(rhWidget);
     hamburgerMenu->addAction(rhAction);
+    connect(hamburgerMenu, &QMenu::aboutToShow, this, [this, rhWidget]() {
+        rhWidget->setVisible(m_filePane && m_filePane->viewMode() == 0);
+    });
     connect(rhSlider, &QSlider::valueChanged, this, [this, rhValLbl](int val) {
         rhValLbl->setText(QString::number(val));
-        m_filePane->setRowHeight(val);
+        if (m_filePane) m_filePane->setRowHeight(val);
     });
 
     hamburgerMenu->addSeparator();
@@ -1098,7 +1091,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     tabLay->addWidget(hamburgerBtn);
     rootLay->addWidget(tabBar);
 
-    // ── Layout-Button Connect ─────────────────────────────────────────────
+    // --- Layout-Button Connect ---
     connect(layoutBtn, &QToolButton::clicked, this, [this, layoutBtn]() {
         auto *popup = new QDialog(this, Qt::Popup | Qt::FramelessWindowHint);
         popup->setAttribute(Qt::WA_DeleteOnClose);
@@ -1159,7 +1152,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
         popup->exec();
     });
 
-    // ── Hamburger-Connects ────────────────────────────────────────────────
+    // --- Hamburger-Connects ---
     connect(actNewFolder, &QAction::triggered, this, [this]() {
         emit newFolderRequested();
     });
@@ -1256,7 +1249,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
         QMessageBox::about(this, tr("Über SplitCommander"), body);
     });
 
-    // ── Such-Panel ──
+    // --- Such-Panel ---
     auto *searchPanel = new QWidget();
     searchPanel->setStyleSheet(TM().ssSearchPanel());
     searchPanel->hide();
@@ -1349,7 +1342,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     spVLay->addWidget(spTabRow);
     rootLay->addWidget(searchPanel);
 
-    // ── Suchergebnis-Overlay ──
+    // --- Suchergebnis-Overlay ---
     auto *searchOverlay = new QWidget(this);
     searchOverlay->hide();
     searchOverlay->setStyleSheet(QString("background:%1;border:1px solid %2;border-top:none;").arg(TM().colors().bgMain,TM().colors().separator));
@@ -1460,7 +1453,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
         searchOverlay->hide(); searchBtn->setChecked(false);
     });
 
-    // ── Vertikaler Splitter: Miller | Dateiliste ──
+    // --- Vertikaler Splitter: Miller | Dateiliste ---
     m_vSplit = new QSplitter(Qt::Vertical);
     m_vSplit->setChildrenCollapsible(true);
     m_vSplit->setHandleWidth(4);
@@ -1861,9 +1854,7 @@ void PaneWidget::resizeEvent(QResizeEvent *e)
     positionFooterPanel();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MainWindow
-// ─────────────────────────────────────────────────────────────────────────────
+// --- MainWindow ---
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     setWindowTitle("SplitCommander");
@@ -2019,6 +2010,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     // NetworkPlace aus Millers entfernen — sofort refreshen
     auto doRemoveFromPlaces = [this](const QString &url) {
+        (void)url;
         m_sidebar->updateDrives();
         m_leftPane->miller()->refreshDrives();
         m_rightPane->miller()->refreshDrives();
@@ -2031,7 +2023,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         m_rightPane->miller()->refreshDrives();
     });
 
-    // ── Settings-Änderungen live anwenden ─────────────────────────────────
+    // --- Settings-Änderungen live anwenden ---
     connect(m_sidebar, &Sidebar::hiddenFilesChanged, this, [this](bool) {
         // Beide Panes neu laden — populate() liest showHidden selbst aus Settings
         m_leftPane->navigateTo(m_leftPane->currentPath());

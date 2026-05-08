@@ -8,6 +8,9 @@
 #include <QTimer>
 #include <QFrame>
 
+/**
+ * @brief Widget zur Anzeige des Fortschritts von Dateioperationen (Kopieren, Verschieben).
+ */
 class JobProgressWidget : public QFrame {
     Q_OBJECT
 public:

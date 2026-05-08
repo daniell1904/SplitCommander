@@ -22,7 +22,9 @@
 #include <KFileItem>
 #include <KNewFileMenu>
 
-// ── Spalten-IDs ───────────────────────────────────────────────────────────────
+/**
+ * @brief Definition der verfügbaren Spalten-IDs (Name, Größe, Datum etc.)
+ */
 enum FPCol {
     FP_NAME=0,
     FP_TYP,
@@ -68,9 +70,11 @@ struct FPColDef {
     int     defaultWidth;
 };
 
-// ── Proxy: mappt unsere Spalten-IDs auf KDirModel + Extra-Spalten ─────────────
-// KDirModel hat 5 Spalten: Name(0), Size(1), ModTime(2), Permissions(3), Owner(4)
-// Wir legen eine eigene Spaltenreihenfolge drüber
+/**
+ * @brief Proxy-Model, das die applikationsspezifischen Spalten-IDs auf das interne KDirModel abbildet.
+ * KDirModel hat standardmäßig 5 Spalten: Name(0), Size(1), ModTime(2), Permissions(3), Owner(4).
+ * Diese Klasse legt eine flexiblere Spaltenreihenfolge darüber.
+ */
 class FPColumnsProxy : public QAbstractProxyModel {
     Q_OBJECT
 public:
@@ -104,7 +108,9 @@ private:
     KDirModel                *m_kdirModel = nullptr;
 };
 
-// ── Delegate ─────────────────────────────────────────────────────────────────
+/**
+ * @brief Delegate zum Zeichnen der Datei-Zeilen (inklusive Altersfarben, Icons).
+ */
 class FilePaneDelegate : public QStyledItemDelegate {
     Q_OBJECT
 public:
@@ -119,7 +125,10 @@ public:
     static QString  formatAge(qint64 secs);
 };
 
-// ── FilePane ─────────────────────────────────────────────────────────────────
+/**
+ * @brief Das Haupt-Widget für eine Dateiliste (FilePane). 
+ * Verwaltet Ansicht (Liste/Icons), KDirModel-Anbindung und Benutzerinteraktionen.
+ */
 class FilePane : public QWidget {
     Q_OBJECT
 public:
@@ -129,10 +138,10 @@ public:
     void setRootUrl(const QUrl &url);
     void setNameFilter(const QString &pattern);
     void setFoldersFirst(bool on);
-    bool    hasFocus()    const;
-    QString currentPath() const;
+    [[nodiscard]] bool    hasFocus()    const;
+    [[nodiscard]] const QString& currentPath() const;
     QTreeView *view()     { return m_view; }
-    QList<QUrl> selectedUrls() const;
+    [[nodiscard]] QList<QUrl> selectedUrls() const;
 
 signals:
     void fileActivated(const QString &path);
@@ -144,9 +153,10 @@ signals:
 public:
     void setColumnVisible(int colId, bool visible);
     void setViewMode(int mode);
+    int  viewMode() const { return m_viewMode; }
     void setRowHeight(int height);
     void showTaggedFiles(const QString &tagName);
-    static const QList<FPColDef>& colDefs();
+    [[nodiscard]] static const QList<FPColDef>& colDefs();
 
 private slots:
     void onItemActivated(const QModelIndex &index);
@@ -182,6 +192,7 @@ private:
     QString  m_settingsKey; // pane-spezifischer Settings-Key
     QUrl     m_currentUrl;
     bool     m_kioMode    = false;
+    int      m_viewMode   = 0;
     QString  m_filter;
     bool     m_foldersFirst = true;
     QString  m_currentTagFilter;

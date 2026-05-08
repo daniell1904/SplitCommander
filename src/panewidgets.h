@@ -1,6 +1,4 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// panewidgets.h — Interne Widget-Klassen für MainWindow
-// ─────────────────────────────────────────────────────────────────────────────
+// --- panewidgets.h — Interne Widget-Klassen für MainWindow ---
 #pragma once
 
 #include <QWidget>
@@ -15,9 +13,7 @@
 #include <QPoint>
 #include <functional>
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MillerStrip — schmaler Streifen für zurückliegende Miller-Spalten
-// ─────────────────────────────────────────────────────────────────────────────
+// --- MillerStrip — schmaler Streifen für zurückliegende Miller-Spalten ---
 class MillerStrip : public QWidget {
     Q_OBJECT
 public:
@@ -38,9 +34,7 @@ private:
     bool    m_hovered = false;
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PaneSplitterHandle — custom Handle mit Grip-Strichen und Collapse-Pfeilen
-// ─────────────────────────────────────────────────────────────────────────────
+// --- PaneSplitterHandle — custom Handle mit Grip-Strichen und Collapse-Pfeilen ---
 class PaneSplitterHandle : public QSplitterHandle {
     Q_OBJECT
 public:
@@ -60,9 +54,7 @@ private:
     bool       m_hovered = false;
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PaneSplitter — QSplitter mit custom Handle
-// ─────────────────────────────────────────────────────────────────────────────
+// --- PaneSplitter — QSplitter mit custom Handle ---
 class PaneSplitter : public QSplitter {
     Q_OBJECT
 public:
@@ -72,9 +64,7 @@ protected:
     QSplitterHandle *createHandle() override;
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SidebarHandle — Leiste zum Ein-/Ausklappen und Verbreitern der Sidebar
-// ─────────────────────────────────────────────────────────────────────────────
+// --- SidebarHandle — Leiste zum Ein-/Ausklappen und Verbreitern der Sidebar ---
 class SidebarHandle : public QWidget {
     Q_OBJECT
 public:
@@ -98,9 +88,7 @@ private:
     int           m_pressWidth = 0;
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// FooterWidget — zusammenklappbare Vorschau-/Info-Leiste am Pane-Rand
-// ─────────────────────────────────────────────────────────────────────────────
+// --- FooterWidget — zusammenklappbare Vorschau-/Info-Leiste am Pane-Rand ---
 class FooterWidget : public QWidget {
 public:
     QLabel *countLbl    = nullptr;
@@ -130,9 +118,7 @@ private:
     int          m_pressH       = 0;
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MillerItemDelegate — Age-Badge Indikator in Miller-Spalten
-// ─────────────────────────────────────────────────────────────────────────────
+// --- MillerItemDelegate — Age-Badge Indikator in Miller-Spalten ---
 class MillerItemDelegate : public QStyledItemDelegate {
 public:
     explicit MillerItemDelegate(QObject *parent = nullptr);

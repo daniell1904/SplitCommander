@@ -5,9 +5,7 @@
 #include <QString>
 #include <QApplication>
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ThemeColors — alle semantischen Farben eines Themes
-// ─────────────────────────────────────────────────────────────────────────────
+// --- ThemeColors — alle semantischen Farben eines Themes ---
 struct ThemeColors {
     // Hintergründe
     QString bgMain;       // Sidebar-Hintergrund, App-Basis
@@ -44,9 +42,10 @@ struct ThemeColors {
     QString name;
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ThemeManager — Singleton
-// ─────────────────────────────────────────────────────────────────────────────
+// --- ThemeManager — Singleton ---
+/**
+ * @brief Zentrale Verwaltung der Farb- und Design-Themes der Anwendung.
+ */
 class ThemeManager : public QObject {
     Q_OBJECT
 

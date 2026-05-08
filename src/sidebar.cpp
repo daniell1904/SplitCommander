@@ -1,6 +1,4 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// sidebar.cpp — SplitCommander Sidebar
-// ─────────────────────────────────────────────────────────────────────────────
+// --- sidebar.cpp — SplitCommander Sidebar ---
 
 #include "sidebar.h"
 #include <KPropertiesDialog>
@@ -90,9 +88,7 @@ static QString sc_getText(QWidget *parent, const QString &title, const QString &
 }
 
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Hilfsfunktionen (file-scope)
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Hilfsfunktionen (file-scope) ---
 
 static QString sc_rootVolumeName()
 {
@@ -115,6 +111,7 @@ static void sc_buildPlaceMenu(QMenu &menu, const QString &path, QWidget *parent,
     std::function<void()> removeAction,
     std::function<void(const QString &, const QString &)> editAction)
 {
+    (void)editAction;
     if (removeAction)
         QObject::connect(
             menu.addAction(QIcon::fromTheme("list-remove"), QObject::tr("Aus Gruppe entfernen")),
@@ -180,15 +177,11 @@ static void sc_buildPlaceMenu(QMenu &menu, const QString &path, QWidget *parent,
         });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Konstanten
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Konstanten ---
 static constexpr int SC_SIDEBAR_ROW_H   = 34;
 static constexpr int SC_MAX_VISIBLE     = 7;
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DriveDelegate
-// ─────────────────────────────────────────────────────────────────────────────
+// --- DriveDelegate ---
 void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QModelIndex &idx) const
 {
     p->save();
@@ -279,9 +272,7 @@ QSize DriveDelegate::sizeHint(const QStyleOptionViewItem &, const QModelIndex &i
     return QSize(200, m_showBars ? 44 : SC_SIDEBAR_ROW_H);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar::adjustListHeight
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Sidebar::adjustListHeight ---
 void Sidebar::adjustListHeight(QListWidget *list)
 {
     if (!list) return;
@@ -300,9 +291,7 @@ void Sidebar::adjustListHeight(QListWidget *list)
     list->updateGeometry();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar::Sidebar — Konstruktor
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Sidebar::Sidebar — Konstruktor ---
 Sidebar::Sidebar(QWidget *parent) : QWidget(parent)
 {
     setStyleSheet(QString("background-color:%1; border:none;").arg(TM().colors().bgMain));
@@ -328,9 +317,7 @@ Sidebar::Sidebar(QWidget *parent) : QWidget(parent)
             this, [this](const QString &) { updateDrives(); emit drivesChanged(); });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar::buildLogo
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Sidebar::buildLogo ---
 void Sidebar::buildLogo(QVBoxLayout *parent)
 {
     auto *wrapper = new QWidget(this);
@@ -339,7 +326,7 @@ void Sidebar::buildLogo(QVBoxLayout *parent)
     lay->setContentsMargins(12, 6, 12, 4);
     lay->setSpacing(8);
 
-    // ── Icon ──
+    // --- Icon ---
     auto *iconLabel = new QLabel();
     QPixmap pix;
 
@@ -366,7 +353,7 @@ void Sidebar::buildLogo(QVBoxLayout *parent)
     iconLabel->setStyleSheet("background:transparent; border:none;");
     lay->addWidget(iconLabel);
 
-    // ── Text ──
+    // --- Text ---
     auto *nameLbl = new QLabel(
         "<span style='font-weight:200;color:#ccd4e8;font-size:12px;'>Split</span>"
         "<span style='font-weight:600;color:#88c0d0;font-size:12px;'>Commander</span>"
@@ -378,9 +365,7 @@ void Sidebar::buildLogo(QVBoxLayout *parent)
     parent->addWidget(wrapper);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar::buildDrivesSection
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Sidebar::buildDrivesSection ---
 void Sidebar::buildDrivesSection(QVBoxLayout *parent)
 {
     auto *wrapper = new QWidget(this);
@@ -396,8 +381,6 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     vbox->setContentsMargins(0, 0, 0, 0);
     vbox->setSpacing(0);
     vbox->setSizeConstraint(QLayout::SetMinAndMaxSize);
-
-    // Header
     auto *header = new QWidget();
     header->setStyleSheet("background:transparent; border:none;");
     auto *hLay = new QHBoxLayout(header);
@@ -420,8 +403,6 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     );
     hLay->addWidget(menuBtn);
     vbox->addWidget(header);
-
-    // Drive list
     auto *listCont = new QWidget();
     listCont->setStyleSheet("background:transparent; border:none;");
     auto *listLay = new QVBoxLayout(listCont);
@@ -433,7 +414,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     m_driveList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_driveList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_driveList->setStyleSheet(TM().ssListWidget());
-    m_driveList->setItemDelegate(new DriveDelegate(this));
+    m_driveList->setItemDelegate(new DriveDelegate(true, this));
     listLay->addWidget(m_driveList);
     m_netBox = new QWidget();
     m_netBox->setVisible(false);
@@ -455,8 +436,6 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
 
     vbox->addWidget(listCont);
     vbox->addWidget(m_netBox);
-
-    // Toggle
     auto *toggleBtn = new QPushButton();
     toggleBtn->setIcon(QIcon::fromTheme("go-up"));
     toggleBtn->setIconSize(QSize(10, 10));
@@ -470,7 +449,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
         toggleBtn->setIcon(QIcon::fromTheme(on ? "go-down" : "go-up"));
     });
 
-    // ── Netzwerk-Untersektion innerhalb der Geräte-Box ──────────────────
+    // --- Netzwerk-Untersektion innerhalb der Geräte-Box ---
 
     wLay->addWidget(box);
     parent->addWidget(wrapper);
@@ -595,12 +574,8 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar::buildGroupsSection
-// ─────────────────────────────────────────────────────────────────────────────
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar::buildGroupsSection — NUR NOCH DER SCROLLBEREICH
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Sidebar::buildGroupsSection ---
+// --- Sidebar::buildGroupsSection — NUR NOCH DER SCROLLBEREICH ---
 void Sidebar::buildGroupsSection(QVBoxLayout *parent)
 {
     m_scrollArea = new QScrollArea(this);
@@ -641,9 +616,7 @@ void Sidebar::buildGroupsSection(QVBoxLayout *parent)
     connect(m_overlayBar, &QScrollBar::valueChanged, native, &QScrollBar::setValue);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar::buildNewGroupFixedSection — DER FESTE BUTTON UNTER DEN TAGS
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Sidebar::buildNewGroupFixedSection — DER FESTE BUTTON UNTER DEN TAGS ---
 void Sidebar::buildNewGroupFixedSection(QVBoxLayout *parent)
 {
     auto *ngWrapper = new QWidget(this);
@@ -677,9 +650,7 @@ void Sidebar::buildNewGroupFixedSection(QVBoxLayout *parent)
 
     connect(ngBtn, &QPushButton::clicked, this, [this]() { onNewGroupDialog(); });
 }
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar::buildTagsSection
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Sidebar::buildTagsSection ---
 void Sidebar::buildTagsSection(QVBoxLayout *parent)
 {
     m_tagsWrap = new QWidget(this);
@@ -695,8 +666,6 @@ void Sidebar::buildTagsSection(QVBoxLayout *parent)
     vbox->setContentsMargins(0, 0, 0, 0);
     vbox->setSpacing(0);
     vbox->setSizeConstraint(QLayout::SetMinAndMaxSize);
-
-    // Header
     auto *header = new QWidget();
     header->setStyleSheet("background:transparent; border:none;");
     auto *hLay = new QHBoxLayout(header);
@@ -716,8 +685,6 @@ void Sidebar::buildTagsSection(QVBoxLayout *parent)
         .arg(TM().colors().bgHover));
     hLay->addWidget(addBtn);
     vbox->addWidget(header);
-
-    // Tag list
     auto *listCont = new QWidget();
     listCont->setStyleSheet("background:transparent; border:none;");
     auto *listLay = new QVBoxLayout(listCont);
@@ -731,8 +698,6 @@ void Sidebar::buildTagsSection(QVBoxLayout *parent)
     m_tagList->setStyleSheet(TM().ssListWidget());
     listLay->addWidget(m_tagList);
     vbox->addWidget(listCont);
-
-    // Toggle
     auto *toggleBtn = new QPushButton();
     toggleBtn->setCheckable(true);
     toggleBtn->setFixedHeight(16);
@@ -770,9 +735,7 @@ void Sidebar::buildTagsSection(QVBoxLayout *parent)
     parent->addWidget(m_tagsWrap);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar::buildFooter
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Sidebar::buildFooter ---
 void Sidebar::buildFooter(QVBoxLayout *parent)
 {
     auto *footer = new QWidget(this);
@@ -830,9 +793,7 @@ void Sidebar::buildFooter(QVBoxLayout *parent)
     });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar::connectDriveList
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Sidebar::connectDriveList ---
 void Sidebar::connectDriveList()
 {
     connect(m_driveList, &QListWidget::itemClicked, this, [this](QListWidgetItem *it) {
@@ -845,10 +806,8 @@ void Sidebar::connectDriveList()
     });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar::resizeEvent
-// ─────────────────────────────────────────────────────────────────────────────
+// ---  ---
+// --- Sidebar::resizeEvent ---
 void Sidebar::resizeEvent(QResizeEvent *e)
 {
     QWidget::resizeEvent(e);
@@ -861,9 +820,7 @@ void Sidebar::resizeEvent(QResizeEvent *e)
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar::loadUserPlaces
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Sidebar::loadUserPlaces ---
 void Sidebar::loadUserPlaces()
 {
     const QString xbelPath = QStandardPaths::locate(
@@ -911,7 +868,7 @@ void Sidebar::loadUserPlaces()
 }
 
 // Sidebar::updateDrives
-// ─────────────────────────────────────────────────────────────────────────────
+// ---  ---
 void Sidebar::renameNetworkPlace(const QString &path, const QString &newName)
 {
     // NetworkPlaces aktualisieren
@@ -976,7 +933,7 @@ void Sidebar::updateDrives()
     QSet<QString> shownPaths;
     QSet<QString> shownUdis;  // verhindert Duplikate zwischen beiden Schleifen
 
-    // ── Gemountete Volumes via Solid ──
+    // --- Gemountete Volumes via Solid ---
     const auto devices = Solid::Device::listFromType(Solid::DeviceInterface::StorageAccess);
     for (const Solid::Device &device : devices) {
         const auto *access = device.as<Solid::StorageAccess>();
@@ -1037,7 +994,7 @@ void Sidebar::updateDrives()
         if (!mounted) it->setForeground(QColor(TM().colors().textMuted));
     }
 
-    // ── Nicht gemountete Block-Geräte ──
+    // --- Nicht gemountete Block-Geräte ---
     const auto vdevices = Solid::Device::listFromType(Solid::DeviceInterface::StorageVolume);
     for (const Solid::Device &device : vdevices) {
         // Bereits in Schleife 1 gezeigt — überspringen
@@ -1067,13 +1024,13 @@ void Sidebar::updateDrives()
         }
 
         auto *it = new QListWidgetItem(QIcon::fromTheme(iconName), label, m_driveList);
-        it->setData(Qt::UserRole,     QString("solid:") + device.udi());
+        it->setData(Qt::UserRole,     QString(QStringLiteral("solid:") + device.udi()));
         it->setData(Qt::UserRole + 1, QString("Nicht eingehängt – klicken zum Einhängen"));
     }
 
-    // ── Google Drive → wird in Netzwerk-Sektion angezeigt (siehe unten) ──
+    // --- Google Drive → wird in Netzwerk-Sektion angezeigt (siehe unten) ---
 
-    // ── Netzwerklaufwerke in m_netList ──
+    // --- Netzwerklaufwerke in m_netList ---
     if (m_netList) m_netList->clear();
     bool hasNet = false;
 
@@ -1127,7 +1084,7 @@ void Sidebar::updateDrives()
         if (m_netList) {
             auto *it = new QListWidgetItem(QIcon::fromTheme(icon), name, m_netList);
             it->setData(Qt::UserRole,     path);
-            it->setData(Qt::UserRole + 1, fs + " – " + path);
+            it->setData(Qt::UserRole + 1, QString(fs + " – " + path));
             it->setSizeHint(QSize(0, 36));
         }
     }
@@ -1148,7 +1105,7 @@ void Sidebar::updateDrives()
         }
     }
 
-    // ── Höhe anpassen ──
+    // --- Höhe anpassen ---
     int totalH = 0;
     for (int i = 0; i < m_driveList->count(); ++i)
         totalH += m_driveList->sizeHintForRow(i);
@@ -1165,14 +1122,12 @@ void Sidebar::updateDrives()
     }
     m_driveList->updateGeometry();
 
-    // ── Hot-Plug (einmalig verbinden) ──
+    // --- Hot-Plug (einmalig verbinden) ---
 
     s_updating = false;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar::setupDriveContextMenu
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Sidebar::setupDriveContextMenu ---
 void Sidebar::setupDriveContextMenu()
 {
     m_driveList->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -1306,9 +1261,7 @@ void Sidebar::setupDriveContextMenu()
     });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar::onNewGroupDialog
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Sidebar::onNewGroupDialog ---
 void Sidebar::onNewGroupDialog()
 {
     QDialog dlg(this);
@@ -1372,9 +1325,7 @@ void Sidebar::onNewGroupDialog()
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar::createGroupWidget
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Sidebar::createGroupWidget ---
 QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidget)
 {
     // Äußere Box
@@ -1428,12 +1379,12 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     hLay->addWidget(addBtn);
     vbox->addWidget(headerRow);
 
-    // ── Liste in einen Container einbetten (für die Margins) ──
+    // --- Liste in einen Container einbetten (für die Margins) ---
     auto *listCont = new QWidget();
     listCont->setStyleSheet("background:transparent; border:none;");
     auto *listLay = new QVBoxLayout(listCont);
 
-    // Hier setzen wir die Abstände: 6px links/rechts, passend zur Geräte-Box
+    // Hier werden die Abstände gesetzt: 6px links/rechts, passend zur Geräte-Box
     listLay->setContentsMargins(6, 0, 6, 4);
     listLay->setSizeConstraint(QLayout::SetMinAndMaxSize);
 
@@ -1612,9 +1563,7 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     return list;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar::saveGroupOrder
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Sidebar::saveGroupOrder ---
 void Sidebar::saveGroupOrder()
 {
     QStringList order;
@@ -1629,9 +1578,7 @@ void Sidebar::saveGroupOrder()
     gs.sync();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar::loadCustomGroups
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Sidebar::loadCustomGroups ---
 void Sidebar::loadCustomGroups()
 {
     QSettings s("SplitCommander", "CustomGroups");
@@ -1669,9 +1616,7 @@ void Sidebar::loadCustomGroups()
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar::addToGroup
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Sidebar::addToGroup ---
 void Sidebar::addToGroup(const QString &groupName, QListWidget *list, const QString &path)
 {
     if (path.isEmpty() || !list) return;
@@ -1715,18 +1660,14 @@ void Sidebar::addToGroup(const QString &groupName, QListWidget *list, const QStr
     gs.sync();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar::addPlace
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Sidebar::addPlace ---
 void Sidebar::addPlace(const QString &path)
 {
     if (path.isEmpty() || !m_favList) return;
     addToGroup("Favoriten", m_favList, path);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar::showPlaceContextMenu
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Sidebar::showPlaceContextMenu ---
 void Sidebar::showPlaceContextMenu(QListWidgetItem *item, QListWidget *list,
                                    const QPoint &pos, const QString &groupName)
 {
@@ -1769,9 +1710,7 @@ void Sidebar::showPlaceContextMenu(QListWidgetItem *item, QListWidget *list,
     menu.exec(list->mapToGlobal(pos));
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar::setupTags / addTagItem / saveTags
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Sidebar::setupTags / addTagItem / saveTags ---
 void Sidebar::addTagItem(const QString &name, const QString &color, const QString &fontFamily)
 {
     QPixmap pix(10, 10);
@@ -1879,9 +1818,7 @@ void Sidebar::saveTags()
     s.sync();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar — leere Stubs (Interface-Kompatibilität)
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Sidebar — leere Stubs (Interface-Kompatibilität) ---
 void Sidebar::setupPlaces()  {}
 void Sidebar::setupRemotes() {}
 void Sidebar::savePlaces(QListWidget **list)
@@ -1903,9 +1840,7 @@ void Sidebar::savePlaces(QListWidget **list)
     gs.sync();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// GroupDragHandle — Implementierung
-// ─────────────────────────────────────────────────────────────────────────────
+// --- GroupDragHandle — Implementierung ---
 GroupDragHandle::GroupDragHandle(QWidget *outerBox, QWidget *parent)
     : QWidget(parent), m_outerBox(outerBox)
 {

@@ -51,9 +51,7 @@
 #include <KDirLister>
 #include <KDirSortFilterProxyModel>
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Hilfsfunktionen
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Hilfsfunktionen ---
 
 static QString menuStyle() {
     return TM().ssMenu() +
@@ -112,21 +110,19 @@ static QString fmtSize(qint64 sz) {
 
 static QString fmtRwx(QFileDevice::Permissions p) {
     QString s;
-    s += (p & QFile::ReadOwner)  ? "r" : "-";
-    s += (p & QFile::WriteOwner) ? "w" : "-";
-    s += (p & QFile::ExeOwner)   ? "x" : "-";
-    s += (p & QFile::ReadGroup)  ? "r" : "-";
-    s += (p & QFile::WriteGroup) ? "w" : "-";
-    s += (p & QFile::ExeGroup)   ? "x" : "-";
-    s += (p & QFile::ReadOther)  ? "r" : "-";
-    s += (p & QFile::WriteOther) ? "w" : "-";
-    s += (p & QFile::ExeOther)   ? "x" : "-";
+    s += (p & QFile::ReadOwner)  ? QLatin1String("r") : QLatin1String("-");
+    s += (p & QFile::WriteOwner) ? QLatin1String("w") : QLatin1String("-");
+    s += (p & QFile::ExeOwner)   ? QLatin1String("x") : QLatin1String("-");
+    s += (p & QFile::ReadGroup)  ? QLatin1String("r") : QLatin1String("-");
+    s += (p & QFile::WriteGroup) ? QLatin1String("w") : QLatin1String("-");
+    s += (p & QFile::ExeGroup)   ? QLatin1String("x") : QLatin1String("-");
+    s += (p & QFile::ReadOther)  ? QLatin1String("r") : QLatin1String("-");
+    s += (p & QFile::WriteOther) ? QLatin1String("w") : QLatin1String("-");
+    s += (p & QFile::ExeOther)   ? QLatin1String("x") : QLatin1String("-");
     return s;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Spalten-Definitionen
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Spalten-Definitionen ---
 const QList<FPColDef>& FilePane::colDefs() {
     static QList<FPColDef> defs = {
         {FP_NAME,          "Name",               "",         true,  220},
@@ -166,9 +162,7 @@ const QList<FPColDef>& FilePane::colDefs() {
     return defs;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// FPColumnsProxy
-// ─────────────────────────────────────────────────────────────────────────────
+// --- FPColumnsProxy ---
 
 FPColumnsProxy::FPColumnsProxy(QObject *parent)
     : QAbstractProxyModel(parent)
@@ -311,9 +305,9 @@ QVariant FPColumnsProxy::extraData(const KFileItem &item, FPCol col, int role) c
     switch (col) {
     case FP_TYP: {
         if (role != Qt::DisplayRole) return {};
-        if (item.isDir()) return QString("[DIR]");
+        if (item.isDir()) return QStringLiteral("[DIR]");
         QString ext = QFileInfo(item.name()).suffix().toUpper().left(4);
-        return ext.isEmpty() ? QString("[???]") : "[" + ext + "]";
+        return ext.isEmpty() ? QStringLiteral("[???]") : QStringLiteral("[") + ext + QStringLiteral("]");
     }
     case FP_ALTER: {
         qint64 mtime = item.time(KFileItem::ModificationTime).toSecsSinceEpoch();
@@ -426,11 +420,25 @@ QVariant FPColumnsProxy::headerData(int section, Qt::Orientation orientation, in
     return {};
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Delegate
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Delegate ---
 
 FilePaneDelegate::FilePaneDelegate(QObject *par) : QStyledItemDelegate(par) {}
+
+// Delegate für Kompakt/Symbole — holt Icon direkt in der gewünschten Größe
+class ScaledIconDelegate : public QStyledItemDelegate {
+public:
+    explicit ScaledIconDelegate(QObject *p = nullptr) : QStyledItemDelegate(p) {}
+    void initStyleOption(QStyleOptionViewItem *opt, const QModelIndex &idx) const override {
+        QStyledItemDelegate::initStyleOption(opt, idx);
+        QIcon ico = qvariant_cast<QIcon>(idx.data(Qt::DecorationRole));
+        if (!ico.isNull()) {
+            int sz = opt->decorationSize.width();
+            // Direkt in der Zielgröße holen — kein Skalieren
+            QPixmap pm = ico.pixmap(QSize(sz, sz));
+            if (!pm.isNull()) opt->icon = QIcon(pm);
+        }
+    }
+};
 
 QString FilePaneDelegate::formatAge(qint64 s) {
     if (s < 0)         return {};
@@ -576,9 +584,7 @@ QSize FilePaneDelegate::sizeHint(const QStyleOptionViewItem&, const QModelIndex&
     return QSize(0, rowHeight);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// FilePane::setupColumns
-// ─────────────────────────────────────────────────────────────────────────────
+// --- FilePane::setupColumns ---
 void FilePane::setupColumns()
 {
     m_colVisible.resize(FP_COUNT);
@@ -600,19 +606,17 @@ void FilePane::setupColumns()
     m_proxy->setVisibleCols(visCols);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// FilePane Konstruktor
-// ─────────────────────────────────────────────────────────────────────────────
+// --- FilePane Konstruktor ---
 FilePane::FilePane(QWidget *parent, const QString &settingsKey) : QWidget(parent)
 {
-    m_settingsKey = "FilePane/" + settingsKey + "/";
+    m_settingsKey = QStringLiteral("FilePane/") + settingsKey + QStringLiteral("/");
     auto *lay = new QVBoxLayout(this);
     lay->setContentsMargins(0, 0, 0, 0);
 
     m_stack = new QStackedWidget(this);
     lay->addWidget(m_stack);
 
-    // ── KDE Model Stack ──────────────────────────────────────────────────
+    // --- KDE Model Stack ---
     m_lister = new KDirLister(this);
     m_lister->setAutoUpdate(true);
     m_lister->setMainWindow(window());
@@ -627,7 +631,7 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey) : QWidget(parent
 
     m_proxy = new FPColumnsProxy(this);
     m_proxy->setSourceModel(m_sortProxy);
-    // ── TreeView ─────────────────────────────────────────────────────────
+    // --- TreeView ---
     m_view = new QTreeView(this);
     m_view->setRootIsDecorated(false);
     m_view->setItemsExpandable(false);
@@ -700,7 +704,7 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey) : QWidget(parent
     m_view->viewport()->setStyleSheet("background:transparent;");
     m_view->viewport()->setAttribute(Qt::WA_TranslucentBackground);
 
-    // ── Overlay Scrollbars ───────────────────────────────────────────────
+    // --- Overlay Scrollbars ---
     m_overlayBar = new QScrollBar(Qt::Vertical, this);
     m_overlayBar->setStyleSheet(
         "QScrollBar:vertical{background:transparent;width:8px;margin:0px;border:none;}"
@@ -735,9 +739,10 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey) : QWidget(parent
     });
     connect(m_overlayHBar, &QScrollBar::valueChanged, nativeH, &QScrollBar::setValue);
 
-    // ── IconView ─────────────────────────────────────────────────────────
+    // --- IconView ---
     m_iconView = new QListView(this);
     m_iconView->setModel(m_proxy);
+    m_iconView->setItemDelegate(new ScaledIconDelegate(m_iconView));
     m_iconView->setSelectionModel(m_view->selectionModel());
     m_iconView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_iconView->setMouseTracking(true);
@@ -759,7 +764,7 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey) : QWidget(parent
     m_stack->addWidget(m_iconView);
     m_stack->setCurrentWidget(m_view);
 
-    // ── Signale ──────────────────────────────────────────────────────────
+    // --- Signale ---
     m_view->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_view, &QTreeView::customContextMenuRequested, this, &FilePane::showContextMenu);
     connect(m_view, &QTreeView::activated, this, &FilePane::onItemActivated);
@@ -803,9 +808,7 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey) : QWidget(parent
     setRootPath(QDir::homePath());
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Navigation
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Navigation ---
 
 void FilePane::setRootPath(const QString &path)
 {
@@ -864,7 +867,10 @@ void FilePane::setRootUrl(const QUrl &url)
     }, Qt::SingleShotConnection);
 }
 
-QString FilePane::currentPath() const { return m_currentPath; }
+const QString& FilePane::currentPath() const
+{
+    return m_currentPath;
+}
 
 bool FilePane::hasFocus() const { return m_view->hasFocus(); }
 
@@ -891,6 +897,7 @@ void FilePane::setFoldersFirst(bool on)
 
 void FilePane::setRowHeight(int height)
 {
+    // Nur für Detailliste
     if (m_delegate) {
         m_delegate->rowHeight = height;
         m_delegate->fontSize  = qBound(9, height/3, 16);
@@ -918,9 +925,7 @@ QList<QUrl> FilePane::selectedUrls() const
     return urls;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Spalten-Sichtbarkeit
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Spalten-Sichtbarkeit ---
 void FilePane::setColumnVisible(int colId, bool visible)
 {
     if (colId < 0 || colId >= FP_COUNT) return;
@@ -953,28 +958,39 @@ void FilePane::setColumnVisible(int colId, bool visible)
 
 void FilePane::setViewMode(int mode)
 {
+    m_viewMode = mode;
     switch (mode) {
-    case 0: // Details
+    case 0: // Details — TreeView
         m_stack->setCurrentWidget(m_view);
         break;
-    case 1: // Liste
+    case 1: // Kompakt — ListMode, 32px Icons fest
         m_stack->setCurrentWidget(m_iconView);
         m_iconView->setViewMode(QListView::ListMode);
+        m_iconView->setIconSize(QSize(32, 32));
+        m_iconView->setGridSize(QSize());
+        m_iconView->setSpacing(0);
+        m_iconView->setUniformItemSizes(true);
         break;
-    case 2: // Kacheln
-        m_stack->setCurrentWidget(m_iconView);
-        m_iconView->setViewMode(QListView::ListMode);
-        break;
-    case 3: // Symbole
+    case 2: // Symbole — IconMode, 48px Icons fest
         m_stack->setCurrentWidget(m_iconView);
         m_iconView->setViewMode(QListView::IconMode);
+        m_iconView->setIconSize(QSize(48, 48));
+        m_iconView->setGridSize(QSize(96, 80));
+        m_iconView->setSpacing(8);
+        m_iconView->setResizeMode(QListView::Adjust);
+        m_iconView->setUniformItemSizes(true);
+        m_iconView->setWordWrap(true);
         break;
+    }
+    // rootIndex synchron halten
+    if (mode != 0) {
+        QModelIndex root = m_view->rootIndex();
+        if (root.isValid())
+            m_iconView->setRootIndex(root);
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// onItemActivated
-// ─────────────────────────────────────────────────────────────────────────────
+// --- onItemActivated ---
 void FilePane::onItemActivated(const QModelIndex &index)
 {
     KFileItem item = m_proxy->fileItem(index);
@@ -1031,9 +1047,7 @@ void FilePane::onItemActivated(const QModelIndex &index)
     QDesktopServices::openUrl(item.url());
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// resizeEvent / eventFilter
-// ─────────────────────────────────────────────────────────────────────────────
+// --- resizeEvent / eventFilter ---
 void FilePane::resizeEvent(QResizeEvent *e)
 {
     QWidget::resizeEvent(e);
@@ -1070,9 +1084,7 @@ void FilePane::onNewFileCreated(const QUrl &)
     reload();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// openWithApp
-// ─────────────────────────────────────────────────────────────────────────────
+// --- openWithApp ---
 void FilePane::openWithApp(const QString &entry, const QString &path)
 {
     auto svc = KService::serviceByDesktopName(entry);
@@ -1088,9 +1100,7 @@ void FilePane::openWithApp(const QString &entry, const QString &path)
     QProcess::startDetached("sh", {"-c", exec});
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// showHeaderMenu
-// ─────────────────────────────────────────────────────────────────────────────
+// --- showHeaderMenu ---
 void FilePane::showHeaderMenu(const QPoint &pos)
 {
     QMenu menu;
@@ -1122,9 +1132,7 @@ void FilePane::showHeaderMenu(const QPoint &pos)
     menu.exec(m_view->header()->mapToGlobal(pos));
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// showContextMenu — volles Menü mit KFileItemActions + KNewFileMenu
-// ─────────────────────────────────────────────────────────────────────────────
+// --- showContextMenu — volles Menü mit KFileItemActions + KNewFileMenu ---
 void FilePane::showContextMenu(const QPoint &pos)
 {
     QModelIndex proxyIndex = m_view->indexAt(pos);
@@ -1167,7 +1175,7 @@ void FilePane::showContextMenu(const QPoint &pos)
     fp_applyMenuShadow(&menu);
     menu.setStyleSheet(menuStyle());
 
-    // ── 1. Öffnen mit (KFileItemActions) ────────────────────────────────
+    // --- 1. Öffnen mit (KFileItemActions) ---
     if (hasItem) {
         KFileItemList items;
         items << item;
@@ -1215,7 +1223,7 @@ void FilePane::showContextMenu(const QPoint &pos)
         menu.addSeparator();
     }
 
-    // ── 2. Neu (KNewFileMenu) ────────────────────────────────────────────
+    // --- 2. Neu (KNewFileMenu) ---
     if (m_newFileMenu) {
         m_newFileMenu->setWorkingDirectory(dirUrl);
         m_newFileMenu->checkUpToDate();
@@ -1225,7 +1233,7 @@ void FilePane::showContextMenu(const QPoint &pos)
             newMenu->addAction(act);
     }
 
-    // ── 3. Umbenennen ───────────────────────────────────────────────────
+    // --- 3. Umbenennen ---
     if (hasItem) {
         menu.addAction(QIcon::fromTheme("edit-rename"), tr("Umbenennen …"), this,
             [this, item, dirPath, isKioPath]() {
@@ -1234,7 +1242,7 @@ void FilePane::showContextMenu(const QPoint &pos)
                 QString newName = fp_getText(this, tr("Umbenennen"), tr("Neuer Name:"), currentName);
                 if (newName.isEmpty() || newName == currentName) return;
                 QUrl dest = isKioPath
-                    ? QUrl(dirPath.endsWith('/') ? dirPath+newName : dirPath+'/'+newName)
+                    ? QUrl(dirPath.endsWith('/') ? QString(dirPath+newName) : QString(dirPath+'/'+newName))
                     : QUrl::fromLocalFile(dirPath + "/" + newName);
                 auto *job = KIO::moveAs(item.url(), dest, KIO::HideProgressInfo);
                 job->uiDelegate()->setAutoErrorHandlingEnabled(true);
@@ -1243,7 +1251,7 @@ void FilePane::showContextMenu(const QPoint &pos)
 
     menu.addSeparator();
 
-    // ── 4. In den Papierkorb / Löschen ──────────────────────────────────
+    // --- 4. In den Papierkorb / Löschen ---
     if (hasItem) {
         auto *removeAct = new QAction(&menu);
         auto setTrash  = [removeAct]() {
@@ -1286,7 +1294,7 @@ void FilePane::showContextMenu(const QPoint &pos)
         menu.addSeparator();
     }
 
-    // ── 5. Senden an ────────────────────────────────────────────────────
+    // --- 5. Senden an ---
     if (hasItem && !isKioPath) {
         auto *sendMenu = menu.addMenu(QIcon::fromTheme("document-send"), tr("Senden an"));
         sendMenu->setStyleSheet(menuStyle());
@@ -1313,7 +1321,7 @@ void FilePane::showContextMenu(const QPoint &pos)
             });
     }
 
-    // ── 6. Bearbeiten ───────────────────────────────────────────────────
+    // --- 6. Bearbeiten ---
     {
         auto *editMenu = menu.addMenu(QIcon::fromTheme("edit-copy"), tr("Bearbeiten"));
         editMenu->setStyleSheet(menuStyle());
@@ -1357,8 +1365,8 @@ void FilePane::showContextMenu(const QPoint &pos)
                         QString baseName = QFileInfo(path).completeBaseName();
                         QString suffix   = QFileInfo(path).suffix();
                         QString copyName = suffix.isEmpty()
-                            ? baseName + tr(" (Kopie)")
-                            : baseName + tr(" (Kopie).") + suffix;
+                            ? QString(baseName + tr(" (Kopie)"))
+                            : QString(baseName + tr(" (Kopie).") + suffix);
                         KIO::copy({itemUrl}, QUrl::fromLocalFile(dirPath+"/"+copyName),
                                   KIO::HideProgressInfo)
                             ->uiDelegate()->setAutoErrorHandlingEnabled(true);
@@ -1369,7 +1377,7 @@ void FilePane::showContextMenu(const QPoint &pos)
 
     menu.addSeparator();
 
-    // ── 7. Komprimieren / Entpacken ─────────────────────────────────────
+    // --- 7. Komprimieren / Entpacken ---
     if (hasItem && !isKioPath) {
         const QString baseName = QFileInfo(path).fileName();
         const QUrl    dirU     = QUrl::fromLocalFile(dirPath);
@@ -1395,7 +1403,7 @@ void FilePane::showContextMenu(const QPoint &pos)
         }
     }
 
-    // ── 8. Aktionen ─────────────────────────────────────────────────────
+    // --- 8. Aktionen ---
     auto *actMenu = menu.addMenu(QIcon::fromTheme("system-run"), tr("Aktionen"));
     actMenu->setStyleSheet(menuStyle());
     actMenu->addAction(QIcon::fromTheme("utilities-terminal"), tr("Im Terminal öffnen"),
@@ -1420,7 +1428,7 @@ void FilePane::showContextMenu(const QPoint &pos)
             });
     }
 
-    // ── 9. Tag ──────────────────────────────────────────────────────────
+    // --- 9. Tag ---
     if (hasItem && !isKioPath) {
         auto *tagMenu = menu.addMenu(QIcon::fromTheme("tag"), tr("Tag"));
         tagMenu->setStyleSheet(menuStyle());
@@ -1449,7 +1457,7 @@ void FilePane::showContextMenu(const QPoint &pos)
 
     menu.addSeparator();
 
-    // ── 10. Zu Laufwerken hinzufügen (nur KIO-Verzeichnisse) ────────────
+    // --- 10. Zu Laufwerken hinzufügen (nur KIO-Verzeichnisse) ---
     if (hasItem && isKioPath && isDir) {
         QSettings netCheck("SplitCommander", "NetworkPlaces");
         if (!netCheck.value("places").toStringList().contains(path)) {
@@ -1464,7 +1472,7 @@ void FilePane::showContextMenu(const QPoint &pos)
         }
     }
 
-    // ── 11. Eigenschaften ───────────────────────────────────────────────
+    // --- 11. Eigenschaften ---
     if (hasItem) {
         menu.addAction(QIcon::fromTheme("document-properties"), tr("Eigenschaften"), this,
             [this, itemUrl]() {

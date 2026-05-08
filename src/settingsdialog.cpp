@@ -1,6 +1,4 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// settingsdialog.cpp — SplitCommander Einstellungen
-// ─────────────────────────────────────────────────────────────────────────────
+// --- settingsdialog.cpp — SplitCommander Einstellungen ---
 
 #include "settingsdialog.h"
 #include <QSlider>
@@ -18,9 +16,7 @@
 
 SettingsDialog* SettingsDialog::s_instance = nullptr;
 
-// ─────────────────────────────────────────────────────────────────────────────
-// THEMES Definition
-// ─────────────────────────────────────────────────────────────────────────────
+// --- THEMES Definition ---
 const QList<SD_Styles::ThemePreview> SD_Styles::THEMES = {
     { "Nord",             "#0f1218", "#202530", "#5e81ac", "#ccd4e8", "" },
     { "Catppuccin Mocha", "#1e1e2e", "#313244", "#cba6f7", "#cdd6f4", "" },
@@ -29,9 +25,7 @@ const QList<SD_Styles::ThemePreview> SD_Styles::THEMES = {
 
 const QString SD_Styles::DIALOG = "";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Statische Hilfsmethoden
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Statische Hilfsmethoden ---
 
 bool SettingsDialog::useSystemTheme()
 {
@@ -125,10 +119,8 @@ QList<ShortcutEntry> SettingsDialog::allShortcuts()
     };
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Farb-Chip Hilfsfunktion
-// ─────────────────────────────────────────────────────────────────────────────
-static QPixmap colorChip(const QColor &col, int w = 44, int h = 20)
+// --- Farb-Chip Hilfsfunktion ---
+[[maybe_unused]] static QPixmap colorChip(const QColor &col, int w = 44, int h = 20)
 {
     QPixmap px(w, h);
     px.fill(Qt::transparent);
@@ -144,9 +136,7 @@ static QPixmap colorChip(const QColor &col, int w = 44, int h = 20)
     return px;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Stylesheet — basiert auf ThemeManager-Farben
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Stylesheet — basiert auf ThemeManager-Farben ---
 static QString dialogSS()
 {
     const auto &c = TM().colors();
@@ -201,9 +191,7 @@ static QString dialogSS()
     .arg(c.accentHover);  // %11 accentHover
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Konstruktor
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Konstruktor ---
 SettingsDialog::SettingsDialog(QWidget *parent)
 : QDialog(parent)
 {
@@ -213,7 +201,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     setMinimumSize(640, 500);
     setStyleSheet(dialogSS());
 
-    // ── Haupt-Layout: links Navigationsliste, rechts Inhalt ───────────────
+    // --- Haupt-Layout: links Navigationsliste, rechts Inhalt ---
     auto *rootLay = new QHBoxLayout(this);
     rootLay->setContentsMargins(0, 0, 0, 0);
     rootLay->setSpacing(0);
@@ -253,7 +241,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     // Navigation
     connect(m_navList, &QListWidget::currentRowChanged, m_stack, &QStackedWidget::setCurrentIndex);
 
-    // ── Bottom-Bar ────────────────────────────────────────────────────────
+    // --- Bottom-Bar ---
     // Wrapper um rootLay + Bottom-Bar zu kombinieren
     auto *outerLay = new QVBoxLayout();
     outerLay->setContentsMargins(0, 0, 0, 0);
@@ -295,9 +283,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     loadValues();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Seite: Allgemein
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Seite: Allgemein ---
 void SettingsDialog::setInitialPage(int index)
 {
     if (m_navList && m_stack) {
@@ -349,9 +335,7 @@ QWidget *SettingsDialog::buildPageGeneral()
     return scroll;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Seite: Design
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Seite: Design ---
 QWidget *SettingsDialog::buildPageDesign()
 {
     auto *scroll = new QScrollArea();
@@ -447,7 +431,7 @@ QWidget *SettingsDialog::buildPageDesign()
         });
 
         // Mausklick auf gesamte Karte (auch auf Labels/Chips) → Radio aktivieren
-        // Dafür installieren wir einen EventFilter auf der Karte
+        // Dafür wird ein EventFilter auf der Karte installiert
         // Einfachste Lösung: card als QAbstractButton-Wrapper via Lambda auf installEventFilter
         // → stattdessen: alle Kind-Widgets durch-reichen via setAttribute
         card->setAttribute(Qt::WA_TransparentForMouseEvents, false);
@@ -474,7 +458,7 @@ QWidget *SettingsDialog::buildPageDesign()
     connect(m_systemThemeCheck, &QCheckBox::toggled, m_themeBox, &QWidget::setDisabled);
     lay->addWidget(m_themeBox);
 
-    // ── Dateialter / relatives Datum ─────────────────────────────────────
+    // --- Dateialter / relatives Datum ---
     auto *grpAge = new QGroupBox(tr("Dateialter / relatives Datum"), page);
     auto *ageLay = new QVBoxLayout(grpAge);
     ageLay->setSpacing(6);
@@ -490,7 +474,7 @@ QWidget *SettingsDialog::buildPageDesign()
         m_ageBtns.append(nullptr); // Platzhalter
     }
 
-    // ── Gradient-Balken ────────────────────────────────────────────────────
+    // --- Gradient-Balken ---
     // Lokale Klasse — kein Q_OBJECT
     struct GradBar : public QWidget {
         QList<QColor> *cols;
@@ -523,7 +507,7 @@ QWidget *SettingsDialog::buildPageDesign()
     m_gradBar = gradBar;
     ageLay->addWidget(gradBar);
 
-    // ── S und L Slider ─────────────────────────────────────────────────────
+    // --- S und L Slider ---
     auto *sliderRow = new QHBoxLayout();
     sliderRow->setSpacing(8);
 
@@ -574,9 +558,7 @@ QWidget *SettingsDialog::buildPageDesign()
     return scroll;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Seite: Erweitert
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Seite: Erweitert ---
 QWidget *SettingsDialog::buildPageAdvanced()
 {
     auto *scroll = new QScrollArea();
@@ -609,9 +591,7 @@ QWidget *SettingsDialog::buildPageAdvanced()
     return scroll;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Seite: Shortcuts
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Seite: Shortcuts ---
 QWidget *SettingsDialog::buildPageShortcuts()
 {
     auto *scroll = new QScrollArea();
@@ -684,9 +664,7 @@ QWidget *SettingsDialog::buildPageShortcuts()
     return scroll;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// loadValues
-// ─────────────────────────────────────────────────────────────────────────────
+// --- loadValues ---
 void SettingsDialog::loadValues()
 {
     m_singleClickCheck->setChecked(singleClickOpen());
@@ -715,9 +693,7 @@ void SettingsDialog::loadValues()
             rb->setChecked(true);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// applyAndSave
-// ─────────────────────────────────────────────────────────────────────────────
+// --- applyAndSave ---
 void SettingsDialog::applyAndSave()
 {
     // Allgemein

@@ -27,8 +27,8 @@ static QString sc_findBinary(const QString &name)
         return found;
 
     // 2. Direkt in bekannten Verzeichnissen suchen
-    for (const QString &dir : {"/usr/bin", "/usr/local/bin", "/bin"}) {
-        const QString full = dir + "/" + name;
+    for (const char *dir : {"/usr/bin", "/usr/local/bin", "/bin"}) {
+        const QString full = QLatin1String(dir) + QStringLiteral("/") + name;
         if (QFileInfo::exists(full))
             return full;
     }

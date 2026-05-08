@@ -14,9 +14,9 @@
 #include <QMenu>
 #include <functional>
 
-// ─────────────────────────────────────────────────────────────────────────────
-// GroupDragHandle — ermöglicht Drag-and-Drop-Umordnung von Gruppen
-// ─────────────────────────────────────────────────────────────────────────────
+/**
+ * @brief GroupDragHandle ermöglicht Drag-and-Drop-Umordnung von Gruppen.
+ */
 class GroupDragHandle : public QWidget {
     Q_OBJECT
 public:
@@ -37,9 +37,9 @@ private:
     int      m_currentIndex = 0;
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DriveDelegate — zeichnet Laufwerkseinträge mit optionalem Speicher-Balken
-// ─────────────────────────────────────────────────────────────────────────────
+/**
+ * @brief DriveDelegate zeichnet Laufwerkseinträge mit optionalem Speicher-Balken.
+ */
 class DriveDelegate : public QStyledItemDelegate {
     Q_OBJECT
 public:
@@ -53,9 +53,9 @@ private:
     bool m_showBars;
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sidebar
-// ─────────────────────────────────────────────────────────────────────────────
+/**
+ * @brief Sidebar ist die linke Navigationsleiste (Laufwerke, Gruppen, Tags).
+ */
 class Sidebar : public QWidget {
     Q_OBJECT
 
@@ -65,7 +65,7 @@ public:
 public slots:
     void updateDrives();
     void renameNetworkPlace(const QString &path, const QString &newName);
-    QStringList gdriveAccounts() const { return m_gdriveAccounts; }
+    const QStringList& gdriveAccounts() const { return m_gdriveAccounts; }
     void setupPlaces();
     void addPlace(const QString &path);
     void addToGroup(const QString &groupName, QListWidget *list, const QString &path);
@@ -88,7 +88,7 @@ protected:
     void resizeEvent(QResizeEvent *e) override;
 
 private:
-    // ── UI-Aufbau ──────────────────────────────────────────────────────────────
+    // --- UI-Aufbau ---
     void buildLogo(QVBoxLayout *parent);
     void buildDrivesSection(QVBoxLayout *parent);
     void buildGroupsSection(QVBoxLayout *parent);
@@ -96,31 +96,31 @@ private:
     void buildNewGroupFixedSection(QVBoxLayout *parent);
     void buildFooter(QVBoxLayout *parent);
 
-    // ── Laufwerke ──────────────────────────────────────────────────────────────
+    // --- Laufwerke ---
     void setupDriveContextMenu();
     void loadGDriveAccountsAsync();
     void loadUserPlaces();
     void connectDriveList();
 
-    // ── Gruppen ────────────────────────────────────────────────────────────────
+    // --- Gruppen ---
     void onNewGroupDialog();
     void loadCustomGroups();
     void saveGroupOrder();
     QListWidget *createGroupWidget(const QString &name, QWidget *beforeWidget);
 
-    // ── Orte / Kontextmenü ────────────────────────────────────────────────────
+    // --- Orte / Kontextmenü ---
     void showPlaceContextMenu(QListWidgetItem *item, QListWidget *list,
                               const QPoint &pos, const QString &groupName = {});
     void savePlaces(QListWidget **list);
 
-    // ── Tags ───────────────────────────────────────────────────────────────────
+    // --- Tags ---
     void addTagItem(const QString &name, const QString &color, const QString &fontFamily = {});
     void saveTags();
 
-    // ── Hilfsfunktionen ────────────────────────────────────────────────────────
+    // --- Hilfsfunktionen ---
     static void adjustListHeight(QListWidget *list);
 
-    // ── Member-Variablen ───────────────────────────────────────────────────────
+    // --- Member-Variablen ---
     QListWidget *m_driveList     = nullptr;
     QStringList  m_gdriveAccounts;
 

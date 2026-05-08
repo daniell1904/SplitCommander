@@ -19,7 +19,7 @@ ThemeDialog::ThemeDialog(QWidget *parent)
     outerLay->setContentsMargins(0, 0, 0, 0);
     outerLay->setSpacing(0);
 
-    // ── Inhalt ────────────────────────────────────────────────────────────
+    // --- Inhalt ---
     auto *content = new QWidget(this);
     auto *lay     = new QVBoxLayout(content);
     lay->setContentsMargins(20, 20, 20, 20);
@@ -122,7 +122,7 @@ ThemeDialog::ThemeDialog(QWidget *parent)
     lay->addStretch();
     outerLay->addWidget(content, 1);
 
-    // ── Bottom-Bar ────────────────────────────────────────────────────────
+    // --- Bottom-Bar ---
     auto *sep = new QFrame(this);
     sep->setFrameShape(QFrame::HLine);
     sep->setStyleSheet(QString("background:%1;").arg(TM().colors().separator));

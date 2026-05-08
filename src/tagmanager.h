@@ -15,7 +15,7 @@ public:
     }
 
     // Verfügbare Tags: Name → Farbe
-    QList<QPair<QString,QString>> tags() const { return m_tags; }
+    const QList<QPair<QString,QString>>& tags() const { return m_tags; }
     void addTag(const QString &name, const QString &color);
     void removeTag(const QString &name);
 

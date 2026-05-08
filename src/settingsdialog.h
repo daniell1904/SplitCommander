@@ -40,6 +40,11 @@ extern const QList<ThemePreview> THEMES;
 extern const QString DIALOG;
 } // namespace SD_Styles
 
+/**
+ * @brief Der globale Einstellungsdialog (SettingsDialog).
+ * 
+ * Ermöglicht die Konfiguration des Verhaltens, der Ansicht und von Themes.
+ */
 class SettingsDialog : public QDialog {
     Q_OBJECT
 

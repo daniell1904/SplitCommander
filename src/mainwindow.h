@@ -18,7 +18,7 @@
 #include "thememanager.h"
 #include "filepane.h"
 
-// ── Toolbar über der Dateiliste ───────────────────────────────────────────────
+// --- Toolbar über der Dateiliste ---
 class PaneToolbar : public QWidget {
     Q_OBJECT
 public:
@@ -44,7 +44,7 @@ private:
     QLabel *m_sizeLabel;
 };
 
-// ── Einzelne Miller-Spalte ────────────────────────────────────────────────────
+// --- Einzelne Miller-Spalte ---
 class MillerColumn : public QWidget {
     Q_OBJECT
 public:
@@ -54,7 +54,7 @@ public:
     void populateDir(const QString &path);
     void setActive(bool active);
     void refreshStyle();
-    QString path() const { return m_path; }
+    const QString& path() const { return m_path; }
     QListWidget *list()  { return m_list; }
 signals:
     void entryClicked(const QString &path, MillerColumn *self);
@@ -73,7 +73,7 @@ private:
     QStringList   m_gdriveAccounts;
 };
 
-// ── Miller-Bereich ────────────────────────────────────────────────────────────
+// --- Miller-Bereich ---
 class MillerArea : public QWidget {
     Q_OBJECT
 public:
@@ -113,7 +113,7 @@ private:
     bool                  m_focused   = false;
 };
 
-// ── Eine komplette Pane ───────────────────────────────────────────────────────
+// --- Eine komplette Pane ---
 class PaneWidget : public QWidget {
     Q_OBJECT
 public:
@@ -170,7 +170,12 @@ private:
     QProcess *m_searchProc = nullptr;
 };
 
-// ── MainWindow ────────────────────────────────────────────────────────────────
+// --- MainWindow ---
+/**
+ * @brief Das Hauptfenster (MainWindow) der Anwendung.
+ * 
+ * Orchestriert die Split-Views (FilePanes), die Seitenleiste und allgemeine Aktionen.
+ */
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:

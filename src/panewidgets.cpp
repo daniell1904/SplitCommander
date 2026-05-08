@@ -1,6 +1,4 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// panewidgets.cpp — Implementierung der internen Widget-Klassen
-// ─────────────────────────────────────────────────────────────────────────────
+// --- panewidgets.cpp — Implementierung der internen Widget-Klassen ---
 
 #include "panewidgets.h"
 #include "thememanager.h"
@@ -22,9 +20,7 @@
 #include <QGuiApplication>
 #include <limits>
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MillerStrip
-// ─────────────────────────────────────────────────────────────────────────────
+// --- MillerStrip ---
 MillerStrip::MillerStrip(const QString &label, QWidget *parent)
     : QWidget(parent), m_label(label)
 {
@@ -61,9 +57,7 @@ void MillerStrip::mousePressEvent(QMouseEvent *) { emit clicked(); }
 void MillerStrip::enterEvent(QEnterEvent *)      { m_hovered = true;  update(); }
 void MillerStrip::leaveEvent(QEvent *)           { m_hovered = false; update(); }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PaneSplitterHandle
-// ─────────────────────────────────────────────────────────────────────────────
+// --- PaneSplitterHandle ---
 PaneSplitterHandle::PaneSplitterHandle(Qt::Orientation o, QSplitter *parent)
     : QSplitterHandle(o, parent)
 {
@@ -140,9 +134,7 @@ void PaneSplitterHandle::mouseReleaseEvent(QMouseEvent *e)
 void PaneSplitterHandle::enterEvent(QEnterEvent *) { m_hovered = true;  update(); }
 void PaneSplitterHandle::leaveEvent(QEvent *)      { m_hovered = false; update(); }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PaneSplitter
-// ─────────────────────────────────────────────────────────────────────────────
+// --- PaneSplitter ---
 PaneSplitter::PaneSplitter(Qt::Orientation o, QWidget *parent)
     : QSplitter(o, parent) {}
 
@@ -151,9 +143,7 @@ QSplitterHandle *PaneSplitter::createHandle()
     return new PaneSplitterHandle(orientation(), this);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SidebarHandle
-// ─────────────────────────────────────────────────────────────────────────────
+// --- SidebarHandle ---
 SidebarHandle::SidebarHandle(QWidget *sidebar, QWidget *parent)
     : QWidget(parent), m_sidebar(sidebar)
 {
@@ -334,9 +324,7 @@ void SidebarHandle::leaveEvent(QEvent *)
     update();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// FooterWidget
-// ─────────────────────────────────────────────────────────────────────────────
+// --- FooterWidget ---
 FooterWidget::FooterWidget(QWidget *parent) : QWidget(parent)
 {
     setAttribute(Qt::WA_StyledBackground, true);
@@ -496,9 +484,7 @@ bool FooterWidget::eventFilter(QObject *obj, QEvent *ev)
     return false;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MillerItemDelegate
-// ─────────────────────────────────────────────────────────────────────────────
+// --- MillerItemDelegate ---
 MillerItemDelegate::MillerItemDelegate(QObject *parent)
     : QStyledItemDelegate(parent) {}
 

@@ -11,9 +11,7 @@
 #include <QDialogButtonBox>
 #include <QSettings>
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Statische Daten
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Statische Daten ---
 QList<ShortcutEntry> ShortcutDialog::allShortcuts()
 {
     return {
@@ -45,9 +43,7 @@ QString ShortcutDialog::shortcut(const QString &id)
     return {};
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Konstruktor
-// ─────────────────────────────────────────────────────────────────────────────
+// --- Konstruktor ---
 ShortcutDialog::ShortcutDialog(QWidget *parent) : QDialog(parent)
 {
     setWindowTitle(tr("Tastenkürzel"));
@@ -62,7 +58,7 @@ void ShortcutDialog::buildUi()
     rootLay->setContentsMargins(0, 0, 0, 12);
     rootLay->setSpacing(0);
 
-    // ── Scrollbereich ─────────────────────────────────────────────────────
+    // --- Scrollbereich ---
     auto *scroll = new QScrollArea();
     scroll->setWidgetResizable(true);
     scroll->setFrameShape(QFrame::NoFrame);
@@ -140,7 +136,7 @@ void ShortcutDialog::buildUi()
     scroll->setWidget(content);
     rootLay->addWidget(scroll, 1);
 
-    // ── Buttons ───────────────────────────────────────────────────────────
+    // --- Buttons ---
     auto *btnRow = new QHBoxLayout();
     btnRow->setContentsMargins(20, 0, 20, 0);
 

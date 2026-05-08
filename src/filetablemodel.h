@@ -20,8 +20,8 @@ public:
     void    setShowHidden(bool show);
     bool    showHidden() const { return m_showHidden; }
     void    setTagFilter(const QString &tag);
-    QString tagFilter() const { return m_tagFilter; }
-    QString currentPath() const { return m_path; }
+    const QString& tagFilter() const { return m_tagFilter; }
+    const QString& currentPath() const { return m_path; }
     QFileSystemModel *fsModel() const { return m_fs; }
 
     int      rowCount(const QModelIndex &parent = {}) const override;
