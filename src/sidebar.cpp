@@ -57,7 +57,7 @@
 static QString sc_getText(QWidget *parent, const QString &title, const QString &label,
                           const QString &defaultText = QString())
 {
-    QDialog dlg(nullptr);
+    QDialog dlg(parent);
     dlg.setAttribute(Qt::WA_StyledBackground, true);
     dlg.setWindowTitle(title);
     dlg.setStyleSheet(TM().ssDialog());
@@ -106,7 +106,7 @@ static void sc_applyMenuShadow(QMenu *menu)
 }
 
 // Kontextmenü-Einträge für Favoriten/Gruppen-Einträge
-static void sc_buildPlaceMenu(QMenu &menu, const QString &path, QWidget *parent,
+static void sc_buildPlaceMenu(QMenu &menu, const QString &path,
     std::function<void()> removeAction,
     std::function<void(const QString &, const QString &)> editAction)
 {
@@ -169,7 +169,7 @@ static void sc_buildPlaceMenu(QMenu &menu, const QString &path, QWidget *parent,
         });
     menu.addSeparator();
     menu.addAction(QIcon::fromTheme(QStringLiteral("document-properties")), QObject::tr("Eigenschaften"),
-        [path, parent]() {
+        [path]() {
             auto *d = new KPropertiesDialog(QUrl::fromLocalFile(path), nullptr);
             d->setAttribute(Qt::WA_DeleteOnClose);
             d->show();
@@ -205,10 +205,11 @@ void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QM
     p->setFont(QFont("sans-serif", 9));
 
     if (m_showBars && path.startsWith("/")) {
-        QStorageInfo storage(path);
-        if (storage.isValid() && storage.bytesTotal() > 0) {
-            const double used  = (storage.bytesTotal() - storage.bytesFree()) / 1073741824.0;
-            const double total = storage.bytesTotal() / 1073741824.0;
+        const double total = idx.data(Qt::UserRole + 10).toDouble();
+        const double free  = idx.data(Qt::UserRole + 11).toDouble();
+
+        if (total > 0) {
+            const double used  = total - free;
             const double pct   = used / total;
 
             QFontMetrics fm(p->font());
@@ -320,7 +321,7 @@ Sidebar::Sidebar(QWidget *parent) : QWidget(parent)
 void Sidebar::buildLogo(QVBoxLayout *parent)
 {
     auto *wrapper = new QWidget(this);
-    wrapper->setStyleSheet(QString("background:%1;").arg(TM().colors().bgMain));
+    wrapper->setStyleSheet(TM().ssSidebar());
     auto *lay = new QHBoxLayout(wrapper);
     lay->setContentsMargins(12, 6, 12, 4);
     lay->setSpacing(8);
@@ -978,18 +979,25 @@ void Sidebar::updateDrives()
         }
 
         QString freeStr;
+        double totalG = 0;
+        double freeG  = 0;
         if (mounted) {
             QStorageInfo info(path);
-            if (info.isValid())
+            if (info.isValid()) {
+                totalG = info.bytesTotal() / 1073741824.0;
+                freeG  = info.bytesFree()  / 1073741824.0;
                 freeStr = QString("%1 GB frei / %2 GB")
-                    .arg(info.bytesFree() / 1073741824.0, 0, 'f', 0)
-                    .arg(info.bytesTotal() / 1073741824.0, 0, 'f', 0);
+                    .arg(freeG, 0, 'f', 0)
+                    .arg(totalG, 0, 'f', 0);
+            }
         }
 
         auto *it = new QListWidgetItem(QIcon::fromTheme(iconName), name, m_driveList);
-        it->setData(Qt::UserRole,     mounted ? path : QString("solid:") + device.udi());
-        it->setData(Qt::UserRole + 1, freeStr);
-        it->setData(Qt::UserRole + 2, device.udi());
+        it->setData(Qt::UserRole,      mounted ? path : QString("solid:") + device.udi());
+        it->setData(Qt::UserRole + 1,  freeStr);
+        it->setData(Qt::UserRole + 2,  device.udi());
+        it->setData(Qt::UserRole + 10, totalG);
+        it->setData(Qt::UserRole + 11, freeG);
         if (!mounted) it->setForeground(QColor(TM().colors().textMuted));
     }
 
@@ -1248,7 +1256,7 @@ void Sidebar::setupDriveContextMenu()
             });
             menu.addSeparator();
             menu.addAction(QIcon::fromTheme(QStringLiteral("document-properties")), tr("Eigenschaften"),
-                           this, [this, path]() {
+                           this, [path]() {
                 auto *dlg = new KPropertiesDialog(QUrl::fromLocalFile(path), nullptr);
                 dlg->setAttribute(Qt::WA_DeleteOnClose);
                 dlg->show();
@@ -1437,9 +1445,8 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     // Signals
     auto sharedName = std::make_shared<QString>(name);
 
-    connect(toggleBtn, &QPushButton::toggled, this, [list, toggleBtn](bool on) {
+    connect(toggleBtn, &QPushButton::toggled, list, [list, toggleBtn](bool on) {
         list->setVisible(!on);
-        // Wechselt das Icon je nach Zustand
         toggleBtn->setIcon(QIcon::fromTheme(on ? "go-down" : "go-up"));
     });
 
@@ -1506,7 +1513,7 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
         const bool isPinned = outerBox->property("pinned").toBool();
         connect(m->addAction(QIcon::fromTheme(isPinned ? "window-unpin" : "window-pin"),
                              isPinned ? tr("Lösen") : tr("An Position verankern")),
-                &QAction::triggered, this, [this, outerBox, sharedName]() {
+                &QAction::triggered, this, [outerBox, sharedName]() {
             const bool nowPinned = !outerBox->property("pinned").toBool();
             outerBox->setProperty("pinned", nowPinned);
             QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
@@ -1679,7 +1686,7 @@ void Sidebar::showPlaceContextMenu(QListWidgetItem *item, QListWidget *list,
     openIn->addAction(tr("Linke Pane"),  this, [this, path]() { emit driveClicked(path); });
     openIn->addAction(tr("Rechte Pane"), this, [this, path]() { emit driveClickedRight(path); });
 
-    auto saveList = [this, list, groupName]() {
+    auto saveList = [list, groupName]() {
         if (!groupName.isEmpty()) {
             QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
             gs.remove("group_" + groupName);
@@ -1693,8 +1700,8 @@ void Sidebar::showPlaceContextMenu(QListWidgetItem *item, QListWidget *list,
         }
     };
 
-    sc_buildPlaceMenu(menu, path, this,
-        [this, list, item, saveList]() {
+    sc_buildPlaceMenu(menu, path,
+        [list, item, saveList]() {
             delete list->takeItem(list->row(item));
             adjustListHeight(list);
             saveList();

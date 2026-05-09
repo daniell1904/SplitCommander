@@ -6,7 +6,6 @@
 #include "joboverlay.h"
 #include "settingsdialog.h"
 #include "shortcutdialog.h"
-#include "themedialog.h"
 #include "agebadgedialog.h"
 #include "thememanager.h"
 #include "terminalutils.h"
@@ -98,7 +97,7 @@ PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent)
         b->setIconSize(QSize(16, 16));
         b->setFixedSize(28, 28);
         b->setToolTip(tip);
-        b->setStyleSheet(TM().ssActionBtn().toUtf8().constData());
+        b->setStyleSheet(TM().ssActionBtn());
         connect(b, &QToolButton::clicked, this, sig);
         return b;
     };
@@ -117,7 +116,7 @@ PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent)
 
     // Row 2: Anzahl | Größe
     auto *r2 = new QHBoxLayout();
-    r2->setContentsMargins(0, 0, 0, 0); r2->setSpacing(8);
+    r2->setContentsMargins(0, 0, 0, 0); r2->setSpacing(0);
     m_countLabel = new QLabel();
     m_countLabel->setStyleSheet(QString("color:%1;font-size:11px;background:transparent;").arg(TM().colors().textPrimary));
     m_selectedLabel = new QLabel();
@@ -127,7 +126,8 @@ PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent)
     m_sizeLabel->setStyleSheet(QString("color:%1;font-size:11px;background:transparent;").arg(TM().colors().textPrimary));
     m_sizeLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     r2->addWidget(m_countLabel); r2->addWidget(m_selectedLabel);
-    r2->addStretch(1); r2->addWidget(m_sizeLabel);
+    r2->addWidget(m_sizeLabel);
+    r2->addStretch(1);
     vlay->addLayout(r2);
 
     // Row 3: Navigation | Ansichtsmodi
@@ -143,7 +143,7 @@ PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent)
     foldersFirstBtn->setFixedSize(28, 28);
     foldersFirstBtn->setCheckable(true); foldersFirstBtn->setChecked(true);
     foldersFirstBtn->setToolTip(tr("Ordner zuerst"));
-    foldersFirstBtn->setStyleSheet(TM().ssActionBtn().toUtf8().constData());
+    foldersFirstBtn->setStyleSheet(TM().ssActionBtn());
     connect(foldersFirstBtn, &QToolButton::toggled, this, &PaneToolbar::foldersFirstToggled);
     r3->addWidget(foldersFirstBtn);
     r3->addStretch(1);
@@ -160,7 +160,7 @@ PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent)
         auto *b = new QToolButton();
         b->setIcon(QIcon::fromTheme(v.first));
         b->setIconSize(QSize(16, 16)); b->setFixedSize(28, 28);
-        b->setToolTip(v.second); b->setStyleSheet(TM().ssActionBtn().toUtf8().constData());
+        b->setToolTip(v.second); b->setStyleSheet(TM().ssActionBtn());
         b->setCheckable(true);
         if (modeId == 0) b->setChecked(true);
         viewGroup->addButton(b, modeId++);
@@ -181,16 +181,18 @@ void PaneToolbar::setCount(int count, qint64 totalBytes)
 {
     if (m_countLabel) m_countLabel->setText(tr("%1 Elemente").arg(count));
     if (m_sizeLabel) {
-        if      (totalBytes < 1024)        m_sizeLabel->setText(QString("%1 B").arg(totalBytes));
-        else if (totalBytes < 1024 * 1024) m_sizeLabel->setText(QString("%1 KB").arg(totalBytes / 1024));
-        else                               m_sizeLabel->setText(QString("%1 MB").arg(totalBytes / (1024 * 1024)));
+        QString s;
+        if      (totalBytes < 1024)        s = QString("%1 B").arg(totalBytes);
+        else if (totalBytes < 1024 * 1024) s = QString("%1 KB").arg(totalBytes / 1024);
+        else                               s = QString("%1 MB").arg(totalBytes / (1024 * 1024));
+        m_sizeLabel->setText(" | " + s);
     }
 }
 
 void PaneToolbar::setSelected(int count)
 {
     if (!m_selectedLabel) return;
-    if (count > 0) { m_selectedLabel->setText(tr("%1 ausgewählt").arg(count)); m_selectedLabel->show(); }
+    if (count > 0) { m_selectedLabel->setText(tr(" | %1 ausgewählt").arg(count)); m_selectedLabel->show(); }
     else             m_selectedLabel->hide();
 }
 
@@ -221,7 +223,7 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent)
     m_list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_list->verticalScrollBar()->hide();
-    m_list->setStyleSheet(TM().ssColInactive().toUtf8().constData());
+    m_list->setStyleSheet(TM().ssColInactive());
     m_list->setContextMenuPolicy(Qt::CustomContextMenu);
     lay->addWidget(m_list);
 
@@ -328,7 +330,7 @@ void MillerColumn::populateDrives()
     m_path = "__drives__";
     m_header->setText("This PC");
     m_list->clear();
-    m_list->setStyleSheet(TM().ssColDrives().toUtf8().constData());
+    m_list->setStyleSheet(TM().ssColDrives());
     m_list->setItemDelegate(new DriveDelegate(true, m_list));
 
     // --- Eingehängte Laufwerke ---
@@ -444,7 +446,7 @@ void MillerColumn::populateDir(const QString &path)
     m_header->setText(name);
 
     m_list->clear();
-    m_list->setStyleSheet(TM().ssColInactive().toUtf8().constData());
+    m_list->setStyleSheet(TM().ssColInactive());
     m_list->setItemDelegate(new MillerItemDelegate(m_list));
 
     QDir::Filters filters = QDir::Dirs | QDir::NoDotAndDotDot;
@@ -468,8 +470,8 @@ void MillerColumn::refreshStyle()
 void MillerColumn::setActive(bool active)
 {
     m_list->setStyleSheet(
-        m_path == "__drives__" ? TM().ssColDrives().toUtf8().constData()
-        : (active ? TM().ssColActive().toUtf8().constData() : TM().ssColInactive().toUtf8().constData()));
+        m_path == "__drives__" ? TM().ssColDrives()
+        : (active ? TM().ssColActive() : TM().ssColInactive()));
 }
 
 // --- MillerArea ---
@@ -579,7 +581,7 @@ void MillerArea::init()
     m_cols.append(col);
     m_activeCol = col;
 
-    connect(col, &MillerColumn::entryClicked, this, [this, col](const QString &path, MillerColumn *src) {
+    connect(col, &MillerColumn::entryClicked, this, [this](const QString &path, MillerColumn *src) {
         emit focusRequested();
         trimAfter(src);
         for (auto *c : m_cols) c->setActive(false);
@@ -649,7 +651,7 @@ void MillerArea::appendColumn(const QString &path)
     m_colLayout->addWidget(col, 1);
     m_cols.append(col);
 
-    connect(col, &MillerColumn::entryClicked, this, [this, col](const QString &p2, MillerColumn *src) {
+    connect(col, &MillerColumn::entryClicked, this, [this](const QString &p2, MillerColumn *src) {
         emit focusRequested();
         trimAfter(src);
         for (auto *c : m_cols) c->setActive(false);
@@ -830,7 +832,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     millerToggle->setIcon(QIcon::fromTheme("go-up"));
     millerToggle->setIconSize(QSize(14, 14));
     millerToggle->setToolTip(tr("Miller-Columns ein-/ausklappen"));
-    millerToggle->setStyleSheet(TM().ssToolBtn().toUtf8().constData());
+    millerToggle->setStyleSheet(TM().ssToolBtn());
 
     auto *searchBtn = new QToolButton();
     searchBtn->setFixedSize(30, 30);
@@ -838,14 +840,14 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     searchBtn->setIconSize(QSize(18, 18));
     searchBtn->setToolTip(tr("Suchen"));
     searchBtn->setCheckable(true);
-    searchBtn->setStyleSheet(TM().ssToolBtn().toUtf8().constData());
+    searchBtn->setStyleSheet(TM().ssToolBtn());
 
     auto *layoutBtn = new QToolButton();
     layoutBtn->setFixedSize(30, 30);
     layoutBtn->setIcon(QIcon::fromTheme("view-split-left-right"));
     layoutBtn->setIconSize(QSize(18, 18));
     layoutBtn->setToolTip(tr("Layout wählen"));
-    layoutBtn->setStyleSheet(TM().ssToolBtn().toUtf8().constData());
+    layoutBtn->setStyleSheet(TM().ssToolBtn());
 
     auto *hamburgerBtn = new QToolButton();
     hamburgerBtn->setFixedSize(30, 30);
@@ -868,9 +870,8 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     auto *actNewHtml     = menuNew->addAction(QIcon::fromTheme("text-html"),     tr("HTML-Datei …"));
     auto *actNewEmpty    = menuNew->addAction(QIcon::fromTheme("document-new"),  tr("Leere Datei …"));
     menuNew->addSeparator();
-    auto *actNewLinkUrl  = menuNew->addAction(QIcon::fromTheme("text-html"),     tr("Verknüpfung zu Adresse (URL) …"));
     auto *actNewLinkFile = menuNew->addAction(QIcon::fromTheme("inode-symlink"), tr("Verknüpfung zu Datei oder Ordner …"));
-    Q_UNUSED(actNewLinkUrl)
+    // actNewLinkUrl entfernt, da unbenutzt
 
     hamburgerMenu->addSeparator();
 
@@ -1561,7 +1562,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     }
 
     // Position beim Verschieben speichern — nur als Backup bei Drag
-    connect(m_vSplit, &QSplitter::splitterMoved, this, [this](int, int) {
+    connect(m_vSplit, &QSplitter::splitterMoved, this, [](int, int) {
         // m_millerCollapsed nicht über splitterMoved setzen — nur über Toggle
         // State wird beim App-Beenden in saveState() gespeichert
     });
@@ -1618,14 +1619,14 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     });
     connect(m_miller, &MillerArea::openInLeft,  this, &PaneWidget::openInLeftRequested);
     connect(m_miller, &MillerArea::openInRight, this, &PaneWidget::openInRightRequested);
-    connect(m_miller, &MillerArea::propertiesRequested, this, [this](const QString &path) {
+    connect(m_miller, &MillerArea::propertiesRequested, this, [](const QString &path) {
         auto *dlg = new KPropertiesDialog(QUrl::fromLocalFile(path), nullptr);
         dlg->setAttribute(Qt::WA_DeleteOnClose);
         dlg->show();
     });
     connect(m_miller, &MillerArea::focusRequested,  this, &PaneWidget::focusRequested);
     connect(m_miller, &MillerArea::headerClicked,   this,
-            [pathStack, breadcrumbBtn, this](const QString &path) {
+            [pathStack, this](const QString &path) {
         emit focusRequested();
         m_pathEdit->setText(path.isEmpty() ? currentPath() : path);
         m_pathEdit->selectAll();
@@ -2065,7 +2066,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(m_sidebar, &Sidebar::driveClicked, this, [this, mountAndNavigate](const QString &path) {
         mountAndNavigate(path, !m_rightPane->isFocused());
     });
-    connect(m_sidebar, &Sidebar::driveClickedLeft, this, [this, mountAndNavigate](const QString &path) {
+    connect(m_sidebar, &Sidebar::driveClickedLeft, this, [mountAndNavigate](const QString &path) {
         mountAndNavigate(path, true); // immer links
     });
     connect(m_sidebar, &Sidebar::driveClickedRight, this, [mountAndNavigate](const QString &path) {

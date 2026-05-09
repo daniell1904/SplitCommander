@@ -395,12 +395,12 @@ void ThemeManager::buildAppStyleSheet()
 
     // Inputs
     ss += QString("QLineEdit { background:%1; border:1px solid %2; color:%3;"
-                  "  padding:4px; border-radius:4px; }")
+                  "  padding:4px; border-radius:8px; }")
               .arg(c.bgInput, c.borderAlt, c.textPrimary);
 
     // Buttons
     ss += QString("QPushButton { background:%1; color:%2; border:1px solid %3;"
-                  "  padding:5px 12px; border-radius:4px; }"
+                  "  padding:5px 12px; border-radius:8px; }"
                   "QPushButton:hover { background:%4; }"
                   "QPushButton:checked { background:%5; border-color:%6; color:%7; }")
               .arg(c.bgHover, c.textPrimary, c.borderAlt,
@@ -459,7 +459,7 @@ QString ThemeManager::ssToolBtn() const {
 QString ThemeManager::ssActionBtn() const {
     const auto &c = m_colors;
     return QString(
-        "QToolButton{color:%1;background:transparent;border:1px solid %2;border-radius:4px;padding:4px;margin:0 1px;}"
+        "QToolButton{color:%1;background:transparent;border:1px solid %2;border-radius:8px;padding:4px;margin:0 1px;}"
         "QToolButton:hover{background:%3;border-color:%4;}"
         "QToolButton:checked{background:%5;border-color:%6;color:%7;}")
         .arg(c.textLight, c.borderAlt, c.bgList, c.bgSelect,

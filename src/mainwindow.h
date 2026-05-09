@@ -19,7 +19,6 @@
 #include <KJob>
 #include <KIO/Job>
 #include "sidebar.h"
-#include "thememanager.h"
 #include "filepane.h"
 
 // --- PaneToolbar ---

@@ -5,6 +5,7 @@
 #include "settingsdialog.h"
 #include "agebadgedialog.h"
 
+#include <QCache>
 #include <QPainter>
 #include <QMouseEvent>
 #include <QIcon>
@@ -498,17 +499,27 @@ void MillerItemDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
     const QString path = idx.data(Qt::UserRole).toString();
     if (path.isEmpty()) return;
 
-    const QFileInfo fi(path);
-    qint64 ageSecs = 0;
+    static QCache<QString, qint64> s_dirAgeCache(200);
+    qint64 ageSecs = -1;
 
+    const QFileInfo fi(path);
     if (fi.isDir()) {
-        qint64 newest = std::numeric_limits<qint64>::max();
-        const QDateTime now = QDateTime::currentDateTime();
-        for (const QFileInfo &child : QDir(path).entryInfoList(QDir::Files | QDir::NoDotAndDotDot)) {
-            const qint64 s = child.lastModified().secsTo(now);
-            if (s < newest) newest = s;
+        if (s_dirAgeCache.contains(path)) {
+            ageSecs = *s_dirAgeCache.object(path);
+        } else {
+            qint64 newest = std::numeric_limits<qint64>::max();
+            const QDateTime now = QDateTime::currentDateTime();
+            // Nur die ersten 50 Dateien prüfen um Performance bei riesigen Verzeichnissen zu halten
+            const QFileInfoList entries = QDir(path).entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
+            int count = 0;
+            for (const QFileInfo &child : entries) {
+                const qint64 s = child.lastModified().secsTo(now);
+                if (s < newest) newest = s;
+                if (++count >= 50) break;
+            }
+            ageSecs = (newest == std::numeric_limits<qint64>::max()) ? 0 : newest;
+            s_dirAgeCache.insert(path, new qint64(ageSecs));
         }
-        ageSecs = (newest == std::numeric_limits<qint64>::max()) ? 0 : newest;
     } else {
         ageSecs = fi.lastModified().secsTo(QDateTime::currentDateTime());
     }

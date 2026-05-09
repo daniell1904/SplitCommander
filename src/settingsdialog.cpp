@@ -565,7 +565,7 @@ QWidget *SettingsDialog::buildPageAdvanced()
     thumbCheck->setChecked(s.value("loadThumbnails", true).toBool());
     auto *thumbHint = new QLabel(tr("Kann bei großen Ordnern die Ladezeit erhöhen."), grpThumb);
     thumbHint->setObjectName("hint");
-    connect(thumbCheck, &QCheckBox::toggled, [](bool on) {
+    connect(thumbCheck, &QCheckBox::toggled, page, [](bool on) {
         QSettings s2("SplitCommander", "Advanced");
         s2.setValue("loadThumbnails", on); s2.sync();
     });
