@@ -655,6 +655,9 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey) : QWidget(parent
     m_lister->setAutoUpdate(true);
     m_lister->setMainWindow(window());
     m_lister->setShowHiddenFiles(SettingsDialog::showHiddenFiles());
+    connect(m_lister, &KDirLister::completed, this, [this]() {
+        QTimer::singleShot(0, this, [this]() { emit directoryLoaded(); });
+    });
 
     m_dirModel = new KDirModel(this);
     m_dirModel->setDirLister(m_lister);
@@ -666,6 +669,12 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey) : QWidget(parent
 
     m_proxy = new FPColumnsProxy(this);
     m_proxy->setSourceModel(m_sortProxy);
+    
+    connect(m_proxy, &QAbstractItemModel::rowsInserted, this, &FilePane::modelUpdated);
+    connect(m_proxy, &QAbstractItemModel::rowsRemoved,  this, &FilePane::modelUpdated);
+    connect(m_proxy, &QAbstractItemModel::modelReset,   this, &FilePane::modelUpdated);
+    connect(m_proxy, &QAbstractItemModel::layoutChanged,this, &FilePane::modelUpdated);
+
     // --- TreeView ---
     m_view = new QTreeView(this);
     m_view->setRootIsDecorated(false);
@@ -931,6 +940,16 @@ void FilePane::setRootUrl(const QUrl &url)
     m_currentUrl = url;
     m_currentPath = url.toString();
     m_lister->openUrl(url);
+    
+    connect(m_lister, &KDirLister::completed, this, [this, url]() {
+        QModelIndex dirIdx = m_dirModel->indexForUrl(url);
+        if (dirIdx.isValid()) {
+            QModelIndex sortIdx  = m_sortProxy->mapFromSource(dirIdx);
+            QModelIndex proxyIdx = m_proxy->mapFromSource(sortIdx);
+            m_view->setRootIndex(proxyIdx);
+            m_iconView->setRootIndex(proxyIdx);
+        }
+    }, Qt::SingleShotConnection);
 }
 
 void FilePane::setShowHiddenFiles(bool show)
@@ -948,6 +967,22 @@ const QString& FilePane::currentPath() const
 }
 
 bool FilePane::hasFocus() const { return m_view->hasFocus(); }
+
+qint64 FilePane::currentTotalSize() const {
+    qint64 size = 0;
+    QModelIndex root = m_view->rootIndex();
+    int count = m_proxy->rowCount(root);
+    for (int i = 0; i < count; ++i) {
+        QModelIndex idx = m_proxy->index(i, 0, root);
+        QModelIndex srcIdx = m_proxy->mapToSource(idx);
+        QModelIndex dirIdx = m_sortProxy->mapToSource(srcIdx);
+        KFileItem item = m_dirModel->itemForIndex(dirIdx);
+        if (!item.isNull()) {
+            size += item.size();
+        }
+    }
+    return size;
+}
 
 void FilePane::reload()
 {
@@ -1430,23 +1465,7 @@ void FilePane::showContextMenu(const QPoint &pos)
                 [path]() { TagManager::instance().clearFileTag(path); });
         }
 
-        auto *sendMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("document-send")), tr("Senden an"));
-        sendMenu->setStyleSheet(menuStyle());
-        sendMenu->addAction(QIcon::fromTheme(QStringLiteral("user-desktop")), tr("Desktop (Verknüpfung erstellen)"),
-            this, [path]() {
-                const QString desk = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
-                QFile::link(path, desk + "/" + QFileInfo(path).fileName());
-            });
-        sendMenu->addAction(QIcon::fromTheme(QStringLiteral("mail-send")), tr("E-Mail-Empfänger"),
-            this, [path]() {
-                QUrl mail(QString("mailto:?subject=%1&attachment=%2")
-                    .arg(QFileInfo(path).fileName(), QUrl::fromLocalFile(path).toString()));
-                QDesktopServices::openUrl(mail);
-            });
-        sendMenu->addAction(QIcon::fromTheme(QStringLiteral("bluetooth")), tr("Bluetooth-Gerät"),
-            this, [path]() {
-                QProcess::startDetached("bluedevil-sendfile", {"-u", QUrl::fromLocalFile(path).toString()});
-            });
+
         menu.addSeparator();
     }
 

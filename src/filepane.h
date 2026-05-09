@@ -138,8 +138,11 @@ public:
     [[nodiscard]] const QString& currentPath() const;
     QTreeView *view()     { return m_view; }
     [[nodiscard]] QList<QUrl> selectedUrls() const;
+    [[nodiscard]] qint64 currentTotalSize() const;
 
 signals:
+    void directoryLoaded();
+    void modelUpdated();
     void fileActivated(const QString &path);
     void fileSelected(const QString &path);
     void columnsChanged(int colId, bool visible);

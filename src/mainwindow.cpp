@@ -10,6 +10,7 @@
 #include "terminalutils.h"
 #include "thememanager.h"
 
+#include <KFormat>
 #include <KFileItem>
 #include <KIO/CopyJob>
 #include <KIO/DeleteOrTrashJob>
@@ -225,13 +226,8 @@ void PaneToolbar::setCount(int count, qint64 totalBytes) {
   if (m_countLabel)
     m_countLabel->setText(tr("%1 Elemente").arg(count));
   if (m_sizeLabel) {
-    QString s;
-    if (totalBytes < 1024)
-      s = QString("%1 B").arg(totalBytes);
-    else if (totalBytes < 1024 * 1024)
-      s = QString("%1 KB").arg(totalBytes / 1024);
-    else
-      s = QString("%1 MB").arg(totalBytes / (1024 * 1024));
+    KFormat format;
+    QString s = format.formatByteSize(totalBytes);
     m_sizeLabel->setText(" | " + s);
   }
 }
@@ -1333,9 +1329,13 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     const QString curTheme = SettingsDialog::selectedTheme();
     const auto allThemes = TM().allThemes();
     const auto &colors = TM().colors();
+    themeWidget->setObjectName("themeContainer");
     themeWidget->setStyleSheet(
-        QString("QWidget{background:%1;color:%2;font-size:11px;}")
-            .arg(colors.bgList, colors.textPrimary));
+        QString("#themeContainer { background:%1; }"
+                "QWidget { color:%2; font-size:11px; background:transparent; }"
+                "QPushButton { background:%3; border:1px solid %4; border-radius:4px; padding:6px; color:%2; }"
+                "QPushButton:hover { background:%5; }")
+            .arg(colors.bgList, colors.textPrimary, colors.bgHover, colors.borderAlt, colors.bgSelect));
 
     for (int i = 0; i < allThemes.size(); ++i) {
       const auto &t = allThemes.at(i);
@@ -1364,9 +1364,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   // "Themes neu laden" Button ganz unten
   auto *btnReload = new QPushButton(QIcon::fromTheme("view-refresh"),
                                     tr("Designs neu laden"), themeWidget);
-  btnReload->setStyleSheet(
-      TM().ssToolBtn() +
-      "QPushButton{margin-top:8px; font-size:10px; padding:4px;}");
+  btnReload->setStyleSheet("QPushButton{margin-top:8px; font-size:10px; padding:4px;}");
   twLay->addWidget(btnReload);
 
   connect(btnReload, &QPushButton::clicked, themeWidget, [refreshThemeList]() {
@@ -1377,8 +1375,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   auto *btnGuide =
       new QPushButton(QIcon::fromTheme("help-about"),
                       tr("Anleitung / Vorlage öffnen"), themeWidget);
-  btnGuide->setStyleSheet(TM().ssToolBtn() +
-                          "QPushButton{font-size:10px; padding:4px;}");
+  btnGuide->setStyleSheet("QPushButton{font-size:10px; padding:4px;}");
   twLay->addWidget(btnGuide);
 
   connect(btnGuide, &QPushButton::clicked, themeWidget, []() {
@@ -1407,6 +1404,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   auto *twApply = new QPushButton(tr("Übernehmen"), twBtnRow);
   twApply->setObjectName("applyBtn");
   twApply->setFixedWidth(110);
+  twApply->setStyleSheet(QString("QPushButton{background:%1; color:%2; font-weight:bold; border-color:%1;}").arg(TM().colors().accent, TM().colors().bgMain));
   twBtnLay->addWidget(twCancel);
   twBtnLay->addWidget(twApply);
   twLay->addWidget(twBtnRow);
@@ -1510,14 +1508,16 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   connect(layoutBtn, &QToolButton::clicked, this, [this, layoutBtn]() {
     auto *popup = new QDialog(this, Qt::Popup | Qt::FramelessWindowHint);
     popup->setAttribute(Qt::WA_DeleteOnClose);
+    const auto &c = TM().colors();
     popup->setStyleSheet(
         TM().ssDialog() +
-        "QPushButton { background:#23283a; border:1px solid #2c3245; "
-        "color:#ccd4e8;"
+        QString("QPushButton { background:%1; border:1px solid %2; "
+        "color:%3;"
         " border-radius:4px; padding:8px; font-size:10px; }"
-        "QPushButton:hover { background:#3b4252; border-color:#5e81ac; }"
-        "QPushButton:checked { background:#3b4252; border:2px solid #5e81ac; "
-        "color:#88c0d0; }");
+        "QPushButton:hover { background:%4; border-color:%5; }"
+        "QPushButton:checked { background:%4; border:2px solid %5; "
+        "color:%6; }")
+        .arg(c.bgInput, c.borderAlt, c.textPrimary, c.bgHover, c.accent, c.textAccent));
 
     auto *lay2 = new QHBoxLayout(popup);
     lay2->setContentsMargins(8, 8, 8, 8);
@@ -2005,6 +2005,18 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   m_filePane = new FilePane(nullptr, m_settingsKey);
   m_filePane->setStyleSheet(
       QString("border:none;background:%1;").arg(TM().colors().bgDeep));
+  auto *updateTimer = new QTimer(this);
+  updateTimer->setSingleShot(true);
+  updateTimer->setInterval(50); // 50ms debounce
+  connect(updateTimer, &QTimer::timeout, this, [this]() {
+      const int count = m_filePane->view()->model()->rowCount(m_filePane->view()->rootIndex());
+      const qint64 sz = m_filePane->currentTotalSize();
+      m_toolbar->setCount(count, sz);
+      updateFooter(currentPath());
+  });
+  connect(m_filePane, &FilePane::modelUpdated, this, [updateTimer]() {
+      updateTimer->start();
+  });
   lowerLay->addWidget(m_toolbar);
   lowerLay->addWidget(m_filePane, 1);
   m_vSplit->addWidget(lowerWidget);
@@ -2293,17 +2305,7 @@ void PaneWidget::navigateTo(const QString &path, bool clearForward) {
   if (!m_miller->cols().isEmpty())
     m_miller->navigateTo(path);
 
-  if (!isKio) {
-    const QDir dir(path);
-    int cnt = dir.entryList(QDir::AllEntries | QDir::NoDotAndDotDot).count();
-    qint64 sz = 0;
-    for (const QFileInfo &fi :
-         dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot))
-      sz += fi.size();
-    m_toolbar->setCount(cnt, sz);
-  } else {
-    m_toolbar->setCount(0, 0);
-  }
+  m_toolbar->setCount(0, 0);
   emit pathUpdated(path);
   updateFooter(path);
 }
@@ -2344,7 +2346,7 @@ void PaneWidget::updateFooter(const QString &path) {
   // 1. Wenn der Pfad dem aktuellen Verzeichnis des Panes entspricht:
   // Model-Daten nutzen
   if (path == currentPath()) {
-    const int count = m_filePane->view()->model()->rowCount();
+    const int count = m_filePane->view()->model()->rowCount(m_filePane->view()->rootIndex());
     m_footerCount->setText(tr("%1 Elemente").arg(count));
     m_footerSize->setText(QString());
     if (m_footerSelected)
@@ -2746,6 +2748,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
       col->refreshStyle();
     for (auto *col : m_rightPane->miller()->cols())
       col->refreshStyle();
+      
+    m_leftPane->setFocused(activePane() == m_leftPane);
+    m_rightPane->setFocused(activePane() == m_rightPane);
+    
     m_leftPane->filePane()->view()->viewport()->update();
     m_rightPane->filePane()->view()->viewport()->update();
     for (QWidget *w : QApplication::topLevelWidgets()) {

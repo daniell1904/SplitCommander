@@ -150,7 +150,7 @@ ThemeColors ThemeManager::solarizedDarkTheme()
 {
     ThemeColors c;
     c.name = "Solarized Dark";
-    c.bgMain = "#002b36"; c.bgDeep = "#001e26"; c.bgBox = "#073642";
+    c.bgMain = "#002b36"; c.bgDeep = "#00212b"; c.bgBox = "#002b36";
     c.bgList = "#002b36"; c.bgAlternate = "#073642"; c.bgHover = "#073642";
     c.bgSelect = "#268bd2"; c.bgPanel = "#001e26"; c.bgTab = "#001e26";
     c.bgInput = "#002b36"; c.border = "#073642"; c.borderAlt = "#268bd2";
@@ -382,11 +382,11 @@ void ThemeManager::buildAppStyleSheet()
     ss += QString("QSplitter::handle { background:%1; }").arg(c.splitter);
 
     // Menus
-    ss += QString("QMenu { background:%1; color:%2; border:1px solid %3; }"
+    ss += QString("QMenu { background:%1; color:%2; border:1px solid %3; min-width:180px; border-radius:6px; padding:4px 0px; }"
                   "QMenu::item { padding:6px 20px; }"
-                  "QMenu::item:selected { background:%4; }"
+                  "QMenu::item:selected { background:%4; border-radius:4px; margin:0px 4px; }"
                   "QMenu::separator { background:%5; height:1px; margin:4px 8px; }")
-              .arg(c.bgList, c.textLight, c.bgSelect, c.bgSelect, c.borderAlt);
+              .arg(c.bgList, c.textLight, c.borderAlt, c.bgSelect, c.borderAlt);
 
     // Header
     ss += QString("QHeaderView::section { background-color:%1 !important; color:%2; border:none;"
@@ -400,11 +400,11 @@ void ThemeManager::buildAppStyleSheet()
 
     // Buttons
     ss += QString("QPushButton { background:%1; color:%2; border:1px solid %3;"
-                  "  padding:5px 12px; border-radius:8px; }"
-                  "QPushButton:hover { background:%4; }"
-                  "QPushButton:checked { background:%5; border-color:%6; color:%7; }")
-              .arg(c.bgHover, c.textPrimary, c.borderAlt,
-                   c.bgSelect, c.accent, c.accentHover, c.textLight);
+                  "  padding:5px 12px; border-radius:6px; }"
+                  "QPushButton:hover { background:%4; border-color:%5; }"
+                  "QPushButton:checked { background:%6; border-color:%5; color:%7; }")
+              .arg(c.bgAlternate, c.textPrimary, c.borderAlt,
+                   c.bgSelect, c.accent, c.bgSelect, c.textLight);
 
     // Combo
     ss += QString("QComboBox { background:%1; border:1px solid %2; color:%3;"
@@ -514,9 +514,9 @@ QString ThemeManager::ssColDrives() const {
 QString ThemeManager::ssMenu() const {
     const auto &c = m_colors;
     return QString(
-        "QMenu{background:%1;color:%2;border:1px solid %3;}"
+        "QMenu{background:%1;color:%2;border:1px solid %3;min-width:180px;border-radius:6px;padding:4px 0px;}"
         "QMenu::item{padding:6px 24px 6px 28px;}"
-        "QMenu::item:selected{background:%4;}"
+        "QMenu::item:selected{background:%4;border-radius:4px;margin:0px 4px;}"
         "QMenu::separator{background:%5;height:1px;margin:4px 8px;}"
         "QMenu::indicator{width:14px;height:14px;margin-left:6px;}"
         "QMenu::indicator:non-exclusive:checked{image:url(none);border:2px solid %6;background:%6;border-radius:2px;}"
@@ -552,16 +552,23 @@ QString ThemeManager::ssDialog() const {
         "QSpinBox{background:%3;border:1px solid %4;color:%2;padding:2px 4px;border-radius:4px;font-size:11px;}"
         "QSpinBox::up-button,QSpinBox::down-button{background:%5;border:none;width:14px;}"
         "QSpinBox::up-button:hover,QSpinBox::down-button:hover{background:%6;}"
-        "QPushButton{background:%5;color:%2;border:1px solid %4;padding:7px 14px;border-radius:4px;font-size:11px;}"
-        "QPushButton:hover{background:%6;}"
-        "QPushButton:checked{background:%7;border-color:%8;color:%9;}"
+        "QPushButton{background:%10;color:%2;border:1px solid %4;padding:7px 14px;border-radius:6px;font-size:11px;}"
+        "QPushButton:hover{background:%6; border-color:%7;}"
+        "QPushButton:checked{background:%6;border:2px solid %7;color:%8;}"
         "QToolButton{background:%5;color:%2;border:1px solid %4;border-radius:4px;padding:3px;}"
         "QToolButton:hover{background:%6;}"
         "QScrollBar:vertical{background:%1;width:8px;border:none;}"
         "QScrollBar::handle:vertical{background:%4;border-radius:4px;min-height:20px;}"
         "QScrollBar::add-line:vertical,QScrollBar::sub-line:vertical{height:0;}")
-        .arg(c.bgList, c.textPrimary, c.bgInput, c.borderAlt,
-             c.bgHover, c.bgSelect, c.accent, c.accentHover, c.textLight);
+        .replace("%10", c.bgAlternate)
+        .arg(c.bgBox)
+        .arg(c.textPrimary)
+        .arg(c.bgDeep)
+        .arg(c.borderAlt)
+        .arg(c.bgHover)
+        .arg(c.bgSelect)
+        .arg(c.accent)
+        .arg(c.textLight);
 }
 
 QString ThemeManager::ssSidebar() const {
