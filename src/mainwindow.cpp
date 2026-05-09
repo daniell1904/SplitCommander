@@ -203,8 +203,9 @@ void PaneToolbar::setPath(const QString &path) {
     return;
   QUrl url(path);
   QString name = url.fileName();
-  if (name.isEmpty())
-    name = path;
+  if (name.isEmpty()) {
+    name = url.isLocalFile() ? url.toLocalFile() : path;
+  }
   m_pathLabel->setText(name);
 }
 
@@ -643,12 +644,14 @@ void MillerColumn::populateDir(const QString &path) {
     url = QUrl::fromUserInput(path);
 
   QString name;
+  const QString local = url.toLocalFile();
   if (path == "__drives__")
-    name = "This PC";
-  else if (url.path() == "/" && url.scheme().isEmpty())
+    name = tr("Dieser PC");
+  else if (local == "/" || (url.path() == "/" && url.scheme().isEmpty()))
     name = sc_rootVolumeName();
   else
-    name = url.fileName().isEmpty() ? path : url.fileName();
+    name = url.fileName().isEmpty() ? (local.isEmpty() ? path : local)
+                                    : url.fileName();
 
   m_header->setText(name);
   if (path == "__drives__")
@@ -1790,9 +1793,9 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   searchOverlay->hide();
   searchOverlay->setStyleSheet(
       QString("background:%1;border:1px solid %2;border-top:none;")
-          .arg(TM().colors().bgMain, TM().colors().separator));
+          .arg(TM().colors().bgBox, TM().colors().separator));
   auto *ovLay = new QVBoxLayout(searchOverlay);
-  ovLay->setContentsMargins(0, 0, 0, 0);
+  ovLay->setContentsMargins(1, 1, 1, 1);
   ovLay->setSpacing(0);
 
   auto *searchResults = new QTreeWidget(searchOverlay);
@@ -1826,7 +1829,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
           "QScrollBar::handle:horizontal{background:rgba(255,255,255,40);}"
           "QTreeWidget QScrollBar::add-line:horizontal,QTreeWidget "
           "QScrollBar::sub-line:horizontal{width:0;}")
-          .arg(TM().colors().bgMain, TM().colors().textPrimary,
+          .arg(TM().colors().bgList, TM().colors().textPrimary,
                TM().colors().separator, TM().colors().bgSelect,
                TM().colors().textLight, TM().colors().bgHover,
                TM().colors().bgPanel, TM().colors().textMuted));
@@ -1840,12 +1843,14 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
 
   // Suchpanel-Verbindungen
   connect(searchBtn, &QToolButton::toggled, this,
-          [searchPanel, searchEdit, spTabRow, searchOverlay](bool on) {
+          [searchPanel, searchEdit, spTabRow, searchOverlay, this](bool on) {
             searchPanel->setVisible(on);
             if (on) {
               searchEdit->clear();
               searchEdit->setFocus();
             } else {
+              searchEdit->clear();
+              m_filePane->setNameFilter(QString());
               spTabRow->hide();
               searchOverlay->hide();
             }
@@ -1926,10 +1931,12 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
         proc->start();
       });
   connect(searchResults, &QTreeWidget::itemClicked, this,
-          [this, searchBtn, searchOverlay](QTreeWidgetItem *it, int) {
+          [this, searchBtn, searchOverlay, searchEdit](QTreeWidgetItem *it, int) {
             const QString path = it->data(0, Qt::UserRole).toString();
             if (path.isEmpty())
               return;
+            searchEdit->clear();
+            m_filePane->setNameFilter(QString());
             navigateTo(QFileInfo(path).isDir()
                            ? path
                            : QFileInfo(path).absolutePath());
@@ -2070,8 +2077,11 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
             emit focusRequested();
             // KIO-URL oder lokales Verzeichnis
             const bool isKio = !path.startsWith("/") && path.contains(":/");
-            if (isKio || QFileInfo(path).isDir())
+            if (isKio || QFileInfo(path).isDir()) {
               navigateTo(path);
+            } else {
+              QDesktopServices::openUrl(QUrl::fromUserInput(path));
+            }
           });
 
   // Toolbar-Verbindungen
@@ -2165,7 +2175,10 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
           [this]() { navigateTo(m_pathEdit->text()); });
 
   m_miller->init();
-  navigateTo(QDir::homePath());
+  const QString home = QDir::homePath();
+  m_filePane->setRootPath(home);
+  m_pathEdit->setText(home);
+  m_toolbar->setPath(home);
   buildFooter(rootLay);
 }
 
@@ -2236,9 +2249,10 @@ void PaneWidget::navigateTo(const QString &path, bool clearForward) {
   if (clearForward)
     m_histFwd.clear();
   m_filePane->setRootPath(path);
-  m_pathEdit->setText(path);
+  QUrl url(path);
+  m_pathEdit->setText(url.isLocalFile() ? url.toLocalFile() : path);
   m_toolbar->setPath(path);
-  if (!m_miller->cols().isEmpty() && m_miller->cols().size() > 1)
+  if (!m_miller->cols().isEmpty())
     m_miller->navigateTo(path);
 
   if (!isKio) {

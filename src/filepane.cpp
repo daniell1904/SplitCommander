@@ -1046,16 +1046,9 @@ void FilePane::onItemActivated(const QModelIndex &index)
         return;
     }
 
-    // file:// → lokaler Pfad
-    if (item.url().scheme() == "file") {
-        const QString localPath = item.url().toLocalFile();
-        if (!localPath.isEmpty()) emit fileActivated(localPath);
-        return;
-    }
-
-    // KIO oder Verzeichnis → navigieren
-    const bool isKio = !path.startsWith("/") && path.contains(QStringLiteral(":/"));
-    if (isKio || item.isDir()) {
+    // Verzeichnis oder KIO-Navigation → navigieren
+    // Wir prüfen explizit auf isDir(), damit Dateien nicht als Ordner "geöffnet" werden
+    if (item.isDir()) {
         emit fileActivated(path);
         return;
     }

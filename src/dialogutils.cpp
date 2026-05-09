@@ -12,6 +12,7 @@ QString DialogUtils::getText(QWidget *parent, const QString &title, const QStrin
     QDialog dlg(parent);
     dlg.setWindowTitle(title);
     dlg.setStyleSheet(TM().ssDialog());
+    dlg.setMinimumWidth(350);
     
     auto *vl = new QVBoxLayout(&dlg);
     if (!label.isEmpty()) {
@@ -41,6 +42,7 @@ void DialogUtils::message(QWidget *parent, const QString &title, const QString &
     QDialog dlg(parent);
     dlg.setWindowTitle(title);
     dlg.setStyleSheet(TM().ssDialog());
+    dlg.setMinimumWidth(350);
     
     auto *vl = new QVBoxLayout(&dlg);
     auto *lbl = new QLabel(text, &dlg);
@@ -59,6 +61,7 @@ bool DialogUtils::question(QWidget *parent, const QString &title, const QString 
     QDialog dlg(parent);
     dlg.setWindowTitle(title);
     dlg.setStyleSheet(TM().ssDialog());
+    dlg.setMinimumWidth(350);
     
     auto *vl = new QVBoxLayout(&dlg);
     auto *lbl = new QLabel(text, &dlg);
