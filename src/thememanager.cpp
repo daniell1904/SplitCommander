@@ -389,9 +389,9 @@ void ThemeManager::buildAppStyleSheet()
               .arg(c.bgList, c.textLight, c.bgSelect, c.bgSelect, c.borderAlt);
 
     // Header
-    ss += QString("QHeaderView::section { background:%1; color:%2; border:none;"
-                  "  border-right:1px solid %3; padding:4px 8px; font-size:11px; }")
-              .arg(c.bgBox, c.textAccent, c.borderAlt);
+    ss += QString("QHeaderView::section { background-color:%1 !important; color:%2; border:none;"
+                  "  border-right:1px solid %3; border-bottom:1px solid %3; padding:4px 8px; font-size:11px; }")
+              .arg(c.bgPanel, c.textAccent, c.borderAlt);
 
     // Inputs
     ss += QString("QLineEdit { background:%1; border:1px solid %2; color:%3;"

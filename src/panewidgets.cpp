@@ -165,14 +165,14 @@ void SidebarHandle::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
-    p.fillRect(rect(), QColor(TM().colors().splitter));
+    p.fillRect(rect(), QColor(TM().colors().bgMain));
 
     const int cx = width() / 2;
     const int cy = height() / 2;
 
     if (m_sidebar->isVisible()) {
-        p.setPen(QPen(QColor(255, 255, 255, 30), 1));
-        p.drawLine(width() - 1, 0, width() - 1, height());
+        // Weiße Randlinie entfernt für nahtlosen Übergang
+
         p.setPen(QPen(QColor(255, 255, 255, m_hov ? 140 : 50), 1));
         for (int i = -3; i <= 4; ++i) {
             const int y = cy + 10 + i * 4;
