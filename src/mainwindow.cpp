@@ -2816,6 +2816,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
           doAddToPlaces);
 
   QSettings s("SplitCommander", "UI");
+  m_leftPane->navigateTo(s.value("leftPane/currentPath", QDir::homePath()).toString());
+  m_rightPane->navigateTo(s.value("rightPane/currentPath", QDir::homePath()).toString());
+
   m_currentMode = s.value("layoutMode", 1).toInt();
   applyLayout(m_currentMode);
 
@@ -2993,6 +2996,7 @@ void PaneWidget::saveState() const {
   if (!m_millerCollapsed)
     s.setValue(m_settingsKey + "/vSplitState", m_vSplit->saveState());
   s.setValue(m_settingsKey + "/millerCollapsed", m_millerCollapsed);
+  s.setValue(m_settingsKey + "/currentPath", currentPath());
   s.sync();
 }
 
