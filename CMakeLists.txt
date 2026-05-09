@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
-project(splitcommander VERSION 0.5.1 LANGUAGES CXX)
+project(splitcommander VERSION 0.5.2 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -35,6 +35,7 @@ add_executable(splitcommander
     src/thememanager.cpp
     src/terminalutils.cpp
     src/shortcutdialog.cpp
+    src/dialogutils.cpp
 )
 
 target_link_libraries(splitcommander

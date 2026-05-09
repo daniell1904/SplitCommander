@@ -7,7 +7,7 @@
 #include <QApplication>
 #include <QColorDialog>
 #include <QProcess>
-#include <QMessageBox>
+#include "dialogutils.h"
 #include <QFrame>
 #include <QPainter>
 #include <QPixmap>
@@ -191,7 +191,7 @@ static QString dialogSS()
 SettingsDialog::SettingsDialog(QWidget *parent)
 : QDialog(parent)
 {
-    s_instance = this; // <── HIER ALS ERSTE ZEILE EINFÜGEN
+    s_instance = this; 
 
     setWindowTitle(tr("SplitCommander — Einstellungen"));
     setMinimumSize(640, 500);
@@ -452,7 +452,6 @@ QWidget *SettingsDialog::buildPageDesign()
     ageLay->setSpacing(6);
 
     QSettings ageS("SplitCommander", "AgeBadge");
-    // m_ageCheck wird hier nicht mehr erstellt, da die Badges immer an sind.
 
     // Farben laden
     m_ageColors.clear();
@@ -527,15 +526,13 @@ QWidget *SettingsDialog::buildPageDesign()
     sliderRow->addWidget(resetBtn);
     ageLay->addLayout(sliderRow);
 
-    // --- DIESEN CODE STATTDESSEN EINFÜGEN ---
     connect(m_sSlider, &QSlider::valueChanged, this, &SettingsDialog::updateDynamicColors);
     connect(m_lSlider, &QSlider::valueChanged, this, &SettingsDialog::updateDynamicColors);
 
-    // Korrigierter Reset-Button (suche den connect für resetBtn direkt darunter)
     connect(resetBtn, &QToolButton::clicked, this, [this]() {
-        m_sSlider->setValue(220); // Standard Sättigung
-        m_lSlider->setValue(140); // Standard Helligkeit
-        updateDynamicColors();    // Ruft die Logik am Ende der Datei auf
+        m_sSlider->setValue(220); 
+        m_lSlider->setValue(140); 
+        updateDynamicColors();    
     });
 
     lay->addWidget(grpAge);
@@ -754,17 +751,8 @@ void SettingsDialog::applyAndSave()
         // kein emit themeChanged() hier — sidebar.cpp emittiert settingsChanged()
         // nach dlg->exec(), wenn der Dialog bereits geschlossen und s_instance==nullptr ist.
 
-        QMessageBox msg(this);
-        msg.setWindowTitle(tr("Neustart erforderlich"));
-        msg.setText(tr("Das Theme wird nach einem Neustart vollständig übernommen."));
-        msg.setInformativeText(tr("SplitCommander jetzt neu starten?"));
-        msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-        msg.setDefaultButton(QMessageBox::Yes);
-        msg.setStyleSheet(dialogSS());
-        msg.button(QMessageBox::Yes)->setText(tr("Jetzt neu starten"));
-        msg.button(QMessageBox::No)->setText(tr("Später"));
-
-        if (msg.exec() == QMessageBox::Yes) {
+        if (DialogUtils::question(this, tr("Neustart erforderlich"),
+                tr("Das Theme wird nach einem Neustart von SplitCommander vollständig angewendet. Jetzt neu starten?"))) {
             // Neustart: aktuelles Binary neu starten
             QProcess::startDetached(QApplication::applicationFilePath(),
                                     QApplication::arguments());

@@ -3,7 +3,7 @@
 #include "thememanager.h"
 
 #include <QApplication>
-#include <QMessageBox>
+#include "dialogutils.h"
 #include <QProcess>
 #include <QSettings>
 #include <QFrame>
@@ -170,8 +170,8 @@ void ThemeDialog::applyAndSave()
 
     accept();
 
-    QMessageBox::information(nullptr, tr("Neustart erforderlich"),
-        tr("SplitCommander wird jetzt neu gestartet."));
+    DialogUtils::message(nullptr, tr("Neustart erforderlich"),
+        tr("Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet."));
     QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments());
     QApplication::quit();
 }

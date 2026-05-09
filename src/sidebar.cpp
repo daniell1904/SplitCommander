@@ -33,7 +33,7 @@
 #include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QIcon>
-#include <QInputDialog>
+#include "dialogutils.h"
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
@@ -487,11 +487,10 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
                 menu.addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Umbenennen"), this,
                     [this, path, name]() {
                         bool ok;
-                        const QString newName = QInputDialog::getText(
-                            this, tr("Umbenennen"),
-                            tr("Anzeigename:"), QLineEdit::Normal, name, &ok);
-                        if (!ok || newName.trimmed().isEmpty()) return;
-                        renameNetworkPlace(path, newName.trimmed());
+                        const QString newName = DialogUtils::getText(this, tr("Umbenennen"), tr("Anzeigename:"), name, &ok);
+                        if (ok && !newName.trimmed().isEmpty()) {
+                            renameNetworkPlace(path, newName.trimmed());
+                        }
                     });
                 menu.addSeparator();
             }
@@ -1048,7 +1047,7 @@ void Sidebar::updateDrives()
         if (shownPaths.contains(p)) continue;
         shownPaths.insert(p);
         hasNet = true;
-        const QString scheme = QUrl(p).scheme().toLower();
+        const QString scheme = QUrl::fromUserInput(p).scheme().toLower();
         const QString savedName = netSettings.value(QStringLiteral("name_") + QString(p).replace("/","_").replace(":","_"),
             scheme == "gdrive" ? "Google Drive" : QDir(p).dirName()).toString();
         // Icon je nach Protokoll
@@ -1080,7 +1079,7 @@ void Sidebar::updateDrives()
         shownPaths.insert(path);
         hasNet = true;
 
-        QString name = storage.name().isEmpty() ? QDir(path).dirName() : storage.name();
+        QString name = storage.name().isEmpty() ? QUrl::fromLocalFile(path).fileName() : storage.name();
         if (name.isEmpty()) name = path;
 
         QString icon = (fs == "cifs" || fs == "smb3") ? "network-workgroup"
@@ -1216,12 +1215,20 @@ void Sidebar::setupDriveContextMenu()
             if (netPlaces.contains(path)) {
                 menu.addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Umbenennen"), this,
                     [this, path, name]() {
-                        bool ok;
-                        const QString newName = QInputDialog::getText(
-                            this, tr("Umbenennen"),
-                            tr("Anzeigename:"), QLineEdit::Normal, name, &ok);
-                        if (!ok || newName.trimmed().isEmpty()) return;
-                        renameNetworkPlace(path, newName.trimmed());
+                        QDialog dlg(this);
+                        dlg.setWindowTitle(tr("Umbenennen"));
+                        dlg.setStyleSheet(TM().ssDialog());
+                        auto *vl = new QVBoxLayout(&dlg);
+                        vl->addWidget(new QLabel(tr("Anzeigename:")));
+                        auto *edit = new QLineEdit(name, &dlg);
+                        vl->addWidget(edit);
+                        auto *box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dlg);
+                        vl->addWidget(box);
+                        connect(box, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
+                        connect(box, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
+                        if (dlg.exec() == QDialog::Accepted && !edit->text().trimmed().isEmpty()) {
+                            renameNetworkPlace(path, edit->text().trimmed());
+                        }
                     });
                 menu.addAction(QIcon::fromTheme(QStringLiteral("list-remove")), tr("Aus Laufwerken entfernen"), this,
                     [this, path]() {
@@ -1247,10 +1254,12 @@ void Sidebar::setupDriveContextMenu()
             menu.addAction(QIcon::fromTheme(QStringLiteral("emblem-symbolic-link")), tr("Verknüpfung erstellen"),
                            this, [path]() {
                 QString desktop  = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
-                QFile f(desktop + "/" + QDir(path).dirName() + ".desktop");
+                const QUrl url = QUrl::fromUserInput(path);
+                const QString dirName = url.isLocalFile() ? QDir(url.toLocalFile()).dirName() : url.fileName();
+                QFile f(desktop + "/" + dirName + ".desktop");
                 if (f.open(QIODevice::WriteOnly)) {
                     QTextStream s(&f);
-                    s << "[Desktop Entry]\nType=Link\nName=" << QDir(path).dirName()
+                    s << "[Desktop Entry]\nType=Link\nName=" << dirName
                       << "\nURL=" << path << "\nIcon=folder\n";
                 }
             });
@@ -1325,9 +1334,12 @@ void Sidebar::onNewGroupDialog()
             QStandardPaths::writableLocation(QStandardPaths::MusicLocation),
             QStandardPaths::writableLocation(QStandardPaths::DownloadLocation),
         };
-        for (const QString &path : xdgPaths)
-            if (!path.isEmpty() && QDir(path).exists())
+        for (const QString &path : xdgPaths) {
+            const QUrl url(path);
+            const bool isKio = !url.scheme().isEmpty() && url.scheme() != "file";
+            if (!path.isEmpty() && (isKio || QDir(path).exists()))
                 addToGroup(grpName, list, path);
+        }
     }
 }
 
@@ -1600,7 +1612,7 @@ void Sidebar::loadCustomGroups()
             if (path.isEmpty()) continue;
             QIcon ico;
             if (!path.startsWith("/")) {
-                const QString scheme = QUrl(path).scheme().toLower();
+                const QString scheme = QUrl::fromUserInput(path).scheme().toLower();
                 ico = QIcon::fromTheme(
                     scheme == "gdrive"    ? "folder-gdrive"     :
                     scheme == "smb"       ? "network-workgroup"  :
@@ -1628,12 +1640,13 @@ void Sidebar::addToGroup(const QString &groupName, QListWidget *list, const QStr
     for (int i = 0; i < list->count(); ++i)
         if (list->item(i)->data(Qt::UserRole).toString() == path) return;
 
-    QString name = QDir(path).dirName();
+    QUrl url(path);
+    QString name = url.isLocalFile() ? QDir(path).dirName() : url.fileName();
     if (name.isEmpty()) name = path;
 
     // Icon immer aus System-Theme
     QIcon ico;
-    const QString scheme = QUrl(path).scheme().toLower();
+    const QString scheme = QUrl::fromUserInput(path).scheme().toLower();
     if (!path.startsWith("/")) {
         ico = QIcon::fromTheme(
             scheme == "gdrive"    ? "folder-gdrive"     :

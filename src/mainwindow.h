@@ -13,6 +13,7 @@
 #include <QTimer>
 #include <QPushButton>
 #include <QStackedWidget>
+#include <KDirLister>
 #include <QShortcut>
 #include <QApplication>
 #include <QButtonGroup>
@@ -74,6 +75,8 @@ private:
     QPushButton  *m_header;
     QString       m_path;
     QStringList   m_gdriveAccounts;
+    KDirLister   *m_lister = nullptr;
+    QList<KDirLister*> m_discoveryListers;
 };
 
 // --- MillerArea ---

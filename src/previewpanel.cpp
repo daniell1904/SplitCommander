@@ -10,6 +10,8 @@
 #include <QtConcurrent>
 #include <QDateTime>
 #include <QPainter>
+#include <QUrl>
+#include <KFileItem>
 
 static const QStringList IMG_EXT  = {"jpg","jpeg","png","gif","bmp","webp","tiff","tif","ico","ppm","pgm"};
 static const QStringList TEXT_EXT = {"txt","md","cpp","c","h","py","sh","bash","json",
@@ -104,88 +106,104 @@ static QString row(const QString &key, const QString &val)
 static PreviewResult loadPreviewData(const QString &path) {
     PreviewResult res;
     res.path = path;
-    QFileInfo fi(path);
-    if (!fi.exists()) return res;
+    const QUrl url(path);
+    const bool isLocal = url.isLocalFile() || url.scheme().isEmpty();
 
-    const QString ext = fi.suffix().toLower();
-    
-    // --- Bild-Handling ---
-    if (IMG_EXT.contains(ext) && !fi.isDir()) {
-        QImageReader reader(path);
-        reader.setAutoTransform(true);
-        res.image = reader.read();
+    if (isLocal) {
+        QFileInfo fi(url.isLocalFile() ? url.toLocalFile() : path);
+        if (!fi.exists()) return res;
+        const QString ext = fi.suffix().toLower();
 
-        if (!res.image.isNull()) {
-            QString depth;
-            switch (res.image.format()) {
-                case QImage::Format_Grayscale8:  depth = "Graustufen 8-bit";  break;
-                case QImage::Format_Grayscale16: depth = "Graustufen 16-bit"; break;
-                case QImage::Format_RGB32:
-                case QImage::Format_RGB888:      depth = "RGB 24-bit";        break;
-                case QImage::Format_ARGB32:
-                case QImage::Format_RGBA8888:    depth = "RGBA 32-bit";       break;
-                default: depth = QString("%1-bit").arg(res.image.depth());   break;
+        // --- Bild-Handling ---
+        if (IMG_EXT.contains(ext) && !fi.isDir()) {
+            QImageReader reader(url.isLocalFile() ? url.toLocalFile() : path);
+            reader.setAutoTransform(true);
+            res.image = reader.read();
+
+            if (!res.image.isNull()) {
+                QString depth;
+                switch (res.image.format()) {
+                    case QImage::Format_Grayscale8:  depth = "Graustufen 8-bit";  break;
+                    case QImage::Format_Grayscale16: depth = "Graustufen 16-bit"; break;
+                    case QImage::Format_RGB32:
+                    case QImage::Format_RGB888:      depth = "RGB 24-bit";        break;
+                    case QImage::Format_ARGB32:
+                    case QImage::Format_RGBA8888:    depth = "RGBA 32-bit";       break;
+                    default: depth = QString("%1-bit").arg(res.image.depth());   break;
+                }
+
+                res.meta = "<table cellspacing='0' cellpadding='0'>";
+                res.meta += row("Datei",    fi.fileName());
+                res.meta += row("Typ",      fi.suffix().toUpper());
+                res.meta += row("Größe",    fmtSize(fi.size()));
+                res.meta += row("Aufl.",    QString("%1×%2").arg(res.image.width()).arg(res.image.height()));
+                res.meta += row("Format",   QString(reader.format()).toUpper());
+                res.meta += row("Tiefe",    depth);
+                if (res.image.dotsPerMeterX() > 0) {
+                    res.meta += row("DPI", QString::number(qRound(res.image.dotsPerMeterX() * 0.0254)));
+                    double wcm = res.image.width()  / (res.image.dotsPerMeterX() / 100.0);
+                    double hcm = res.image.height() / (res.image.dotsPerMeterY() / 100.0);
+                    res.meta += row("Maße", QString("%1×%2 cm").arg(wcm,0,'f',1).arg(hcm,0,'f',1));
+                }
+                res.meta += row("Geändert", fi.lastModified().toString("dd.MM.yy HH:mm"));
+                res.meta += "</table>";
+                return res;
             }
+        }
 
+        // --- Text-Handling ---
+        if (TEXT_EXT.contains(ext) && !fi.isDir()) {
+            res.isText = true;
+            QFile f(url.isLocalFile() ? url.toLocalFile() : path);
+            if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                QTextStream stream(&f);
+                QStringList lines;
+                int i = 0;
+                while (!stream.atEnd() && i < 100) { lines << stream.readLine(); ++i; }
+                res.text = lines.join("\n");
+            }
+            QMimeDatabase mdb;
+            const QString mime = mdb.mimeTypeForFile(url.isLocalFile() ? url.toLocalFile() : path).comment();
             res.meta = "<table cellspacing='0' cellpadding='0'>";
             res.meta += row("Datei",    fi.fileName());
-            res.meta += row("Typ",      fi.suffix().toUpper());
+            res.meta += row("Typ",      mime.isEmpty() ? fi.suffix().toUpper() : mime);
             res.meta += row("Größe",    fmtSize(fi.size()));
-            res.meta += row("Aufl.",    QString("%1×%2").arg(res.image.width()).arg(res.image.height()));
-            res.meta += row("Format",   QString(reader.format()).toUpper());
-            res.meta += row("Tiefe",    depth);
-            if (res.image.dotsPerMeterX() > 0) {
-                res.meta += row("DPI", QString::number(qRound(res.image.dotsPerMeterX() * 0.0254)));
-                double wcm = res.image.width()  / (res.image.dotsPerMeterX() / 100.0);
-                double hcm = res.image.height() / (res.image.dotsPerMeterY() / 100.0);
-                res.meta += row("Maße", QString("%1×%2 cm").arg(wcm,0,'f',1).arg(hcm,0,'f',1));
-            }
             res.meta += row("Geändert", fi.lastModified().toString("dd.MM.yy HH:mm"));
+            res.meta += row("Erstellt", fi.birthTime().toString("dd.MM.yy HH:mm"));
             res.meta += "</table>";
             return res;
         }
-    }
 
-    // --- Text-Handling ---
-    if (TEXT_EXT.contains(ext) && !fi.isDir()) {
-        res.isText = true;
-        QFile f(path);
-        if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QTextStream stream(&f);
-            QStringList lines;
-            int i = 0;
-            while (!stream.atEnd() && i < 100) { lines << stream.readLine(); ++i; }
-            res.text = lines.join("\n");
-        }
+        // --- Allgemein (Lokal) ---
         QMimeDatabase mdb;
-        const QString mime = mdb.mimeTypeForFile(path).comment();
+        const QString mime = mdb.mimeTypeForFile(url.isLocalFile() ? url.toLocalFile() : path).comment();
         res.meta = "<table cellspacing='0' cellpadding='0'>";
-        res.meta += row("Datei",    fi.fileName());
-        res.meta += row("Typ",      mime.isEmpty() ? fi.suffix().toUpper() : mime);
-        res.meta += row("Größe",    fmtSize(fi.size()));
+        res.meta += row("Name",     fi.fileName());
+        res.meta += row("Typ",      fi.isDir() ? "Ordner" : (mime.isEmpty() ? fi.suffix().toUpper() : mime));
+        if (!fi.isDir())
+            res.meta += row("Größe", fmtSize(fi.size()));
         res.meta += row("Geändert", fi.lastModified().toString("dd.MM.yy HH:mm"));
         res.meta += row("Erstellt", fi.birthTime().toString("dd.MM.yy HH:mm"));
+        if (fi.isSymLink())
+            res.meta += row("→", fi.symLinkTarget());
         res.meta += "</table>";
-        return res;
-    }
 
-    // --- Allgemein ---
-    QMimeDatabase mdb;
-    const QString mime = mdb.mimeTypeForFile(path).comment();
-    res.meta = "<table cellspacing='0' cellpadding='0'>";
-    res.meta += row("Name",     fi.fileName());
-    res.meta += row("Typ",      fi.isDir() ? "Ordner" : (mime.isEmpty() ? fi.suffix().toUpper() : mime));
-    if (!fi.isDir())
-        res.meta += row("Größe", fmtSize(fi.size()));
-    res.meta += row("Geändert", fi.lastModified().toString("dd.MM.yy HH:mm"));
-    res.meta += row("Erstellt", fi.birthTime().toString("dd.MM.yy HH:mm"));
-    if (fi.isSymLink())
-        res.meta += row("→", fi.symLinkTarget());
-    res.meta += "</table>";
+    } else {
+        // --- KIO / Remote Handling ---
+        KFileItem item(url);
+        QMimeDatabase mdb;
+        const QString mime = mdb.mimeTypeForUrl(url).comment();
+        
+        res.meta = "<table cellspacing='0' cellpadding='0'>";
+        res.meta += row("Name",     url.fileName().isEmpty() ? path : url.fileName());
+        res.meta += row("Typ",      mime.isEmpty() ? url.scheme().toUpper() : mime);
+        res.meta += row("Protokoll", url.scheme());
+        res.meta += "</table>";
+    }
     
-    // Icon im Haupt-Thread laden, da QIcon/QPixmap nicht Thread-safe sind
     return res;
 }
+
 
 void PreviewPanel::showFile(const QString &path)
 {

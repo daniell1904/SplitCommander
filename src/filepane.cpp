@@ -818,10 +818,27 @@ void FilePane::setRootPath(const QString &path)
 {
     if (path.isEmpty()) return;
 
-    // KIO-URL erkennen
+    // KIO-URL oder URL-artiger Pfad erkennen
     if (!path.startsWith("/") && !path.startsWith("~") && !path.isEmpty()) {
         const QUrl url(path);
         const QString scheme = url.scheme().toLower();
+        if (scheme == "file") {
+            // Lokale file:// URL in normalen Pfad umwandeln und fortfahren
+            m_kioMode = false;
+            m_currentUrl = QUrl();
+            m_currentPath = url.toLocalFile();
+            m_lister->openUrl(url);
+            connect(m_lister, &KDirLister::completed, this, [this, url]() {
+                QModelIndex dirIdx = m_dirModel->indexForUrl(url);
+                if (dirIdx.isValid()) {
+                    QModelIndex proxyIdx = m_proxy->mapFromSource(m_sortProxy->mapFromSource(dirIdx));
+                    m_view->setRootIndex(proxyIdx);
+                    m_iconView->setRootIndex(proxyIdx);
+                }
+            }, Qt::SingleShotConnection);
+            return;
+        }
+
         static const QStringList kioSchemes = {
             "gdrive","smb","sftp","ftp","ftps","mtp","remote","network",
             "bluetooth","davs","dav","nfs","fish","webdav","webdavs","afc","zeroconf"
