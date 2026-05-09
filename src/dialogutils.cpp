@@ -12,9 +12,11 @@ QString DialogUtils::getText(QWidget *parent, const QString &title, const QStrin
     QDialog dlg(parent);
     dlg.setWindowTitle(title);
     dlg.setStyleSheet(TM().ssDialog());
-    dlg.setMinimumWidth(350);
+    dlg.setMinimumWidth(220);
     
     auto *vl = new QVBoxLayout(&dlg);
+    vl->setContentsMargins(16, 12, 16, 12);
+    vl->setSpacing(12);
     if (!label.isEmpty()) {
         vl->addWidget(new QLabel(label, &dlg));
     }
@@ -42,9 +44,11 @@ void DialogUtils::message(QWidget *parent, const QString &title, const QString &
     QDialog dlg(parent);
     dlg.setWindowTitle(title);
     dlg.setStyleSheet(TM().ssDialog());
-    dlg.setMinimumWidth(350);
+    dlg.setMinimumWidth(220);
     
     auto *vl = new QVBoxLayout(&dlg);
+    vl->setContentsMargins(16, 12, 16, 12);
+    vl->setSpacing(12);
     auto *lbl = new QLabel(text, &dlg);
     lbl->setWordWrap(true);
     vl->addWidget(lbl);
@@ -61,9 +65,11 @@ bool DialogUtils::question(QWidget *parent, const QString &title, const QString 
     QDialog dlg(parent);
     dlg.setWindowTitle(title);
     dlg.setStyleSheet(TM().ssDialog());
-    dlg.setMinimumWidth(350);
+    dlg.setMinimumWidth(220);
     
     auto *vl = new QVBoxLayout(&dlg);
+    vl->setContentsMargins(16, 12, 16, 12);
+    vl->setSpacing(12);
     auto *lbl = new QLabel(text, &dlg);
     lbl->setWordWrap(true);
     vl->addWidget(lbl);

@@ -41,11 +41,15 @@ signals:
     void sortClicked();
     void actionsClicked();
     void copyClicked();
+    void emptyTrashClicked();
 private:
     QLabel *m_pathLabel;
     QLabel *m_countLabel;
     QLabel *m_selectedLabel;
     QLabel *m_sizeLabel;
+    QToolButton *m_newFolderBtn;
+    QToolButton *m_copyBtn;
+    QToolButton *m_emptyTrashBtn;
 };
 
 // --- MillerColumn ---

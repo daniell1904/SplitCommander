@@ -6,6 +6,7 @@
 #include "tagmanager.h"
 #include "agebadgedialog.h"
 #include "terminalutils.h"
+#include "dialogutils.h"
 
 #include <QKeyEvent>
 #include <QFileDialog>
@@ -44,6 +45,8 @@
 #include <KIO/RenameDialog>
 #include <KIO/PasteJob>
 #include <KIO/JobUiDelegateFactory>
+#include <KIO/RestoreJob>
+#include <KIO/EmptyTrashJob>
 #include <KJobWidgets>
 #include <KFileItemActions>
 #include <KFileItem>
@@ -308,7 +311,7 @@ QVariant FPColumnsProxy::extraData(const KFileItem &item, FPCol col, int role) c
     case FP_TYP: {
         if (role != Qt::DisplayRole) return {};
         if (item.isDir()) return QStringLiteral("[DIR]");
-        QString ext = QFileInfo(item.name()).suffix().toUpper().left(4);
+        QString ext = QFileInfo(item.text()).suffix().toUpper().left(4);
         return ext.isEmpty() ? QStringLiteral("[???]") : QStringLiteral("[") + ext + QStringLiteral("]");
     }
     case FP_ALTER: {
@@ -329,7 +332,7 @@ QVariant FPColumnsProxy::extraData(const KFileItem &item, FPCol col, int role) c
     }
     case FP_ERWEITERUNG:
         if (role != Qt::DisplayRole) return {};
-        return QFileInfo(item.name()).suffix();
+        return QFileInfo(item.text()).suffix();
     case FP_PFAD:
         if (role != Qt::DisplayRole) return {};
         return item.localPath().isEmpty() ? item.url().path()
@@ -377,8 +380,8 @@ QVariant FPColumnsProxy::data(const QModelIndex &index, int role) const
         if (role == Qt::DecorationRole) return QIcon::fromTheme(item.iconName());
         if (role == Qt::DisplayRole) {
             if (!item.isDir() && !SettingsDialog::showFileExtensions())
-                return QFileInfo(item.name()).completeBaseName();
-            return item.name();
+                return QFileInfo(item.text()).completeBaseName();
+            return item.text();
         }
     }
     if (col == FP_GROESSE && role == Qt::DisplayRole) {
@@ -840,7 +843,8 @@ void FilePane::setRootPath(const QString &path)
 
         static const QStringList kioSchemes = {
             "gdrive","smb","sftp","ftp","ftps","mtp","remote","network",
-            "bluetooth","davs","dav","nfs","fish","webdav","webdavs","afc","zeroconf"
+            "bluetooth","davs","dav","nfs","fish","webdav","webdavs","afc","zeroconf",
+            "trash","recentdocuments","tags"
         };
         if (!scheme.isEmpty() && kioSchemes.contains(scheme)) {
             setRootUrl(url);
@@ -871,7 +875,7 @@ void FilePane::setRootUrl(const QUrl &url)
 {
     m_kioMode = true;
     m_currentUrl = url;
-    m_currentPath = QString();
+    m_currentPath = url.toString();
     m_lister->openUrl(url);
 }
 
@@ -933,7 +937,7 @@ void FilePane::showTaggedFiles(const QString &tagName)
 QList<QUrl> FilePane::selectedUrls() const
 {
     QList<QUrl> urls;
-    const auto indexes = m_view->selectionModel()->selectedRows();
+    const auto indexes = m_view->selectionModel()->selectedRows(0);
     for (const auto &idx : indexes) {
         KFileItem item = m_proxy->fileItem(idx);
         if (!item.isNull())
@@ -1039,7 +1043,7 @@ void FilePane::onItemActivated(const QModelIndex &index)
     }
 
     // UDS_NAME für remote:/ Einträge auflösen
-    const QString udsName = item.name();
+    const QString udsName = item.text();
     if (remoteViewMap.contains(udsName)) {
         const QString mapped = remoteViewMap.value(udsName);
         emit fileActivated(mapped);
@@ -1230,7 +1234,8 @@ void FilePane::showContextMenu(const QPoint &pos)
     }
 
     // --- 3. Neu (KNewFileMenu) ---
-    if (m_newFileMenu) {
+    const bool isTrashRootForNew = QUrl(dirPath).scheme() == "trash";
+    if (m_newFileMenu && !isTrashRootForNew) {
         m_newFileMenu->setWorkingDirectory(dirUrl);
         m_newFileMenu->checkUpToDate();
         auto *newMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("folder-new")), tr("Neu"));
@@ -1292,18 +1297,21 @@ void FilePane::showContextMenu(const QPoint &pos)
                     if (mw) mw->registerJob(job, tr("Dupliziere Datei..."));
                 });
         }
-        menu.addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Umbenennen …"), this,
-            [this, item, dirPath, isKioPath]() {
-                const QString currentName = isKioPath ? item.url().fileName() : item.name();
-                QString newName = fp_getText(this, tr("Umbenennen"), tr("Neuer Name:"), currentName);
-                if (newName.isEmpty() || newName == currentName) return;
-                QUrl dest = isKioPath
-                    ? QUrl(dirPath.endsWith('/') ? QString(dirPath+newName) : QString(dirPath+'/'+newName))
-                    : QUrl::fromLocalFile(dirPath + "/" + newName);
-                auto *job = KIO::moveAs(item.url(), dest, KIO::DefaultFlags);
-                job->uiDelegate()->setAutoErrorHandlingEnabled(true);
-            });
-        menu.addSeparator();
+        const bool isTrash = itemUrl.scheme() == "trash";
+        if (!isTrash) {
+            menu.addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Umbenennen …"), this,
+                [this, item, dirPath, isKioPath]() {
+                    const QString currentName = isKioPath ? item.url().fileName() : item.text();
+                    QString newName = fp_getText(this, tr("Umbenennen"), tr("Neuer Name:"), currentName);
+                    if (newName.isEmpty() || newName == currentName) return;
+                    QUrl dest = isKioPath
+                        ? QUrl(dirPath.endsWith('/') ? QString(dirPath+newName) : QString(dirPath+'/'+newName))
+                        : QUrl::fromLocalFile(dirPath + "/" + newName);
+                    auto *job = KIO::moveAs(item.url(), dest, KIO::DefaultFlags);
+                    job->uiDelegate()->setAutoErrorHandlingEnabled(true);
+                });
+            menu.addSeparator();
+        }
     }
 
     // --- 5. Extras / Tools ---
@@ -1312,21 +1320,24 @@ void FilePane::showContextMenu(const QPoint &pos)
             [path]() { QGuiApplication::clipboard()->setText(path); });
     }
 
-    auto *actMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("system-run")), tr("Aktionen"));
-    actMenu->setStyleSheet(menuStyle());
-    actMenu->addAction(QIcon::fromTheme(QStringLiteral("utilities-terminal")), tr("Im Terminal öffnen"),
-        this, [dirPath]() { sc_openTerminal(dirPath); });
+    const bool isTrashRoot = QUrl(dirPath).scheme() == "trash";
+    if (!isTrashRoot) {
+        auto *actMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("system-run")), tr("Aktionen"));
+        actMenu->setStyleSheet(menuStyle());
+        actMenu->addAction(QIcon::fromTheme(QStringLiteral("utilities-terminal")), tr("Im Terminal öffnen"),
+            this, [dirPath]() { sc_openTerminal(dirPath); });
 
-    if (hasItem && !isKioPath) {
-        actMenu->addAction(QIcon::fromTheme(QStringLiteral("folder-new")), tr("In neuen Ordner verschieben …"),
-            this, [this, itemUrl, dirPath]() {
-                QString folderName = fp_getText(this, tr("In neuen Ordner verschieben"),
-                    tr("Ordnername:"), QFileInfo(itemUrl.toLocalFile()).baseName());
-                if (folderName.isEmpty()) return;
-                QString dest = dirPath + "/" + folderName;
-                QDir().mkdir(dest);
-                KIO::move({itemUrl}, QUrl::fromLocalFile(dest), KIO::DefaultFlags);
-            });
+        if (hasItem && !isKioPath) {
+            actMenu->addAction(QIcon::fromTheme(QStringLiteral("folder-new")), tr("In neuen Ordner verschieben …"),
+                this, [this, itemUrl, dirPath]() {
+                    QString folderName = fp_getText(this, tr("In neuen Ordner verschieben"),
+                        tr("Ordnername:"), QFileInfo(itemUrl.toLocalFile()).baseName());
+                    if (folderName.isEmpty()) return;
+                    QString dest = dirPath + "/" + folderName;
+                    QDir().mkdir(dest);
+                    KIO::move({itemUrl}, QUrl::fromLocalFile(dest), KIO::DefaultFlags);
+                });
+        }
     }
 
     if (hasItem && isKioPath && isDir) {
@@ -1334,7 +1345,7 @@ void FilePane::showContextMenu(const QPoint &pos)
         if (!netCheck.value(QStringLiteral("places")).toStringList().contains(path)) {
             menu.addAction(QIcon::fromTheme(QStringLiteral("bookmark-new")), tr("Zu Laufwerken hinzufügen"), this,
                 [this, path, itemUrl, item]() {
-                    QString displayName = item.name();
+                    QString displayName = item.text();
                     if (displayName.isEmpty())
                         displayName = itemUrl.host().isEmpty() ? itemUrl.scheme() : itemUrl.host();
                     emit addToPlacesRequested(path, displayName);
@@ -1385,11 +1396,13 @@ void FilePane::showContextMenu(const QPoint &pos)
         menu.addSeparator();
     }
 
+
     // --- 7. Papierkorb / Löschen ---
     if (hasItem) {
+        const bool isTrash = itemUrl.scheme() == QStringLiteral("trash");
         auto *removeAct = new QAction(&menu);
-        auto setTrash  = [removeAct]() {
-            removeAct->setText(QObject::tr("In den Papierkorb verschieben"));
+        auto setTrash  = [removeAct, isTrash]() {
+            removeAct->setText(isTrash ? QObject::tr("Endgültig löschen") : QObject::tr("In den Papierkorb verschieben"));
             removeAct->setIcon(QIcon::fromTheme(QStringLiteral("edit-delete")));
         };
         auto setDelete = [removeAct]() {
@@ -1416,14 +1429,36 @@ void FilePane::showContextMenu(const QPoint &pos)
         };
         menu.installEventFilter(new ShiftFilter(&menu, setDelete, setTrash));
 
-        connect(removeAct, &QAction::triggered, this, [this, itemUrl]() {
+        connect(removeAct, &QAction::triggered, this, [this, itemUrl, isTrash]() {
+            QList<QUrl> targets = selectedUrls();
+            if (!targets.contains(itemUrl)) targets = {itemUrl};
             const bool shift = QGuiApplication::keyboardModifiers() & Qt::ShiftModifier;
-            auto *job = new KIO::DeleteOrTrashJob({itemUrl},
-                shift ? KIO::AskUserActionInterface::Delete : KIO::AskUserActionInterface::Trash,
+            auto *job = new KIO::DeleteOrTrashJob(targets,
+                (shift || isTrash) ? KIO::AskUserActionInterface::Delete : KIO::AskUserActionInterface::Trash,
                 KIO::AskUserActionInterface::DefaultConfirmation, this);
             job->start();
         });
         menu.addAction(removeAct);
+        menu.addSeparator();
+    }
+    // --- 7b. Trash Special (Restore / Empty) ---
+    if (hasItem && itemUrl.scheme() == QStringLiteral("trash")) {
+        menu.addAction(QIcon::fromTheme(QStringLiteral("edit-undo")), tr("Wiederherstellen"), this, [this, itemUrl]() {
+            QList<QUrl> targets = selectedUrls();
+            if (!targets.contains(itemUrl)) targets = {itemUrl};
+            auto *job = KIO::restoreFromTrash(targets);
+            if (job->uiDelegate()) job->uiDelegate()->setAutoErrorHandlingEnabled(true);
+            job->start();
+        });
+        menu.addSeparator();
+    }
+
+    if (!hasItem && (m_currentUrl.scheme() == QStringLiteral("trash") || m_currentPath == "trash:/")) {
+        menu.addAction(QIcon::fromTheme(QStringLiteral("trash-empty")), tr("Papierkorb leeren"), this, [this]() {
+            if (!DialogUtils::question(this, tr("Papierkorb leeren"), tr("Möchten Sie den Papierkorb wirklich leeren?"))) return;
+            auto *job = KIO::emptyTrash();
+            job->start();
+        });
         menu.addSeparator();
     }
 

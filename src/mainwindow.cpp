@@ -13,6 +13,8 @@
 #include <KFileItem>
 #include <KIO/CopyJob>
 #include <KIO/DeleteOrTrashJob>
+#include <KIO/EmptyTrashJob>
+#include <KIO/EmptyTrashJob>
 #include <KIO/JobUiDelegateFactory>
 #include <KJobWidgets>
 #include <KPropertiesDialog>
@@ -124,8 +126,13 @@ PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent) {
   r1->addStretch(1);
   r1->addWidget(
       mk("view-sort-ascending", tr("Sortieren"), &PaneToolbar::sortClicked));
-  r1->addWidget(mk("folder-new", tr("Neu"), &PaneToolbar::newFolderClicked));
-  r1->addWidget(mk("edit-copy", tr("Kopieren"), &PaneToolbar::copyClicked));
+  m_newFolderBtn = mk("folder-new", tr("Neu"), &PaneToolbar::newFolderClicked);
+  r1->addWidget(m_newFolderBtn);
+  m_copyBtn = mk("edit-copy", tr("Kopieren"), &PaneToolbar::copyClicked);
+  r1->addWidget(m_copyBtn);
+  m_emptyTrashBtn = mk("trash-empty", tr("Papierkorb leeren"), &PaneToolbar::emptyTrashClicked);
+  m_emptyTrashBtn->hide();
+  r1->addWidget(m_emptyTrashBtn);
   vlay->addLayout(r1);
 
   // Row 2: Anzahl | Größe
@@ -207,6 +214,10 @@ void PaneToolbar::setPath(const QString &path) {
     name = url.isLocalFile() ? url.toLocalFile() : path;
   }
   m_pathLabel->setText(name);
+  const bool isTrash = (path == "trash:/" || path.startsWith("trash:"));
+  m_emptyTrashBtn->setVisible(isTrash);
+  m_newFolderBtn->setVisible(!isTrash);
+  m_copyBtn->setVisible(!isTrash);
 }
 
 void PaneToolbar::setCount(int count, qint64 totalBytes) {
@@ -2096,22 +2107,22 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
                            tr("Ordner konnte nicht erstellt werden."));
   });
   connect(m_toolbar, &PaneToolbar::deleteClicked, this, [this]() {
-    QModelIndex cur = m_filePane->view()->currentIndex();
-    if (!cur.isValid())
+    const QList<QUrl> urls = m_filePane->selectedUrls();
+    if (urls.isEmpty())
       return;
-    auto *proxy = static_cast<FPColumnsProxy *>(m_filePane->view()->model());
-    KFileItem item = proxy->fileItem(cur);
-    if (item.isNull())
+
+    QString msg;
+    if (urls.size() == 1) {
+      msg = tr("'%1' in den Papierkorb?").arg(urls.first().fileName());
+    } else {
+      msg = tr("%1 Elemente in den Papierkorb?").arg(urls.size());
+    }
+
+    if (!DialogUtils::question(this, tr("Löschen"), msg))
       return;
-    const QString path =
-        item.localPath().isEmpty() ? item.url().toString() : item.localPath();
-    if (path.isEmpty())
-      return;
-    if (!DialogUtils::question(this, tr("Löschen"),
-                               tr("'%1' in den Papierkorb?").arg(item.name())))
-      return;
+
     auto *job = new KIO::DeleteOrTrashJob(
-        {item.url()}, KIO::AskUserActionInterface::Trash,
+        urls, KIO::AskUserActionInterface::Trash,
         KIO::AskUserActionInterface::DefaultConfirmation, this);
     auto *mw = qobject_cast<MainWindow *>(window());
     if (mw)
@@ -2119,6 +2130,12 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     job->start();
   });
 
+  connect(m_toolbar, &PaneToolbar::emptyTrashClicked, this, [this]() {
+    if (!DialogUtils::question(this, tr("Papierkorb leeren"), tr("Möchten Sie den Papierkorb wirklich leeren?"))) return;
+    auto *job = KIO::emptyTrash();
+    job->start();
+    if (job->uiDelegate()) job->uiDelegate()->setAutoErrorHandlingEnabled(true);
+  });
   connect(m_toolbar, &PaneToolbar::copyClicked, this, [this]() {
     auto *mw = qobject_cast<MainWindow *>(window());
     if (!mw)

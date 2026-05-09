@@ -529,8 +529,8 @@ QString ThemeManager::ssMenu() const {
 QString ThemeManager::ssListWidget() const {
     const auto &c = m_colors;
     return QString(
-        "QListWidget{background:%1;border:none;border-radius:0px;outline:none;}"
-        "QListWidget::item{color:%2;border-bottom:1px solid %3;padding:2px 8px;}"
+        "QListWidget{background:%1;border:none;border-radius:0px;outline:none;padding:0px;margin:0px;}"
+        "QListWidget::item{color:%2;border-bottom:1px solid %3;padding:0px 8px;margin:0px;}"
         "QListWidget::item:hover{background:%4;}"
         "QListWidget::item:selected{background:%5;color:%6;}"
         "QListWidget QScrollBar:vertical{width:0px;background:transparent;border:none;}"

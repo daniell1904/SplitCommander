@@ -12,7 +12,6 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QMenu>
-#include <functional>
 
 // --- GroupDragHandle --- (Hilfsklasse für das Umordnen von Gruppen per Drag & Drop)
 class GroupDragHandle : public QWidget {
@@ -104,7 +103,7 @@ private:
 
     // --- Orte / Kontextmenü ---
     void showPlaceContextMenu(QListWidgetItem *item, QListWidget *list,
-                              const QPoint &pos, const QString &groupName = {});
+                               const QPoint &pos, const QString &groupName = {});
     void savePlaces(QListWidget **list);
 
     // --- Tags ---
@@ -113,6 +112,7 @@ private:
 
     // --- Hilfsfunktionen ---
     static void adjustListHeight(QListWidget *list);
+    void onTrashChanged();
 
     // --- Member-Variablen ---
     QListWidget *m_driveList     = nullptr;
@@ -129,5 +129,5 @@ private:
     QListWidget *m_tagList       = nullptr;
     QWidget     *m_tagsWrap      = nullptr;
     QWidget     *m_tagsBox       = nullptr;
+    class KDirLister *m_trashLister = nullptr;
 };
-

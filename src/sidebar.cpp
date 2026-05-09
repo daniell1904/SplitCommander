@@ -1,22 +1,10 @@
+
 // --- sidebar.cpp — SplitCommander Sidebar ---
 
 #include "sidebar.h"
-#include <KPropertiesDialog>
-#include <QUrl>
-#include "settingsdialog.h"
-#include "thememanager.h"
-#include "terminalutils.h"
-#include <QTimer>
 
-#include <KIO/CopyJob>
-#include <KIO/ListJob>
-#include <Solid/Device>
-#include <Solid/DeviceNotifier>
-#include <Solid/OpticalDrive>
-#include <Solid/StorageAccess>
-#include <Solid/StorageDrive>
-#include <Solid/StorageVolume>
-
+// 1. Qt Core / UI
+#include <QApplication>
 #include <QButtonGroup>
 #include <QClipboard>
 #include <QColorDialog>
@@ -25,7 +13,6 @@
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QFile>
-#include <QXmlStreamReader>
 #include <QFileIconProvider>
 #include <QFileInfo>
 #include <QGraphicsDropShadowEffect>
@@ -33,7 +20,8 @@
 #include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QIcon>
-#include "dialogutils.h"
+#include <QInputDialog>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
@@ -44,15 +32,35 @@
 #include <QProcess>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QScrollBar>
 #include <QSettings>
 #include <QStackedLayout>
 #include <QStandardPaths>
 #include <QStorageInfo>
 #include <QTextStream>
+#include <QTimer>
 #include <QToolButton>
+#include <QUrl>
 #include <QVBoxLayout>
-#include <QApplication>
+#include <QXmlStreamReader>
 
+// 2. KDE / KIO / Solid
+#include <KDirLister>
+#include <KIO/CopyJob>
+#include <KIO/ListJob>
+#include <KPropertiesDialog>
+#include <Solid/Device>
+#include <Solid/DeviceNotifier>
+#include <Solid/OpticalDrive>
+#include <Solid/StorageAccess>
+#include <Solid/StorageDrive>
+#include <Solid/StorageVolume>
+
+// 3. SplitCommander
+#include "dialogutils.h"
+#include "settingsdialog.h"
+#include "terminalutils.h"
+#include "thememanager.h"
 // Themed input dialog - styled like QMenu
 static QString sc_getText(QWidget *parent, const QString &title, const QString &label,
                           const QString &defaultText = QString())
@@ -178,7 +186,7 @@ static void sc_buildPlaceMenu(QMenu &menu, const QString &path,
 
 // --- Konstanten ---
 static constexpr int SC_SIDEBAR_ROW_H   = 34;
-static constexpr int SC_MAX_VISIBLE     = 7;
+static constexpr int SC_MAX_VISIBLE     = 8;
 
 // --- DriveDelegate ---
 void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QModelIndex &idx) const
@@ -282,10 +290,10 @@ void Sidebar::adjustListHeight(QListWidget *list)
         list->setFixedHeight(0);
         list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     } else if (n <= SC_MAX_VISIBLE) {
-        list->setFixedHeight(n * SC_SIDEBAR_ROW_H + (n - 1) * 2);
+        list->setFixedHeight(n * SC_SIDEBAR_ROW_H);
         list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     } else {
-        list->setFixedHeight(SC_MAX_VISIBLE * SC_SIDEBAR_ROW_H + (SC_MAX_VISIBLE - 1) * 2);
+        list->setFixedHeight(SC_MAX_VISIBLE * SC_SIDEBAR_ROW_H);
         list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     }
     list->updateGeometry();
@@ -315,6 +323,12 @@ Sidebar::Sidebar(QWidget *parent) : QWidget(parent)
             this, [this](const QString &) { updateDrives(); emit drivesChanged(); });
     connect(Solid::DeviceNotifier::instance(), &Solid::DeviceNotifier::deviceRemoved,
             this, [this](const QString &) { updateDrives(); emit drivesChanged(); });
+
+    m_trashLister = new KDirLister(this);
+    connect(m_trashLister, &KDirLister::completed, this, &Sidebar::onTrashChanged);
+    connect(m_trashLister, &KDirLister::itemsAdded, this, &Sidebar::onTrashChanged);
+    connect(m_trashLister, &KDirLister::itemsDeleted, this, &Sidebar::onTrashChanged);
+    m_trashLister->openUrl(QUrl(QStringLiteral("trash:/")), KDirLister::Keep);
 }
 
 // --- Sidebar::buildLogo ---
@@ -371,7 +385,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     auto *wrapper = new QWidget(this);
     wrapper->setStyleSheet(QString("background:%1;").arg(TM().colors().bgMain));
     auto *wLay = new QVBoxLayout(wrapper);
-    wLay->setContentsMargins(10, 6, 6, 6);
+    wLay->setContentsMargins(10, 2, 6, 2);
     wLay->setSpacing(0);
 
     auto *box = new QWidget(wrapper);
@@ -621,7 +635,7 @@ void Sidebar::buildNewGroupFixedSection(QVBoxLayout *parent)
     auto *ngWrapper = new QWidget(this);
     ngWrapper->setStyleSheet(QString("background:%1;").arg(TM().colors().bgMain));
     auto *ngWLay = new QVBoxLayout(ngWrapper);
-    ngWLay->setContentsMargins(10, 6, 6, 6);
+    ngWLay->setContentsMargins(10, 2, 6, 2);
     ngWLay->setSpacing(0);
 
     m_newGroupBox = new QWidget(ngWrapper);
@@ -655,7 +669,7 @@ void Sidebar::buildTagsSection(QVBoxLayout *parent)
     m_tagsWrap = new QWidget(this);
     m_tagsWrap->setStyleSheet(QString("background:%1;").arg(TM().colors().bgMain));
     auto *wLay = new QVBoxLayout(m_tagsWrap);
-    wLay->setContentsMargins(10, 6, 6, 6);
+    wLay->setContentsMargins(10, 2, 6, 2);
     wLay->setSpacing(0);
 
     m_tagsBox = new QWidget(m_tagsWrap);
@@ -1327,12 +1341,14 @@ void Sidebar::onNewGroupDialog()
 
     if (btnGrp->checkedId() == 1) {
         const QStringList xdgPaths = {
+            QDir::homePath(),
             QStandardPaths::writableLocation(QStandardPaths::DesktopLocation),
             QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
             QStandardPaths::writableLocation(QStandardPaths::PicturesLocation),
             QStandardPaths::writableLocation(QStandardPaths::MoviesLocation),
             QStandardPaths::writableLocation(QStandardPaths::MusicLocation),
             QStandardPaths::writableLocation(QStandardPaths::DownloadLocation),
+            QStringLiteral("trash:/"),
         };
         for (const QString &path : xdgPaths) {
             const QUrl url(path);
@@ -1403,7 +1419,8 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     auto *listLay = new QVBoxLayout(listCont);
 
     // Hier werden die Abstände gesetzt: 6px links/rechts, passend zur Geräte-Box
-    listLay->setContentsMargins(6, 0, 6, 4);
+    listLay->setContentsMargins(6, 0, 6, 0);
+    listLay->setSpacing(0);
     listLay->setSizeConstraint(QLayout::SetMinAndMaxSize);
 
     auto *list = new QListWidget();
@@ -1446,7 +1463,7 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     wrapper->setObjectName(QStringLiteral("groupWrapper"));
     wrapper->setStyleSheet(QString("background:%1;").arg(TM().colors().bgMain));
     auto *wLay = new QVBoxLayout(wrapper);
-    wLay->setContentsMargins(10, 6, 6, 6);
+    wLay->setContentsMargins(10, 2, 6, 2);
     wLay->setSpacing(0);
     wLay->addWidget(outerBox);
 
@@ -1644,17 +1661,30 @@ void Sidebar::addToGroup(const QString &groupName, QListWidget *list, const QStr
     QString name = url.isLocalFile() ? QDir(path).dirName() : url.fileName();
     if (name.isEmpty()) name = path;
 
+    // Spezielle Namen für bekannte KIO-Pfade
+    const QString scheme = url.scheme().toLower();
+    if (scheme == "trash")             name = tr("Papierkorb");
+    else if (scheme == "recentdocuments") name = tr("Zuletzt verwendet");
+    else if (scheme == "remote")       name = tr("Netzwerk");
+    else if (path == QDir::homePath()) name = tr("Persönlicher Ordner");
+
     // Icon immer aus System-Theme
     QIcon ico;
-    const QString scheme = QUrl::fromUserInput(path).scheme().toLower();
-    if (!path.startsWith("/")) {
+    if (scheme == "trash") {
+        ico = QIcon::fromTheme("user-trash");
+        if (ico.isNull()) ico = QIcon::fromTheme("user-trash-full");
+        if (ico.isNull()) ico = QIcon::fromTheme("trash-empty");
+        if (ico.isNull()) ico = QIcon::fromTheme("trash");
+    } else if (scheme == "recentdocuments") {
+        ico = QIcon::fromTheme("document-open-recent");
+    } else if (!path.startsWith("/")) {
         ico = QIcon::fromTheme(
-            scheme == "gdrive"    ? "folder-gdrive"     :
-            scheme == "smb"       ? "network-workgroup"  :
+            scheme == "gdrive"    ? "folder-gdrive"      :
+            scheme == "smb"       ? "network-workgroup"   :
             scheme == "sftp" || scheme == "ssh" ? "network-connect" :
-            scheme == "mtp"       ? "multimedia-player"  :
-            scheme == "bluetooth" ? "bluetooth"          :
-            scheme == "afc"       ? "phone"              :
+            scheme == "mtp"       ? "multimedia-player"   :
+            scheme == "bluetooth" ? "bluetooth"           :
+            scheme == "afc"       ? "phone"               :
             "network-server");
     } else {
         QFileIconProvider ip;
@@ -1955,4 +1985,39 @@ int GroupDragHandle::layoutIndex() const
 {
     auto *l = parentLayout();
     return l ? l->indexOf(m_outerBox) : -1;
+}
+
+void Sidebar::onTrashChanged() {
+    if (!m_trashLister) return;
+    const bool isEmpty = m_trashLister->items().isEmpty();
+    const QString iconName = isEmpty ? QStringLiteral("user-trash") : QStringLiteral("user-trash-full");
+    QIcon trashIcon = QIcon::fromTheme(iconName);
+    if (trashIcon.isNull()) trashIcon = QIcon::fromTheme(isEmpty ? QStringLiteral("trash-empty") : QStringLiteral("trash-full"));
+
+    // Alle QListWidgets in der Sidebar durchlaufen
+    QList<QListWidget*> lists;
+    if (m_driveList) lists << m_driveList;
+    if (m_favList) lists << m_favList;
+    if (m_netList) lists << m_netList;
+    
+    // Benutzerdefinierte Gruppen finden
+    if (m_contentLayout) {
+        for (int i = 0; i < m_contentLayout->count(); ++i) {
+            if (auto *box = m_contentLayout->itemAt(i)->widget()) {
+                if (auto *lw = box->findChild<QListWidget*>()) {
+                    if (!lists.contains(lw)) lists << lw;
+                }
+            }
+        }
+    }
+
+    for (auto *list : lists) {
+        for (int i = 0; i < list->count(); ++i) {
+            auto *item = list->item(i);
+            const QString path = item->data(Qt::UserRole).toString();
+            if (QUrl(path).scheme() == QStringLiteral("trash")) {
+                item->setIcon(trashIcon);
+            }
+        }
+    }
 }

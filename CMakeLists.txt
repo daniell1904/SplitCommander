@@ -22,7 +22,6 @@ add_executable(splitcommander
     src/main.cpp
     src/panewidgets.cpp
     src/mainwindow.cpp
-    src/filetablemodel.cpp
     src/filepane.cpp
     src/joboverlay.cpp
     src/previewpanel.cpp
