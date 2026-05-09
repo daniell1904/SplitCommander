@@ -18,6 +18,7 @@
 #include <KIO/JobUiDelegateFactory>
 #include <KJobWidgets>
 #include <KPropertiesDialog>
+#include "drophandler.h"
 #include <Solid/Device>
 #include <Solid/DeviceNotifier>
 #include <Solid/StorageAccess>
@@ -352,6 +353,26 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
   m_list->verticalScrollBar()->hide();
   m_list->setStyleSheet(TM().ssColInactive());
   m_list->setContextMenuPolicy(Qt::CustomContextMenu);
+  m_list->setDragEnabled(true);
+  m_list->setAcceptDrops(true);
+  m_list->setDropIndicatorShown(true);
+  m_list->setDragDropMode(QAbstractItemView::DragDrop);
+
+  auto resolver = [this](const QModelIndex &idx) -> QUrl {
+      QUrl destUrl = QUrl::fromUserInput(m_path);
+      if (idx.isValid()) {
+          QListWidgetItem *it = m_list->item(idx.row());
+          if (it) {
+              QString itemPath = it->data(Qt::UserRole).toString();
+              if (!itemPath.isEmpty() && !itemPath.startsWith("solid:")) {
+                  destUrl = QUrl::fromUserInput(itemPath);
+              }
+          }
+      }
+      return destUrl;
+  };
+  m_list->viewport()->installEventFilter(new DropHandler(m_list, resolver, m_list));
+
   lay->addWidget(m_list);
 
   connect(m_list, &QListWidget::itemClicked, this, [this](QListWidgetItem *it) {

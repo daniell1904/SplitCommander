@@ -25,6 +25,7 @@ add_executable(splitcommander
     src/filepane.cpp
     src/joboverlay.cpp
     src/previewpanel.cpp
+    src/drophandler.cpp
     src/sidebar.cpp
     src/tagmanager.cpp
     src/batchrenamer.cpp

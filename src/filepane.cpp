@@ -11,6 +11,7 @@
 #include <QKeyEvent>
 #include <QFileDialog>
 #include <QScrollBar>
+#include "drophandler.h"
 #include <QStandardPaths>
 #include <QResizeEvent>
 #include <QTimer>
@@ -18,6 +19,7 @@
 #include <QSettings>
 #include <QMenu>
 #include <QProcess>
+#include <QDebug>
 #include <QDesktopServices>
 #include <QUrl>
 #include <QFileInfo>
@@ -261,8 +263,35 @@ int FPColumnsProxy::columnCount(const QModelIndex &) const
 
 Qt::ItemFlags FPColumnsProxy::flags(const QModelIndex &index) const
 {
-    if (!index.isValid()) return Qt::NoItemFlags;
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    if (!index.isValid()) return Qt::ItemIsDropEnabled;
+    if (!m_sortProxy) return Qt::NoItemFlags;
+    Qt::ItemFlags f = m_sortProxy->flags(m_sortProxy->index(index.row(), 0));
+    return f | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+}
+
+Qt::DropActions FPColumnsProxy::supportedDragActions() const
+{
+    return m_sortProxy ? m_sortProxy->supportedDragActions() : Qt::CopyAction | Qt::MoveAction | Qt::LinkAction;
+}
+
+Qt::DropActions FPColumnsProxy::supportedDropActions() const
+{
+    return m_sortProxy ? m_sortProxy->supportedDropActions() : Qt::CopyAction | Qt::MoveAction | Qt::LinkAction;
+}
+
+QMimeData* FPColumnsProxy::mimeData(const QModelIndexList &indexes) const
+{
+    if (!m_sortProxy) return nullptr;
+    QModelIndexList sourceIndices;
+    for (const QModelIndex &idx : indexes) {
+        sourceIndices << mapToSource(idx);
+    }
+    return m_sortProxy->mimeData(sourceIndices);
+}
+
+QStringList FPColumnsProxy::mimeTypes() const
+{
+    return m_sortProxy ? m_sortProxy->mimeTypes() : QStringList();
 }
 
 KFileItem FPColumnsProxy::fileItem(const QModelIndex &proxyIdx) const
@@ -653,11 +682,15 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey) : QWidget(parent
     m_view->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     m_view->header()->setMinimumSectionSize(0);
     m_view->setAttribute(Qt::WA_MacShowFocusRect, false);
+    m_view->setDragEnabled(true);
+    m_view->setAcceptDrops(true);
+    m_view->setDropIndicatorShown(true);
+    m_view->setDragDropMode(QAbstractItemView::DragDrop);
+    m_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_view->setModel(m_proxy);
 
     m_delegate = new FilePaneDelegate(this);
     m_view->setItemDelegate(m_delegate);
-    m_view->installEventFilter(this);
 
     const int savedHeight = QSettings().value(m_settingsKey + "rowHeight", 26).toInt();
     m_delegate->rowHeight = savedHeight;
@@ -752,6 +785,11 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey) : QWidget(parent
     m_iconView->setSelectionModel(m_view->selectionModel());
     m_iconView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_iconView->setMouseTracking(true);
+    m_iconView->setDragEnabled(true);
+    m_iconView->setAcceptDrops(true);
+    m_iconView->setDropIndicatorShown(true);
+    m_iconView->setDragDropMode(QAbstractItemView::DragDrop);
+    m_iconView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_iconView->setContextMenuPolicy(Qt::CustomContextMenu);
     m_iconView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_iconView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
@@ -784,6 +822,22 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey) : QWidget(parent
     });
     connect(m_iconView, &QListView::customContextMenuRequested, this, &FilePane::showContextMenu);
     connect(m_iconView, &QListView::activated, this, &FilePane::onItemActivated);
+    
+    // QTimer::singleShot(100, this, [this]() {
+    //    if (m_view && m_view->viewport()) m_view->viewport()->installEventFilter(this);
+    //    if (m_iconView && m_iconView->viewport()) m_iconView->viewport()->installEventFilter(this);
+    // });
+
+    auto resolver = [this](const QModelIndex &idx) -> QUrl {
+        QUrl dest = QUrl::fromUserInput(m_currentPath);
+        if (idx.isValid() && m_proxy) {
+            KFileItem item = m_proxy->fileItem(idx);
+            if (!item.isNull() && item.isDir()) dest = item.url();
+        }
+        return dest;
+    };
+    m_view->viewport()->installEventFilter(new DropHandler(m_view, resolver, m_view));
+    m_iconView->viewport()->installEventFilter(new DropHandler(m_iconView, resolver, m_iconView));
 
     connect(m_view->selectionModel(), &QItemSelectionModel::currentChanged,
         this, [this](const QModelIndex &cur, const QModelIndex&) {
