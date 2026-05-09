@@ -201,7 +201,11 @@ PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent) {
 void PaneToolbar::setPath(const QString &path) {
   if (!m_pathLabel)
     return;
-  m_pathLabel->setText(path);
+  QUrl url(path);
+  QString name = url.fileName();
+  if (name.isEmpty())
+    name = path;
+  m_pathLabel->setText(name);
 }
 
 void PaneToolbar::setCount(int count, qint64 totalBytes) {
