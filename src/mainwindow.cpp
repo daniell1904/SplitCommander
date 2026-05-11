@@ -339,7 +339,12 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
           .arg(TM().colors().bgBox, TM().colors().separator,
                TM().colors().textAccent, TM().colors().bgHover,
                TM().colors().textPrimary));
-  lay->addWidget(m_header);
+  auto *hlay = new QHBoxLayout();
+  hlay->setContentsMargins(0, 0, 0, 0);
+  hlay->setSpacing(0);
+  hlay->addWidget(m_header, 1);
+  hlay->addStretch(1);
+  lay->addLayout(hlay);
   connect(m_header, &QPushButton::clicked, this, [this]() {
     emit headerClicked(m_path == "__drives__" ? QString() : m_path);
   });
@@ -776,10 +781,12 @@ void MillerArea::updateVisibleColumns() {
 
     connect(strip, &MillerStrip::clicked, this, [this, i]() {
       emit focusRequested();
+      QString targetPath = m_cols[i]->path();
       while (m_cols.size() > i + 1) {
         trimAfter(m_cols[i]);
       }
       updateVisibleColumns();
+      emit headerClicked(targetPath == "__drives__" ? QString() : targetPath);
     });
   }
 
@@ -2109,10 +2116,14 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   connect(m_miller, &MillerArea::headerClicked, this,
           [pathStack, this](const QString &path) {
             emit focusRequested();
-            m_pathEdit->setText(path.isEmpty() ? currentPath() : path);
-            m_pathEdit->selectAll();
-            pathStack->setCurrentIndex(1);
-            m_pathEdit->setFocus();
+            if (!path.isEmpty() && path != "__drives__") {
+              navigateTo(path);
+            } else {
+              m_pathEdit->setText(path.isEmpty() ? currentPath() : path);
+              m_pathEdit->selectAll();
+              pathStack->setCurrentIndex(1);
+              m_pathEdit->setFocus();
+            }
           });
   connect(m_filePane, &FilePane::fileSelected, this,
           [this](const QString &path) {
