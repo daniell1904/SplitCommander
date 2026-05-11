@@ -3,6 +3,9 @@
 #include "settingsdialog.h"
 #include <QSlider>
 #include "thememanager.h"
+#include "mainwindow.h"
+#include <KActionCollection>
+#include <KShortcutsDialog>
 
 #include <QApplication>
 #include <QColorDialog>
@@ -82,37 +85,6 @@ bool SettingsDialog::showFileExtensions()
 {
     QSettings s("SplitCommander", "General");
     return s.value("showExtensions", true).toBool();
-}
-
-QString SettingsDialog::shortcut(const QString &id)
-{
-    QSettings s("SplitCommander", "Shortcuts");
-    for (const auto &e : allShortcuts())
-        if (e.id == id)
-            return s.value(id, e.defaultKey).toString();
-    return {};
-}
-
-QList<ShortcutEntry> SettingsDialog::allShortcuts()
-{
-    return {
-        { "nav_back",         QObject::tr("Zurück"),                  "Alt+Left"     },
-        { "nav_forward",      QObject::tr("Vorwärts"),                "Alt+Right"    },
-        { "nav_up",           QObject::tr("Übergeordneter Ordner"),   "Alt+Up"       },
-        { "nav_home",         QObject::tr("Home-Verzeichnis"),        "Alt+Home"     },
-        { "nav_reload",       QObject::tr("Neu laden"),               "F5"           },
-        { "pane_focus_left",  QObject::tr("Linke Pane fokussieren"),  "Ctrl+Left"    },
-        { "pane_focus_right", QObject::tr("Rechte Pane fokussieren"), "Ctrl+Right"   },
-        { "pane_swap",        QObject::tr("Panes tauschen"),          "Ctrl+U"       },
-        { "pane_sync",        QObject::tr("Pfade synchronisieren"),   "Ctrl+Shift+S" },
-        { "file_rename",      QObject::tr("Umbenennen"),              "F2"           },
-        { "file_delete",      QObject::tr("Löschen"),                 "Delete"       },
-        { "file_newfolder",   QObject::tr("Neuer Ordner"),            "F7"           },
-        { "file_copy",        QObject::tr("Kopieren"),                "F5"           },
-        { "file_move",        QObject::tr("Verschieben"),             "F6"           },
-        { "view_hidden",      QObject::tr("Versteckte Dateien"),      "Ctrl+H"       },
-        { "view_layout",      QObject::tr("Layout wechseln"),         "Ctrl+L"       },
-    };
 }
 
 // --- Farb-Chip Hilfsfunktion ---
@@ -212,6 +184,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     m_navList->addItem(tr("Design"));
     m_navList->addItem(tr("Erweitert"));
     m_navList->addItem(tr("Shortcuts"));
+    // Shortcuts-Tab öffnet jetzt KShortcutsDialog direkt — kein separates Widget mehr
     m_navList->setCurrentRow(0);
 
     // Trennlinie
@@ -232,10 +205,25 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     m_stack->addWidget(buildPageGeneral());
     m_stack->addWidget(buildPageDesign());
     m_stack->addWidget(buildPageAdvanced());
-    m_stack->addWidget(buildPageShortcuts());
 
-    // Navigation
-    connect(m_navList, &QListWidget::currentRowChanged, m_stack, &QStackedWidget::setCurrentIndex);
+    // Navigation: Shortcuts-Eintrag (Index 3) öffnet KShortcutsDialog direkt
+    connect(m_navList, &QListWidget::currentRowChanged, this, [this](int row) {
+        if (row == 3) {
+            // Sofort zurück auf vorherige Seite (visuell kein "leerer" Slot sichtbar)
+            m_navList->blockSignals(true);
+            m_navList->setCurrentRow(m_stack->currentIndex());
+            m_navList->blockSignals(false);
+            // KShortcutsDialog öffnen
+            MainWindow *mw = MW();
+            if (mw) {
+                KShortcutsDialog::showDialog(mw->actionCollection(),
+                                             KShortcutsEditor::LetterShortcutsAllowed,
+                                             this);
+            }
+        } else {
+            m_stack->setCurrentIndex(row);
+        }
+    });
 
     // --- Bottom-Bar ---
     // Wrapper um rootLay + Bottom-Bar zu kombinieren
@@ -575,79 +563,6 @@ QWidget *SettingsDialog::buildPageAdvanced()
     return scroll;
 }
 
-// --- Seite: Shortcuts ---
-QWidget *SettingsDialog::buildPageShortcuts()
-{
-    auto *scroll = new QScrollArea();
-    scroll->setWidgetResizable(true);
-    scroll->setFrameShape(QFrame::NoFrame);
-
-    auto *page = new QWidget();
-    auto *lay  = new QVBoxLayout(page);
-    lay->setContentsMargins(20, 20, 20, 20);
-    lay->setSpacing(16);
-
-    struct Cat { QString label; QStringList ids; };
-    const QList<Cat> cats = {
-        { tr("Navigation"), { "nav_back","nav_forward","nav_up","nav_home","nav_reload" } },
-        { tr("Pane"),       { "pane_focus_left","pane_focus_right","pane_swap","pane_sync" } },
-        { tr("Datei"),      { "file_rename","file_delete","file_newfolder","file_copy","file_move" } },
-        { tr("Ansicht"),    { "view_hidden","view_layout" } },
-    };
-
-    const auto &entries = allShortcuts();
-    QSettings sc("SplitCommander", "Shortcuts");
-    m_shortcutEdits.clear();
-
-    for (const auto &cat : cats) {
-        auto *grp  = new QGroupBox(cat.label, page);
-        auto *grid = new QGridLayout(grp);
-        grid->setSpacing(8);
-        grid->setColumnStretch(1, 1);
-
-        int row = 0;
-        for (const QString &id : cat.ids) {
-            ShortcutEntry found;
-            bool ok = false;
-            for (const auto &e : entries) { if (e.id == id) { found = e; ok = true; break; } }
-            if (!ok) continue;
-
-            auto *lbl  = new QLabel(found.label, grp);
-            auto *edit = new QKeySequenceEdit(
-                QKeySequence(sc.value(found.id, found.defaultKey).toString()), grp);
-            edit->setObjectName(found.id);
-
-            auto *resetBtn = new QPushButton("↺", grp);
-            resetBtn->setFixedSize(28, 28);
-            resetBtn->setToolTip(tr("Standard wiederherstellen"));
-            const QString defKey = found.defaultKey;
-            connect(resetBtn, &QPushButton::clicked, this,
-                    [edit, defKey]() { edit->setKeySequence(QKeySequence(defKey)); });
-
-            grid->addWidget(lbl,      row, 0);
-            grid->addWidget(edit,     row, 1);
-            grid->addWidget(resetBtn, row, 2);
-            m_shortcutEdits.append(edit);
-            ++row;
-        }
-        lay->addWidget(grp);
-    }
-
-    auto *resetAll = new QPushButton(tr("Alle Shortcuts zurücksetzen"), page);
-    connect(resetAll, &QPushButton::clicked, this, [this]() {
-        const auto &entries2 = allShortcuts();
-        for (auto *edit : m_shortcutEdits)
-            for (const auto &e : entries2)
-                if (e.id == edit->objectName())
-                    { edit->setKeySequence(QKeySequence(e.defaultKey)); break; }
-    });
-    lay->addWidget(resetAll);
-    lay->addStretch();
-
-    scroll->setWidget(page);
-    return scroll;
-}
-
 // --- loadValues ---
 void SettingsDialog::loadValues()
 {
@@ -733,17 +648,6 @@ void SettingsDialog::applyAndSave()
             s.setValue("lightness",  m_lSlider->value());
         }
         s.sync();
-    }
-
-    // Shortcuts
-    {
-        QSettings s("SplitCommander", "Shortcuts");
-        for (auto *edit : m_shortcutEdits) {
-            if (!edit->objectName().isEmpty())
-                s.setValue(edit->objectName(), edit->keySequence().toString());
-        }
-        s.sync();
-        emit shortcutsChanged();
     }
 
     // Theme-Wechsel: Neustart anbieten

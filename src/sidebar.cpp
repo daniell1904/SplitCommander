@@ -793,7 +793,6 @@ void Sidebar::buildFooter(QVBoxLayout *parent)
     connect(settingsBtn, &QToolButton::clicked, this, [this]() {
         auto *dlg = new SettingsDialog(this);
         dlg->setAttribute(Qt::WA_DeleteOnClose);
-        connect(dlg, &SettingsDialog::shortcutsChanged,   this, [this]() { emit settingsChanged(); });
         connect(dlg, &SettingsDialog::hiddenFilesChanged, this, [this](bool show) { emit hiddenFilesChanged(show); });
         connect(dlg, &SettingsDialog::singleClickChanged, this, [this]() { emit settingsChanged(); });
         dlg->exec();

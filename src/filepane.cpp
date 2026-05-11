@@ -1334,40 +1334,46 @@ void FilePane::showContextMenu(const QPoint &pos)
         menu.addSeparator();
     }
 
-    // --- 4. Bearbeiten (Clipboard, Umbenennen, Duplizieren) ---
+    // --- 4. Bearbeiten: KActions aus Collection (zeigt Shortcuts automatisch) ---
     if (hasItem) {
-        menu.addAction(QIcon::fromTheme(QStringLiteral("edit-cut")), tr("Ausschneiden"), this,
-            [itemUrl]() {
-                auto *mime = new QMimeData();
-                mime->setUrls({itemUrl});
-                mime->setData("x-kde-cut-selection", "1");
-                QGuiApplication::clipboard()->setMimeData(mime);
-            });
-        menu.addAction(QIcon::fromTheme(QStringLiteral("edit-copy")), tr("Kopieren"), this,
-            [itemUrl]() {
-                auto *mime = new QMimeData();
-                mime->setUrls({itemUrl});
-                QGuiApplication::clipboard()->setMimeData(mime);
-            });
+        if (auto *mw = MW()) {
+            if (auto *a = mw->actionCollection()->action(QStringLiteral("file_move")))
+                menu.addAction(a);
+            if (auto *a = mw->actionCollection()->action(QStringLiteral("file_copy")))
+                menu.addAction(a);
+        } else {
+            // Fallback ohne MW
+            menu.addAction(QIcon::fromTheme(QStringLiteral("edit-cut")), tr("Ausschneiden"), this,
+                [itemUrl]() {
+                    auto *mime = new QMimeData(); mime->setUrls({itemUrl});
+                    mime->setData("x-kde-cut-selection", "1");
+                    QGuiApplication::clipboard()->setMimeData(mime);
+                });
+            menu.addAction(QIcon::fromTheme(QStringLiteral("edit-copy")), tr("Kopieren"), this,
+                [itemUrl]() {
+                    auto *mime = new QMimeData(); mime->setUrls({itemUrl});
+                    QGuiApplication::clipboard()->setMimeData(mime);
+                });
+        }
     }
 
-    const QMimeData *clip = QGuiApplication::clipboard()->mimeData();
-    if (clip && clip->hasUrls()) {
-        menu.addAction(QIcon::fromTheme(QStringLiteral("edit-paste")), tr("Einfügen"), this,
-            [this, dirUrl, clip]() {
-                bool isCut = clip->data("x-kde-cut-selection") == "1";
-                QList<QUrl> urls = clip->urls();
-                auto *mw = qobject_cast<MainWindow*>(window());
-                if (isCut) {
-                    auto *job = KIO::move(urls, dirUrl, KIO::DefaultFlags);
-                    job->uiDelegate()->setAutoErrorHandlingEnabled(true);
-                    if (mw) mw->registerJob(job, tr("Verschiebe Dateien..."));
-                } else {
-                    auto *job = KIO::copy(urls, dirUrl, KIO::DefaultFlags);
-                    job->uiDelegate()->setAutoErrorHandlingEnabled(true);
-                    if (mw) mw->registerJob(job, tr("Kopiere Dateien..."));
-                }
-            });
+    {
+        const QMimeData *clip = QGuiApplication::clipboard()->mimeData();
+        if (clip && clip->hasUrls()) {
+            if (auto *mw = MW()) {
+                if (auto *a = mw->actionCollection()->action(QStringLiteral("file_paste")))
+                    menu.addAction(a);
+            } else {
+                menu.addAction(QIcon::fromTheme(QStringLiteral("edit-paste")), tr("Einfügen"), this,
+                    [dirUrl, clip]() {
+                        bool isCut = clip->data("x-kde-cut-selection") == "1";
+                        auto *job = isCut
+                            ? KIO::move(clip->urls(), dirUrl, KIO::DefaultFlags)
+                            : KIO::copy(clip->urls(), dirUrl, KIO::DefaultFlags);
+                        job->uiDelegate()->setAutoErrorHandlingEnabled(true);
+                    });
+            }
+        }
     }
 
     if (hasItem) {
@@ -1388,17 +1394,23 @@ void FilePane::showContextMenu(const QPoint &pos)
         }
         const bool isTrash = itemUrl.scheme() == "trash";
         if (!isTrash) {
-            menu.addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Umbenennen …"), this,
-                [this, item, dirPath, isKioPath]() {
-                    const QString currentName = isKioPath ? item.url().fileName() : item.text();
-                    QString newName = fp_getText(this, tr("Umbenennen"), tr("Neuer Name:"), currentName);
-                    if (newName.isEmpty() || newName == currentName) return;
-                    QUrl dest = isKioPath
-                        ? QUrl(dirPath.endsWith('/') ? QString(dirPath+newName) : QString(dirPath+'/'+newName))
-                        : QUrl::fromLocalFile(dirPath + "/" + newName);
-                    auto *job = KIO::moveAs(item.url(), dest, KIO::DefaultFlags);
-                    job->uiDelegate()->setAutoErrorHandlingEnabled(true);
-                });
+            // Umbenennen: KAction aus Collection (zeigt Shortcut)
+            if (auto *mw = MW()) {
+                if (auto *a = mw->actionCollection()->action(QStringLiteral("file_rename")))
+                    menu.addAction(a);
+            } else {
+                menu.addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Umbenennen …"), this,
+                    [this, item, dirPath, isKioPath]() {
+                        const QString currentName = isKioPath ? item.url().fileName() : item.text();
+                        QString newName = fp_getText(this, tr("Umbenennen"), tr("Neuer Name:"), currentName);
+                        if (newName.isEmpty() || newName == currentName) return;
+                        QUrl dest = isKioPath
+                            ? QUrl(dirPath.endsWith('/') ? QString(dirPath+newName) : QString(dirPath+'/'+newName))
+                            : QUrl::fromLocalFile(dirPath + "/" + newName);
+                        auto *job = KIO::moveAs(item.url(), dest, KIO::DefaultFlags);
+                        job->uiDelegate()->setAutoErrorHandlingEnabled(true);
+                    });
+            }
             menu.addSeparator();
         }
     }
@@ -1470,48 +1482,25 @@ void FilePane::showContextMenu(const QPoint &pos)
     }
 
 
-    // --- 7. Papierkorb / Löschen ---
+    // --- 7. Papierkorb / Löschen: KAction aus Collection ---
     if (hasItem) {
         const bool isTrash = itemUrl.scheme() == QStringLiteral("trash");
-        auto *removeAct = new QAction(&menu);
-        auto setTrash  = [removeAct, isTrash]() {
-            removeAct->setText(isTrash ? QObject::tr("Endgültig löschen") : QObject::tr("In den Papierkorb verschieben"));
-            removeAct->setIcon(QIcon::fromTheme(QStringLiteral("edit-delete")));
-        };
-        auto setDelete = [removeAct]() {
-            removeAct->setText(QObject::tr("Unwiderruflich löschen"));
-            removeAct->setIcon(QIcon::fromTheme(QStringLiteral("edit-delete-shred")));
-        };
-        if (QGuiApplication::keyboardModifiers() & Qt::ShiftModifier) setDelete();
-        else setTrash();
-
-        struct ShiftFilter : public QObject {
-            std::function<void()> onPress, onRelease;
-            ShiftFilter(QObject *p, std::function<void()> pr, std::function<void()> re)
-                : QObject(p), onPress(pr), onRelease(re) {}
-            bool eventFilter(QObject*, QEvent *e) override {
-                if (e->type()==QEvent::KeyPress || e->type()==QEvent::KeyRelease) {
-                    auto *ke = static_cast<QKeyEvent*>(e);
-                    if (ke->key() == Qt::Key_Shift) {
-                        if (e->type()==QEvent::KeyPress) onPress();
-                        else onRelease();
-                    }
-                }
-                return false;
-            }
-        };
-        menu.installEventFilter(new ShiftFilter(&menu, setDelete, setTrash));
-
-        connect(removeAct, &QAction::triggered, this, [this, itemUrl, isTrash]() {
-            QList<QUrl> targets = selectedUrls();
-            if (!targets.contains(itemUrl)) targets = {itemUrl};
-            const bool shift = QGuiApplication::keyboardModifiers() & Qt::ShiftModifier;
-            auto *job = new KIO::DeleteOrTrashJob(targets,
-                (shift || isTrash) ? KIO::AskUserActionInterface::Delete : KIO::AskUserActionInterface::Trash,
-                KIO::AskUserActionInterface::DefaultConfirmation, this);
-            job->start();
-        });
-        menu.addAction(removeAct);
+        if (auto *mw = MW()) {
+            if (auto *a = mw->actionCollection()->action(QStringLiteral("file_delete")))
+                menu.addAction(a);
+        } else {
+            // Fallback
+            menu.addAction(QIcon::fromTheme(QStringLiteral("edit-delete")), tr("In den Papierkorb"), this,
+                [this, itemUrl, isTrash]() {
+                    QList<QUrl> targets = selectedUrls();
+                    if (!targets.contains(itemUrl)) targets = {itemUrl};
+                    const bool shift = QGuiApplication::keyboardModifiers() & Qt::ShiftModifier;
+                    auto *job = new KIO::DeleteOrTrashJob(targets,
+                        (shift || isTrash) ? KIO::AskUserActionInterface::Delete : KIO::AskUserActionInterface::Trash,
+                        KIO::AskUserActionInterface::DefaultConfirmation, this);
+                    job->start();
+                });
+        }
         menu.addSeparator();
     }
     // --- 7b. Trash Special (Restore / Empty) ---

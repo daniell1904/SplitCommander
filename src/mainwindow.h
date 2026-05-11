@@ -14,7 +14,7 @@
 #include <QPushButton>
 #include <QStackedWidget>
 #include <KDirLister>
-#include <QShortcut>
+#include <KActionCollection>
 #include <QApplication>
 #include <QButtonGroup>
 #include <KJob>
@@ -132,7 +132,7 @@ public:
     void setFocused(bool f);
     bool isFocused() const { return m_focused; }
     QString currentPath() const;
-    void navigateTo(const QString &path, bool clearForward = true);
+    void navigateTo(const QString &path, bool clearForward = true, bool updateMiller = true);
     FilePane *filePane() const { return m_filePane; }
     void saveState() const;
 
@@ -189,6 +189,7 @@ public:
     
     void registerJob(KJob *job, const QString &title);
     void registerShortcuts();
+    KActionCollection *actionCollection() const { return m_actionCollection; }
     
     PaneWidget *activePane() const;
     PaneWidget *leftPane()   const { return m_leftPane; }
@@ -210,7 +211,7 @@ private:
     QSplitter  *m_vSplit = nullptr;
     int         m_currentMode = 1;
     bool        m_panesSplitterRestored = false;
-    QList<QShortcut*> m_shortcuts;
+    KActionCollection *m_actionCollection = nullptr;
 };
 
 inline MainWindow *MW() { 

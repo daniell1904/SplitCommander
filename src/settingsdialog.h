@@ -5,12 +5,12 @@
 #include <QRadioButton>
 #include <QButtonGroup>
 #include <QComboBox>
-#include <QKeySequenceEdit>
+
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QGridLayout>
+
 #include <QGroupBox>
 #include <QSettings>
 #include <QScrollArea>
@@ -21,12 +21,6 @@
 #include <QStackedWidget>
 #include <QList>
 
-// --- ShortcutEntry --- (Struktur zur Speicherung eines Tastenkürzels)
-struct ShortcutEntry {
-    QString id;
-    QString label;
-    QString defaultKey;
-};
 
 namespace SD_Styles {
 extern const QString DIALOG;
@@ -49,12 +43,9 @@ public:
     static bool    confirmDelete();
     static bool    showHiddenFiles();
     static bool    showFileExtensions();
-    static QString shortcut(const QString &id);
-    static QList<ShortcutEntry> allShortcuts();
 
 signals:
     void themeChanged();
-    void shortcutsChanged();
     void hiddenFilesChanged(bool show);
     void singleClickChanged(bool singleClick);
 
@@ -62,7 +53,6 @@ private:
     QWidget *buildPageGeneral();
     QWidget *buildPageDesign();
     QWidget *buildPageAdvanced();
-    QWidget *buildPageShortcuts();
 
     void applyAndSave();
     void loadValues();
@@ -95,6 +85,5 @@ private:
     QCheckBox *m_showExtCheck       = nullptr;
     QComboBox *m_dateFormatCombo    = nullptr;
 
-    QList<QKeySequenceEdit*> m_shortcutEdits;
 };
 

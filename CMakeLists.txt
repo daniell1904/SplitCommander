@@ -34,7 +34,7 @@ add_executable(splitcommander
     src/agebadgedialog.cpp
     src/thememanager.cpp
     src/terminalutils.cpp
-    src/shortcutdialog.cpp
+
     src/dialogutils.cpp
 )
 
