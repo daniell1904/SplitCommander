@@ -15,7 +15,6 @@ class AgeBadgeDialog : public QDialog
 public:
     explicit AgeBadgeDialog(QWidget *parent = nullptr);
 
-    static bool showNewIndicator();
 
 private slots:
     void applyAndSave();

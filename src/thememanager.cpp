@@ -1,10 +1,10 @@
 // --- thememanager.cpp — SplitCommander Theme-System ---
 
 #include "thememanager.h"
-#include "settingsdialog.h"
+#include "config.h"
 
-#include <QSettings>
 #include <QApplication>
+
 #include <QPalette>
 #include <QDir>
 #include <QDirIterator>
@@ -202,7 +202,7 @@ void ThemeManager::loadExternalThemes()
 // --- apply — Theme aus Settings laden und anwenden ---
 void ThemeManager::apply()
 {
-    if (SettingsDialog::useSystemTheme()) {
+    if (Config::useSystemTheme()) {
         // ... KDE-Palette übernehmen ...
         qApp->setStyleSheet(QString());
         const QPalette &pal = qApp->palette();
@@ -237,7 +237,7 @@ void ThemeManager::apply()
         return;
     }
 
-    const QString name = SettingsDialog::selectedTheme();
+    const QString name = Config::selectedTheme();
     
     // In geladenen Themes suchen
     bool found = false;

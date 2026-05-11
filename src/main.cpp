@@ -5,7 +5,7 @@
 #include <QDir>
 #include "mainwindow.h"
 #include "thememanager.h"
-#include "settingsdialog.h"
+#include "config.h"
 
 static void scMessageHandler(QtMsgType type, const QMessageLogContext &, const QString &msg)
 {

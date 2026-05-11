@@ -2,22 +2,38 @@
 #include "mainwindow.h"
 #include <KJob>
 #include "thememanager.h"
-#include "settingsdialog.h"
+#include "config.h"
 #include "tagmanager.h"
-#include "agebadgedialog.h"
 #include "terminalutils.h"
+
 #include "dialogutils.h"
+#include <QUrl>
+#include <QString>
+#include <QColor>
+#include <QMenu>
+#include <QGraphicsDropShadowEffect>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QHBoxLayout>
+#include <QPushButton>
+#include <QAction>
+
 
 #include <QKeyEvent>
 #include <QFileDialog>
 #include <QScrollBar>
+#include <QSettings>
+
 #include "drophandler.h"
 #include <QStandardPaths>
+
+
 #include <QResizeEvent>
 #include <QTimer>
 #include <QDir>
-#include <QSettings>
 #include <QMenu>
+
 #include <QProcess>
 #include <QDebug>
 #include <QDesktopServices>
@@ -204,18 +220,29 @@ void FPColumnsProxy::setTagFilter(const QString &tag)
 {
     beginResetModel();
     m_tagFilter = tag;
+    m_globalTagMode = false;
+    m_tagItems.clear();
+    endResetModel();
+}
+
+void FPColumnsProxy::setGlobalTagMode(const QString &tagName, const QList<KFileItem> &items)
+{
+    beginResetModel();
+    m_tagFilter = tagName;
+    m_globalTagMode = !tagName.isEmpty();
+    m_tagItems = items;
     endResetModel();
 }
 
 QModelIndex FPColumnsProxy::mapToSource(const QModelIndex &proxyIndex) const
 {
-    if (!proxyIndex.isValid() || !m_sortProxy) return {};
+    if (m_globalTagMode || !proxyIndex.isValid() || !m_sortProxy) return {};
     return m_sortProxy->index(proxyIndex.row(), 0);
 }
 
 QModelIndex FPColumnsProxy::mapFromSource(const QModelIndex &sourceIndex) const
 {
-    if (!sourceIndex.isValid()) return {};
+    if (m_globalTagMode || !sourceIndex.isValid()) return {};
     return createIndex(sourceIndex.row(), 0);
 }
 
@@ -233,7 +260,9 @@ QModelIndex FPColumnsProxy::parent(const QModelIndex &) const
 
 int FPColumnsProxy::rowCount(const QModelIndex &parent) const
 {
-    if (parent.isValid() || !m_sortProxy) return 0;
+    if (parent.isValid()) return 0;
+    if (m_globalTagMode) return m_tagItems.size();
+    if (!m_sortProxy) return 0;
     if (m_tagFilter.isEmpty()) return m_sortProxy->rowCount();
     // Tag-Filter: zähle gültige Rows
     int count = 0;
@@ -280,6 +309,16 @@ Qt::DropActions FPColumnsProxy::supportedDropActions() const
 
 QMimeData* FPColumnsProxy::mimeData(const QModelIndexList &indexes) const
 {
+    if (m_globalTagMode) {
+        auto *mime = new QMimeData();
+        QList<QUrl> urls;
+        for (const auto &idx : indexes) {
+            KFileItem item = fileItem(idx);
+            if (!item.isNull()) urls << item.url();
+        }
+        mime->setUrls(urls);
+        return mime;
+    }
     if (!m_sortProxy) return nullptr;
     QModelIndexList sourceIndices;
     for (const QModelIndex &idx : indexes) {
@@ -295,7 +334,13 @@ QStringList FPColumnsProxy::mimeTypes() const
 
 KFileItem FPColumnsProxy::fileItem(const QModelIndex &proxyIdx) const
 {
-    if (!proxyIdx.isValid() || !m_sortProxy || !m_kdirModel) return KFileItem();
+    if (!proxyIdx.isValid()) return KFileItem();
+    if (m_globalTagMode) {
+        if (proxyIdx.row() >= 0 && proxyIdx.row() < m_tagItems.size())
+            return m_tagItems.at(proxyIdx.row());
+        return KFileItem();
+    }
+    if (!m_sortProxy || !m_kdirModel) return KFileItem();
     int row = proxyIdx.row();
     // Tag-Filter: row im Proxy != row im sortProxy
     if (!m_tagFilter.isEmpty()) {
@@ -407,7 +452,7 @@ QVariant FPColumnsProxy::data(const QModelIndex &index, int role) const
     if (col == FP_NAME) {
         if (role == Qt::DecorationRole) return QIcon::fromTheme(item.iconName());
         if (role == Qt::DisplayRole) {
-            if (!item.isDir() && !SettingsDialog::showFileExtensions())
+            if (!item.isDir() && !Config::showFileExtensions())
                 return QFileInfo(item.text()).completeBaseName();
             return item.text();
         }
@@ -426,7 +471,7 @@ QVariant FPColumnsProxy::data(const QModelIndex &index, int role) const
         return (qint64)item.size();
     if (col == FP_DATUM && role == Qt::DisplayRole) {
         QDateTime dt = item.time(KFileItem::ModificationTime);
-        return dt.isValid() ? dt.toString(SettingsDialog::dateFormat()) : QString();
+        return dt.isValid() ? dt.toString(Config::dateFormat()) : QString();
     }
     if (col == FP_RECHTE && role == Qt::DisplayRole) {
         QString lp = item.localPath();
@@ -484,12 +529,12 @@ QString FilePaneDelegate::formatAge(qint64 s) {
 }
 
 QColor FilePaneDelegate::ageColor(qint64 s) {
-    if (s < 3600)       return SettingsDialog::ageBadgeColor(0);
-    if (s < 86400)      return SettingsDialog::ageBadgeColor(1);
-    if (s < 86400*7)    return SettingsDialog::ageBadgeColor(2);
-    if (s < 86400*30)   return SettingsDialog::ageBadgeColor(3);
-    if (s < 86400*365)  return SettingsDialog::ageBadgeColor(4);
-    return SettingsDialog::ageBadgeColor(5);
+    if (s < 3600)       return Config::ageBadgeColor(0);
+    if (s < 86400)      return Config::ageBadgeColor(1);
+    if (s < 86400*7)    return Config::ageBadgeColor(2);
+    if (s < 86400*30)   return Config::ageBadgeColor(3);
+    if (s < 86400*365)  return Config::ageBadgeColor(4);
+    return Config::ageBadgeColor(5);
 }
 
 void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QModelIndex &idx) const
@@ -525,7 +570,8 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const
 
     if (col == FP_NAME) {
         // New-File-Indicator
-        if (AgeBadgeDialog::showNewIndicator()) {
+        if (Config::showNewIndicator()) {
+
             qint64 ageSecs = idx.data(Qt::UserRole + 2).toLongLong();
             if (ageSecs > 0 && ageSecs < 86400 * 2) {
                 QRect strip(o.rect.left(), o.rect.top(), 3, o.rect.height());
@@ -624,12 +670,11 @@ void FilePane::setupColumns()
     for (int i = 0; i < FP_COUNT; i++) m_colVisible[i] = false;
     for (const auto &d : colDefs()) m_colVisible[d.id] = d.defaultVisible;
 
-    QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("UI"));
-    s.beginGroup(QStringLiteral("columns"));
+    auto s = Config::group("UI").group("columns");
     for (const auto &d : colDefs())
-        if (s.contains(QString::number(d.id)))
-            m_colVisible[d.id] = s.value(QString::number(d.id)).toBool();
-    s.endGroup();
+        if (s.hasKey(QString::number(d.id)))
+            m_colVisible[d.id] = s.readEntry(QString::number(d.id), d.defaultVisible);
+
 
     // Sichtbare Spalten zusammenstellen
     QList<FPCol> visCols;
@@ -653,7 +698,7 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey) : QWidget(parent
     m_lister = new KDirLister(this);
     m_lister->setAutoUpdate(true);
     m_lister->setMainWindow(window());
-    m_lister->setShowHiddenFiles(SettingsDialog::showHiddenFiles());
+    m_lister->setShowHiddenFiles(Config::showHiddenFiles());
     connect(m_lister, &KDirLister::completed, this, [this]() {
         QTimer::singleShot(0, this, [this]() { emit directoryLoaded(); });
     });
@@ -700,7 +745,9 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey) : QWidget(parent
     m_delegate = new FilePaneDelegate(this);
     m_view->setItemDelegate(m_delegate);
 
-    const int savedHeight = QSettings().value(m_settingsKey + "rowHeight", 26).toInt();
+    auto s = Config::group("General");
+    const int savedHeight = s.readEntry(m_settingsKey + "rowHeight", 26);
+
     m_delegate->rowHeight = savedHeight;
     m_delegate->fontSize  = qBound(9, savedHeight / 3, 16);
     m_view->setIconSize(QSize(qBound(12, savedHeight-6, 48), qBound(12, savedHeight-6, 48)));
@@ -821,13 +868,15 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey) : QWidget(parent
     connect(m_view, &QTreeView::customContextMenuRequested, this, &FilePane::showContextMenu);
     connect(m_view, &QTreeView::activated, this, &FilePane::onItemActivated);
     connect(m_view, &QTreeView::clicked, this, [this](const QModelIndex &idx) {
-        QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("General"));
-        if (gs.value(QStringLiteral("singleClick"), false).toBool()) onItemActivated(idx);
+        auto gs = Config::group("General");
+        if (gs.readEntry("singleClick", false)) onItemActivated(idx);
     });
+
     connect(m_iconView, &QListView::clicked, this, [this](const QModelIndex &idx) {
-        QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("General"));
-        if (gs.value(QStringLiteral("singleClick"), false).toBool()) onItemActivated(idx);
+        auto gs = Config::group("General");
+        if (gs.readEntry("singleClick", false)) onItemActivated(idx);
     });
+
     connect(m_iconView, &QListView::customContextMenuRequested, this, &FilePane::showContextMenu);
     connect(m_iconView, &QListView::activated, this, &FilePane::onItemActivated);
     
@@ -863,10 +912,11 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey) : QWidget(parent
         int tagColIdx = -1;
         for (int i = 0; i < visCols.size(); ++i)
             if (visCols.at(i) == FP_TAGS) { tagColIdx = i; break; }
-        if (tagColIdx >= 0)
+        if (tagColIdx >= 0 && m_proxy->rowCount() > 0)
             emit m_proxy->dataChanged(
                 m_proxy->index(0, tagColIdx),
                 m_proxy->index(m_proxy->rowCount()-1, tagColIdx));
+
     });
 
     // KNewFileMenu
@@ -881,6 +931,12 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey) : QWidget(parent
 void FilePane::setRootPath(const QString &path)
 {
     if (path.isEmpty()) return;
+    
+    // Globalen Tag-Modus beenden wenn wir normal navigieren
+    if (m_proxy->isGlobalTagMode()) {
+        m_proxy->setGlobalTagMode(QString(), {});
+        m_currentTagFilter.clear();
+    }
 
     // KIO-URL oder URL-artiger Pfad erkennen
     if (!path.startsWith("/") && !path.startsWith("~") && !path.isEmpty()) {
@@ -1012,14 +1068,27 @@ void FilePane::setRowHeight(int height)
         m_delegate->fontSize  = qBound(9, height/3, 16);
         m_view->setIconSize(QSize(qBound(12,height-6,48), qBound(12,height-6,48)));
     }
-    QSettings().setValue(m_settingsKey + "rowHeight", height);
+    auto s = Config::group("General");
+    s.writeEntry(m_settingsKey + "rowHeight", height);
+    s.config()->sync();
+
     m_view->update();
 }
 
 void FilePane::showTaggedFiles(const QString &tagName)
 {
     m_currentTagFilter = tagName;
-    m_proxy->setTagFilter(tagName);
+    
+    QStringList paths = TagManager::instance().filesWithTag(tagName);
+    QList<KFileItem> items;
+    for (const QString &p : paths) {
+        if (QFileInfo::exists(p)) {
+            // Wir erstellen KFileItems direkt aus den Pfaden. 
+            // KFileItem wird versuchen die Metadaten zu lesen.
+            items.append(KFileItem(QUrl::fromLocalFile(p)));
+        }
+    }
+    m_proxy->setGlobalTagMode(tagName, items);
 }
 
 QList<QUrl> FilePane::selectedUrls() const
@@ -1038,13 +1107,14 @@ QList<QUrl> FilePane::selectedUrls() const
 void FilePane::setColumnVisible(int colId, bool visible)
 {
     if (colId < 0 || colId >= FP_COUNT) return;
+    if (m_colVisible[colId] == (bool)visible) return;
     m_colVisible[colId] = visible;
 
-    QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("UI"));
-    s.beginGroup(QStringLiteral("columns"));
-    s.setValue(QString::number(colId), visible);
-    s.endGroup();
-    s.sync();
+
+    auto s = Config::group("UI").group("columns");
+    s.writeEntry(QString::number(colId), visible);
+    s.config()->sync();
+
 
     QList<FPCol> visCols;
     for (const auto &d : colDefs())
@@ -1441,8 +1511,8 @@ void FilePane::showContextMenu(const QPoint &pos)
     }
 
     if (hasItem && isKioPath && isDir) {
-        QSettings netCheck(QStringLiteral("SplitCommander"), QStringLiteral("NetworkPlaces"));
-        if (!netCheck.value(QStringLiteral("places")).toStringList().contains(path)) {
+        auto netCheck = Config::group("NetworkPlaces");
+        if (!netCheck.readEntry("places", QStringList()).contains(path)) {
             menu.addAction(QIcon::fromTheme(QStringLiteral("bookmark-new")), tr("Zu Laufwerken hinzufügen"), this,
                 [this, path, itemUrl, item]() {
                     QString displayName = item.text();
@@ -1452,6 +1522,7 @@ void FilePane::showContextMenu(const QPoint &pos)
                 });
         }
     }
+
     menu.addSeparator();
 
     // --- 6. Organisation (Tags, Senden an) ---

@@ -2,10 +2,10 @@
 
 #include "mainwindow.h"
 #include "agebadgedialog.h"
+#include "config.h"
 #include "filepane.h"
 #include "joboverlay.h"
 #include "panewidgets.h"
-#include "settingsdialog.h"
 #include "terminalutils.h"
 #include "thememanager.h"
 #include <KActionCollection>
@@ -32,6 +32,9 @@
 #include <QActionGroup>
 #include <QApplication>
 #include <QButtonGroup>
+#include <QCheckBox>
+#include <QRadioButton>
+
 #include <QClipboard>
 #include <QCloseEvent>
 #include <QDesktopServices>
@@ -54,9 +57,8 @@
 #include <QProcess>
 #include <QResizeEvent>
 #include <QScrollBar>
-#include <QSettings>
-
 #include <QSlider>
+
 #include <QStandardPaths>
 #include <QStorageInfo>
 #include <QTreeWidget>
@@ -78,6 +80,12 @@ static QString mw_fmtSize(qint64 sz) {
 
 // ---  ---
 // StyleSheet-Konstanten
+
+static QString mw_normalizePath(QString s) {
+  if (s.length() > 1 && s.endsWith('/'))
+    s.chop(1);
+  return s;
+}
 
 static QString sc_rootVolumeName() {
   const QString name = QStorageInfo(QStringLiteral("/")).name();
@@ -184,9 +192,9 @@ PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent) {
   r3->addWidget(foldersFirstBtn);
   r3->addStretch(1);
 
-  auto *viewGroup = new QButtonGroup(this);
-  viewGroup->setExclusive(true);
-  connect(viewGroup, &QButtonGroup::idClicked, this,
+  m_viewGroup = new QButtonGroup(this);
+  m_viewGroup->setExclusive(true);
+  connect(m_viewGroup, &QButtonGroup::idClicked, this,
           &PaneToolbar::viewModeChanged);
 
   int modeId = 0;
@@ -203,20 +211,38 @@ PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent) {
     b->setCheckable(true);
     if (modeId == 0)
       b->setChecked(true);
-    viewGroup->addButton(b, modeId++);
+    m_viewGroup->addButton(b, modeId++);
     r3->addWidget(b);
   }
   vlay->addLayout(r3);
 }
 
+void PaneToolbar::setViewMode(int mode) {
+  if (!m_viewGroup)
+    return;
+  auto *b = m_viewGroup->button(mode);
+  if (b) {
+    b->blockSignals(true);
+    b->setChecked(true);
+    b->blockSignals(false);
+  }
+}
+
 void PaneToolbar::setPath(const QString &path) {
   if (!m_pathLabel)
     return;
-  QUrl url(path);
-  QString name = url.fileName();
-  if (name.isEmpty()) {
-    name = url.isLocalFile() ? url.toLocalFile() : path;
+
+  QString name;
+  if (path == "__drives__" || path == "remote:/") {
+    name = tr("Dieser PC");
+  } else {
+    QUrl url = QUrl::fromUserInput(path);
+    name = url.fileName();
+    if (name.isEmpty()) {
+      name = url.isLocalFile() ? url.toLocalFile() : path;
+    }
   }
+
   m_pathLabel->setText(name);
   const bool isTrash = (path == "trash:/" || path.startsWith("trash:"));
   m_emptyTrashBtn->setVisible(isTrash);
@@ -272,10 +298,16 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
   lay->setContentsMargins(0, 0, 0, 0);
   lay->setSpacing(0);
 
+  // Lister für normale Verzeichnisse
   m_lister = new KDirLister(this);
-  // Wir zeigen sowohl Ordner als auch Dateien in den Spalten an
   connect(m_lister, &KDirLister::newItems, this,
           [this](const KFileItemList &items) {
+            if (m_path == "__drives__") {
+              qDebug() << "DRIVES newItems LEAK count:" << items.count() << "list count before:" << m_list->count();
+              for (const KFileItem &item : items)
+                qDebug() << "  LEAK item:" << item.url() << item.name();
+              return;
+            }
             QFileIconProvider iconProv;
             for (const KFileItem &item : items) {
               auto *it = new MillerWidgetItem(
@@ -284,42 +316,11 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
                   item.name(), item.isDir());
               it->setData(Qt::UserRole, item.url().toString());
               m_list->addItem(it);
+              qDebug() << "newItems addItem:" << item.name() << "path:" << m_path << "list count:" << m_list->count();
             }
           });
   connect(m_lister, &KDirLister::completed, this,
           [this]() { m_list->sortItems(); });
-
-  static const QStringList discoverProtocols = {"gdrive:/", "mtp:/",
-                                                "remote:/"};
-  for (const QString &proto : discoverProtocols) {
-    Q_UNUSED(proto);
-    auto *dl = new KDirLister(this);
-    dl->setAutoErrorHandlingEnabled(false);
-    m_discoveryListers.append(dl);
-    connect(dl, &KDirLister::newItems, this,
-            [this](const KFileItemList &items) {
-              if (m_path != "__drives__")
-                return;
-              for (const KFileItem &item : items) {
-                const QString url = item.url().toString();
-                // Duplikate prüfen
-                bool exists = false;
-                for (int i = 0; i < m_list->count(); ++i) {
-                  if (m_list->item(i)->data(Qt::UserRole).toString() == url) {
-                    exists = true;
-                    break;
-                  }
-                }
-                if (!exists) {
-                  auto *it =
-                      new MillerWidgetItem(QIcon::fromTheme(item.iconName()),
-                                           item.name(), item.isDir(), m_list);
-                  it->setData(Qt::UserRole, url);
-                  it->setSizeHint(QSize(0, 44));
-                }
-              }
-            });
-  }
 
   m_header = new QPushButton();
   m_header->setObjectName("MillerHeader");
@@ -351,8 +352,11 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
 
   m_list = new QListWidget();
   m_list->setFrameShape(QFrame::NoFrame);
+  m_list->setUniformItemSizes(true);
   m_list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   m_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  m_list->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+  m_list->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
   m_list->verticalScrollBar()->hide();
   m_list->setStyleSheet(TM().ssColInactive());
   m_list->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -427,10 +431,16 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
             menu.addSeparator();
           }
 
-          // NetworkPlaces: umbenennen + aus Liste entfernen
           {
-            QSettings netCheck("SplitCommander", "NetworkPlaces");
-            if (netCheck.value("places").toStringList().contains(itemPath)) {
+            auto netCheck = Config::group("NetworkPlaces");
+            const QStringList netPlaces = netCheck.readEntry("places", QStringList());
+            const QString npath = mw_normalizePath(itemPath);
+            bool alreadyIn = false;
+            for (const QString &p : netPlaces) {
+              if (mw_normalizePath(p) == npath) { alreadyIn = true; break; }
+            }
+
+            if (alreadyIn) {
               menu.addAction(
                   QIcon::fromTheme("edit-rename"), tr("Umbenennen"), this,
                   [this, itemPath, it]() {
@@ -441,29 +451,33 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
                     if (!ok || newName.trimmed().isEmpty())
                       return;
 
-                    QSettings s("SplitCommander", "NetworkPlaces");
-                    s.setValue("name_" +
-                                   QString(itemPath).replace("/", "_").replace(
-                                       ":", "_"),
-                               newName.trimmed());
-                    s.sync();
+                    auto s = Config::group("NetworkPlaces");
+
+                    s.writeEntry(
+                        "name_" + QString(itemPath).replace("/", "_").replace(
+                                      ":", "_"),
+                        newName.trimmed());
+                    s.config()->sync();
                     populateDrives(); // Neuladen der Spalte
                   });
               menu.addAction(
                   QIcon::fromTheme("list-remove"),
                   tr("Aus Laufwerken entfernen"), this, [this, itemPath]() {
-                    QSettings s("SplitCommander", "NetworkPlaces");
-                    QStringList saved = s.value("places").toStringList();
-                    saved.removeAll(itemPath);
-                    s.setValue("places", saved);
-                    s.remove(
-                        "name_" +
-                        QString(itemPath).replace("/", "_").replace(":", "_"));
-                    s.sync();
+                    auto s = Config::group("NetworkPlaces");
+                    QStringList saved = s.readEntry("places", QStringList());
+                    const QString npath = mw_normalizePath(itemPath);
+                    saved.removeAll(npath);
+                    QString otherVersion = npath.endsWith('/') ? npath.left(npath.length()-1) : npath + "/";
+                    if (otherVersion != "/") saved.removeAll(otherVersion);
+
+                    s.writeEntry("places", saved);
+                    s.deleteEntry("name_" + QString(npath).replace("/", "_").replace(":", "_"));
+                    s.deleteEntry("name_" + QString(otherVersion).replace("/", "_").replace(":", "_"));
+                    s.config()->sync();
                     emit removeFromPlacesRequested(itemPath);
                   });
-              menu.addSeparator();
             }
+            menu.addSeparator();
           }
 
           auto *copyMenu =
@@ -536,14 +550,18 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
 
 void MillerColumn::populateDrives() {
   m_path = "__drives__";
+  m_lister->stop();
   m_header->setText(tr("Dieser PC"));
   m_header->setIcon(QIcon::fromTheme("computer"));
   m_list->clear();
   m_list->setStyleSheet(TM().ssColDrives());
-  m_list->setItemDelegate(new DriveDelegate(true, m_list));
+  m_list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  m_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  m_list->verticalScrollBar()->hide();
 
   // --- Eingehängte Laufwerke ---
   QSet<QString> shownUdis;
+  QSet<QString> shownPaths;
   for (const Solid::Device &dev :
        Solid::Device::listFromType(Solid::DeviceInterface::StorageAccess)) {
     const auto *acc = dev.as<Solid::StorageAccess>();
@@ -584,11 +602,15 @@ void MillerColumn::populateDrives() {
     }
 
     shownUdis.insert(dev.udi());
+    if (mounted)
+      shownPaths.insert(mw_normalizePath(p));
 
     QString driveName =
         mounted && (p == "/") ? sc_rootVolumeName() : dev.description();
     if (driveName.isEmpty())
       driveName = mounted ? QDir(p).dirName() : dev.udi().section('/', -1);
+    if (driveName.isEmpty())
+      continue;
 
     QString iconName = dev.icon().isEmpty() ? "drive-harddisk" : dev.icon();
     if (const auto *drv = dev.as<Solid::StorageDrive>()) {
@@ -600,6 +622,7 @@ void MillerColumn::populateDrives() {
     }
 
     auto *it = new QListWidgetItem(m_list);
+    qDebug() << "DRIVES ITEM:" << driveName << "path:" << (mounted ? p : QString("solid:") + dev.udi()) << "mounted:" << mounted;
     it->setData(Qt::DisplayRole, driveName);
     it->setData(Qt::DecorationRole, QIcon::fromTheme(iconName));
     it->setData(Qt::UserRole, mounted ? p : QString("solid:") + dev.udi());
@@ -620,7 +643,13 @@ void MillerColumn::populateDrives() {
         fs != "sshfs" && fs != "fuse.sshfs" && fs != "davfs" &&
         fs != "fuse.davfs2" && !fs.startsWith("fuse."))
       continue;
+    if (fs == "fuse.portal" || fs == "fusectl")
+      continue;
     const QString path = storage.rootPath();
+    const QString normalizedPath = mw_normalizePath(path);
+    if (shownPaths.contains(normalizedPath))
+      continue;
+    shownPaths.insert(normalizedPath);
     QString name = storage.name().isEmpty()
                        ? QUrl::fromLocalFile(path).fileName()
                        : storage.name();
@@ -630,6 +659,7 @@ void MillerColumn::populateDrives() {
                    : (fs == "sshfs" || fs == "fuse.sshfs") ? "network-connect"
                                                            : "network-server";
     auto *it = new QListWidgetItem(m_list);
+    qDebug() << "FUSE ITEM:" << name << "path:" << path << "fs:" << fs;
     it->setData(Qt::DisplayRole, name);
     it->setData(Qt::DecorationRole, QIcon::fromTheme(icon));
     it->setData(Qt::UserRole, path);
@@ -639,16 +669,25 @@ void MillerColumn::populateDrives() {
 
   // --- Gespeicherte Netzwerkplätze (NetworkPlaces) ---
   {
-    QSettings netSettings("SplitCommander", "NetworkPlaces");
-    const QStringList savedPlaces = netSettings.value("places").toStringList();
+    auto netSettings = Config::group("NetworkPlaces");
+    const QStringList savedPlaces =
+        netSettings.readEntry("places", QStringList());
     for (const QString &p : savedPlaces) {
-      const QString scheme = QUrl::fromUserInput(p).scheme().toLower();
-      const QString savedName =
-          netSettings
-              .value("name_" + QString(p).replace("/", "_").replace(":", "_"),
-                     scheme == "gdrive" ? "Google Drive"
-                                        : QUrl::fromUserInput(p).fileName())
-              .toString();
+      if (p.isEmpty())
+        continue;
+      const QString normalizedP = mw_normalizePath(p);
+      if (shownPaths.contains(normalizedP))
+        continue;
+      shownPaths.insert(normalizedP);
+      const QUrl pUrl(p);
+      const QString scheme = pUrl.scheme().toLower();
+      const QString savedName = netSettings.readEntry(
+          "name_" + QString(p).replace("/", "_").replace(":", "_"),
+          scheme == "gdrive" ? "Google Drive" : pUrl.fileName());
+
+      if (savedName.isEmpty())
+        continue;
+
       QString iconName = scheme == "gdrive"      ? "folder-gdrive"
                          : scheme == "smb"       ? "network-workgroup"
                          : scheme == "sftp"      ? "network-connect"
@@ -656,23 +695,20 @@ void MillerColumn::populateDrives() {
                          : scheme == "bluetooth" ? "bluetooth"
                                                  : "network-server";
       auto *it = new QListWidgetItem(m_list);
+      qDebug() << "NETPLACE ITEM:" << savedName << "url:" << pUrl.toString();
       it->setData(Qt::DisplayRole, savedName);
       it->setData(Qt::DecorationRole, QIcon::fromTheme(iconName));
-      it->setData(Qt::UserRole, QUrl::fromUserInput(p).toString());
+      QString url = pUrl.toString();
+      if ((url.startsWith("gdrive:") || url.startsWith("mtp:")) &&
+          !url.endsWith("/"))
+        url += "/";
+      it->setData(Qt::UserRole, url);
       it->setData(Qt::UserRole + 1, scheme);
       it->setSizeHint(QSize(0, 44));
     }
   }
-
-  // --- Automatische Konto-Entdeckung (Parallel) ---
-  for (auto *dl : m_discoveryListers) {
-    const QString proto = m_discoveryListers.indexOf(dl) == 0   ? "gdrive:/"
-                          : m_discoveryListers.indexOf(dl) == 1 ? "mtp:/"
-                                                                : "remote:/";
-    dl->openUrl(QUrl(proto), KDirLister::NoFlags);
-  }
+  qDebug() << "DRIVES TOTAL ITEMS:" << m_list->count();
 }
-
 void MillerColumn::populateDir(const QString &path) {
   m_path = path;
   QUrl url(path);
@@ -761,6 +797,7 @@ void MillerArea::updateVisibleColumns() {
 
   // 1. Alte Strips bereinigen
   for (auto *s : m_strips) {
+    s->hide();
     m_rowLayout->removeWidget(s);
     s->deleteLater();
   }
@@ -786,12 +823,13 @@ void MillerArea::updateVisibleColumns() {
         trimAfter(m_cols[i]);
       }
       updateVisibleColumns();
-      emit headerClicked(targetPath == "__drives__" ? QString() : targetPath);
+      emit headerClicked(targetPath);
     });
   }
 
   // Alte Trenner entfernen und neu aufbauen
   for (auto *sep : m_colSeparators) {
+    sep->hide();
     m_colLayout->removeWidget(sep);
     sep->deleteLater();
   }
@@ -821,8 +859,8 @@ void MillerArea::updateVisibleColumns() {
 void MillerArea::refreshDrives() {
   if (m_cols.isEmpty())
     return;
+  // Nur den Inhalt der ersten Spalte aktualisieren, ohne die Navigation zu unterbrechen
   m_cols[0]->populateDrives();
-  updateVisibleColumns();
 }
 
 void MillerArea::init() {
@@ -840,8 +878,13 @@ void MillerArea::init() {
               c->setActive(false);
             src->setActive(true);
             m_activeCol = src;
-            appendColumn(path);
-            emit pathChanged(path);
+            // Bei Laufwerken immer als Ordner behandeln
+            QString p = path;
+            if ((p.startsWith("gdrive:") || p.startsWith("mtp:")) &&
+                !p.endsWith("/"))
+              p += "/";
+            appendColumn(p);
+            emit pathChanged(p);
           });
   connect(col, &MillerColumn::activated, this, [this](MillerColumn *src) {
     emit focusRequested();
@@ -853,40 +896,27 @@ void MillerArea::init() {
   connect(col, &MillerColumn::headerClicked, this, &MillerArea::headerClicked);
 
   connect(col, &MillerColumn::teardownRequested, this,
+          &MillerArea::teardownRequested);
+  connect(col, &MillerColumn::setupRequested, this,
           [this](const QString &udi) {
-            // Vor dem Aushängen zu homePath navigieren, damit das Laufwerk
-            // nicht belegt ist
-            navigateTo(QDir::homePath());
-
             Solid::Device dev(udi);
             auto *acc = dev.as<Solid::StorageAccess>();
             if (!acc)
               return;
             connect(
-                acc, &Solid::StorageAccess::teardownDone, this,
+                acc, &Solid::StorageAccess::setupDone, this,
                 [this](Solid::ErrorType, QVariant, const QString &) {
                   refreshDrives();
                 },
                 Qt::SingleShotConnection);
-            acc->teardown();
+            acc->setup();
           });
-  connect(col, &MillerColumn::setupRequested, this, [this](const QString &udi) {
-    Solid::Device dev(udi);
-    auto *acc = dev.as<Solid::StorageAccess>();
-    if (!acc)
-      return;
-    connect(
-        acc, &Solid::StorageAccess::setupDone, this,
-        [this](Solid::ErrorType, QVariant, const QString &) {
-          refreshDrives();
-        },
-        Qt::SingleShotConnection);
-    acc->setup();
-  });
   connect(col, &MillerColumn::removeFromPlacesRequested, this,
           &MillerArea::removeFromPlacesRequested);
-  connect(col, &MillerColumn::openInLeft, this, &MillerArea::openInLeft);
-  connect(col, &MillerColumn::openInRight, this, &MillerArea::openInRight);
+  connect(col, &MillerColumn::openInLeft, this,
+          [this](const QString &p) { emit openInLeft(p); });
+  connect(col, &MillerColumn::openInRight, this,
+          [this](const QString &p) { emit openInRight(p); });
   connect(col, &MillerColumn::propertiesRequested, this,
           &MillerArea::propertiesRequested);
 }
@@ -920,8 +950,15 @@ void MillerArea::appendColumn(const QString &path) {
             QUrl u2(p2);
             if (u2.scheme().isEmpty())
               u2 = QUrl::fromUserInput(p2);
-            if (KFileItem(u2).isDir()) {
-              appendColumn(p2);
+            const QString sch2 = u2.scheme();
+            const bool isKioDir = (sch2 == "gdrive" || sch2 == "mtp" ||
+                                   sch2 == "smb" || sch2 == "sftp" ||
+                                   sch2 == "ftp" || sch2 == "remote");
+            if (isKioDir || KFileItem(u2).isDir()) {
+              QString nav = p2;
+              if (isKioDir && !nav.endsWith("/"))
+                nav += "/";
+              appendColumn(nav);
             }
             emit pathChanged(p2);
           });
@@ -933,8 +970,10 @@ void MillerArea::appendColumn(const QString &path) {
     m_activeCol = src;
   });
   connect(col, &MillerColumn::headerClicked, this, &MillerArea::headerClicked);
-  connect(col, &MillerColumn::openInLeft, this, &MillerArea::openInLeft);
-  connect(col, &MillerColumn::openInRight, this, &MillerArea::openInRight);
+  connect(col, &MillerColumn::openInLeft, this,
+          [this](const QString &p) { emit openInLeft(p); });
+  connect(col, &MillerColumn::openInRight, this,
+          [this](const QString &p) { emit openInRight(p); });
   connect(col, &MillerColumn::propertiesRequested, this,
           &MillerArea::propertiesRequested);
   updateVisibleColumns();
@@ -946,12 +985,14 @@ void MillerArea::trimAfter(MillerColumn *col) {
     return;
   while (m_cols.size() > idx + 1) {
     auto *last = m_cols.takeLast();
+    last->hide();
     m_colLayout->removeWidget(last);
     last->deleteLater();
 
     // Zugehörigen Trenner ebenfalls entfernen
     if (!m_colSeparators.isEmpty()) {
       auto *sep = m_colSeparators.takeLast();
+      sep->hide();
       m_colLayout->removeWidget(sep);
       sep->deleteLater();
     }
@@ -971,6 +1012,17 @@ void MillerArea::navigateTo(const QString &path, bool clearForward) {
   if (path.isEmpty())
     return;
 
+  if (path == "__drives__") {
+    if (!m_cols.isEmpty()) {
+      trimAfter(m_cols[0]);
+      m_cols[0]->populateDrives();
+      m_cols[0]->list()->clearSelection();
+      m_cols[0]->setActive(true);
+      m_activeCol = m_cols[0];
+    }
+    return;
+  }
+
   QUrl startUrl(path);
   if (startUrl.scheme().isEmpty() && !path.isEmpty())
     startUrl = QUrl::fromUserInput(path);
@@ -982,20 +1034,31 @@ void MillerArea::navigateTo(const QString &path, bool clearForward) {
     QListWidget *driveList = m_cols[0]->list();
     const QString normPath =
         startUrl.isLocalFile() ? startUrl.toLocalFile() : startUrl.toString();
+    const QString targetNorm = mw_normalizePath(normPath);
     for (int i = 0; i < driveList->count(); ++i) {
       QString dp = driveList->item(i)->data(Qt::UserRole).toString();
       QString normDp = dp;
       if (normDp.startsWith("file://"))
         normDp = QUrl(normDp).toLocalFile();
-      if (!normDp.isEmpty() && normPath.startsWith(normDp)) {
-        if (normDp.length() >
-            drivePath.length()) { // Längsten Match nehmen (z.B. gdrive:/account
-                                  // vs gdrive:/)
+      const QString dpNorm = mw_normalizePath(normDp);
+
+      if (!dpNorm.isEmpty() &&
+          (targetNorm == dpNorm || targetNorm.startsWith(dpNorm + "/"))) {
+        if (dpNorm.length() >= mw_normalizePath(drivePath).length()) {
           drivePath = dp;
           driveList->setCurrentRow(i);
           m_cols[0]->setActive(true);
         }
       }
+    }
+    // Fallback für KIO-Protokolle falls Discovery noch nicht fertig
+    if (drivePath.isEmpty()) {
+      if (startUrl.scheme() == "gdrive")
+        drivePath = "gdrive:/";
+      else if (startUrl.scheme() == "mtp")
+        drivePath = "mtp:/";
+      else if (startUrl.scheme() == "remote")
+        drivePath = "remote:/";
     }
     trimAfter(m_cols[0]);
   }
@@ -1005,7 +1068,8 @@ void MillerArea::navigateTo(const QString &path, bool clearForward) {
   while (cur.isValid()) {
     const QString curStr = cur.toString();
     segments.prepend(curStr);
-    if (!drivePath.isEmpty() && curStr == drivePath)
+    if (!drivePath.isEmpty() &&
+        mw_normalizePath(curStr) == mw_normalizePath(drivePath))
       break; // Stop bei Laufwerks-Wurzel
 
     QUrl up = cur.adjusted(QUrl::RemoveFilename | QUrl::StripTrailingSlash);
@@ -1021,7 +1085,7 @@ void MillerArea::navigateTo(const QString &path, bool clearForward) {
   int startIdx = 0;
   if (!drivePath.isEmpty()) {
     for (int i = 0; i < segments.size(); ++i) {
-      if (segments[i] == drivePath) {
+      if (mw_normalizePath(segments[i]) == mw_normalizePath(drivePath)) {
         startIdx = i;
         break;
       }
@@ -1126,14 +1190,14 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
             }
           });
 
-  auto *millerToggle = new QToolButton();
-  millerToggle->setFixedSize(24, 24);
-  millerToggle->setCheckable(true);
-  millerToggle->setChecked(true);
-  millerToggle->setIcon(QIcon::fromTheme("go-up"));
-  millerToggle->setIconSize(QSize(14, 14));
-  millerToggle->setToolTip(tr("Miller-Columns ein-/ausklappen"));
-  millerToggle->setStyleSheet(TM().ssToolBtn());
+  m_millerToggle = new QToolButton();
+  m_millerToggle->setFixedSize(24, 24);
+  m_millerToggle->setCheckable(true);
+  m_millerToggle->setChecked(true);
+  m_millerToggle->setIcon(QIcon::fromTheme("go-up"));
+  m_millerToggle->setIconSize(QSize(14, 14));
+  m_millerToggle->setToolTip(tr("Miller-Columns ein-/ausklappen"));
+  m_millerToggle->setStyleSheet(TM().ssToolBtn());
 
   auto *searchBtn = new QToolButton();
   searchBtn->setFixedSize(30, 30);
@@ -1179,25 +1243,46 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   auto *actNewLinkFile =
       menuNew->addAction(QIcon::fromTheme("inode-symlink"),
                          tr("Verknüpfung zu Datei oder Ordner …"));
-  // actNewLinkUrl entfernt, da unbenutzt
 
   hamburgerMenu->addSeparator();
 
-  // Toggle-Aktionen
+  // Toggle-Aktionen (direkt im Hauptmenü lassen, wie bei Dolphin)
   auto *actHidden = hamburgerMenu->addAction(QIcon::fromTheme("view-hidden"),
                                              tr("Versteckte Dateien anzeigen"));
   actHidden->setCheckable(true);
-  actHidden->setChecked(SettingsDialog::showHiddenFiles());
+  actHidden->setChecked(Config::showHiddenFiles());
+  connect(actHidden, &QAction::toggled, this, [](bool on) {
+    Config::setShowHiddenFiles(on);
+    if (auto *mw = MW()) {
+      emit mw->sidebar()->hiddenFilesChanged(on);
+      mw->leftPane()->filePane()->setShowHiddenFiles(on);
+      mw->rightPane()->filePane()->setShowHiddenFiles(on);
+      mw->leftPane()->miller()->refresh();
+      mw->rightPane()->miller()->refresh();
+    }
+  });
 
   auto *actSingleClick = hamburgerMenu->addAction(
       QIcon::fromTheme("input-mouse"), tr("Einfachklick zum Öffnen"));
   actSingleClick->setCheckable(true);
-  actSingleClick->setChecked(SettingsDialog::singleClickOpen());
+  actSingleClick->setChecked(Config::singleClickOpen());
+  connect(actSingleClick, &QAction::toggled, this, [](bool on) {
+    Config::setSingleClickOpen(on);
+    if (auto *mw = MW())
+      emit mw->sidebar()->settingsChanged();
+  });
 
   auto *actExtensions = hamburgerMenu->addAction(
       QIcon::fromTheme("text-x-generic"), tr("Dateiendungen anzeigen"));
   actExtensions->setCheckable(true);
-  actExtensions->setChecked(SettingsDialog::showFileExtensions());
+  actExtensions->setChecked(Config::showFileExtensions());
+  connect(actExtensions, &QAction::toggled, this, [](bool on) {
+    Config::setShowFileExtensions(on);
+    if (auto *mw = MW()) {
+      mw->leftPane()->filePane()->setRootPath(mw->leftPane()->currentPath());
+      mw->rightPane()->filePane()->setRootPath(mw->rightPane()->currentPath());
+    }
+  });
 
   auto *menuTerminal = hamburgerMenu->addMenu(
       QIcon::fromTheme("utilities-terminal"), tr("Terminal"));
@@ -1210,72 +1295,19 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
                                                            : path);
                           });
 
-  menuTerminal->addSeparator();
-
-  menuTerminal->addAction(
-      QIcon::fromTheme("preferences-system"), tr("Terminal wählen…"), this,
-      [this]() {
-        QDialog dlg(this);
-        dlg.setWindowTitle(tr("Terminal wählen"));
-        dlg.setMinimumWidth(340);
-        dlg.setStyleSheet(TM().ssDialog());
-
-        auto *vl = new QVBoxLayout(&dlg);
-        vl->setSpacing(10);
-        vl->setContentsMargins(16, 16, 16, 16);
-
-        vl->addWidget(new QLabel(tr("Installierte Terminals:")));
-
-        const QStringList installed = sc_installedTerminals();
-        const QString current = sc_detectTerminal();
-
-        auto *grp = new QButtonGroup(&dlg);
-        for (const QString &t : installed) {
-          auto *btn = new QPushButton(t, &dlg);
-          btn->setCheckable(true);
-          btn->setChecked(t == current);
-          btn->setIcon(QIcon::fromTheme("utilities-terminal"));
-          grp->addButton(btn);
-          vl->addWidget(btn);
-        }
-
-        vl->addWidget(new QLabel(tr("Oder eigenen Befehl eingeben:")));
-        auto *customEdit = new QLineEdit(&dlg);
-        customEdit->setPlaceholderText(tr("z.B. /usr/bin/kitty"));
-        if (!installed.contains(current))
-          customEdit->setText(current);
-        vl->addWidget(customEdit);
-
-        auto *btns = new QDialogButtonBox(
-            QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dlg);
-        connect(btns, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
-        connect(btns, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
-        vl->addWidget(btns);
-
-        if (dlg.exec() != QDialog::Accepted)
-          return;
-
-        QString chosen;
-        if (auto *checked = grp->checkedButton())
-          chosen = checked->text();
-        if (!customEdit->text().trimmed().isEmpty())
-          chosen = customEdit->text().trimmed();
-
-        if (!chosen.isEmpty()) {
-          QSettings s("SplitCommander", "General");
-          s.setValue("terminalApp", chosen);
-          s.sync();
-        }
-      });
-
   hamburgerMenu->addSeparator();
 
-  // Theme-Untermenü
-  auto *menuTheme = hamburgerMenu->addMenu(
-      QIcon::fromTheme("preferences-desktop-color"), tr("Theme"));
+  // --- Einrichten Sub-Menü (Dolphin-Style) ---
+  auto *menuConfigure =
+      hamburgerMenu->addMenu(QIcon::fromTheme("configure"), tr("Einrichten"));
+  menuConfigure->setStyleSheet(TM().ssMenu());
+
+  // 1. Fenster-Farbschema (Theme)
+  auto *menuTheme = menuConfigure->addMenu(
+      QIcon::fromTheme("preferences-desktop-color"), tr("Fenster-Farbschema"));
   menuTheme->setStyleSheet(TM().ssMenu());
 
-  // Widget-Inhalt des Untermenüs
+  // Widget-Inhalt des Untermenüs (Themen-Auswahl)
   auto *themeWidget = new QWidget();
   themeWidget->setStyleSheet(
       QString(
@@ -1297,10 +1329,9 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   twLay->setContentsMargins(16, 10, 16, 4);
   twLay->setSpacing(4);
 
-  // KDE Global Checkbox
   auto *twSysCheck =
       new QCheckBox(tr("KDE Global Theme verwenden"), themeWidget);
-  twSysCheck->setChecked(SettingsDialog::useSystemTheme());
+  twSysCheck->setChecked(Config::useSystemTheme());
   auto *twHint =
       new QLabel(tr("Übernimmt Farben und Stil des aktiven KDE Global Themes."),
                  themeWidget);
@@ -1309,7 +1340,6 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   twLay->addWidget(twSysCheck);
   twLay->addWidget(twHint);
 
-  // Trennlinie
   auto *twSep = new QFrame(themeWidget);
   twSep->setFrameShape(QFrame::HLine);
   twSep->setStyleSheet(QString("background:%1;").arg(TM().colors().separator));
@@ -1318,7 +1348,6 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   twLay->addWidget(twSep);
   twLay->addSpacing(4);
 
-  // Radio-Buttons für eigene Themes dynamisch beim Öffnen laden
   auto *twThemeGroup = new QButtonGroup(themeWidget);
   auto *twThemesContainer = new QWidget(themeWidget);
   auto *twThemesLay = new QVBoxLayout(twThemesContainer);
@@ -1328,15 +1357,13 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
 
   auto refreshThemeList = [twThemesLay, twThemeGroup, twThemesContainer,
                            themeWidget]() {
-    // Alte Buttons löschen
     QLayoutItem *child;
     while ((child = twThemesLay->takeAt(0)) != nullptr) {
       if (child->widget())
         child->widget()->deleteLater();
       delete child;
     }
-
-    const QString curTheme = SettingsDialog::selectedTheme();
+    const QString curTheme = Config::selectedTheme();
     const auto allThemes = TM().allThemes();
     const auto &colors = TM().colors();
     themeWidget->setObjectName("themeContainer");
@@ -1361,57 +1388,31 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
                                 "QRadioButton:disabled { color: %4; }")
                             .arg(colors.textPrimary, colors.borderAlt,
                                  colors.accent, colors.textMuted));
-
-      rb->setChecked(!SettingsDialog::useSystemTheme() && t.name == curTheme);
-      rb->setEnabled(!SettingsDialog::useSystemTheme());
+      rb->setChecked(!Config::useSystemTheme() && t.name == curTheme);
+      rb->setEnabled(!Config::useSystemTheme());
       twThemeGroup->addButton(rb, i);
       twThemesLay->addWidget(rb);
     }
     themeWidget->adjustSize();
   };
-
   connect(menuTheme, &QMenu::aboutToShow, themeWidget, refreshThemeList);
   refreshThemeList();
 
-  // "Themes neu laden" Button ganz unten
   auto *btnReload = new QPushButton(QIcon::fromTheme("view-refresh"),
                                     tr("Designs neu laden"), themeWidget);
   btnReload->setStyleSheet(
       "QPushButton{margin-top:8px; font-size:10px; padding:4px;}");
   twLay->addWidget(btnReload);
-
   connect(btnReload, &QPushButton::clicked, themeWidget, [refreshThemeList]() {
     TM().loadExternalThemes();
     refreshThemeList();
   });
 
-  auto *btnGuide =
-      new QPushButton(QIcon::fromTheme("help-about"),
-                      tr("Anleitung / Vorlage öffnen"), themeWidget);
-  btnGuide->setStyleSheet("QPushButton{font-size:10px; padding:4px;}");
-  twLay->addWidget(btnGuide);
-
-  connect(btnGuide, &QPushButton::clicked, themeWidget, []() {
-    QString path =
-        QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
-        "/themes/00_ANLEITUNG_THEME_ERSTELLEN.json";
-    QDesktopServices::openUrl(QUrl::fromLocalFile(path));
-  });
-
-  connect(twSysCheck, &QCheckBox::toggled, themeWidget,
-          [twThemeGroup](bool checked) {
-            for (auto *btn : twThemeGroup->buttons())
-              btn->setEnabled(!checked);
-          });
-
-  // Übernehmen / Abbrechen
-  twLay->addSpacing(8);
   auto *twBtnRow = new QWidget(themeWidget);
   auto *twBtnLay = new QHBoxLayout(twBtnRow);
   twBtnLay->setContentsMargins(0, 0, 0, 0);
   twBtnLay->setSpacing(8);
   twBtnLay->addStretch();
-
   auto *twCancel = new QPushButton(tr("Abbrechen"), twBtnRow);
   twCancel->setFixedWidth(90);
   auto *twApply = new QPushButton(tr("Übernehmen"), twBtnRow);
@@ -1423,7 +1424,6 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   twBtnLay->addWidget(twCancel);
   twBtnLay->addWidget(twApply);
   twLay->addWidget(twBtnRow);
-  twLay->addSpacing(6);
 
   auto *twAction = new QWidgetAction(menuTheme);
   twAction->setDefaultWidget(themeWidget);
@@ -1432,88 +1432,76 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   connect(twCancel, &QPushButton::clicked, menuTheme, &QMenu::close);
   connect(twApply, &QPushButton::clicked, this,
           [this, twSysCheck, twThemeGroup, menuTheme, hamburgerMenu]() {
-            QSettings s("SplitCommander", "Appearance");
-            s.setValue("useSystemTheme", twSysCheck->isChecked());
+            Config::setUseSystemTheme(twSysCheck->isChecked());
             if (!twSysCheck->isChecked()) {
               int idx = twThemeGroup->checkedId();
-              // Hier nutzen wir direkt die aktuelle Liste vom Manager
               const auto allThemes = TM().allThemes();
               if (idx >= 0 && idx < allThemes.size())
-                s.setValue("theme", allThemes.at(idx).name);
+                Config::setSelectedTheme(allThemes.at(idx).name);
             }
-            s.sync();
             menuTheme->close();
             hamburgerMenu->close();
-            DialogUtils::message(this, tr("Neustart erforderlich"),
-                                 tr("Das Theme wird nach einem Neustart von "
-                                    "SplitCommander vollständig angewendet."));
+
+            DialogUtils::message(
+                this, tr("Neustart erforderlich"),
+                tr("Das Theme wird nach einem Neustart angewendet."));
             QProcess::startDetached(QApplication::applicationFilePath(),
                                     QApplication::arguments());
             QApplication::quit();
           });
 
-  // Age-Badges → öffnet SettingsDialog auf Design-Tab
-  auto *actAgeBadge = hamburgerMenu->addAction(QIcon::fromTheme("chronometer"),
+  // 2. Tastaturkurzbefehle festlegen ...
+  auto *actShortcuts =
+      menuConfigure->addAction(QIcon::fromTheme("configure-shortcuts"),
+                               tr("Tastaturkurzbefehle festlegen …"));
+  connect(actShortcuts, &QAction::triggered, this, [this]() {
+    if (auto *mw = MW())
+      KShortcutsDialog::showDialog(mw->actionCollection(),
+                                   KShortcutsEditor::LetterShortcutsAllowed,
+                                   this);
+  });
+
+  // 3. Terminal wählen … (Submenu)
+  auto *menuTerminalSelect = menuConfigure->addMenu(
+      QIcon::fromTheme("utilities-terminal"), tr("Terminal wählen…"));
+  menuTerminalSelect->setStyleSheet(TM().ssMenu());
+  connect(menuTerminalSelect, &QMenu::aboutToShow, this,
+          [this, menuTerminalSelect]() {
+            menuTerminalSelect->clear();
+            const QStringList installed = sc_installedTerminals();
+            const QString current = sc_detectTerminal();
+            for (const QString &t : installed) {
+              auto *act = menuTerminalSelect->addAction(t);
+              act->setCheckable(true);
+              act->setChecked(t == current);
+              connect(act, &QAction::triggered, this,
+                      [t]() { Config::setTerminalApp(t); });
+            }
+          });
+
+  // 4. Altersbadges
+  auto *actAgeBadge = menuConfigure->addAction(QIcon::fromTheme("chronometer"),
                                                tr("Altersbadges"));
-
-  // Shortcuts → öffnet SettingsDialog auf Shortcuts-Tab
-  auto *actShortcuts = hamburgerMenu->addAction(
-      QIcon::fromTheme("configure-shortcuts"), tr("Shortcuts"));
+  connect(actAgeBadge, &QAction::triggered, this,
+          [this]() { (new AgeBadgeDialog(this))->open(); });
 
   hamburgerMenu->addSeparator();
 
-  // Zeilenhöhe — nur für Detailliste, wird per aboutToShow ein/ausgeblendet
-  auto *rhWidget = new QWidget();
-  rhWidget->setStyleSheet(
-      QString("QWidget{background:%1;border:none;}").arg(TM().colors().bgList));
-  auto *rhLay = new QHBoxLayout(rhWidget);
-  rhLay->setContentsMargins(12, 6, 12, 6);
-  rhLay->setSpacing(8);
-  auto *rhLbl = new QLabel(tr("Zeilenhöhe:"));
-  rhLbl->setStyleSheet(
-      QString("color:%1;font-size:11px;background:transparent;")
-          .arg(TM().colors().textPrimary));
-  auto *rhSlider = new QSlider(Qt::Horizontal);
-  rhSlider->setRange(18, 52);
-  rhSlider->setValue(
-      QSettings().value(m_settingsKey + "/rowHeight", 26).toInt());
-  rhSlider->setFixedWidth(100);
-  rhSlider->setStyleSheet(
-      QString("QSlider::groove:horizontal{height:4px;background:%1;border-"
-              "radius:2px;}"
-              "QSlider::handle:horizontal{width:12px;height:12px;margin:-4px "
-              "0;border-radius:6px;background:%2;}"
-              "QSlider::sub-page:horizontal{background:%2;border-radius:2px;}")
-          .arg(TM().colors().borderAlt, TM().colors().accent));
-  auto *rhValLbl = new QLabel(QString::number(rhSlider->value()));
-  rhValLbl->setStyleSheet(
-      QString("color:%1;font-size:11px;background:transparent;min-width:20px;")
-          .arg(TM().colors().textAccent));
-  rhLay->addWidget(rhLbl);
-  rhLay->addWidget(rhSlider);
-  rhLay->addWidget(rhValLbl);
-  auto *rhAction = new QWidgetAction(hamburgerMenu);
-  rhAction->setDefaultWidget(rhWidget);
-  hamburgerMenu->addAction(rhAction);
-
-  connect(hamburgerMenu, &QMenu::aboutToShow, this, [this, rhWidget]() {
-    rhWidget->setVisible(m_filePane && m_filePane->viewMode() == 0);
-  });
-  connect(rhSlider, &QSlider::valueChanged, this, [this, rhValLbl](int val) {
-    rhValLbl->setText(QString::number(val));
-    if (m_filePane)
-      m_filePane->setRowHeight(val);
-  });
-
-  hamburgerMenu->addSeparator();
-
-  // Über
+  // Über SplitCommander
   auto *actAbout = hamburgerMenu->addAction(QIcon::fromTheme("help-about"),
                                             tr("Über SplitCommander"));
+  connect(actAbout, &QAction::triggered, this, [this]() {
+    const QString body =
+        tr("<b>SplitCommander</b> &nbsp;<small>v%1</small><br>")
+            .arg(QCoreApplication::applicationVersion()) +
+        tr("<small>Ein nativer KDE-Dateimanager.</small><br><br><b>Stack:</b> "
+           "Qt6 · KF6 · C++20<br><b>Autor:</b> D. Lange");
+    DialogUtils::message(this, tr("Über SplitCommander"), body);
+  });
 
   hamburgerBtn->setMenu(hamburgerMenu);
 
-  tabLay->addWidget(millerToggle);
+  tabLay->addWidget(m_millerToggle);
   tabLay->addWidget(pathStack, 1);
   tabLay->addWidget(searchBtn);
   tabLay->addWidget(layoutBtn);
@@ -1551,8 +1539,9 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     };
 
     auto *grp = new QButtonGroup(popup);
-    QSettings s("SplitCommander", "UI");
-    int current = s.value("layoutMode", 1).toInt();
+    auto s = Config::group("UI");
+
+    int current = s.readEntry("layoutMode", 1);
 
     for (const auto &entry : modes) {
       auto *btn = new QPushButton();
@@ -1583,8 +1572,10 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
       lay2->addWidget(btn);
 
       connect(btn, &QPushButton::clicked, this, [this, popup, entry]() {
-        QSettings ss("SplitCommander", "UI");
-        ss.setValue("layoutMode", entry.mode);
+        auto ss = Config::group("UI");
+
+        ss.writeEntry("layoutMode", entry.mode);
+        ss.config()->sync();
         emit layoutChangeRequested(entry.mode);
         popup->close();
       });
@@ -1661,57 +1652,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
       QFile::link(target, dir + "/" + name);
   });
 
-  connect(actHidden, &QAction::toggled, this, [this](bool checked) {
-    QSettings s("SplitCommander", "General");
-    s.setValue("showHidden", checked);
-    s.sync();
-    emit hiddenFilesToggled(checked);
-  });
-
-  connect(actSingleClick, &QAction::toggled, this, [](bool checked) {
-    QSettings s("SplitCommander", "General");
-    s.setValue("singleClick", checked);
-    s.sync();
-  });
-
-  connect(actExtensions, &QAction::toggled, this, [this](bool checked) {
-    QSettings s("SplitCommander", "General");
-    s.setValue("showExtensions", checked);
-    s.sync();
-    emit extensionsToggled(checked);
-  });
-
-  connect(actAgeBadge, &QAction::triggered, this, [this]() {
-    auto *dlg = new AgeBadgeDialog(this);
-    dlg->open();
-  });
-
-  connect(actShortcuts, &QAction::triggered, this, [this]() {
-    if (auto *mw = MW())
-      KShortcutsDialog::showDialog(mw->actionCollection(),
-                                   KShortcutsEditor::LetterShortcutsAllowed,
-                                   this);
-  });
-
-  connect(actAbout, &QAction::triggered, this, [this]() {
-    const QString body =
-        tr("<b>SplitCommander</b> &nbsp;<small>v%1</small><br>")
-            .arg(QCoreApplication::applicationVersion()) +
-        QString("<small>Ein nativer KDE-Dateimanager für den täglichen "
-                "Einsatz.</small>"
-                "<br><br>"
-                "<b>Stack:</b> Qt6 · KF6 · C++20 · Solid · KIO<br>"
-                "<b>Lizenz:</b> GPL-3.0<br>"
-                "<b>Autor:</b> D. Lange<br>"
-                "<br>"
-                "<b>Features:</b> Miller-Columns · Dual-Pane · Tags · "
-                "Batch-Rename · "
-                "Vorschau · Themes · Hot-Plug USB<br>"
-                "<br>"
-                "<small>Build: ") +
-        QString(__DATE__) + " · " + QString(__TIME__) + "</small>";
-    DialogUtils::message(this, tr("Über SplitCommander"), body);
-  });
+  // (Connections were already set up above)
 
   // --- Such-Panel ---
   auto *searchPanel = new QWidget();
@@ -2036,9 +1977,9 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
 
   // Gespeicherte Position wiederherstellen (pane-spezifischer Key)
   {
-    QSettings s("SplitCommander", "UI");
+    auto s = Config::group("UI");
     const QString key = m_settingsKey + "/vSplitState";
-    const QByteArray state = s.value(key).toByteArray();
+    const QByteArray state = s.readEntry(key, QByteArray());
     if (!state.isEmpty())
       m_vSplit->restoreState(state);
   }
@@ -2049,13 +1990,13 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     // State wird beim App-Beenden in saveState() gespeichert
   });
 
-  connect(millerToggle, &QToolButton::toggled, this,
-          [this, millerToggle](bool checked) {
+  connect(m_millerToggle, &QToolButton::toggled, this,
+          [this](bool checked) {
             if (checked) {
               // Aufklappen: gespeicherte Größe wiederherstellen
-              QSettings s("SplitCommander", "UI");
+              auto s = Config::group("UI");
               const QByteArray saved =
-                  s.value(m_settingsKey + "/vSplitState").toByteArray();
+                  s.readEntry(m_settingsKey + "/vSplitState", QByteArray());
               if (!saved.isEmpty()) {
                 m_vSplit->restoreState(saved);
                 if (m_vSplit->sizes().value(0) == 0)
@@ -2063,41 +2004,43 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
               } else {
                 m_vSplit->setSizes({200, 450});
               }
-              millerToggle->setIcon(QIcon::fromTheme("go-up"));
-              millerToggle->setToolTip("Miller-Columns ausklappen");
+ 
+              m_millerToggle->setIcon(QIcon::fromTheme("go-up"));
+              m_millerToggle->setToolTip("Miller-Columns ausklappen");
               m_millerCollapsed = false;
             } else {
               // Einklappen: aktuelle Größe vorher sichern
               if (m_vSplit->sizes().value(0) > 0) {
-                QSettings s("SplitCommander", "UI");
-                s.setValue(m_settingsKey + "/vSplitState",
-                           m_vSplit->saveState());
-                s.sync();
+                auto s = Config::group("UI");
+                s.writeEntry(m_settingsKey + "/vSplitState",
+                             m_vSplit->saveState());
+                s.config()->sync();
               }
+ 
               m_vSplit->setSizes({0, 1});
-              millerToggle->setIcon(QIcon::fromTheme("go-down"));
-              millerToggle->setToolTip("Miller-Columns einblenden");
+              m_millerToggle->setIcon(QIcon::fromTheme("go-down"));
+              m_millerToggle->setToolTip("Miller-Columns einblenden");
               m_millerCollapsed = true;
             }
           });
 
   // Miller-Toggle-State beim Start setzen
   {
-    QSettings s("SplitCommander", "UI");
-    if (s.value(m_settingsKey + "/millerCollapsed", false).toBool()) {
+    auto s = Config::group("UI");
+    if (s.readEntry(m_settingsKey + "/millerCollapsed", false)) {
       m_millerCollapsed = true;
-      millerToggle->blockSignals(true);
-      millerToggle->setChecked(false);
-      millerToggle->setIcon(QIcon::fromTheme("go-down"));
-      millerToggle->setToolTip("Miller-Columns einblenden");
-      millerToggle->blockSignals(false);
+      m_millerToggle->blockSignals(true);
+      m_millerToggle->setChecked(false);
+      m_millerToggle->setIcon(QIcon::fromTheme("go-down"));
+      m_millerToggle->setToolTip("Miller-Columns einblenden");
+      m_millerToggle->blockSignals(false);
       m_vSplit->setSizes({0, 1});
     }
   }
 
   // Verbindungen
   connect(m_miller, &MillerArea::pathChanged, this,
-          [this](const QString &path) { navigateTo(path); });
+          [this](const QString &path) { navigateTo(path, true, false); });
   connect(m_miller, &MillerArea::kioPathRequested, this,
           [this](const QString &path) { navigateTo(path); });
   connect(m_miller, &MillerArea::openInLeft, this,
@@ -2116,10 +2059,12 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   connect(m_miller, &MillerArea::headerClicked, this,
           [pathStack, this](const QString &path) {
             emit focusRequested();
-            if (!path.isEmpty() && path != "__drives__") {
+            if (path == "__drives__") {
+              m_miller->navigateTo("__drives__");
+            } else if (!path.isEmpty()) {
               navigateTo(path);
             } else {
-              m_pathEdit->setText(path.isEmpty() ? currentPath() : path);
+              m_pathEdit->setText(currentPath());
               m_pathEdit->selectAll();
               pathStack->setCurrentIndex(1);
               m_pathEdit->setFocus();
@@ -2307,10 +2252,11 @@ QString PaneWidget::currentPath() const {
 void PaneWidget::navigateTo(const QString &path, bool clearForward,
                             bool updateMiller) {
   const bool isKio = !path.startsWith("/") && path.contains(":/");
-  if (path.isEmpty() || path == "__drives__")
+  if (path.isEmpty())
     return;
-  // Lokale Pfade die nicht existieren überspringen; KIO-URLs immer durchlassen
-  if (!isKio && !QFileInfo::exists(path))
+  // Lokale Pfade die nicht existieren überspringen; KIO-URLs und Spezialpfade
+  // durchlassen
+  if (!isKio && path != "__drives__" && !QFileInfo::exists(path))
     return;
 
   const QString cur = currentPath();
@@ -2318,6 +2264,14 @@ void PaneWidget::navigateTo(const QString &path, bool clearForward,
     m_histBack.push(cur);
   if (clearForward)
     m_histFwd.clear();
+  if (path == "__drives__") {
+    m_filePane->setRootPath("remote:/");
+    m_pathEdit->setText(tr("Dieser PC"));
+    m_toolbar->setPath(path);
+    if (updateMiller)
+      m_miller->navigateTo("__drives__");
+    return;
+  }
   m_filePane->setRootPath(path);
   QUrl url(path);
   m_pathEdit->setText(url.isLocalFile() ? url.toLocalFile() : path);
@@ -2535,8 +2489,8 @@ PaneWidget *MainWindow::activePane() const {
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   setWindowTitle("SplitCommander");
   {
-    QSettings s("SplitCommander", "UI");
-    const QByteArray geo = s.value("windowGeometry").toByteArray();
+    auto s = Config::group("UI");
+    const QByteArray geo = s.readEntry("windowGeometry", QByteArray());
     if (!geo.isEmpty())
       restoreGeometry(geo);
     else
@@ -2552,21 +2506,23 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   m_sidebar = new Sidebar(this);
   m_jobOverlay = new JobOverlay(this);
   {
-    QSettings s("SplitCommander", "UI");
-    const int sidebarW = s.value("sidebarWidth", 250).toInt();
-    const bool sidebarVis = s.value("sidebarVisible", true).toBool();
+    auto s = Config::group("UI");
+    const int sidebarW = s.readEntry("sidebarWidth", 250);
+    const bool sidebarVis = s.readEntry("sidebarVisible", true);
     m_sidebar->setFixedWidth(sidebarW);
     m_sidebar->setVisible(sidebarVis);
   }
+
   rootLay->addWidget(m_sidebar);
   auto *sidebarHandle = new SidebarHandle(m_sidebar, central);
   {
-    QSettings s("SplitCommander", "UI");
-    const bool sidebarVis = s.value("sidebarVisible", true).toBool();
+    auto s = Config::group("UI");
+    const bool sidebarVis = s.readEntry("sidebarVisible", true);
     sidebarHandle->setFixedWidth(sidebarVis ? 10 : 32);
     if (!sidebarVis)
       sidebarHandle->setCursor(Qt::PointingHandCursor);
   }
+
   rootLay->addWidget(sidebarHandle);
 
   m_panesSplitter = new PaneSplitter(Qt::Horizontal, central);
@@ -2607,24 +2563,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
       m_leftPane->miller()->refresh();
       m_rightPane->miller()->refresh();
     });
-    connect(pane, &PaneWidget::extensionsToggled, this, [this](bool) {
+    connect(pane, &PaneWidget::extensionsToggled, this, [this](bool on) {
+      Config::setShowFileExtensions(on);
       m_leftPane->filePane()->setRootPath(m_leftPane->currentPath());
       m_rightPane->filePane()->setRootPath(m_rightPane->currentPath());
-    });
-    connect(pane, &PaneWidget::openSettingsRequested, this, [this](int page) {
-      auto *dlg = new SettingsDialog(this);
-      dlg->setInitialPage(page);
-      connect(dlg, &SettingsDialog::hiddenFilesChanged, this,
-              [this](bool show) {
-                emit m_sidebar->hiddenFilesChanged(show);
-                m_leftPane->filePane()->setShowHiddenFiles(show);
-                m_rightPane->filePane()->setShowHiddenFiles(show);
-                m_leftPane->miller()->refresh();
-                m_rightPane->miller()->refresh();
-              });
-      connect(dlg, &SettingsDialog::singleClickChanged, this,
-              [this]() { emit m_sidebar->settingsChanged(); });
-      dlg->open();
     });
   };
   connectHamburger(m_leftPane);
@@ -2642,6 +2584,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_leftPane->setFocused(false);
       }
     };
+
+    if (path == "remote:/") {
+      PaneWidget *pane = leftPane ? m_leftPane : m_rightPane;
+      pane->setViewMode(0); // Details
+      pane->navigateTo(path, true, false); // false = don't update miller
+      pane->setFocused(true);
+      if (leftPane) m_rightPane->setFocused(false);
+      else m_leftPane->setFocused(false);
+      return;
+    }
+
     if (path.startsWith("solid:")) {
       Solid::Device dev(path.mid(6));
       auto *acc = dev.as<Solid::StorageAccess>();
@@ -2728,7 +2681,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
   // NetworkPlace aus Millers entfernen — sofort refreshen
   auto doRemoveFromPlaces = [this](const QString &url) {
-    (void)url;
+    if (!url.isEmpty()) {
+      const QString normUrl = mw_normalizePath(url);
+      for (auto *pane : {m_leftPane, m_rightPane}) {
+        const QString current = mw_normalizePath(pane->currentPath());
+        if (current == normUrl || current.startsWith(normUrl + "/")) {
+          pane->navigateTo("__drives__");
+        }
+      }
+    }
     m_sidebar->updateDrives();
     m_leftPane->miller()->refreshDrives();
     m_rightPane->miller()->refreshDrives();
@@ -2738,6 +2699,57 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
           doRemoveFromPlaces);
   connect(m_rightPane->miller(), &MillerArea::removeFromPlacesRequested, this,
           doRemoveFromPlaces);
+  connect(m_sidebar, &Sidebar::removeFromPlacesRequested, this,
+          doRemoveFromPlaces);
+  connect(m_sidebar, &Sidebar::unmountRequested, this, [this](const QString &path) {
+    if (!path.isEmpty()) {
+      const QString normPath = mw_normalizePath(path);
+      for (auto *pane : {m_leftPane, m_rightPane}) {
+        const QString current = mw_normalizePath(pane->currentPath());
+        if (current == normPath || current.startsWith(normPath + "/")) {
+          pane->navigateTo("__drives__");
+        }
+      }
+    }
+    auto *proc = new QProcess(this);
+    connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            this, [this, proc](int, QProcess::ExitStatus) {
+              m_sidebar->updateDrives();
+              proc->deleteLater();
+            });
+    proc->start("umount", {path});
+  });
+
+  auto doTeardown = [this](const QString &udi) {
+    Solid::Device dev(udi);
+    auto *acc = dev.as<Solid::StorageAccess>();
+    if (!acc)
+      return;
+
+    const QString mountPoint = acc->filePath();
+    if (!mountPoint.isEmpty()) {
+      const QString normPath = mw_normalizePath(mountPoint);
+      for (auto *pane : {m_leftPane, m_rightPane}) {
+        const QString current = mw_normalizePath(pane->currentPath());
+        if (current == normPath || current.startsWith(normPath + "/")) {
+          pane->navigateTo("__drives__");
+        }
+      }
+    }
+
+    // Aushängen starten
+    connect(acc, &Solid::StorageAccess::teardownDone, this,
+            [this](Solid::ErrorType, QVariant, const QString &) {
+              // Globaler DeviceNotifier kümmert sich um refreshDrives()
+              emit m_sidebar->drivesChanged();
+            },
+            Qt::SingleShotConnection);
+    acc->teardown();
+  };
+  connect(m_leftPane->miller(), &MillerArea::teardownRequested, this,
+          doTeardown);
+  connect(m_rightPane->miller(), &MillerArea::teardownRequested, this,
+          doTeardown);
   QTimer::singleShot(2000, this, [this]() {
     m_leftPane->miller()->refreshDrives();
     m_rightPane->miller()->refreshDrives();
@@ -2821,15 +2833,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
   // KIO-Einträge zu Laufwerken hinzufügen
   auto doAddToPlaces = [this](const QString &url, const QString &name) {
-    QSettings s("SplitCommander", "NetworkPlaces");
-    QStringList saved = s.value("places").toStringList();
+    auto s = Config::group("NetworkPlaces");
+    QStringList saved = s.readEntry("places", QStringList());
     if (!saved.contains(url)) {
       saved << url;
-      s.setValue("places", saved);
-      s.setValue("name_" + QString(url).replace("/", "_").replace(":", "_"),
-                 name);
-      s.sync();
+      s.writeEntry("places", saved);
+      s.writeEntry("name_" + QString(url).replace("/", "_").replace(":", "_"),
+                   name);
+      s.config()->sync();
     }
+
     m_sidebar->updateDrives();
     m_leftPane->miller()->refreshDrives();
     m_rightPane->miller()->refreshDrives();
@@ -2840,32 +2853,44 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   connect(m_rightPane->filePane(), &FilePane::addToPlacesRequested, this,
           doAddToPlaces);
 
-  QSettings s("SplitCommander", "UI");
-  const QString mode = s.value("startupPathMode", "last").toString();
+  auto s = Config::group("UI");
+  const QString mode = s.readEntry("startupPathMode", "last");
 
   QString leftPath, rightPath;
-  bool syncMiller = true;
+  const int behavior = Config::startupBehavior();
 
-  if (mode == "home") {
-    leftPath = rightPath = QDir::homePath();
-  } else if (mode == "drives") {
-    leftPath = rightPath = QDir::homePath(); // Liste geht auf Home
-    syncMiller = false;                      // Miller bleibt aber bei Drives
-  } else {
-    leftPath = s.value("leftPane/currentPath", QDir::homePath()).toString();
-    rightPath = s.value("rightPane/currentPath", QDir::homePath()).toString();
+  if (behavior == 1) { // Letzte Sitzung
+    leftPath = Config::lastLeftPath();
+    rightPath = Config::lastRightPath();
+    // Validierung lokaler Pfade
+    if (leftPath.startsWith("/") && !QFileInfo::exists(leftPath))
+      leftPath = QDir::homePath();
+    if (rightPath.startsWith("/") && !QFileInfo::exists(rightPath))
+      rightPath = QDir::homePath();
+  } else if (behavior == 2) { // Dieser PC (Root)
+    leftPath = "__drives__";
+    rightPath = "__drives__";
+  } else { // Home (0)
+    leftPath = QDir::homePath();
+    rightPath = QDir::homePath();
   }
 
-  m_leftPane->navigateTo(leftPath, true, syncMiller);
-  m_rightPane->navigateTo(rightPath, true, syncMiller);
+  // Sonderwunsch: Miller oben bei Laufwerken, Liste unten bei Home
+  m_leftPane->navigateTo("__drives__");
+  m_rightPane->navigateTo("__drives__");
 
-  m_currentMode = s.value("layoutMode", 1).toInt();
+  // Jetzt die Liste unten auf Home setzen, aber OHNE Miller zu aktualisieren
+  m_leftPane->navigateTo(QDir::homePath(), true, false);
+  m_rightPane->navigateTo(QDir::homePath(), true, false);
+
+  auto sUI = Config::group("UI");
+  m_currentMode = sUI.readEntry("layoutMode", 1);
   applyLayout(m_currentMode);
 
   connect(m_panesSplitter, &QSplitter::splitterMoved, this, [this](int, int) {
-    QSettings ss("SplitCommander", "UI");
-    ss.setValue("panesSplitterState", m_panesSplitter->saveState());
-    ss.sync();
+    auto ss = Config::group("UI");
+    ss.writeEntry("panesSplitterState", m_panesSplitter->saveState());
+    ss.config()->sync();
   });
 
   m_leftPane->setFocused(true);
@@ -3021,10 +3046,8 @@ void MainWindow::registerShortcuts() {
     // Ansicht
     addAct("view_hidden", tr("Versteckte Dateien umschalten"), "view-hidden",
            Qt::CTRL | Qt::Key_H, [this]() {
-             QSettings gs("SplitCommander", "General");
-             const bool cur = gs.value("showHidden", false).toBool();
-             gs.setValue("showHidden", !cur);
-             gs.sync();
+             const bool cur = Config::showHiddenFiles();
+             Config::setShowHiddenFiles(!cur);
              m_leftPane->navigateTo(m_leftPane->currentPath());
              m_rightPane->navigateTo(m_rightPane->currentPath());
              for (auto *col : m_leftPane->miller()->cols())
@@ -3032,12 +3055,13 @@ void MainWindow::registerShortcuts() {
              for (auto *col : m_rightPane->miller()->cols())
                col->populateDir(col->path());
            });
+
     addAct("view_layout", tr("Layout wechseln"), "view-choose",
            Qt::CTRL | Qt::Key_L, [this]() {
              int next = (m_currentMode + 1) % 3;
-             QSettings gs("SplitCommander", "UI");
-             gs.setValue("layoutMode", next);
-             gs.sync();
+             auto gs = Config::group("UI");
+             gs.writeEntry("layoutMode", next);
+             gs.config()->sync();
              applyLayout(next);
            });
 
@@ -3081,47 +3105,65 @@ void MainWindow::registerShortcuts() {
   }
 }
 
+void PaneWidget::setMillerVisible(bool visible) {
+  if (m_millerToggle) {
+    m_millerToggle->setChecked(visible);
+  }
+}
+
+void PaneWidget::setViewMode(int mode) {
+  m_toolbar->setViewMode(mode);
+  m_filePane->setViewMode(mode);
+}
+
 void PaneWidget::saveState() const {
   if (m_settingsKey.isEmpty() || !m_vSplit)
     return;
-  QSettings s("SplitCommander", "UI");
+  auto s = Config::group("UI");
   // Größe speichern — aber nur wenn nicht gerade eingeklappt
   if (!m_millerCollapsed)
-    s.setValue(m_settingsKey + "/vSplitState", m_vSplit->saveState());
-  s.setValue(m_settingsKey + "/millerCollapsed", m_millerCollapsed);
-  s.setValue(m_settingsKey + "/currentPath", currentPath());
-  s.sync();
+    s.writeEntry(m_settingsKey + "/vSplitState", m_vSplit->saveState());
+  s.writeEntry(m_settingsKey + "/millerCollapsed", m_millerCollapsed);
+  s.writeEntry(m_settingsKey + "/currentPath", currentPath());
+  s.config()->sync();
 }
 
 void MainWindow::saveWindowState() {
-  QSettings s("SplitCommander", "UI");
+  auto s = Config::group("UI");
 
   // Fenster-Geometrie
-  s.setValue("windowGeometry", saveGeometry());
+  s.writeEntry("windowGeometry", saveGeometry());
 
   // Sidebar
-  s.setValue("sidebarVisible", m_sidebar->isVisible());
-  s.setValue("sidebarWidth", m_sidebar->width());
+  s.writeEntry("sidebarVisible", m_sidebar->isVisible());
+  s.writeEntry("sidebarWidth", m_sidebar->width());
 
   // Pane-Splitter (links/rechts bzw. oben/unten)
-  s.setValue("panesSplitterState", m_panesSplitter->saveState());
+  s.writeEntry("panesSplitterState", m_panesSplitter->saveState());
 
   // Beide Panes: Miller-Größe und collapsed-State
   m_leftPane->saveState();
   m_rightPane->saveState();
 
-  s.sync();
+  s.config()->sync();
 }
 
 void MainWindow::closeEvent(QCloseEvent *e) {
   saveWindowState();
+
+  // Session speichern falls aktiviert
+  if (Config::startupBehavior() == 1) {
+    Config::setLastPaths(m_leftPane->currentPath(), m_rightPane->currentPath());
+  }
+
   QMainWindow::closeEvent(e);
 }
 
 void MainWindow::applyLayout(int mode) {
   m_currentMode = mode;
-  QSettings s("SplitCommander", "UI");
-  s.setValue("layoutMode", mode);
+  auto s = Config::group("UI");
+  s.writeEntry("layoutMode", mode);
+  s.config()->sync();
 
   const int total =
       m_panesSplitter->width() > 10 ? m_panesSplitter->width() : 1000;
@@ -3154,7 +3196,8 @@ void MainWindow::applyLayout(int mode) {
   // Gespeicherten State wiederherstellen — nur beim initialen Aufruf
   if (!m_panesSplitterRestored) {
     m_panesSplitterRestored = true;
-    const QByteArray paneState = s.value("panesSplitterState").toByteArray();
+    const QByteArray paneState =
+        s.readEntry("panesSplitterState", QByteArray());
     if (!paneState.isEmpty())
       m_panesSplitter->restoreState(paneState);
   }

@@ -1,8 +1,12 @@
 #pragma once
 #include <QObject>
-#include <QSettings>
 #include <QMap>
 #include <QString>
+#include <QPair>
+#include <QList>
+#include <QMutex>
+#include <KSharedConfig>
+
 
 // --- TagManager --- (Verwaltet die Datei-Tags (Markierungen))
 class TagManager : public QObject
@@ -39,5 +43,8 @@ private:
 
     QList<QPair<QString,QString>> m_tags;
     QMap<QString,QString>         m_fileTags; // path → tagName
-    QSettings                    *m_settings;
+    KSharedConfigPtr              m_config;
+    mutable QMutex                m_mutex;
 };
+
+

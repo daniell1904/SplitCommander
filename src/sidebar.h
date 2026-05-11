@@ -70,6 +70,8 @@ signals:
     void driveClickedRight(const QString &path);
     void driveClickedLeft(const QString &path);
     void drivesChanged();
+    void removeFromPlacesRequested(const QString &url);
+    void unmountRequested(const QString &path);
     void addCurrentPathToPlaces();
     void requestActivePath(QString *outPath);
     void layoutChangeRequested(int mode);

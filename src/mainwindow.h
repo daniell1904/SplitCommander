@@ -30,6 +30,7 @@ public:
     void setPath(const QString &path);
     void setCount(int count, qint64 totalBytes);
     void setSelected(int count);
+    void setViewMode(int mode);
 signals:
     void foldersFirstToggled(bool on);
     void backClicked();
@@ -50,6 +51,7 @@ private:
     QToolButton *m_newFolderBtn;
     QToolButton *m_copyBtn;
     QToolButton *m_emptyTrashBtn;
+    QButtonGroup *m_viewGroup = nullptr;
 };
 
 // --- MillerColumn ---
@@ -57,7 +59,6 @@ class MillerColumn : public QWidget {
     Q_OBJECT
 public:
     explicit MillerColumn(QWidget *parent = nullptr);
-    void setGdriveAccounts(const QStringList &accounts) { m_gdriveAccounts = accounts; }
     void populateDrives();
     void populateDir(const QString &path);
     void setActive(bool active);
@@ -78,9 +79,7 @@ private:
     QListWidget  *m_list;
     QPushButton  *m_header;
     QString       m_path;
-    QStringList   m_gdriveAccounts;
     KDirLister   *m_lister = nullptr;
-    QList<KDirLister*> m_discoveryListers;
 };
 
 // --- MillerArea ---
@@ -104,6 +103,7 @@ signals:
     void openInLeft(const QString &path);
     void openInRight(const QString &path);
     void propertiesRequested(const QString &path);
+    void teardownRequested(const QString &udi);
     void removeFromPlacesRequested(const QString &url);
 protected:
     void resizeEvent(QResizeEvent *e) override;
@@ -133,6 +133,8 @@ public:
     bool isFocused() const { return m_focused; }
     QString currentPath() const;
     void navigateTo(const QString &path, bool clearForward = true, bool updateMiller = true);
+    void setMillerVisible(bool visible);
+    void setViewMode(int mode);
     FilePane *filePane() const { return m_filePane; }
     void saveState() const;
 
@@ -165,6 +167,7 @@ private:
     FilePane *m_filePane;
     MillerArea *m_miller;
     PaneToolbar *m_toolbar;
+    QToolButton *m_millerToggle = nullptr;
     QWidget *m_footerBar = nullptr;
     QLabel *m_footerCount = nullptr;
     QLabel *m_footerSelected = nullptr;
@@ -194,6 +197,8 @@ public:
     PaneWidget *activePane() const;
     PaneWidget *leftPane()   const { return m_leftPane; }
     PaneWidget *rightPane()  const { return m_rightPane; }
+    Sidebar    *sidebar()    const { return m_sidebar; }
+
 
 protected:
     void closeEvent(QCloseEvent *e) override;

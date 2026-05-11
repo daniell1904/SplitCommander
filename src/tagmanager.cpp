@@ -1,78 +1,96 @@
 #include "tagmanager.h"
+#include <KConfigGroup>
+
+
 
 static QString encodeKey(const QString &path)
 {
-    return QString::fromLatin1(path.toUtf8().toBase64());
+    return QString::fromLatin1(path.toUtf8().toHex());
 }
+
 
 static QString decodeKey(const QString &key)
 {
-    return QString::fromUtf8(QByteArray::fromBase64(key.toLatin1()));
+    return QString::fromUtf8(QByteArray::fromHex(key.toLatin1()));
 }
+
 
 TagManager::TagManager()
     : QObject(nullptr)
-    , m_settings(new QSettings("SplitCommander", "Tags", this))
 {
+    m_config = KSharedConfig::openConfig("splitcommanderrc");
     load();
 }
 
 void TagManager::load()
 {
-    // Standard-Tags laden
-    int tcount = m_settings->beginReadArray("tags");
+    QMutexLocker lock(&m_mutex);
+    auto s = m_config->group("Tags");
+    auto tagsG = s.group("tags");
+    int tcount = tagsG.readEntry("size", 0);
+    if (tcount > 100) tcount = 100;
+
+    m_tags.clear();
     if (tcount == 0) {
-        m_settings->endArray();
-        // Defaults
         m_tags = {{"Wichtig", "#bf616a"}, {"Arbeit", "#5e81ac"}, {"Privat", "#a3be8c"}};
     } else {
-        for (int i = 0; i < tcount; ++i) {
-            m_settings->setArrayIndex(i);
-            m_tags.append({m_settings->value("name").toString(),
-                           m_settings->value("color").toString()});
+        for (int i = 1; i <= tcount; ++i) {
+            auto tG = tagsG.group(QString::number(i));
+            m_tags.append(qMakePair(tG.readEntry("name", QString()),
+                                    tG.readEntry("color", QString())));
         }
-        m_settings->endArray();
     }
 
-    // Datei-Tags laden
-    m_settings->beginGroup("fileTags");
-    for (const QString &key : m_settings->childKeys())
-        m_fileTags[decodeKey(key)] = m_settings->value(key).toString();
-    m_settings->endGroup();
+
+    m_fileTags.clear();
+    auto fileTagsG = s.group("fileTags");
+    for (const QString &key : fileTagsG.keyList())
+        m_fileTags[decodeKey(key)] = fileTagsG.readEntry(key, QString());
 }
 
 void TagManager::save()
 {
-    m_settings->beginWriteArray("tags");
+    QMutexLocker lock(&m_mutex);
+    auto s = m_config->group("Tags");
+    
+    s.group("tags").deleteGroup();
+    auto tagsG = s.group("tags");
+    tagsG.writeEntry("size", m_tags.size());
     for (int i = 0; i < m_tags.size(); ++i) {
-        m_settings->setArrayIndex(i);
-        m_settings->setValue("name",  m_tags[i].first);
-        m_settings->setValue("color", m_tags[i].second);
+        auto tG = tagsG.group(QString::number(i + 1));
+        tG.writeEntry("name",  m_tags[i].first);
+        tG.writeEntry("color", m_tags[i].second);
     }
-    m_settings->endArray();
-
-    m_settings->beginGroup("fileTags");
-    m_settings->remove("");
+ 
+    s.group("fileTags").deleteGroup();
+    auto fileTagsG = s.group("fileTags");
     for (auto it = m_fileTags.begin(); it != m_fileTags.end(); ++it)
-        m_settings->setValue(encodeKey(it.key()), it.value());
-    m_settings->endGroup();
+        fileTagsG.writeEntry(encodeKey(it.key()), it.value());
+ 
+    m_config->sync();
 }
 
 void TagManager::addTag(const QString &name, const QString &color)
 {
-    for (auto &t : m_tags) if (t.first == name) return;
-    m_tags.append({name, color});
+    {
+        QMutexLocker lock(&m_mutex);
+        for (auto &t : m_tags) if (t.first == name) return;
+        m_tags.append(qMakePair(name, color));
+
+    }
     save();
     emit tagsChanged();
 }
 
 void TagManager::removeTag(const QString &name)
 {
-    m_tags.removeIf([&](const QPair<QString,QString> &t){ return t.first == name; });
-    // Datei-Tags mit diesem Namen löschen
-    for (auto it = m_fileTags.begin(); it != m_fileTags.end(); ) {
-        if (it.value() == name) it = m_fileTags.erase(it);
-        else ++it;
+    {
+        QMutexLocker lock(&m_mutex);
+        m_tags.removeIf([&](const QPair<QString,QString> &t){ return t.first == name; });
+        for (auto it = m_fileTags.begin(); it != m_fileTags.end(); ) {
+            if (it.value() == name) it = m_fileTags.erase(it);
+            else ++it;
+        }
     }
     save();
     emit tagsChanged();
@@ -80,25 +98,33 @@ void TagManager::removeTag(const QString &name)
 
 void TagManager::setFileTag(const QString &path, const QString &tag)
 {
-    m_fileTags[path] = tag;
+    {
+        QMutexLocker lock(&m_mutex);
+        m_fileTags[path] = tag;
+    }
     save();
     emit fileTagChanged(path);
 }
 
 void TagManager::clearFileTag(const QString &path)
 {
-    m_fileTags.remove(path);
+    {
+        QMutexLocker lock(&m_mutex);
+        m_fileTags.remove(path);
+    }
     save();
     emit fileTagChanged(path);
 }
 
 QString TagManager::fileTag(const QString &path) const
 {
+    QMutexLocker lock(&m_mutex);
     return m_fileTags.value(path);
 }
 
 QString TagManager::tagColor(const QString &tagName) const
 {
+    QMutexLocker lock(&m_mutex);
     for (auto &t : m_tags)
         if (t.first == tagName) return t.second;
     return {};
@@ -106,8 +132,10 @@ QString TagManager::tagColor(const QString &tagName) const
 
 QStringList TagManager::filesWithTag(const QString &tag) const
 {
+    QMutexLocker lock(&m_mutex);
     QStringList result;
     for (auto it = m_fileTags.begin(); it != m_fileTags.end(); ++it)
         if (it.value() == tag) result << it.key();
     return result;
 }
+

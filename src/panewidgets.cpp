@@ -2,8 +2,8 @@
 
 #include "panewidgets.h"
 #include "thememanager.h"
-#include "settingsdialog.h"
-#include "agebadgedialog.h"
+#include "config.h"
+
 
 #include <QCache>
 #include <QPainter>
@@ -17,8 +17,8 @@
 #include <QFileInfo>
 #include <QDateTime>
 #include <QStorageInfo>
-#include <QSettings>
 #include <QGuiApplication>
+
 #include <limits>
 
 // --- MillerStrip ---
@@ -44,7 +44,8 @@ void MillerStrip::paintEvent(QPaintEvent *)
     p.setPen(QColor(TM().colors().borderAlt));
     p.drawLine(width() - 1, 0, width() - 1, height());
     p.save();
-    p.translate(width() / 2 + 4, height() - 8);
+    p.translate(width() / 2.0 + 4.0, (double)height() - 8.0);
+
     p.rotate(-90);
     p.setPen(QColor(m_hovered ? TM().colors().textPrimary : TM().colors().textAccent));
     QFont f = p.font();
@@ -275,10 +276,11 @@ void SidebarHandle::mouseMoveEvent(QMouseEvent *e)
         m_sidebar->setVisible(true);
         m_sidebar->setFixedWidth(newW);
         setFixedWidth(10);
-        QSettings s("SplitCommander", "UI");
-        s.setValue("sidebarWidth",   newW);
-        s.setValue("sidebarVisible", true);
-        s.sync();
+        auto s = Config::group("UI");
+        s.writeEntry("sidebarWidth",   newW);
+        s.writeEntry("sidebarVisible", true);
+        s.config()->sync();
+
     }
 }
 
@@ -296,15 +298,17 @@ void SidebarHandle::mouseReleaseEvent(QMouseEvent *e)
         const bool show = !m_sidebar->isVisible();
         m_sidebar->setVisible(show);
         if (show) {
-            QSettings s("SplitCommander", "UI");
-            m_sidebar->setFixedWidth(s.value("sidebarWidth", 250).toInt());
+            auto s = Config::group("UI");
+            m_sidebar->setFixedWidth(s.readEntry("sidebarWidth", 250));
         }
+
         setFixedWidth(show ? 10 : 32);
         setCursor(show ? Qt::SizeHorCursor : Qt::PointingHandCursor);
-        QSettings s("SplitCommander", "UI");
-        if (!show) s.setValue("sidebarWidth", m_sidebar->width());
-        s.setValue("sidebarVisible", show);
-        s.sync();
+        auto s = Config::group("UI");
+        if (!show) s.writeEntry("sidebarWidth", m_sidebar->width());
+        s.writeEntry("sidebarVisible", show);
+        s.config()->sync();
+
     }
     m_dragging = false;
     update();
@@ -494,7 +498,8 @@ void MillerItemDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
 {
     QStyledItemDelegate::paint(p, opt, idx);
 
-    if (!AgeBadgeDialog::showNewIndicator()) return;
+    if (!Config::showNewIndicator()) return;
+
 
     const QString path = idx.data(Qt::UserRole).toString();
     if (path.isEmpty()) return;
@@ -527,8 +532,8 @@ void MillerItemDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
     if (ageSecs <= 0 || ageSecs >= 86400 * 2) return;
 
     const QColor col = (ageSecs < 3600)
-        ? SettingsDialog::ageBadgeColor(0)
-        : SettingsDialog::ageBadgeColor(1);
+        ? Config::ageBadgeColor(0)
+        : Config::ageBadgeColor(1);
 
     p->fillRect(QRect(opt.rect.left(), opt.rect.top(), 3, opt.rect.height()), col);
 }

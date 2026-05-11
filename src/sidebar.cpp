@@ -33,8 +33,8 @@
 #include <QPushButton>
 #include <QScrollArea>
 #include <QScrollBar>
-#include <QSettings>
 #include <QStackedLayout>
+
 #include <QStandardPaths>
 #include <QStorageInfo>
 #include <QTextStream>
@@ -58,8 +58,12 @@
 
 // 3. SplitCommander
 #include "dialogutils.h"
-#include "settingsdialog.h"
+#include "config.h"
 #include "terminalutils.h"
+#include "tagmanager.h"
+
+
+
 #include "thememanager.h"
 // Themed input dialog - styled like QMenu
 static QString sc_getText(QWidget *parent, const QString &title, const QString &label,
@@ -111,6 +115,13 @@ static void sc_applyMenuShadow(QMenu *menu)
     shadow->setOffset(0, 4);
     shadow->setColor(QColor(0, 0, 0, 140));
     menu->setGraphicsEffect(shadow);
+}
+
+static QString sc_normalizePath(QString s)
+{
+    if (s.length() > 1 && s.endsWith('/'))
+        s.chop(1);
+    return s;
 }
 
 // Kontextmenü-Einträge für Favoriten/Gruppen-Einträge
@@ -400,9 +411,10 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     auto *hLay = new QHBoxLayout(header);
     hLay->setContentsMargins(12, 10, 8, 6);
     hLay->setSpacing(0);
-    QSettings driveBoxSettings(QStringLiteral("SplitCommander"), QStringLiteral("UI"));
-    const QString driveBoxLabel = driveBoxSettings.value(QStringLiteral("driveBoxLabel"), tr("LAUFWERKE")).toString();
+    auto driveBoxSettings = Config::group("UI");
+    const QString driveBoxLabel = driveBoxSettings.readEntry("driveBoxLabel", tr("LAUFWERKE"));
     auto *lbl = new QLabel(driveBoxLabel);
+
     lbl->setStyleSheet(QString("font-size:12px;font-weight:normal;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
     hLay->addWidget(lbl, 1);
 
@@ -496,8 +508,15 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
 
         // Umbenennen — für alle NetworkPlaces-Einträge
         {
-            QSettings netCheck(QStringLiteral("SplitCommander"), QStringLiteral("NetworkPlaces"));
-            if (netCheck.value(QStringLiteral("places")).toStringList().contains(path)) {
+            auto netCheck = Config::group("NetworkPlaces");
+            const QStringList netPlaces = netCheck.readEntry("places", QStringList());
+            const QString npath = sc_normalizePath(path);
+            bool alreadyIn = false;
+            for (const QString &p : netPlaces) {
+                if (sc_normalizePath(p) == npath) { alreadyIn = true; break; }
+            }
+
+            if (alreadyIn) {
                 menu.addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Umbenennen"), this,
                     [this, path, name]() {
                         bool ok;
@@ -510,49 +529,60 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
             }
         }
 
+
         // Zu Laufwerken hinzufügen — nur wenn noch nicht drin
         {
-            QSettings netCheck(QStringLiteral("SplitCommander"), QStringLiteral("NetworkPlaces"));
-            const QStringList netPlaces = netCheck.value(QStringLiteral("places")).toStringList();
-            if (!netPlaces.contains(path)) {
+            auto netCheck = Config::group("NetworkPlaces");
+            const QStringList netPlaces = netCheck.readEntry("places", QStringList());
+            const QString npath = sc_normalizePath(path);
+            bool alreadyIn = false;
+            for (const QString &p : netPlaces) {
+                if (sc_normalizePath(p) == npath) { alreadyIn = true; break; }
+            }
+
+            if (!alreadyIn) {
                 menu.addAction(QIcon::fromTheme(QStringLiteral("bookmark-new")), tr("Zu Laufwerken hinzufügen"), this,
                     [this, path, name]() {
-                        QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("NetworkPlaces"));
-                        QStringList saved = s.value(QStringLiteral("places")).toStringList();
-                        if (!saved.contains(path)) {
-                            saved << path;
-                            s.setValue(QStringLiteral("places"), saved);
-                            s.setValue(QStringLiteral("name_") + QString(path).replace("/","_").replace(":","_"), name);
-                            s.sync();
+                        auto s = Config::group("NetworkPlaces");
+                        QStringList saved = s.readEntry("places", QStringList());
+                        const QString npath = sc_normalizePath(path);
+                        if (!saved.contains(npath)) {
+                            saved << npath;
+                            s.writeEntry("places", saved);
+                            s.writeEntry("name_" + QString(npath).replace("/","_").replace(":","_"), name);
+                            s.config()->sync();
                         }
                         updateDrives();
                         emit drivesChanged();
                     });
             }
         }
+
         // Netzwerklaufwerk trennen (gemountet) oder aus Liste entfernen (KIO)
         const bool isKioPlace = !path.startsWith("/") && path.contains(QStringLiteral(":/"));
         if (isKioPlace) {
             menu.addAction(QIcon::fromTheme(QStringLiteral("list-remove")), tr("Aus Laufwerken entfernen"), this,
                 [this, path]() {
-                    QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("NetworkPlaces"));
-                    QStringList saved = s.value(QStringLiteral("places")).toStringList();
-                    saved.removeAll(path);
-                    s.setValue(QStringLiteral("places"), saved);
-                    s.remove("name_" + QString(path).replace("/","_").replace(":","_"));
-                    s.sync();
+                    auto s = Config::group("NetworkPlaces");
+                    QStringList saved = s.readEntry("places", QStringList());
+                    const QString npath = sc_normalizePath(path);
+                    saved.removeAll(npath);
+                    QString otherVersion = npath.endsWith('/') ? npath.left(npath.length()-1) : npath + "/";
+                    if (otherVersion != "/") saved.removeAll(otherVersion);
+
+                    s.writeEntry("places", saved);
+                    s.deleteEntry("name_" + QString(npath).replace("/","_").replace(":","_"));
+                    s.deleteEntry("name_" + QString(otherVersion).replace("/","_").replace(":","_"));
+                    s.config()->sync();
                     updateDrives();
                     emit drivesChanged();
+                    emit removeFromPlacesRequested(path);
                 });
         } else {
+
             menu.addAction(QIcon::fromTheme(QStringLiteral("media-eject")), tr("Trennen"), this,
                 [this, path]() {
-                    auto *proc = new QProcess(this);
-                    connect(proc, QOverload<int,QProcess::ExitStatus>::of(&QProcess::finished),
-                            this, [this, proc](int, QProcess::ExitStatus) {
-                        updateDrives(); emit drivesChanged(); proc->deleteLater();
-                    });
-                    proc->start("umount", {path});
+                    emit unmountRequested(path);
                 });
         }
         menu.addSeparator();
@@ -572,10 +602,11 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
             ok = !name.isNull();
             if (ok && !name.isEmpty()) {
                 lbl->setText(name);
-                QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("UI"));
-                s.setValue(QStringLiteral("driveBoxLabel"), name);
-                s.sync();
+                auto s = Config::group("UI");
+                s.writeEntry("driveBoxLabel", name);
+                s.config()->sync();
             }
+
         });
         m->addSeparator();
         m->addAction(QIcon::fromTheme(QStringLiteral("view-refresh")), tr("Alles aktualisieren"),
@@ -769,14 +800,11 @@ void Sidebar::buildFooter(QVBoxLayout *parent)
         return b;
     };
 
-    auto *settingsBtn = makeBtn("preferences-system",    tr("Einstellungen"));
     auto *infoBtn     = makeBtn("dialog-information",    tr("Über"));
     auto *searchBtn   = makeBtn("system-search",         tr("Suchen"));
     auto *printBtn    = makeBtn("document-print",        tr("Drucken"));
     auto *chatBtn     = makeBtn("mail-message-new",      tr("Nachricht"));
 
-    lay->addStretch();
-    lay->addWidget(settingsBtn);
     lay->addStretch();
     lay->addWidget(infoBtn);
     lay->addStretch();
@@ -789,20 +817,6 @@ void Sidebar::buildFooter(QVBoxLayout *parent)
 
     parent->addWidget(footer);
 
-    // Einstellungen-Button
-    connect(settingsBtn, &QToolButton::clicked, this, [this]() {
-        auto *dlg = new SettingsDialog(this);
-        dlg->setAttribute(Qt::WA_DeleteOnClose);
-        connect(dlg, &SettingsDialog::hiddenFilesChanged, this, [this](bool show) { emit hiddenFilesChanged(show); });
-        connect(dlg, &SettingsDialog::singleClickChanged, this, [this]() { emit settingsChanged(); });
-        dlg->exec();
-        // QTimer::singleShot(0) stellt sicher dass deleteLater() für dlg
-        // bereits ausgeführt wurde (s_instance == nullptr) bevor settingsChanged
-        // den viewport-Repaint triggert. Ohne den Timer würde ageBadgeColor()
-        // noch s_instance->m_ageColors lesen — die zwar korrekt sind, aber
-        // das Timing ist nicht garantiert auf allen Qt-Versionen.
-        QTimer::singleShot(0, this, [this]() { emit settingsChanged(); });
-    });
 }
 
 // --- Sidebar::connectDriveList ---
@@ -865,16 +879,17 @@ void Sidebar::loadUserPlaces()
                 "smb","sftp","ftp","ftps","davs","dav","nfs","fish","webdav","webdavs"
             };
             if (netSchemes.contains(scheme)) {
-                QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("NetworkPlaces"));
-                QStringList saved = s.value(QStringLiteral("places")).toStringList();
+                auto s = Config::group("NetworkPlaces");
+                QStringList saved = s.readEntry("places", QStringList());
                 if (!saved.contains(href)) {
                     saved << href;
-                    s.setValue(QStringLiteral("places"), saved);
+                    s.writeEntry("places", saved);
                     const QString n = title.isEmpty() ? url.host() : title;
-                    s.setValue(QStringLiteral("name_") + QString(href).replace("/","_"), n);
-                    s.sync();
+                    s.writeEntry("name_" + QString(href).replace("/","_"), n);
+                    s.config()->sync();
                 }
             }
+
         }
     }
 }
@@ -884,37 +899,40 @@ void Sidebar::loadUserPlaces()
 void Sidebar::renameNetworkPlace(const QString &path, const QString &newName)
 {
     // NetworkPlaces aktualisieren
-    QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("NetworkPlaces"));
-    s.setValue(QStringLiteral("name_") + QString(path).replace("/","_").replace(":","_"), newName);
-    s.sync();
+    auto s = Config::group("NetworkPlaces");
+    const QString npath = sc_normalizePath(path);
+    s.writeEntry("name_" + QString(npath).replace("/","_").replace(":","_"), newName);
+    s.config()->sync();
 
     // CustomGroups Settings aktualisieren
-    QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
-    const QStringList groups = gs.value(QStringLiteral("groups")).toStringList();
+    auto gs = Config::group("CustomGroups");
+    const QStringList groups = gs.readEntry("groups", QStringList());
     for (const QString &grp : groups) {
-        int cnt = gs.beginReadArray("group_" + grp);
+        auto g = gs.group("group_" + grp);
+        int cnt = g.readEntry("size", 0);
         QList<QPair<QString,QString>> items;
         bool changed = false;
-        for (int i = 0; i < cnt; ++i) {
-            gs.setArrayIndex(i);
-            QString p = gs.value(QStringLiteral("path")).toString();
-            QString n = gs.value(QStringLiteral("name")).toString();
+        for (int i = 1; i <= cnt; ++i) {
+            auto itemG = g.group(QString::number(i));
+            QString p = itemG.readEntry("path", QString());
+            QString n = itemG.readEntry("name", QString());
             if (p == path) { n = newName; changed = true; }
             items << qMakePair(p, n);
         }
-        gs.endArray();
         if (changed) {
-            gs.remove("group_" + grp);
-            gs.beginWriteArray("group_" + grp);
+            gs.group("group_" + grp).deleteGroup();
+            auto gNew = gs.group("group_" + grp);
+            gNew.writeEntry("size", items.size());
             for (int i = 0; i < items.size(); ++i) {
-                gs.setArrayIndex(i);
-                gs.setValue(QStringLiteral("path"), items[i].first);
-                gs.setValue(QStringLiteral("name"), items[i].second);
+                auto itemG = gNew.group(QString::number(i + 1));
+                itemG.writeEntry("path", items[i].first);
+                itemG.writeEntry("name", items[i].second);
             }
-            gs.endArray();
         }
+
     }
-    gs.sync();
+    gs.config()->sync();
+
 
     // Alle QListWidgets in der Sidebar direkt aktualisieren (kein Neu-Erstellen)
     auto updateList = [&](QListWidget *list) {
@@ -1054,15 +1072,16 @@ void Sidebar::updateDrives()
     bool hasNet = false;
 
     // Gespeicherte Netzwerkplätze (persistent)
-    QSettings netSettings(QStringLiteral("SplitCommander"), QStringLiteral("NetworkPlaces"));
-    QStringList savedPlaces = netSettings.value(QStringLiteral("places")).toStringList();
+    auto netSettings = Config::group("NetworkPlaces");
+    QStringList savedPlaces = netSettings.readEntry("places", QStringList());
     for (const QString &p : savedPlaces) {
         if (shownPaths.contains(p)) continue;
         shownPaths.insert(p);
         hasNet = true;
         const QString scheme = QUrl::fromUserInput(p).scheme().toLower();
-        const QString savedName = netSettings.value(QStringLiteral("name_") + QString(p).replace("/","_").replace(":","_"),
-            scheme == "gdrive" ? "Google Drive" : QDir(p).dirName()).toString();
+        const QString savedName = netSettings.readEntry("name_" + QString(p).replace("/","_").replace(":","_"),
+            scheme == "gdrive" ? "Google Drive" : QDir(p).dirName());
+
         // Icon je nach Protokoll
         QString savedIcon = scheme == "gdrive"    ? "folder-gdrive"
                           : scheme == "smb"       ? "network-workgroup"
@@ -1071,10 +1090,14 @@ void Sidebar::updateDrives()
                           : scheme == "bluetooth" ? "bluetooth"
                           : scheme == "afc"       ? "phone"
                           : "network-server";
+        QString url = p;
+        if ((scheme == "gdrive" || scheme == "mtp") && !url.endsWith("/"))
+            url += "/";
+
         if (m_netList) {
             auto *it = new QListWidgetItem(QIcon::fromTheme(savedIcon), savedName, m_netList);
-            it->setData(Qt::UserRole, p);
-            it->setData(Qt::UserRole + 1, p);
+            it->setData(Qt::UserRole, url);
+            it->setData(Qt::UserRole + 1, url);
             it->setSizeHint(QSize(0, 36));
         }
     }
@@ -1223,8 +1246,8 @@ void Sidebar::setupDriveContextMenu()
 
         // Für manuell gepinnte Netzwerkeinträge: umbenennen + aus Liste entfernen
         {
-            QSettings netCheck(QStringLiteral("SplitCommander"), QStringLiteral("NetworkPlaces"));
-            const QStringList netPlaces = netCheck.value(QStringLiteral("places")).toStringList();
+            auto netCheck = Config::group("NetworkPlaces");
+            const QStringList netPlaces = netCheck.readEntry("places", QStringList());
             if (netPlaces.contains(path)) {
                 menu.addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Umbenennen"), this,
                     [this, path, name]() {
@@ -1245,18 +1268,24 @@ void Sidebar::setupDriveContextMenu()
                     });
                 menu.addAction(QIcon::fromTheme(QStringLiteral("list-remove")), tr("Aus Laufwerken entfernen"), this,
                     [this, path]() {
-                        QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("NetworkPlaces"));
-                        QStringList saved = s.value(QStringLiteral("places")).toStringList();
-                        saved.removeAll(path);
-                        s.setValue(QStringLiteral("places"), saved);
-                        s.remove("name_" + QString(path).replace("/","_").replace(":","_"));
-                        s.sync();
+                        auto s = Config::group("NetworkPlaces");
+                        QStringList saved = s.readEntry("places", QStringList());
+                        const QString npath = sc_normalizePath(path);
+                        saved.removeAll(npath);
+                        QString otherVersion = npath.endsWith('/') ? npath.left(npath.length()-1) : npath + "/";
+                        if (otherVersion != "/") saved.removeAll(otherVersion);
+
+                        s.writeEntry("places", saved);
+                        s.deleteEntry("name_" + QString(npath).replace("/","_").replace(":","_"));
+                        s.deleteEntry("name_" + QString(otherVersion).replace("/","_").replace(":","_"));
+                        s.config()->sync();
                         updateDrives();
                         emit drivesChanged();
                     });
                 menu.addSeparator();
             }
         }
+
 
         auto *copyMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("edit-copy")), tr("Kopieren"));
         copyMenu->setStyleSheet(TM().ssMenu());
@@ -1328,13 +1357,14 @@ void Sidebar::onNewGroupDialog()
     const QString grpName = nameEdit->text().trimmed();
     if (grpName.isEmpty()) return;
 
-    QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
-    QStringList groups = s.value(QStringLiteral("groups")).toStringList();
+    auto s = Config::group("CustomGroups");
+    QStringList groups = s.readEntry("groups", QStringList());
     if (!groups.contains(grpName)) {
         groups << grpName;
-        s.setValue(QStringLiteral("groups"), groups);
-        s.sync();
+        s.writeEntry("groups", groups);
+        s.config()->sync();
     }
+
 
     QListWidget *list = createGroupWidget(grpName, nullptr);
 
@@ -1367,9 +1397,11 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     outerBox->setStyleSheet(TM().ssBox());
     outerBox->setProperty("groupName", name);
 
-    QSettings pinSettings(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
-    const bool pinned = pinSettings.value(QStringLiteral("pinned_") + name, false).toBool();
-    outerBox->setProperty("pinned", pinned);
+    {
+        auto pinSettings = Config::group("CustomGroups");
+        outerBox->setProperty("pinned", pinSettings.readEntry("pinned_" + name, false));
+    }
+
 
     auto *vbox = new QVBoxLayout(outerBox);
     vbox->setContentsMargins(0, 0, 0, 0);
@@ -1513,26 +1545,26 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
             *sharedName = newName.trimmed();
             lbl->setText(sharedName->toUpper());
 
-            QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
-            QStringList grps = gs.value(QStringLiteral("groups")).toStringList();
-            int i = grps.indexOf(oldName);
-            if (i != -1) { grps[i] = *sharedName; gs.setValue(QStringLiteral("groups"), grps); }
+            auto gs = Config::group("CustomGroups");
+            QStringList grps = gs.readEntry("groups", QStringList());
+            int idx = grps.indexOf(oldName);
+            if (idx != -1) { grps[idx] = *sharedName; gs.writeEntry("groups", grps); }
+ 
+            auto oldGrp = gs.group("group_" + oldName);
+            auto newGrp = gs.group("group_" + *sharedName);
+            int cnt = oldGrp.readEntry("size", 0);
+            newGrp.writeEntry("size", cnt);
+            for (int j = 1; j <= cnt; ++j) {
+                auto oldItem = oldGrp.group(QString::number(j));
+                auto newItem = newGrp.group(QString::number(j));
+                newItem.writeEntry("path", oldItem.readEntry("path", QString()));
+                newItem.writeEntry("name", oldItem.readEntry("name", QString()));
+            }
+            oldGrp.deleteGroup();
+            gs.writeEntry("pinned_" + *sharedName, gs.readEntry("pinned_" + oldName, false));
+            gs.deleteEntry("pinned_" + oldName);
+            gs.config()->sync();
 
-            QVariantList items;
-            int cnt = gs.beginReadArray("group_" + oldName);
-            for (int j = 0; j < cnt; ++j) {
-                gs.setArrayIndex(j);
-                items << QVariantMap{{"path", gs.value(QStringLiteral("path"))}, {"name", gs.value(QStringLiteral("name"))}};
-            }
-            gs.endArray();
-            gs.remove("group_" + oldName);
-            gs.beginWriteArray("group_" + *sharedName);
-            for (int j = 0; j < items.size(); ++j) {
-                gs.setArrayIndex(j);
-                auto map = items[j].toMap();
-                gs.setValue(QStringLiteral("path"), map["path"]); gs.setValue(QStringLiteral("name"), map["name"]);
-            }
-            gs.endArray(); gs.sync();
         });
 
         m->addSeparator();
@@ -1542,36 +1574,20 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
         connect(m->addAction(QIcon::fromTheme(isPinned ? "window-unpin" : "window-pin"),
                              isPinned ? tr("Lösen") : tr("An Position verankern")),
                 &QAction::triggered, this, [outerBox, sharedName]() {
+
             const bool nowPinned = !outerBox->property("pinned").toBool();
             outerBox->setProperty("pinned", nowPinned);
-            QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
-            gs.setValue(QStringLiteral("pinned_") + *sharedName, nowPinned); gs.sync();
-
-            auto *vb = qobject_cast<QVBoxLayout *>(outerBox->layout());
-            if (vb && vb->count() > 0) {
-                auto *oldHeader = vb->itemAt(0)->widget();
-                if (oldHeader) {
-                    QList<QWidget *> children;
-                    if (auto *hLay2 = oldHeader->layout())
-                        for (int i = 0; i < hLay2->count(); ++i)
-                            if (auto *w = hLay2->itemAt(i)->widget()) { children << w; w->setParent(nullptr); }
-                    vb->removeWidget(oldHeader); oldHeader->deleteLater();
-                    auto *newHeader = nowPinned
-                        ? static_cast<QWidget *>(new QWidget(outerBox))
-                        : static_cast<QWidget *>(new GroupDragHandle(outerBox, outerBox));
-                    newHeader->setStyleSheet("background:transparent; border:none;");
-                    auto *nh = new QHBoxLayout(newHeader);
-                    nh->setContentsMargins(12, 10, 8, 6); nh->setSpacing(4);
-                    for (auto *w : children) nh->addWidget(w);
-                    vb->insertWidget(0, newHeader);
-                }
-            }
+            auto gs = Config::group("CustomGroups");
+            gs.writeEntry("pinned_" + *sharedName, nowPinned);
+            gs.config()->sync();
         });
 
         m->addSeparator();
-        auto *upAct   = m->addAction(QIcon::fromTheme(QStringLiteral("go-up")),       tr("Nach oben"));
-        auto *downAct = m->addAction(QIcon::fromTheme(QStringLiteral("go-down")),     tr("Nach unten"));
+
+        auto *upAct   = m->addAction(QIcon::fromTheme(QStringLiteral("go-up")),   tr("Nach oben"));
+        auto *downAct = m->addAction(QIcon::fromTheme(QStringLiteral("go-down")), tr("Nach unten"));
         if (isPinned) { upAct->setEnabled(false); downAct->setEnabled(false); }
+
         m->addSeparator();
         auto *delAct = m->addAction(QIcon::fromTheme(QStringLiteral("edit-delete")), tr("Gruppe löschen"));
 
@@ -1585,10 +1601,12 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
         });
         connect(delAct, &QAction::triggered, this, [this, wrapper, sharedName]() {
             m_contentLayout->removeWidget(wrapper); wrapper->deleteLater();
-            QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
-            gs.remove("group_" + *sharedName); gs.sync();
+            auto gs = Config::group("CustomGroups");
+            gs.group("group_" + *sharedName).deleteGroup();
+            gs.config()->sync();
             saveGroupOrder();
         });
+
 
         m->popup(menuBtn->mapToGlobal(QPoint(0, menuBtn->height())));
     });
@@ -1606,25 +1624,25 @@ void Sidebar::saveGroupOrder()
         auto *ob = w->findChild<QWidget *>("groupBox");
         if (ob) order << ob->property("groupName").toString();
     }
-    QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
-    gs.setValue(QStringLiteral("groups"), order);
-    gs.sync();
+    auto gs = Config::group("CustomGroups");
+    gs.writeEntry("groups", order);
+    gs.config()->sync();
 }
 
-// --- Sidebar::loadCustomGroups ---
 void Sidebar::loadCustomGroups()
 {
-    QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
-    const QStringList groups = s.value(QStringLiteral("groups")).toStringList();
+    auto s = Config::group("CustomGroups");
+    const QStringList groups = s.readEntry("groups", QStringList());
     for (const QString &groupName : groups) {
         QListWidget *list = createGroupWidget(groupName, m_newGroupBox);
         if (groupName == "Favoriten") m_favList = list;
 
-        int cnt = s.beginReadArray("group_" + groupName);
-        for (int i = 0; i < cnt; ++i) {
-            s.setArrayIndex(i);
-            const QString path     = s.value(QStringLiteral("path")).toString();
-            const QString itemName = s.value(QStringLiteral("name")).toString();
+        auto g = s.group("group_" + groupName);
+        int cnt = g.readEntry("size", 0);
+        for (int i = 1; i <= cnt; ++i) {
+            auto itemG = g.group(QString::number(i));
+            const QString path     = itemG.readEntry("path", QString());
+            const QString itemName = itemG.readEntry("name", QString());
             if (path.isEmpty()) continue;
             QIcon ico;
             if (!path.startsWith("/")) {
@@ -1644,10 +1662,10 @@ void Sidebar::loadCustomGroups()
             auto *it = new QListWidgetItem(ico, itemName, list);
             it->setData(Qt::UserRole, path);
         }
-        s.endArray();
         adjustListHeight(list);
     }
 }
+
 
 // --- Sidebar::addToGroup ---
 void Sidebar::addToGroup(const QString &groupName, QListWidget *list, const QString &path)
@@ -1695,16 +1713,19 @@ void Sidebar::addToGroup(const QString &groupName, QListWidget *list, const QStr
     it->setData(Qt::UserRole, path);
     adjustListHeight(list);
 
-    QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
-    gs.remove("group_" + groupName);
-    gs.beginWriteArray("group_" + groupName);
+    auto gs = Config::group("CustomGroups");
+    gs.group("group_" + groupName).deleteGroup();
+    auto gNew = gs.group("group_" + groupName);
+    gNew.writeEntry("size", list->count());
+
     for (int i = 0; i < list->count(); ++i) {
-        gs.setArrayIndex(i);
-        gs.setValue(QStringLiteral("path"), list->item(i)->data(Qt::UserRole).toString());
-        gs.setValue(QStringLiteral("name"), list->item(i)->text());
+                auto itemG = gNew.group(QString::number(i + 1));
+
+        itemG.writeEntry("path", list->item(i)->data(Qt::UserRole).toString());
+        itemG.writeEntry("name", list->item(i)->text());
     }
-    gs.endArray();
-    gs.sync();
+    gs.config()->sync();
+
 }
 
 // --- Sidebar::addPlace ---
@@ -1730,17 +1751,21 @@ void Sidebar::showPlaceContextMenu(QListWidgetItem *item, QListWidget *list,
 
     auto saveList = [list, groupName]() {
         if (!groupName.isEmpty()) {
-            QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
-            gs.remove("group_" + groupName);
-            gs.beginWriteArray("group_" + groupName);
+            auto gs = Config::group("CustomGroups");
+            gs.group("group_" + groupName).deleteGroup();
+            auto gNew = gs.group("group_" + groupName);
+            gNew.writeEntry("size", list->count());
+
             for (int i = 0; i < list->count(); ++i) {
-                gs.setArrayIndex(i);
-                gs.setValue(QStringLiteral("path"), list->item(i)->data(Qt::UserRole).toString());
-                gs.setValue(QStringLiteral("name"), list->item(i)->text());
+                        auto itemG = gNew.group(QString::number(i + 1));
+
+                itemG.writeEntry("path", list->item(i)->data(Qt::UserRole).toString());
+                itemG.writeEntry("name", list->item(i)->text());
             }
-            gs.endArray(); gs.sync();
+            gs.config()->sync();
         }
     };
+
 
     sc_buildPlaceMenu(menu, path,
         [list, item, saveList]() {
@@ -1776,34 +1801,23 @@ void Sidebar::addTagItem(const QString &name, const QString &color, const QStrin
 void Sidebar::setupTags()
 {
     m_tagList->clear();
-
-    QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("Tags"));
-    int cnt = s.beginReadArray("tags");
-    if (cnt == 0) {
-        s.endArray();
-        s.beginWriteArray("tags");
-        s.setArrayIndex(0); s.setValue(QStringLiteral("name"), "Wichtig"); s.setValue(QStringLiteral("color"), "#bf616a");
-        s.setArrayIndex(1); s.setValue(QStringLiteral("name"), "Arbeit");  s.setValue(QStringLiteral("color"), TM().colors().accentHover);
-        s.endArray(); s.sync();
-        cnt = 2;
-        s.beginReadArray("tags");
+    for (const auto &t : TagManager::instance().tags()) {
+        addTagItem(t.first, t.second, QString());
     }
-    for (int i = 0; i < cnt; ++i) {
-        s.setArrayIndex(i);
-        addTagItem(s.value(QStringLiteral("name")).toString(), s.value(QStringLiteral("color")).toString(), s.value(QStringLiteral("font")).toString());
-    }
-    s.endArray();
 
+ 
     adjustListHeight(m_tagList);
     if (m_tagsBox)  m_tagsBox->updateGeometry();
     if (m_tagsWrap) m_tagsWrap->updateGeometry();
-
+ 
     connect(m_tagList, &QListWidget::itemClicked, this, [this](QListWidgetItem *it) {
         emit tagClicked(it->text());
         QTimer::singleShot(150, m_tagList, [this]() {
             m_tagList->clearSelection();
         });
     });
+
+
 
     m_tagList->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_tagList, &QListWidget::customContextMenuRequested, this,
@@ -1853,17 +1867,20 @@ void Sidebar::setupTags()
 
 void Sidebar::saveTags()
 {
-    QSettings s(QStringLiteral("SplitCommander"), QStringLiteral("Tags"));
-    s.beginWriteArray("tags");
+    auto s = Config::group("Tags");
+    s.group("tags").deleteGroup();
+    auto tagsG = s.group("tags");
+    tagsG.writeEntry("size", m_tagList->count());
     for (int i = 0; i < m_tagList->count(); ++i) {
-        s.setArrayIndex(i);
-        s.setValue(QStringLiteral("name"),  m_tagList->item(i)->text());
-        s.setValue(QStringLiteral("color"), m_tagList->item(i)->data(Qt::UserRole).toString());
-        s.setValue(QStringLiteral("font"),  m_tagList->item(i)->data(Qt::UserRole + 1).toString());
+        auto tG = tagsG.group(QString::number(i + 1));
+        tG.writeEntry("name",  m_tagList->item(i)->text());
+        tG.writeEntry("color", m_tagList->item(i)->data(Qt::UserRole).toString());
+        tG.writeEntry("font",  m_tagList->item(i)->data(Qt::UserRole + 1).toString());
     }
-    s.endArray();
-    s.sync();
+    s.config()->sync();
 }
+
+
 
 // --- Sidebar — leere Stubs (Interface-Kompatibilität) ---
 void Sidebar::setupPlaces()  {}
@@ -1871,21 +1888,22 @@ void Sidebar::setupRemotes() {}
 void Sidebar::savePlaces(QListWidget **list)
 {
     if (!list || !*list) return;
-    QSettings gs(QStringLiteral("SplitCommander"), QStringLiteral("CustomGroups"));
-    gs.remove("group_Favoriten");
-    gs.beginWriteArray("group_Favoriten");
-    int idx = 0;
+    auto gs = Config::group("CustomGroups");
+    auto g = gs.group("group_Favoriten");
+    g.deleteGroup();
+    int idx = 1;
     for (int i = 0; i < (*list)->count(); ++i) {
         auto *item = (*list)->item(i);
         if (item->data(Qt::UserRole + 1).toBool()) continue;
-        gs.setArrayIndex(idx++);
-        gs.setValue(QStringLiteral("path"), item->data(Qt::UserRole).toString());
-        gs.setValue(QStringLiteral("name"), item->text());
+        auto itemG = g.group(QString::number(idx++));
+        itemG.writeEntry("path", item->data(Qt::UserRole).toString());
+        itemG.writeEntry("name", item->text());
     }
-    gs.endArray();
+    g.writeEntry("size", idx - 1);
     adjustListHeight(*list);
-    gs.sync();
+    gs.config()->sync();
 }
+
 
 // --- GroupDragHandle — Implementierung ---
 GroupDragHandle::GroupDragHandle(QWidget *outerBox, QWidget *parent)

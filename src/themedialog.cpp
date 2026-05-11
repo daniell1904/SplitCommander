@@ -1,12 +1,12 @@
 #include "themedialog.h"
-#include "settingsdialog.h"
+#include "config.h"
 #include "thememanager.h"
 
 #include <QApplication>
 #include "dialogutils.h"
 #include <QProcess>
-#include <QSettings>
 #include <QFrame>
+
 
 ThemeDialog::ThemeDialog(QWidget *parent)
     : QDialog(parent)
@@ -29,7 +29,7 @@ ThemeDialog::ThemeDialog(QWidget *parent)
     auto *grpSys = new QGroupBox(tr("System-Theme"), content);
     auto *sysLay = new QVBoxLayout(grpSys);
     m_sysCheck   = new QCheckBox(tr("KDE Global Theme verwenden"), grpSys);
-    m_sysCheck->setChecked(SettingsDialog::useSystemTheme());
+    m_sysCheck->setChecked(Config::useSystemTheme());
     auto *sysHint = new QLabel(tr("Übernimmt Farben und Stil des aktiven KDE Global Themes."), grpSys);
     sysHint->setObjectName("hint");
     sysHint->setWordWrap(true);
@@ -43,7 +43,7 @@ ThemeDialog::ThemeDialog(QWidget *parent)
     themeLay->setSpacing(8);
     m_themeGroup = new QButtonGroup(m_themeBox);
 
-    const QString curTheme = SettingsDialog::selectedTheme();
+    const QString curTheme = Config::selectedTheme();
 
     const auto allThemes = TM().allThemes();
     for (int i = 0; i < allThemes.size(); ++i) {
@@ -119,7 +119,7 @@ ThemeDialog::ThemeDialog(QWidget *parent)
     }
 
     connect(m_sysCheck, &QCheckBox::toggled, m_themeBox, &QWidget::setDisabled);
-    m_themeBox->setDisabled(SettingsDialog::useSystemTheme());
+    m_themeBox->setDisabled(Config::useSystemTheme());
     lay->addWidget(m_themeBox);
     lay->addStretch();
     outerLay->addWidget(content, 1);
@@ -156,19 +156,18 @@ ThemeDialog::ThemeDialog(QWidget *parent)
 
 void ThemeDialog::applyAndSave()
 {
-    QSettings s("SplitCommander", "Appearance");
     const bool useSys = m_sysCheck->isChecked();
-    s.setValue("useSystemTheme", useSys);
+    Config::setUseSystemTheme(useSys);
 
     if (!useSys) {
         int idx = m_themeGroup->checkedId();
         const auto allThemes = TM().allThemes();
         if (idx >= 0 && idx < allThemes.size())
-            s.setValue("theme", allThemes.at(idx).name);
+            Config::setSelectedTheme(allThemes.at(idx).name);
     }
-    s.sync();
 
     accept();
+
 
     DialogUtils::message(nullptr, tr("Neustart erforderlich"),
         tr("Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet."));

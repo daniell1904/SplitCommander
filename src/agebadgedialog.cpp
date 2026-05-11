@@ -1,5 +1,5 @@
 #include "agebadgedialog.h"
-#include "settingsdialog.h"
+#include "config.h"
 #include "thememanager.h"
 
 #include <QVBoxLayout>
@@ -9,8 +9,8 @@
 #include <QToolButton>
 #include <QFrame>
 #include <QPainter>
-#include <QSettings>
 #include <QIcon>
+
 
 // --- Lokaler Gradient-Balken ---
 class AgeBadgeGradBar : public QWidget {
@@ -59,7 +59,7 @@ AgeBadgeDialog::AgeBadgeDialog(QWidget *parent)
 
     // Farben laden
     for (int i = 0; i < 6; ++i)
-        m_ageColors.append(SettingsDialog::ageBadgeColor(i));
+        m_ageColors.append(Config::ageBadgeColor(i));
 
     // GroupBox
     auto *grpAge = new QGroupBox(tr("Dateialter / relatives Datum"), content);
@@ -72,7 +72,7 @@ AgeBadgeDialog::AgeBadgeDialog(QWidget *parent)
     ageLay->addWidget(gradBar);
 
     // Slider
-    QSettings ageS("SplitCommander", "AgeBadge");
+
     auto *sliderRow = new QHBoxLayout();
     sliderRow->setSpacing(8);
 
@@ -84,12 +84,14 @@ AgeBadgeDialog::AgeBadgeDialog(QWidget *parent)
 
     m_sSlider = new QSlider(Qt::Horizontal, grpAge);
     m_sSlider->setRange(0, 255);
-    m_sSlider->setValue(ageS.value("saturation", 220).toInt());
+    m_sSlider->setValue(Config::ageBadgeSaturation());
+
     m_sSlider->setFixedHeight(18);
 
     m_lSlider = new QSlider(Qt::Horizontal, grpAge);
     m_lSlider->setRange(0, 255);
-    m_lSlider->setValue(ageS.value("lightness", 140).toInt());
+    m_lSlider->setValue(Config::ageBadgeLightness());
+
     m_lSlider->setFixedHeight(18);
 
     auto *resetBtn = new QToolButton(grpAge);
@@ -114,8 +116,9 @@ AgeBadgeDialog::AgeBadgeDialog(QWidget *parent)
 
     // Checkbox: Neue Dateien hervorheben
     m_indicatorCheck = new QCheckBox(tr("Neue Dateien hervorheben (< 2 Tage)"), grpAge);
-    m_indicatorCheck->setChecked(ageS.value("showNewIndicator", false).toBool());
+    m_indicatorCheck->setChecked(Config::showNewIndicator());
     ageLay->addWidget(m_indicatorCheck);
+
 
     lay->addWidget(grpAge);
     lay->addStretch();
@@ -170,16 +173,11 @@ void AgeBadgeDialog::updateDynamicColors()
 
 void AgeBadgeDialog::applyAndSave()
 {
-    QSettings s("SplitCommander", "AgeBadge");
-    s.setValue("saturation", m_sSlider->value());
-    s.setValue("lightness",  m_lSlider->value());
-    s.setValue("showNewIndicator", m_indicatorCheck->isChecked());
-    s.sync();
+    Config::setAgeBadgeSaturation(m_sSlider->value());
+    Config::setAgeBadgeLightness(m_lSlider->value());
+    Config::setShowNewIndicator(m_indicatorCheck->isChecked());
     accept();
 }
 
-bool AgeBadgeDialog::showNewIndicator()
-{
-    QSettings s("SplitCommander", "AgeBadge");
-    return s.value("showNewIndicator", false).toBool();
-}
+
+

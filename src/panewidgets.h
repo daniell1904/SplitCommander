@@ -11,7 +11,12 @@
 #include <QList>
 #include <QIcon>
 #include <QPoint>
+#include <QString>
+#include <QPaintEvent>
+#include <QMouseEvent>
+#include <QEnterEvent>
 #include <functional>
+
 
 // --- MillerStrip — schmaler Streifen für zurückliegende Miller-Spalten ---
 class MillerStrip : public QWidget {

@@ -96,6 +96,10 @@ public:
 
     KFileItem fileItem(const QModelIndex &proxyIdx) const;
 
+    // Global Tag Mode
+    void setGlobalTagMode(const QString &tagName, const QList<KFileItem> &items);
+    bool isGlobalTagMode() const { return m_globalTagMode; }
+
 private:
     bool acceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
     QVariant extraData(const KFileItem &item, FPCol col, int role) const;
@@ -103,6 +107,8 @@ private:
 
     QList<FPCol>              m_visCols;
     QString                   m_tagFilter;
+    bool                      m_globalTagMode = false;
+    QList<KFileItem>          m_tagItems;
     KDirSortFilterProxyModel *m_sortProxy = nullptr;
     KDirModel                *m_kdirModel = nullptr;
 };

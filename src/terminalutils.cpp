@@ -1,7 +1,10 @@
 #include "terminalutils.h"
+#include "config.h"
 #include <QProcess>
-#include <QSettings>
+
+
 #include <QStandardPaths>
+
 #include <QFileInfo>
 
 static const QStringList knownTerminals()
@@ -48,10 +51,10 @@ static QString sc_findInstalledTerminal()
 QString sc_detectTerminal()
 {
     // 1. SplitCommander-eigene Einstellung
-    QSettings s("SplitCommander", "General");
-    const QString userChoice = s.value("terminalApp").toString().trimmed();
+    const QString userChoice = Config::terminalApp().trimmed();
     if (!userChoice.isEmpty())
         return userChoice;
+
 
     // 2. KDE-Systemeinstellung – nur wenn Binary existiert
     QProcess p;

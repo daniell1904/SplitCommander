@@ -29,7 +29,8 @@ add_executable(splitcommander
     src/sidebar.cpp
     src/tagmanager.cpp
     src/batchrenamer.cpp
-    src/settingsdialog.cpp
+    src/config.cpp
+
     src/themedialog.cpp
     src/agebadgedialog.cpp
     src/thememanager.cpp
