@@ -514,8 +514,8 @@ QString ThemeManager::ssColDrives() const {
 QString ThemeManager::ssMenu() const {
     const auto &c = m_colors;
     return QString(
-        "QMenu{background:%1;color:%2;border:1px solid %3;min-width:180px;border-radius:6px;padding:4px 0px;}"
-        "QMenu::item{padding:6px 24px 6px 28px;}"
+        "QMenu{background:%1;color:%2;border:1px solid %3;min-width:180px;border-radius:6px;padding:6px 4px;}"
+        "QMenu::item{padding:6px 24px 6px 36px;}"
         "QMenu::item:selected{background:%4;border-radius:4px;margin:0px 4px;}"
         "QMenu::separator{background:%5;height:1px;margin:4px 8px;}"
         "QMenu::indicator{width:14px;height:14px;margin-left:6px;}"

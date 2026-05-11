@@ -62,7 +62,6 @@
 
 static QString menuStyle() {
     return TM().ssMenu() +
-    "QMenu::item{padding:6px 20px;}"
     "QMenu::separator{background:rgba(236,239,244,120);height:1px;margin:4px 8px;}";
 }
 

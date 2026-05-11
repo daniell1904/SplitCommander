@@ -2866,12 +2866,13 @@ void MainWindow::registerShortcuts() {
 
     // --- Hilfsmakro: Aktion anlegen ---
     // Qt::ApplicationShortcut: greift immer, egal welches Widget den Fokus hat
-    auto addAct = [this](const QString &id, const QString &label,
+    auto addAct = [this](const QString &id, const QString &label, const QString &icon,
                          const QKeySequence &defKey,
                          std::function<void()> fn,
                          const QKeySequence &altKey = {}) -> QAction * {
       auto *a = m_actionCollection->addAction(id);
       a->setText(label);
+      if (!icon.isEmpty()) a->setIcon(QIcon::fromTheme(icon));
       a->setShortcutContext(Qt::ApplicationShortcut);
       if (altKey.isEmpty()) {
         m_actionCollection->setDefaultShortcut(a, defKey);
@@ -2884,28 +2885,28 @@ void MainWindow::registerShortcuts() {
 
 
     // Navigation
-    addAct("nav_back", tr("Zurück"), Qt::ALT | Qt::Key_Left, [this]() {
+    addAct("nav_back", tr("Zurück"), "go-previous", Qt::ALT | Qt::Key_Left, [this]() {
       auto *p = activePane();
       if (!p->histBack().isEmpty()) {
         p->histFwd().push(p->currentPath());
         p->navigateTo(p->histBack().pop(), false);
       }
     });
-    addAct("nav_forward", tr("Vorwärts"), Qt::ALT | Qt::Key_Right, [this]() {
+    addAct("nav_forward", tr("Vorwärts"), "go-next", Qt::ALT | Qt::Key_Right, [this]() {
       auto *p = activePane();
       if (!p->histFwd().isEmpty()) {
         p->histBack().push(p->currentPath());
         p->navigateTo(p->histFwd().pop(), false);
       }
     });
-    addAct("nav_up", tr("Übergeordneter Ordner"), Qt::ALT | Qt::Key_Up, [this]() {
+    addAct("nav_up", tr("Übergeordneter Ordner"), "go-up", Qt::ALT | Qt::Key_Up, [this]() {
       QDir d(activePane()->currentPath());
       if (d.cdUp())
         activePane()->navigateTo(d.absolutePath());
     });
-    addAct("nav_home", tr("Home-Verzeichnis"), Qt::ALT | Qt::Key_Home,
+    addAct("nav_home", tr("Home-Verzeichnis"), "go-home", Qt::ALT | Qt::Key_Home,
            [this]() { activePane()->navigateTo(QDir::homePath()); });
-    addAct("nav_reload", tr("Neu laden"), Qt::CTRL | Qt::Key_R, [this]() {
+    addAct("nav_reload", tr("Neu laden"), "view-refresh", Qt::CTRL | Qt::Key_R, [this]() {
       m_leftPane->miller()->refreshDrives();
       m_rightPane->miller()->refreshDrives();
       m_leftPane->navigateTo(m_leftPane->currentPath());
@@ -2913,28 +2914,28 @@ void MainWindow::registerShortcuts() {
     }, Qt::Key_F5);
 
     // Pane-Fokus
-    addAct("pane_focus_left", tr("Linke Pane fokussieren"),
+    addAct("pane_focus_left", tr("Linke Pane fokussieren"), "go-first",
            Qt::CTRL | Qt::Key_Left, [this]() {
              m_leftPane->setFocused(true);
              m_rightPane->setFocused(false);
            });
-    addAct("pane_focus_right", tr("Rechte Pane fokussieren"),
+    addAct("pane_focus_right", tr("Rechte Pane fokussieren"), "go-last",
            Qt::CTRL | Qt::Key_Right, [this]() {
              m_rightPane->setFocused(true);
              m_leftPane->setFocused(false);
            });
-    addAct("pane_swap", tr("Panes tauschen"), Qt::CTRL | Qt::Key_U, [this]() {
+    addAct("pane_swap", tr("Panes tauschen"), "view-split-left-right", Qt::CTRL | Qt::Key_U, [this]() {
       const QString l = m_leftPane->currentPath();
       const QString r = m_rightPane->currentPath();
       m_leftPane->navigateTo(r);
       m_rightPane->navigateTo(l);
     });
-    addAct("pane_sync", tr("Pfade synchronisieren"),
+    addAct("pane_sync", tr("Pfade synchronisieren"), "view-refresh",
            Qt::CTRL | Qt::SHIFT | Qt::Key_S,
            [this]() { m_rightPane->navigateTo(m_leftPane->currentPath()); });
 
     // Datei
-    addAct("file_rename", tr("Umbenennen"), Qt::Key_F2, [this]() {
+    addAct("file_rename", tr("Umbenennen"), "edit-rename", Qt::Key_F2, [this]() {
       const QList<QUrl> urls = activePane()->filePane()->selectedUrls();
       if (urls.size() != 1)
         return;
@@ -2949,7 +2950,7 @@ void MainWindow::registerShortcuts() {
           QFileInfo(path).dir().absolutePath() + "/" + newName);
       KIO::moveAs(urls.first(), dest, KIO::DefaultFlags);
     });
-    addAct("file_delete", tr("Löschen"), Qt::Key_Delete, [this]() {
+    addAct("file_delete", tr("Löschen"), "edit-delete", Qt::Key_Delete, [this]() {
       const QList<QUrl> urls = activePane()->filePane()->selectedUrls();
       if (urls.isEmpty())
         return;
@@ -2962,9 +2963,9 @@ void MainWindow::registerShortcuts() {
           KIO::AskUserActionInterface::DefaultConfirmation, this);
       job->start();
     });
-    addAct("file_newfolder", tr("Neuer Ordner"), Qt::Key_F7,
+    addAct("file_newfolder", tr("Neuer Ordner"), "folder-new", Qt::Key_F7,
            [this]() { emit activePane()->newFolderRequested(); });
-    addAct("file_copy", tr("Kopieren (Zwischenablage)"),
+    addAct("file_copy", tr("Kopieren (Zwischenablage)"), "edit-copy",
            KStandardShortcut::copy().first(),
            [this]() {
              const QList<QUrl> urls = activePane()->filePane()->selectedUrls();
@@ -2975,7 +2976,7 @@ void MainWindow::registerShortcuts() {
              mime->setData("x-kde-cut-selection", QByteArray("0"));
              QGuiApplication::clipboard()->setMimeData(mime);
            });
-    addAct("file_move", tr("Ausschneiden (Zwischenablage)"),
+    addAct("file_move", tr("Ausschneiden (Zwischenablage)"), "edit-cut",
            KStandardShortcut::cut().first(),
            [this]() {
              const QList<QUrl> urls = activePane()->filePane()->selectedUrls();
@@ -2988,7 +2989,7 @@ void MainWindow::registerShortcuts() {
            });
 
     // Ansicht
-    addAct("view_hidden", tr("Versteckte Dateien umschalten"),
+    addAct("view_hidden", tr("Versteckte Dateien umschalten"), "view-hidden",
            Qt::CTRL | Qt::Key_H, [this]() {
              QSettings gs("SplitCommander", "General");
              const bool cur = gs.value("showHidden", false).toBool();
@@ -3001,7 +3002,7 @@ void MainWindow::registerShortcuts() {
              for (auto *col : m_rightPane->miller()->cols())
                col->populateDir(col->path());
            });
-    addAct("view_layout", tr("Layout wechseln"), Qt::CTRL | Qt::Key_L,
+    addAct("view_layout", tr("Layout wechseln"), "view-choose", Qt::CTRL | Qt::Key_L,
            [this]() {
              int next = (m_currentMode + 1) % 3;
              QSettings gs("SplitCommander", "UI");
@@ -3011,7 +3012,7 @@ void MainWindow::registerShortcuts() {
            });
 
     // Einfügen
-    addAct("file_paste", tr("Einfügen"),
+    addAct("file_paste", tr("Einfügen"), "edit-paste",
            KStandardShortcut::paste().first(),
            [this]() {
              const QMimeData *clip = QGuiApplication::clipboard()->mimeData();
@@ -3033,7 +3034,7 @@ void MainWindow::registerShortcuts() {
            });
 
     // Alles auswählen
-    addAct("file_selectall", tr("Alles auswählen"),
+    addAct("file_selectall", tr("Alles auswählen"), "edit-select-all",
            KStandardShortcut::selectAll().first(),
            [this]() {
              activePane()->filePane()->view()->selectAll();
