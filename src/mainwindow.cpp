@@ -6,22 +6,21 @@
 #include "joboverlay.h"
 #include "panewidgets.h"
 #include "settingsdialog.h"
+#include "terminalutils.h"
+#include "thememanager.h"
 #include <KActionCollection>
 #include <KShortcutsDialog>
 #include <KStandardShortcut>
-#include "terminalutils.h"
-#include "thememanager.h"
 
-#include <KFormat>
+#include "drophandler.h"
 #include <KFileItem>
+#include <KFormat>
 #include <KIO/CopyJob>
 #include <KIO/DeleteOrTrashJob>
-#include <KIO/EmptyTrashJob>
 #include <KIO/EmptyTrashJob>
 #include <KIO/JobUiDelegateFactory>
 #include <KJobWidgets>
 #include <KPropertiesDialog>
-#include "drophandler.h"
 #include <Solid/Device>
 #include <Solid/DeviceNotifier>
 #include <Solid/StorageAccess>
@@ -134,7 +133,8 @@ PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent) {
   r1->addWidget(m_newFolderBtn);
   m_copyBtn = mk("edit-copy", tr("Kopieren"), &PaneToolbar::copyClicked);
   r1->addWidget(m_copyBtn);
-  m_emptyTrashBtn = mk("trash-empty", tr("Papierkorb leeren"), &PaneToolbar::emptyTrashClicked);
+  m_emptyTrashBtn = mk("trash-empty", tr("Papierkorb leeren"),
+                       &PaneToolbar::emptyTrashClicked);
   m_emptyTrashBtn->hide();
   r1->addWidget(m_emptyTrashBtn);
   vlay->addLayout(r1);
@@ -336,7 +336,7 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
           "border-bottom-right-radius:0px; border-bottom-left-radius:0px; } "
           "QPushButton#MillerHeader:hover { background:%4; color:%5; "
           "border-top-right-radius:8px; }")
-          .arg(TM().colors().bgPanel, TM().colors().separator,
+          .arg(TM().colors().bgBox, TM().colors().separator,
                TM().colors().textAccent, TM().colors().bgHover,
                TM().colors().textPrimary));
   lay->addWidget(m_header);
@@ -357,19 +357,20 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
   m_list->setDragDropMode(QAbstractItemView::DragDrop);
 
   auto resolver = [this](const QModelIndex &idx) -> QUrl {
-      QUrl destUrl = QUrl::fromUserInput(m_path);
-      if (idx.isValid()) {
-          QListWidgetItem *it = m_list->item(idx.row());
-          if (it) {
-              QString itemPath = it->data(Qt::UserRole).toString();
-              if (!itemPath.isEmpty() && !itemPath.startsWith("solid:")) {
-                  destUrl = QUrl::fromUserInput(itemPath);
-              }
-          }
+    QUrl destUrl = QUrl::fromUserInput(m_path);
+    if (idx.isValid()) {
+      QListWidgetItem *it = m_list->item(idx.row());
+      if (it) {
+        QString itemPath = it->data(Qt::UserRole).toString();
+        if (!itemPath.isEmpty() && !itemPath.startsWith("solid:")) {
+          destUrl = QUrl::fromUserInput(itemPath);
+        }
       }
-      return destUrl;
+    }
+    return destUrl;
   };
-  m_list->viewport()->installEventFilter(new DropHandler(m_list, resolver, m_list));
+  m_list->viewport()->installEventFilter(
+      new DropHandler(m_list, resolver, m_list));
 
   lay->addWidget(m_list);
 
@@ -1056,7 +1057,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
 
   // --- Tab-Leiste mit Breadcrumb ---
   auto *tabBar = new QWidget();
-  tabBar->setFixedHeight(47);
+  tabBar->setFixedHeight(46);
   tabBar->setStyleSheet(
       QString("background:%1; border:none;").arg(TM().colors().bgMain));
   auto *tabLay = new QHBoxLayout(tabBar);
@@ -1335,9 +1336,11 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     themeWidget->setStyleSheet(
         QString("#themeContainer { background:%1; }"
                 "QWidget { color:%2; font-size:11px; background:transparent; }"
-                "QPushButton { background:%3; border:1px solid %4; border-radius:4px; padding:6px; color:%2; }"
+                "QPushButton { background:%3; border:1px solid %4; "
+                "border-radius:4px; padding:6px; color:%2; }"
                 "QPushButton:hover { background:%5; }")
-            .arg(colors.bgList, colors.textPrimary, colors.bgHover, colors.borderAlt, colors.bgSelect));
+            .arg(colors.bgList, colors.textPrimary, colors.bgHover,
+                 colors.borderAlt, colors.bgSelect));
 
     for (int i = 0; i < allThemes.size(); ++i) {
       const auto &t = allThemes.at(i);
@@ -1366,7 +1369,8 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   // "Themes neu laden" Button ganz unten
   auto *btnReload = new QPushButton(QIcon::fromTheme("view-refresh"),
                                     tr("Designs neu laden"), themeWidget);
-  btnReload->setStyleSheet("QPushButton{margin-top:8px; font-size:10px; padding:4px;}");
+  btnReload->setStyleSheet(
+      "QPushButton{margin-top:8px; font-size:10px; padding:4px;}");
   twLay->addWidget(btnReload);
 
   connect(btnReload, &QPushButton::clicked, themeWidget, [refreshThemeList]() {
@@ -1406,7 +1410,9 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   auto *twApply = new QPushButton(tr("Übernehmen"), twBtnRow);
   twApply->setObjectName("applyBtn");
   twApply->setFixedWidth(110);
-  twApply->setStyleSheet(QString("QPushButton{background:%1; color:%2; font-weight:bold; border-color:%1;}").arg(TM().colors().accent, TM().colors().bgMain));
+  twApply->setStyleSheet(QString("QPushButton{background:%1; color:%2; "
+                                 "font-weight:bold; border-color:%1;}")
+                             .arg(TM().colors().accent, TM().colors().bgMain));
   twBtnLay->addWidget(twCancel);
   twBtnLay->addWidget(twApply);
   twLay->addWidget(twBtnRow);
@@ -1515,12 +1521,13 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     popup->setStyleSheet(
         TM().ssDialog() +
         QString("QPushButton { background:%1; border:1px solid %2; "
-        "color:%3;"
-        " border-radius:4px; padding:8px; font-size:10px; }"
-        "QPushButton:hover { background:%4; border-color:%5; }"
-        "QPushButton:checked { background:%4; border:2px solid %5; "
-        "color:%6; }")
-        .arg(c.bgInput, c.borderAlt, c.textPrimary, c.bgHover, c.accent, c.textAccent));
+                "color:%3;"
+                " border-radius:4px; padding:8px; font-size:10px; }"
+                "QPushButton:hover { background:%4; border-color:%5; }"
+                "QPushButton:checked { background:%4; border:2px solid %5; "
+                "color:%6; }")
+            .arg(c.bgInput, c.borderAlt, c.textPrimary, c.bgHover, c.accent,
+                 c.textAccent));
 
     auto *lay2 = new QHBoxLayout(popup);
     lay2->setContentsMargins(8, 8, 8, 8);
@@ -1958,19 +1965,19 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
             });
         proc->start();
       });
-  connect(searchResults, &QTreeWidget::itemClicked, this,
-          [this, searchBtn, searchOverlay, searchEdit](QTreeWidgetItem *it, int) {
-            const QString path = it->data(0, Qt::UserRole).toString();
-            if (path.isEmpty())
-              return;
-            searchEdit->clear();
-            m_filePane->setNameFilter(QString());
-            navigateTo(QFileInfo(path).isDir()
-                           ? path
-                           : QFileInfo(path).absolutePath());
-            searchOverlay->hide();
-            searchBtn->setChecked(false);
-          });
+  connect(
+      searchResults, &QTreeWidget::itemClicked, this,
+      [this, searchBtn, searchOverlay, searchEdit](QTreeWidgetItem *it, int) {
+        const QString path = it->data(0, Qt::UserRole).toString();
+        if (path.isEmpty())
+          return;
+        searchEdit->clear();
+        m_filePane->setNameFilter(QString());
+        navigateTo(QFileInfo(path).isDir() ? path
+                                           : QFileInfo(path).absolutePath());
+        searchOverlay->hide();
+        searchBtn->setChecked(false);
+      });
 
   // --- Vertikaler Splitter: Miller | Dateiliste ---
   m_vSplit = new QSplitter(Qt::Vertical);
@@ -2005,14 +2012,14 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   updateTimer->setSingleShot(true);
   updateTimer->setInterval(50); // 50ms debounce
   connect(updateTimer, &QTimer::timeout, this, [this]() {
-      const int count = m_filePane->view()->model()->rowCount(m_filePane->view()->rootIndex());
-      const qint64 sz = m_filePane->currentTotalSize();
-      m_toolbar->setCount(count, sz);
-      updateFooter(currentPath());
+    const int count =
+        m_filePane->view()->model()->rowCount(m_filePane->view()->rootIndex());
+    const qint64 sz = m_filePane->currentTotalSize();
+    m_toolbar->setCount(count, sz);
+    updateFooter(currentPath());
   });
-  connect(m_filePane, &FilePane::modelUpdated, this, [updateTimer]() {
-      updateTimer->start();
-  });
+  connect(m_filePane, &FilePane::modelUpdated, this,
+          [updateTimer]() { updateTimer->start(); });
   lowerLay->addWidget(m_toolbar);
   lowerLay->addWidget(m_filePane, 1);
   m_vSplit->addWidget(lowerWidget);
@@ -2160,10 +2167,14 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   });
 
   connect(m_toolbar, &PaneToolbar::emptyTrashClicked, this, [this]() {
-    if (!DialogUtils::question(this, tr("Papierkorb leeren"), tr("Möchten Sie den Papierkorb wirklich leeren?"))) return;
+    if (!DialogUtils::question(
+            this, tr("Papierkorb leeren"),
+            tr("Möchten Sie den Papierkorb wirklich leeren?")))
+      return;
     auto *job = KIO::emptyTrash();
     job->start();
-    if (job->uiDelegate()) job->uiDelegate()->setAutoErrorHandlingEnabled(true);
+    if (job->uiDelegate())
+      job->uiDelegate()->setAutoErrorHandlingEnabled(true);
   });
   connect(m_toolbar, &PaneToolbar::copyClicked, this, [this]() {
     auto *mw = qobject_cast<MainWindow *>(window());
@@ -2283,7 +2294,7 @@ QString PaneWidget::currentPath() const {
 }
 
 void PaneWidget::navigateTo(const QString &path, bool clearForward,
-                           bool updateMiller) {
+                            bool updateMiller) {
   const bool isKio = !path.startsWith("/") && path.contains(":/");
   if (path.isEmpty() || path == "__drives__")
     return;
@@ -2344,7 +2355,8 @@ void PaneWidget::updateFooter(const QString &path) {
   // 1. Wenn der Pfad dem aktuellen Verzeichnis des Panes entspricht:
   // Model-Daten nutzen
   if (path == currentPath()) {
-    const int count = m_filePane->view()->model()->rowCount(m_filePane->view()->rootIndex());
+    const int count =
+        m_filePane->view()->model()->rowCount(m_filePane->view()->rootIndex());
     m_footerCount->setText(tr("%1 Elemente").arg(count));
     m_footerSize->setText(QString());
     if (m_footerSelected)
@@ -2744,10 +2756,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
       col->refreshStyle();
     for (auto *col : m_rightPane->miller()->cols())
       col->refreshStyle();
-      
+
     m_leftPane->setFocused(activePane() == m_leftPane);
     m_rightPane->setFocused(activePane() == m_rightPane);
-    
+
     m_leftPane->filePane()->view()->viewport()->update();
     m_rightPane->filePane()->view()->viewport()->update();
     for (QWidget *w : QApplication::topLevelWidgets()) {
@@ -2819,24 +2831,22 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
   QSettings s("SplitCommander", "UI");
   const QString mode = s.value("startupPathMode", "last").toString();
-  
+
   QString leftPath, rightPath;
   bool syncMiller = true;
 
   if (mode == "home") {
-      leftPath = rightPath = QDir::homePath();
+    leftPath = rightPath = QDir::homePath();
   } else if (mode == "drives") {
-      leftPath = rightPath = QDir::homePath(); // Liste geht auf Home
-      syncMiller = false;                     // Miller bleibt aber bei Drives
+    leftPath = rightPath = QDir::homePath(); // Liste geht auf Home
+    syncMiller = false;                      // Miller bleibt aber bei Drives
   } else {
-      leftPath = s.value("leftPane/currentPath", QDir::homePath()).toString();
-      rightPath = s.value("rightPane/currentPath", QDir::homePath()).toString();
+    leftPath = s.value("leftPane/currentPath", QDir::homePath()).toString();
+    rightPath = s.value("rightPane/currentPath", QDir::homePath()).toString();
   }
 
   m_leftPane->navigateTo(leftPath, true, syncMiller);
   m_rightPane->navigateTo(rightPath, true, syncMiller);
-
-
 
   m_currentMode = s.value("layoutMode", 1).toInt();
   applyLayout(m_currentMode);
@@ -2861,18 +2871,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 void MainWindow::registerShortcuts() {
   // Beim ersten Aufruf: KActionCollection anlegen
   if (!m_actionCollection) {
-    m_actionCollection = new KActionCollection(this, QStringLiteral("splitcommander"));
+    m_actionCollection =
+        new KActionCollection(this, QStringLiteral("splitcommander"));
     m_actionCollection->setComponentDisplayName(tr("SplitCommander"));
 
     // --- Hilfsmakro: Aktion anlegen ---
     // Qt::ApplicationShortcut: greift immer, egal welches Widget den Fokus hat
-    auto addAct = [this](const QString &id, const QString &label, const QString &icon,
-                         const QKeySequence &defKey,
+    auto addAct = [this](const QString &id, const QString &label,
+                         const QString &icon, const QKeySequence &defKey,
                          std::function<void()> fn,
                          const QKeySequence &altKey = {}) -> QAction * {
       auto *a = m_actionCollection->addAction(id);
       a->setText(label);
-      if (!icon.isEmpty()) a->setIcon(QIcon::fromTheme(icon));
+      if (!icon.isEmpty())
+        a->setIcon(QIcon::fromTheme(icon));
       a->setShortcutContext(Qt::ApplicationShortcut);
       if (altKey.isEmpty()) {
         m_actionCollection->setDefaultShortcut(a, defKey);
@@ -2883,35 +2895,41 @@ void MainWindow::registerShortcuts() {
       return a;
     };
 
-
     // Navigation
-    addAct("nav_back", tr("Zurück"), "go-previous", Qt::ALT | Qt::Key_Left, [this]() {
-      auto *p = activePane();
-      if (!p->histBack().isEmpty()) {
-        p->histFwd().push(p->currentPath());
-        p->navigateTo(p->histBack().pop(), false);
-      }
-    });
-    addAct("nav_forward", tr("Vorwärts"), "go-next", Qt::ALT | Qt::Key_Right, [this]() {
-      auto *p = activePane();
-      if (!p->histFwd().isEmpty()) {
-        p->histBack().push(p->currentPath());
-        p->navigateTo(p->histFwd().pop(), false);
-      }
-    });
-    addAct("nav_up", tr("Übergeordneter Ordner"), "go-up", Qt::ALT | Qt::Key_Up, [this]() {
-      QDir d(activePane()->currentPath());
-      if (d.cdUp())
-        activePane()->navigateTo(d.absolutePath());
-    });
-    addAct("nav_home", tr("Home-Verzeichnis"), "go-home", Qt::ALT | Qt::Key_Home,
+    addAct("nav_back", tr("Zurück"), "go-previous", Qt::ALT | Qt::Key_Left,
+           [this]() {
+             auto *p = activePane();
+             if (!p->histBack().isEmpty()) {
+               p->histFwd().push(p->currentPath());
+               p->navigateTo(p->histBack().pop(), false);
+             }
+           });
+    addAct("nav_forward", tr("Vorwärts"), "go-next", Qt::ALT | Qt::Key_Right,
+           [this]() {
+             auto *p = activePane();
+             if (!p->histFwd().isEmpty()) {
+               p->histBack().push(p->currentPath());
+               p->navigateTo(p->histFwd().pop(), false);
+             }
+           });
+    addAct("nav_up", tr("Übergeordneter Ordner"), "go-up", Qt::ALT | Qt::Key_Up,
+           [this]() {
+             QDir d(activePane()->currentPath());
+             if (d.cdUp())
+               activePane()->navigateTo(d.absolutePath());
+           });
+    addAct("nav_home", tr("Home-Verzeichnis"), "go-home",
+           Qt::ALT | Qt::Key_Home,
            [this]() { activePane()->navigateTo(QDir::homePath()); });
-    addAct("nav_reload", tr("Neu laden"), "view-refresh", Qt::CTRL | Qt::Key_R, [this]() {
-      m_leftPane->miller()->refreshDrives();
-      m_rightPane->miller()->refreshDrives();
-      m_leftPane->navigateTo(m_leftPane->currentPath());
-      m_rightPane->navigateTo(m_rightPane->currentPath());
-    }, Qt::Key_F5);
+    addAct(
+        "nav_reload", tr("Neu laden"), "view-refresh", Qt::CTRL | Qt::Key_R,
+        [this]() {
+          m_leftPane->miller()->refreshDrives();
+          m_rightPane->miller()->refreshDrives();
+          m_leftPane->navigateTo(m_leftPane->currentPath());
+          m_rightPane->navigateTo(m_rightPane->currentPath());
+        },
+        Qt::Key_F5);
 
     // Pane-Fokus
     addAct("pane_focus_left", tr("Linke Pane fokussieren"), "go-first",
@@ -2924,50 +2942,52 @@ void MainWindow::registerShortcuts() {
              m_rightPane->setFocused(true);
              m_leftPane->setFocused(false);
            });
-    addAct("pane_swap", tr("Panes tauschen"), "view-split-left-right", Qt::CTRL | Qt::Key_U, [this]() {
-      const QString l = m_leftPane->currentPath();
-      const QString r = m_rightPane->currentPath();
-      m_leftPane->navigateTo(r);
-      m_rightPane->navigateTo(l);
-    });
+    addAct("pane_swap", tr("Panes tauschen"), "view-split-left-right",
+           Qt::CTRL | Qt::Key_U, [this]() {
+             const QString l = m_leftPane->currentPath();
+             const QString r = m_rightPane->currentPath();
+             m_leftPane->navigateTo(r);
+             m_rightPane->navigateTo(l);
+           });
     addAct("pane_sync", tr("Pfade synchronisieren"), "view-refresh",
            Qt::CTRL | Qt::SHIFT | Qt::Key_S,
            [this]() { m_rightPane->navigateTo(m_leftPane->currentPath()); });
 
     // Datei
-    addAct("file_rename", tr("Umbenennen"), "edit-rename", Qt::Key_F2, [this]() {
-      const QList<QUrl> urls = activePane()->filePane()->selectedUrls();
-      if (urls.size() != 1)
-        return;
-      const QString path = urls.first().toLocalFile();
-      bool ok;
-      QString newName =
-          DialogUtils::getText(this, tr("Umbenennen"), tr("Neuer Name:"),
-                               QFileInfo(path).fileName(), &ok);
-      if (!ok || newName.isEmpty() || newName == QFileInfo(path).fileName())
-        return;
-      QUrl dest = QUrl::fromLocalFile(
-          QFileInfo(path).dir().absolutePath() + "/" + newName);
-      KIO::moveAs(urls.first(), dest, KIO::DefaultFlags);
-    });
-    addAct("file_delete", tr("Löschen"), "edit-delete", Qt::Key_Delete, [this]() {
-      const QList<QUrl> urls = activePane()->filePane()->selectedUrls();
-      if (urls.isEmpty())
-        return;
-      const bool shift =
-          QGuiApplication::keyboardModifiers() & Qt::ShiftModifier;
-      auto *job = new KIO::DeleteOrTrashJob(
-          urls,
-          shift ? KIO::AskUserActionInterface::Delete
-                : KIO::AskUserActionInterface::Trash,
-          KIO::AskUserActionInterface::DefaultConfirmation, this);
-      job->start();
-    });
-    addAct("file_newfolder", tr("Neuer Ordner"), "folder-new", Qt::Key_F7,
-           [this]() { emit activePane()->newFolderRequested(); });
-    addAct("file_copy", tr("Kopieren (Zwischenablage)"), "edit-copy",
-           KStandardShortcut::copy().first(),
+    addAct(
+        "file_rename", tr("Umbenennen"), "edit-rename", Qt::Key_F2, [this]() {
+          const QList<QUrl> urls = activePane()->filePane()->selectedUrls();
+          if (urls.size() != 1)
+            return;
+          const QString path = urls.first().toLocalFile();
+          bool ok;
+          QString newName =
+              DialogUtils::getText(this, tr("Umbenennen"), tr("Neuer Name:"),
+                                   QFileInfo(path).fileName(), &ok);
+          if (!ok || newName.isEmpty() || newName == QFileInfo(path).fileName())
+            return;
+          QUrl dest = QUrl::fromLocalFile(QFileInfo(path).dir().absolutePath() +
+                                          "/" + newName);
+          KIO::moveAs(urls.first(), dest, KIO::DefaultFlags);
+        });
+    addAct("file_delete", tr("Löschen"), "edit-delete", Qt::Key_Delete,
            [this]() {
+             const QList<QUrl> urls = activePane()->filePane()->selectedUrls();
+             if (urls.isEmpty())
+               return;
+             const bool shift =
+                 QGuiApplication::keyboardModifiers() & Qt::ShiftModifier;
+             auto *job = new KIO::DeleteOrTrashJob(
+                 urls,
+                 shift ? KIO::AskUserActionInterface::Delete
+                       : KIO::AskUserActionInterface::Trash,
+                 KIO::AskUserActionInterface::DefaultConfirmation, this);
+             job->start();
+           });
+    addAct("file_newfolder", tr("Neuer Ordner"), "folder-new", Qt::Key_F7,
+           [this]() { emit activePane() -> newFolderRequested(); });
+    addAct("file_copy", tr("Kopieren (Zwischenablage)"), "edit-copy",
+           KStandardShortcut::copy().first(), [this]() {
              const QList<QUrl> urls = activePane()->filePane()->selectedUrls();
              if (urls.isEmpty())
                return;
@@ -2977,8 +2997,7 @@ void MainWindow::registerShortcuts() {
              QGuiApplication::clipboard()->setMimeData(mime);
            });
     addAct("file_move", tr("Ausschneiden (Zwischenablage)"), "edit-cut",
-           KStandardShortcut::cut().first(),
-           [this]() {
+           KStandardShortcut::cut().first(), [this]() {
              const QList<QUrl> urls = activePane()->filePane()->selectedUrls();
              if (urls.isEmpty())
                return;
@@ -3002,8 +3021,8 @@ void MainWindow::registerShortcuts() {
              for (auto *col : m_rightPane->miller()->cols())
                col->populateDir(col->path());
            });
-    addAct("view_layout", tr("Layout wechseln"), "view-choose", Qt::CTRL | Qt::Key_L,
-           [this]() {
+    addAct("view_layout", tr("Layout wechseln"), "view-choose",
+           Qt::CTRL | Qt::Key_L, [this]() {
              int next = (m_currentMode + 1) % 3;
              QSettings gs("SplitCommander", "UI");
              gs.setValue("layoutMode", next);
@@ -3013,14 +3032,14 @@ void MainWindow::registerShortcuts() {
 
     // Einfügen
     addAct("file_paste", tr("Einfügen"), "edit-paste",
-           KStandardShortcut::paste().first(),
-           [this]() {
+           KStandardShortcut::paste().first(), [this]() {
              const QMimeData *clip = QGuiApplication::clipboard()->mimeData();
              if (!clip || !clip->hasUrls())
                return;
              const bool isCut = clip->data("x-kde-cut-selection") == "1";
              const QList<QUrl> urls = clip->urls();
-             const QUrl destUrl = QUrl::fromLocalFile(activePane()->currentPath());
+             const QUrl destUrl =
+                 QUrl::fromLocalFile(activePane()->currentPath());
              if (isCut) {
                auto *job = KIO::move(urls, destUrl, KIO::DefaultFlags);
                job->uiDelegate()->setAutoErrorHandlingEnabled(true);
@@ -3036,9 +3055,7 @@ void MainWindow::registerShortcuts() {
     // Alles auswählen
     addAct("file_selectall", tr("Alles auswählen"), "edit-select-all",
            KStandardShortcut::selectAll().first(),
-           [this]() {
-             activePane()->filePane()->view()->selectAll();
-           });
+           [this]() { activePane()->filePane()->view()->selectAll(); });
 
     // Shortcuts aus KConfig laden (persistiert KShortcutsDialog-Änderungen)
     m_actionCollection->readSettings();
@@ -3047,7 +3064,8 @@ void MainWindow::registerShortcuts() {
     for (QAction *a : m_actionCollection->actions())
       addAction(a);
   } else {
-    // Bereits initialisiert: nur Settings neu einlesen (z.B. nach KShortcutsDialog)
+    // Bereits initialisiert: nur Settings neu einlesen (z.B. nach
+    // KShortcutsDialog)
     m_actionCollection->readSettings();
   }
 }
