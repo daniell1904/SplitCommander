@@ -106,6 +106,7 @@ signals:
     void propertiesRequested(const QString &path);
     void teardownRequested(const QString &udi);
     void removeFromPlacesRequested(const QString &url);
+    void drivesChanged();
 protected:
     void resizeEvent(QResizeEvent *e) override;
 private:

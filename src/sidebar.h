@@ -75,6 +75,7 @@ signals:
     void drivesChanged();
     void removeFromPlacesRequested(const QString &url);
     void unmountRequested(const QString &path);
+    void teardownRequested(const QString &udi);
     void addCurrentPathToPlaces();
     void requestActivePath(QString *outPath);
     void layoutChangeRequested(int mode);

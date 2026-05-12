@@ -916,6 +916,7 @@ void MillerArea::init() {
         acc, &Solid::StorageAccess::setupDone, this,
         [this](Solid::ErrorType, QVariant, const QString &) {
           refreshDrives();
+          emit drivesChanged(); // Sidebar aktualisieren
         },
         Qt::SingleShotConnection);
     acc->setup();
@@ -2253,6 +2254,9 @@ void PaneWidget::setFocused(bool f) {
 }
 
 QString PaneWidget::currentPath() const {
+  // m_filePane->currentPath() gibt den echten Pfad zurück (nicht den Anzeigenamen)
+  if (m_filePane)
+    return m_filePane->currentPath();
   return m_pathEdit ? m_pathEdit->text() : QDir::homePath();
 }
 
@@ -2641,16 +2645,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
       if (!acc)
         return;
       if (acc->isAccessible()) {
-        navigate(acc->filePath());
         m_leftPane->miller()->refreshDrives();
         m_rightPane->miller()->refreshDrives();
         m_sidebar->updateDrives();
       } else {
         connect(
             acc, &Solid::StorageAccess::setupDone, this,
-            [this, navigate, acc](Solid::ErrorType, QVariant, const QString &) {
+            [this, acc](Solid::ErrorType, QVariant, const QString &) {
               if (acc->isAccessible()) {
-                navigate(acc->filePath());
                 m_leftPane->miller()->refreshDrives();
                 m_rightPane->miller()->refreshDrives();
                 m_sidebar->updateDrives();
@@ -2743,19 +2745,39 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
           doRemoveFromPlaces);
   connect(
       m_sidebar, &Sidebar::unmountRequested, this, [this](const QString &path) {
-        if (!path.isEmpty()) {
-          const QString normPath = mw_normalizePath(path);
-          for (auto *pane : {m_leftPane, m_rightPane}) {
-            const QString current = mw_normalizePath(pane->currentPath());
-            if (current == normPath || current.startsWith(normPath + "/")) {
-              pane->navigateTo("__drives__");
-            }
-          }
-        }
+        const QString normPath = mw_normalizePath(path);
+
+        // Pfade VOR dem Aushängen erfassen
+        const bool leftPaneOnMount = !normPath.isEmpty() && (
+            mw_normalizePath(m_leftPane->currentPath()) == normPath ||
+            mw_normalizePath(m_leftPane->currentPath()).startsWith(normPath + "/"));
+        const bool rightPaneOnMount = !normPath.isEmpty() && (
+            mw_normalizePath(m_rightPane->currentPath()) == normPath ||
+            mw_normalizePath(m_rightPane->currentPath()).startsWith(normPath + "/"));
+        const bool leftMillerOnMount = !normPath.isEmpty() && (
+            mw_normalizePath(m_leftPane->miller()->activePath()) == normPath ||
+            mw_normalizePath(m_leftPane->miller()->activePath()).startsWith(normPath + "/"));
+        const bool rightMillerOnMount = !normPath.isEmpty() && (
+            mw_normalizePath(m_rightPane->miller()->activePath()) == normPath ||
+            mw_normalizePath(m_rightPane->miller()->activePath()).startsWith(normPath + "/"));
+
         auto *proc = new QProcess(this);
         connect(proc,
                 QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                this, [this, proc](int, QProcess::ExitStatus) {
+                this, [this, proc, leftPaneOnMount, rightPaneOnMount,
+                       leftMillerOnMount, rightMillerOnMount](int exitCode, QProcess::ExitStatus) {
+                  if (exitCode == 0) {
+                    if (leftPaneOnMount)  m_leftPane->navigateTo("__drives__");
+                    if (rightPaneOnMount) m_rightPane->navigateTo("__drives__");
+                    if (leftMillerOnMount)
+                      m_leftPane->miller()->navigateTo(QStringLiteral("__drives__"));
+                    else
+                      m_leftPane->miller()->refreshDrives();
+                    if (rightMillerOnMount)
+                      m_rightPane->miller()->navigateTo(QStringLiteral("__drives__"));
+                    else
+                      m_rightPane->miller()->refreshDrives();
+                  }
                   m_sidebar->updateDrives();
                   proc->deleteLater();
                 });
@@ -2769,22 +2791,37 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
       return;
 
     const QString mountPoint = acc->filePath();
-    if (!mountPoint.isEmpty()) {
-      const QString normPath = mw_normalizePath(mountPoint);
-      for (auto *pane : {m_leftPane, m_rightPane}) {
-        const QString current = mw_normalizePath(pane->currentPath());
-        if (current == normPath || current.startsWith(normPath + "/")) {
-          pane->navigateTo("__drives__");
-        }
-      }
-    }
+    const QString normPath = mw_normalizePath(mountPoint);
 
-    // Aushängen starten
+    // Pfade VOR dem Aushängen erfassen
+    const bool leftPaneOnMount = !normPath.isEmpty() && (
+        mw_normalizePath(m_leftPane->currentPath()) == normPath ||
+        mw_normalizePath(m_leftPane->currentPath()).startsWith(normPath + "/"));
+    const bool rightPaneOnMount = !normPath.isEmpty() && (
+        mw_normalizePath(m_rightPane->currentPath()) == normPath ||
+        mw_normalizePath(m_rightPane->currentPath()).startsWith(normPath + "/"));
+    const bool leftMillerOnMount = !normPath.isEmpty() && (
+        mw_normalizePath(m_leftPane->miller()->activePath()) == normPath ||
+        mw_normalizePath(m_leftPane->miller()->activePath()).startsWith(normPath + "/"));
+    const bool rightMillerOnMount = !normPath.isEmpty() && (
+        mw_normalizePath(m_rightPane->miller()->activePath()) == normPath ||
+        mw_normalizePath(m_rightPane->miller()->activePath()).startsWith(normPath + "/"));
+
     connect(
         acc, &Solid::StorageAccess::teardownDone, this,
-        [this](Solid::ErrorType, QVariant, const QString &) {
-          // Globaler DeviceNotifier kümmert sich um refreshDrives()
-          emit m_sidebar->drivesChanged();
+        [this, leftPaneOnMount, rightPaneOnMount,
+         leftMillerOnMount, rightMillerOnMount](Solid::ErrorType, QVariant, const QString &) {
+          if (leftPaneOnMount)  m_leftPane->navigateTo(QDir::homePath());
+          if (rightPaneOnMount) m_rightPane->navigateTo(QDir::homePath());
+          if (leftMillerOnMount)
+            m_leftPane->miller()->navigateTo(QStringLiteral("__drives__"));
+          else
+            m_leftPane->miller()->refreshDrives();
+          if (rightMillerOnMount)
+            m_rightPane->miller()->navigateTo(QStringLiteral("__drives__"));
+          else
+            m_rightPane->miller()->refreshDrives();
+          m_sidebar->updateDrives();
         },
         Qt::SingleShotConnection);
     acc->teardown();
@@ -2793,6 +2830,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
           doTeardown);
   connect(m_rightPane->miller(), &MillerArea::teardownRequested, this,
           doTeardown);
+  // Sidebar Aushängen ebenfalls über doTeardown koordinieren
+  connect(m_sidebar, &Sidebar::teardownRequested, this, doTeardown);
+
+  // Miller Ein-/Aushängen -> Sidebar synchronisieren
+  connect(m_leftPane->miller(), &MillerArea::drivesChanged,
+          m_sidebar, &Sidebar::updateDrives);
+  connect(m_rightPane->miller(), &MillerArea::drivesChanged,
+          m_sidebar, &Sidebar::updateDrives);
   QTimer::singleShot(2000, this, [this]() {
     m_leftPane->miller()->refreshDrives();
     m_rightPane->miller()->refreshDrives();

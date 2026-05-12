@@ -1234,18 +1234,10 @@ void Sidebar::setupDriveContextMenu()
         openInMenu->addAction(tr("Rechte Pane"), this, [this, path]() { emit driveClickedRight(path); });
         menu.addSeparator();
 
-        // Gemountetes Solid-Laufwerk: Aushängen via UDI
+        // Gemountetes Solid-Laufwerk: Aushängen via MainWindow koordinieren
         if (isMountedSolid) {
             menu.addAction(QIcon::fromTheme(QStringLiteral("media-eject")), tr("Aushängen"), this, [this, udi]() {
-                Solid::Device dev(udi);
-                auto *acc = dev.as<Solid::StorageAccess>();
-                if (!acc) return;
-                emit driveClicked(QDir::homePath());
-                connect(acc, &Solid::StorageAccess::teardownDone, this,
-                        [this](Solid::ErrorType, QVariant, const QString &) {
-                    updateDrives(); emit drivesChanged();
-                }, Qt::SingleShotConnection);
-                acc->teardown();
+                emit teardownRequested(udi);
             });
         }
 
@@ -1265,14 +1257,10 @@ void Sidebar::setupDriveContextMenu()
             Solid::Device dev(path.mid(6));
             auto *acc    = dev.as<Solid::StorageAccess>();
             bool mounted = acc && acc->isAccessible();
+            const QString solidUdi = dev.udi();
             if (mounted) {
-                menu.addAction(QIcon::fromTheme(QStringLiteral("media-eject")), tr("Aushängen"), this, [this, acc]() {
-                    emit driveClicked(QDir::homePath());
-                    connect(acc, &Solid::StorageAccess::teardownDone, this,
-                            [this](Solid::ErrorType, QVariant, const QString &) {
-                        updateDrives(); emit drivesChanged();
-                    }, Qt::SingleShotConnection);
-                    acc->teardown();
+                menu.addAction(QIcon::fromTheme(QStringLiteral("media-eject")), tr("Aushängen"), this, [this, solidUdi]() {
+                    emit teardownRequested(solidUdi);
                 });
             } else {
                 menu.addAction(QIcon::fromTheme(QStringLiteral("drive-harddisk")), tr("Einhängen"),
