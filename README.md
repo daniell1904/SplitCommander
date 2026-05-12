@@ -81,6 +81,8 @@ This project was developed with AI assistance (Claude by Anthropic).
 
 GPL-3.0 — see [LICENSE](LICENSE)
 
+**Disclaimer:** This software is provided "as is", without warranty of any kind, express or implied. Use it at your own risk. The authors are not responsible for any data loss or damage.
+
 </details>
 
 ---
@@ -154,5 +156,7 @@ Dieses Projekt wurde mit Unterstützung von KI (Claude von Anthropic) entwickelt
 ### Lizenz
 
 GPL-3.0 — siehe [LICENSE](LICENSE)
+
+**Haftungsausschluss:** Diese Software wird „wie besehen“ zur Verfügung gestellt, ohne jegliche Gewährleistung. Die Nutzung erfolgt auf eigene Gefahr. Die Autoren haften nicht für Datenverlust oder Schäden.
 
 </details>
