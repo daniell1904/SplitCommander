@@ -3,6 +3,10 @@
 #include <QMessageLogContext>
 #include <QIcon>
 #include <QDir>
+#include <QTranslator>
+#include <QLocale>
+#include <QLibraryInfo>
+#include <QStandardPaths>
 #include "mainwindow.h"
 #include "thememanager.h"
 #include "config.h"
@@ -34,6 +38,27 @@ int main(int argc, char *argv[])
     parser.addVersionOption();
     parser.addHelpOption();
     parser.process(app);
+
+    // Systemsprache ermitteln (respektiert LANG/LANGUAGE Umgebungsvariablen)
+    const QLocale locale = QLocale::system();
+
+    // Qt-eigene Übersetzungen (Buttons, Dialoge etc.)
+    QTranslator qtTranslator;
+    if (qtTranslator.load(locale, "qt", "_",
+                          QLibraryInfo::path(QLibraryInfo::TranslationsPath)))
+        app.installTranslator(&qtTranslator);
+
+    // App-Übersetzungen (sucht in AppDataLocation/translations/)
+    QTranslator appTranslator;
+    const QStringList dataDirs =
+        QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
+    for (const QString &dir : dataDirs) {
+        if (appTranslator.load(locale, "splitcommander", "_",
+                               dir + "/translations")) {
+            app.installTranslator(&appTranslator);
+            break;
+        }
+    }
 
     // Theme vor MainWindow laden — Sidebar liest Farben beim Aufbau
     TM().apply();

@@ -52,3 +52,18 @@ target_compile_definitions(splitcommander PRIVATE
 )
 
 install(TARGETS splitcommander DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+# --- Übersetzungen ---
+find_package(Qt6 REQUIRED COMPONENTS LinguistTools)
+
+set(TS_FILES
+    translations/splitcommander_de.ts
+    translations/splitcommander_en.ts
+)
+
+qt6_add_translations(splitcommander
+    TS_FILES ${TS_FILES}
+    QM_FILES_OUTPUT_VARIABLE QM_FILES
+)
+
+install(FILES ${QM_FILES} DESTINATION ${CMAKE_INSTALL_DATADIR}/splitcommander/translations)
