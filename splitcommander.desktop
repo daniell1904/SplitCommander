@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=SplitCommander
+Comment=Native KDE Dual-Pane File Manager
+Comment[de]=Nativer KDE Dual-Pane Dateimanager
+Exec=splitcommander
+Icon=splitcommander
+Terminal=false
+Type=Application
+Categories=System;FileTools;FileManager;
+MimeType=inode/directory;
+X-KDE-StartupNotify=true

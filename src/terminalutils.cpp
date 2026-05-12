@@ -9,7 +9,7 @@
 
 static const QStringList knownTerminals()
 {
-    return { "konsole", "ptyxis", "gnome-terminal", "kitty", "alacritty", "xterm", "tilix", "wezterm", "foot" };
+    return { "xdg-terminal-exec", "konsole", "ptyxis", "gnome-terminal", "kitty", "alacritty", "xterm", "tilix", "wezterm", "foot" };
 }
 
 QStringList sc_installedTerminals()
@@ -56,7 +56,15 @@ QString sc_detectTerminal()
         return userChoice;
 
 
-    // 2. KDE-Systemeinstellung – nur wenn Binary existiert
+    // 2. TERMINAL Umgebungsvariable
+    const QString envTerm = QString::fromLocal8Bit(qgetenv("TERMINAL")).trimmed();
+    if (!envTerm.isEmpty()) {
+        const QString full = envTerm.startsWith("/") ? envTerm : sc_findBinary(envTerm);
+        if (!full.isEmpty() && QFileInfo::exists(full))
+            return full;
+    }
+
+    // 3. KDE-Systemeinstellung – nur wenn Binary existiert
     QProcess p;
     p.start("kreadconfig6", {"--group", "General", "--key", "TerminalApplication"});
     p.waitForFinished(500);

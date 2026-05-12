@@ -307,16 +307,16 @@ void ThemeManager::exportDefaultThemes(const QString &destDir)
     QFile guide(destDir + "/00_ANLEITUNG_THEME_ERSTELLEN.json");
     if (!guide.exists() && guide.open(QIODevice::WriteOnly)) {
         QJsonObject obj;
-        obj["_HINWEIS_1"]   = "Kopiere diese Datei, um ein eigenes Theme zu erstellen!";
-        obj["_HINWEIS_2"]   = "Ändere den 'name', damit es als neues Theme im Menü erscheint.";
-        obj["name"]         = "Mein neues Design";
-        obj["bgMain"]       = "#1e1e2e (Sidebar & App-Hintergrund)";
-        obj["bgDeep"]       = "#11111b (Hintergrund der Dateilisten)";
-        obj["bgBox"]        = "#313244 (Hintergrund der Karten/Favoriten)";
-        obj["textPrimary"]  = "#cdd6f4 (Haupt-Schriftfarbe)";
-        obj["textAccent"]   = "#cba6f7 (Farbe für Pfade und Highlights)";
-        obj["accent"]       = "#f5c2e7 (Buttons und Markierungen)";
-        obj["border"]       = "#313244 (Rahmenlinien)";
+        obj["_HINWEIS_1"]   = QCoreApplication::translate("SplitCommander", "Kopiere diese Datei, um ein eigenes Theme zu erstellen!");
+        obj["_HINWEIS_2"]   = QCoreApplication::translate("SplitCommander", "Ändere den 'name', damit es als neues Theme im Menü erscheint.");
+        obj["name"]         = QCoreApplication::translate("SplitCommander", "Mein neues Design");
+        obj["bgMain"]       = QCoreApplication::translate("SplitCommander", "#1e1e2e (Sidebar & App-Hintergrund)");
+        obj["bgDeep"]       = QCoreApplication::translate("SplitCommander", "#11111b (Hintergrund der Dateilisten)");
+        obj["bgBox"]        = QCoreApplication::translate("SplitCommander", "#313244 (Hintergrund der Karten/Favoriten)");
+        obj["textPrimary"]  = QCoreApplication::translate("SplitCommander", "#cdd6f4 (Haupt-Schriftfarbe)");
+        obj["textAccent"]   = QCoreApplication::translate("SplitCommander", "#cba6f7 (Farbe für Pfade und Highlights)");
+        obj["accent"]       = QCoreApplication::translate("SplitCommander", "#f5c2e7 (Buttons und Markierungen)");
+        obj["border"]       = QCoreApplication::translate("SplitCommander", "#313244 (Rahmenlinien)");
         
         QJsonDocument doc(obj);
         guide.write(doc.toJson());

@@ -37,7 +37,7 @@ install_deps() {
     case "$distro" in
         arch|cachyos|endeavouros|manjaro)
             sudo pacman -Sy --needed --noconfirm \
-                base-devel cmake ninja \
+                base-devel cmake ninja librsvg \
                 qt6-base qt6-svg \
                 extra-cmake-modules \
                 kf6-ki18n kf6-kiconthemes kf6-kconfigwidgets kf6-kxmlgui \
@@ -49,7 +49,7 @@ install_deps() {
             ;;
         fedora)
             sudo dnf install -y \
-                cmake ninja-build gcc-c++ \
+                cmake ninja-build gcc-c++ librsvg2-tools \
                 qt6-qtbase-devel qt6-qtsvg-devel \
                 extra-cmake-modules \
                 kf6-ki18n-devel kf6-kiconthemes-devel kf6-kconfigwidgets-devel \
@@ -57,12 +57,12 @@ install_deps() {
                 kf6-kwindowsystem-devel kf6-solid-devel kf6-karchive-devel \
                 kf6-kservice-devel
             # Optional: Google Drive, MTP
-            sudo zypper install -y kio-gdrive kio-extras 2>/dev/null || true
+            sudo dnf install -y kio-gdrive kio-extras 2>/dev/null || true
             ;;
         ubuntu|debian|linuxmint|pop)
             sudo apt-get update
             sudo apt-get install -y \
-                cmake ninja-build build-essential \
+                cmake ninja-build build-essential librsvg2-bin \
                 qt6-base-dev libqt6svg6-dev \
                 extra-cmake-modules \
                 libkf6i18n-dev libkf6iconthemes-dev libkf6configwidgets-dev \
@@ -74,7 +74,7 @@ install_deps() {
             ;;
         opensuse*|suse)
             sudo zypper install -y \
-                cmake ninja gcc-c++ \
+                cmake ninja gcc-c++ rsvg-view \
                 qt6-base-devel qt6-svg-devel \
                 extra-cmake-modules \
                 kf6-ki18n-devel kf6-kiconthemes-devel kf6-kconfigwidgets-devel \
@@ -179,7 +179,8 @@ install_desktop() {
     sudo tee "$desktop_file" > /dev/null <<EOF
 [Desktop Entry]
 Name=SplitCommander
-Comment=Nativer KDE Dual-Pane Dateimanager
+Comment=Native KDE Dual-Pane File Manager
+Comment[de]=Nativer KDE Dual-Pane Dateimanager
 Exec=splitcommander
 Icon=splitcommander
 Terminal=false

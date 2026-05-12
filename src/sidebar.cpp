@@ -83,8 +83,8 @@ static QString sc_getText(QWidget *parent, const QString &title, const QString &
     auto *lbl = new QLabel(label, &dlg);
     auto *edit = new QLineEdit(defaultText, &dlg);
     auto *btnRow = new QHBoxLayout();
-    auto *ok  = new QPushButton(QIcon::fromTheme(QStringLiteral("dialog-ok")),     "OK",         &dlg);
-    auto *can = new QPushButton(QIcon::fromTheme(QStringLiteral("dialog-cancel")), "Abbrechen",  &dlg);
+    auto *ok  = new QPushButton(QIcon::fromTheme(QStringLiteral("dialog-ok")),     QCoreApplication::translate("SplitCommander", "OK"),         &dlg);
+    auto *can = new QPushButton(QIcon::fromTheme(QStringLiteral("dialog-cancel")), QCoreApplication::translate("SplitCommander", "Abbrechen"),  &dlg);
     ok->setDefault(true);
     btnRow->addStretch();
     btnRow->addWidget(ok);

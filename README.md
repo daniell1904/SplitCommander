@@ -12,76 +12,6 @@
 ---
 
 <details open>
-<summary><b>🇩🇪 Deutsch</b></summary>
-
-## SplitCommander
-
-Ein nativer KDE-Dateimanager mit Dual-Pane-Layout, inspiriert von OneCommander.  
-Gebaut mit Qt6 und KDE Frameworks 6.
-
-### Funktionen
-
-- **Dual-Pane-Layout** — zwei Verzeichnisse gleichzeitig im Blick
-- **Miller-Columns-Ansicht** — schnelle Navigation durch Verzeichnisbäume
-- **Sidebar** mit Laufwerken, Netzwerklaufwerken, Lesezeichen, Gruppen und Tags
-- **Google Drive** — direkte Integration über KIO (kio-gdrive)
-- **Netzwerklaufwerke** — SMB, NFS, SFTP, WebDAV, MTP automatisch erkannt
-- **Detailansicht** mit konfigurierbaren Spalten (Name, Typ, Größe, Datum, Rechte u.v.m.)
-- **Icon-Ansicht** für medienreiche Verzeichnisse
-- **Tag-System** — Dateien mit farbigen Tags markieren und filtern
-- **Shortcuts** — vollständig konfigurierbar (F2, F5, Entf, Alt+←/→ u.v.m.)
-- **Terminal-Integration** — Terminal im aktuellen Verzeichnis öffnen
-- **Batch-Umbenenner** — mehrere Dateien gleichzeitig umbenennen
-- **Themes** — Nord, Catppuccin Mocha, Gruvbox Dark sowie KDE Global Themes
-- **KIO-Integration** — Netzlaufwerke, SSH, SFTP, Google Drive direkt nutzbar
-
-### Installation
-
-```bash
-git clone https://github.com/daniell1904/SplitCommander.git
-cd SplitCommander
-chmod +x install.sh
-./install.sh
-```
-
-Das Script erkennt automatisch die Distribution und installiert alle Abhängigkeiten.
-
-| Distribution | Paketmanager |
-|---|---|
-| Arch / CachyOS / Manjaro | pacman |
-| Fedora | dnf |
-| Ubuntu / Debian / Mint | apt |
-| openSUSE | zypper |
-
-**Optionale Flags:**
-```bash
-./install.sh --no-deps     # Abhängigkeiten überspringen
-./install.sh --no-install  # Nur bauen, nicht systemweit installieren
-```
-
-### Manueller Build
-
-```bash
-cmake -B build-release -S . -DCMAKE_BUILD_TYPE=Release -G Ninja
-cmake --build build-release --parallel $(nproc)
-sudo cmake --install build-release
-```
-
-### Abhängigkeiten
-
-- Qt 6 — Core, Gui, Widgets, Svg
-- KDE Frameworks 6 — KIO, Solid, IconThemes, ConfigWidgets, XmlGui, WidgetsAddons, WindowSystem, Archive, Service, I18n
-- CMake ≥ 3.18, Ninja, GCC/Clang mit C++20
-
-### Lizenz
-
-GPL-3.0 — siehe [LICENSE](LICENSE)
-
-</details>
-
----
-
-<details>
 <summary><b>🇬🇧 English</b></summary>
 
 ## SplitCommander
@@ -143,10 +73,6 @@ sudo cmake --install build-release
 - KDE Frameworks 6 — KIO, Solid, IconThemes, ConfigWidgets, XmlGui, WidgetsAddons, WindowSystem, Archive, Service, I18n
 - CMake ≥ 3.18, Ninja, GCC/Clang with C++20
 
-### Hinweis
-
-Dieses Projekt wurde mit Unterstützung von KI (Claude von Anthropic) entwickelt.
-
 ### Note
 
 This project was developed with AI assistance (Claude by Anthropic).
@@ -154,5 +80,79 @@ This project was developed with AI assistance (Claude by Anthropic).
 ### License
 
 GPL-3.0 — see [LICENSE](LICENSE)
+
+</details>
+
+---
+
+<details>
+<summary><b>🇩🇪 Deutsch</b></summary>
+
+## SplitCommander
+
+Ein nativer KDE-Dateimanager mit Dual-Pane-Layout, inspiriert von OneCommander.  
+Gebaut mit Qt6 und KDE Frameworks 6.
+
+### Funktionen
+
+- **Dual-Pane-Layout** — zwei Verzeichnisse gleichzeitig im Blick
+- **Miller-Columns-Ansicht** — schnelle Navigation durch Verzeichnisbäume
+- **Sidebar** mit Laufwerken, Netzwerklaufwerken, Lesezeichen, Gruppen und Tags
+- **Google Drive** — direkte Integration über KIO (kio-gdrive)
+- **Netzwerklaufwerke** — SMB, NFS, SFTP, WebDAV, MTP automatisch erkannt
+- **Detailansicht** mit konfigurierbaren Spalten (Name, Typ, Größe, Datum, Rechte u.v.m.)
+- **Icon-Ansicht** für medienreiche Verzeichnisse
+- **Tag-System** — Dateien mit farbigen Tags markieren und filtern
+- **Shortcuts** — vollständig konfigurierbar (F2, F5, Entf, Alt+←/→ u.v.m.)
+- **Terminal-Integration** — Terminal im aktuellen Verzeichnis öffnen
+- **Batch-Umbenenner** — mehrere Dateien gleichzeitig umbenennen
+- **Themes** — Nord, Catppuccin Mocha, Gruvbox Dark sowie KDE Global Themes
+- **KIO-Integration** — Netzlaufwerke, SSH, SFTP, Google Drive direkt nutzbar
+
+### Installation
+
+```bash
+git clone https://github.com/daniell1904/SplitCommander.git
+cd SplitCommander
+chmod +x install.sh
+./install.sh
+```
+
+Das Script erkennt automatisch die Distribution und installiert alle Abhängigkeiten.
+
+| Distribution | Paketmanager |
+|---|---|
+| Arch / CachyOS / Manjaro | pacman |
+| Fedora | dnf |
+| Ubuntu / Debian / Mint | apt |
+| openSUSE | zypper |
+
+**Optionale Flags:**
+```bash
+./install.sh --no-deps     # Abhängigkeiten überspringen
+./install.sh --no-install  # Nur bauen, nicht systemweit installieren
+```
+
+### Manueller Build
+
+```bash
+cmake -B build-release -S . -DCMAKE_BUILD_TYPE=Release -G Ninja
+cmake --build build-release --parallel $(nproc)
+sudo cmake --install build-release
+```
+
+### Abhängigkeiten
+
+- Qt 6 — Core, Gui, Widgets, Svg
+- KDE Frameworks 6 — KIO, Solid, IconThemes, ConfigWidgets, XmlGui, WidgetsAddons, WindowSystem, Archive, Service, I18n
+- CMake ≥ 3.18, Ninja, GCC/Clang mit C++20
+
+### Hinweis
+
+Dieses Projekt wurde mit Unterstützung von KI (Claude von Anthropic) entwickelt.
+
+### Lizenz
+
+GPL-3.0 — siehe [LICENSE](LICENSE)
 
 </details>

@@ -302,8 +302,6 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
   connect(m_lister, &KDirLister::newItems, this,
           [this](const KFileItemList &items) {
             if (m_path == "__drives__") {
-                       << "list count before:" << m_list->count();
-              for (const KFileItem &item : items)
               return;
             }
             QFileIconProvider iconProv;
@@ -314,7 +312,6 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
                   item.name(), item.isDir());
               it->setData(Qt::UserRole, item.url().toString());
               m_list->addItem(it);
-                       << "path:" << m_path << "list count:" << m_list->count();
             }
           });
   connect(m_lister, &KDirLister::completed, this,
@@ -625,8 +622,6 @@ void MillerColumn::populateDrives() {
     }
 
     auto *it = new QListWidgetItem(m_list);
-             << "path:" << (mounted ? p : QString("solid:") + dev.udi())
-             << "mounted:" << mounted;
     it->setData(Qt::DisplayRole, driveName);
     it->setData(Qt::DecorationRole, QIcon::fromTheme(iconName));
     it->setData(Qt::UserRole, mounted ? p : QString("solid:") + dev.udi());
@@ -2427,23 +2422,23 @@ void PaneWidget::refreshFooter(const QString &path, int selectedCount) {
               .arg(label, val);
     };
 
-    addRow("Name", fi.fileName().toHtmlEscaped());
-    addRow("Typ", fi.isDir() ? tr("Ordner")
+    addRow(tr("Name"), fi.fileName().toHtmlEscaped());
+    addRow(tr("Typ"), fi.isDir() ? tr("Ordner")
                   : fi.suffix().isEmpty()
                       ? tr("Datei")
                       : fi.suffix().toUpper() + tr("-Datei"));
-    addRow("Erstellt", fi.birthTime().toString("yyyy-MM-dd  hh:mm"));
-    addRow("Geändert", fi.lastModified().toString("yyyy-MM-dd  hh:mm"));
+    addRow(tr("Erstellt"), fi.birthTime().toString("yyyy-MM-dd  hh:mm"));
+    addRow(tr("Geändert"), fi.lastModified().toString("yyyy-MM-dd  hh:mm"));
 
     const qint64 days = fi.lastModified().daysTo(QDateTime::currentDateTime());
-    addRow("Alter", days == 0    ? tr("Heute")
+    addRow(tr("Alter"), days == 0    ? tr("Heute")
                     : days == 1  ? tr("Gestern")
                     : days < 30  ? tr("%1 t").arg(days)
                     : days < 365 ? tr("%1 m").arg(days / 30)
                                  : tr("%1 j").arg(days / 365));
 
     if (!fi.isDir()) {
-      addRow("Größe:", mw_fmtSize(fi.size()));
+      addRow(tr("Größe:"), mw_fmtSize(fi.size()));
     }
 
     const QFile::Permissions p = fi.permissions();
@@ -2458,7 +2453,7 @@ void PaneWidget::refreshFooter(const QString &path, int selectedCount) {
     perm += (p & QFile::ReadOther) ? "r" : "-";
     perm += (p & QFile::WriteOther) ? "w" : "-";
     perm += (p & QFile::ExeOther) ? "x" : "-";
-    addRow("Attribute", perm);
+    addRow(tr("Attribute"), perm);
 
     info += "</table>";
     m_previewInfo->setText(info);
