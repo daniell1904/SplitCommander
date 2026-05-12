@@ -149,11 +149,15 @@ public:
 signals:
     void directoryLoaded();
     void modelUpdated();
+    void pathUpdated(const QString &path);
+    void deleteRequested(bool permanent = false);
     void fileActivated(const QString &path);
     void fileSelected(const QString &path);
+    void selectionChanged(int count, const QString &path);
+    void focusRequested();
     void columnsChanged(int colId, bool visible);
-    void deleteRequested();
     void addToPlacesRequested(const QString &url, const QString &name);
+    void viewModeChanged(int mode);
 
 public:
     void setColumnVisible(int colId, bool visible);

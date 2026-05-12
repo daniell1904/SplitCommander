@@ -41,7 +41,7 @@ add_executable(splitcommander
 
 target_link_libraries(splitcommander
     Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Svg Qt6::Concurrent
-    KF6::I18n KF6::IconThemes KF6::ConfigWidgets KF6::XmlGui
+    KF6::I18n KF6::IconThemes KF6::IconWidgets KF6::ConfigWidgets KF6::XmlGui
     KF6::KIOCore KF6::KIOWidgets KF6::KIOFileWidgets KF6::WidgetsAddons
     KF6::WindowSystem KF6::Solid KF6::Archive KF6::Service KF6::CoreAddons
 )

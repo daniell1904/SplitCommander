@@ -92,6 +92,7 @@ public:
     void navigateTo(const QString &path, bool clearForward = true);
     void refresh();
     QString activePath() const;
+    QList<QUrl> selectedUrls() const;
     void setFocused(bool f);
     void redistributeWidths();
     const QList<MillerColumn*>& cols() const { return m_cols; }
@@ -136,7 +137,9 @@ public:
     void setMillerVisible(bool visible);
     void setViewMode(int mode);
     FilePane *filePane() const { return m_filePane; }
+    QList<QUrl> selectedUrls() const;
     void saveState() const;
+    void refreshFooter(const QString &path, int selectedCount);
 
     QStack<QString>& histBack() { return m_histBack; }
     QStack<QString>& histFwd()  { return m_histFwd; }
@@ -160,7 +163,6 @@ protected:
 private:
     void buildFooter(QVBoxLayout *rootLay);
     void positionFooterPanel();
-    void updateFooter(const QString &path);
 
     QString m_settingsKey;
     QLineEdit *m_pathEdit;
@@ -191,6 +193,7 @@ public:
     virtual ~MainWindow();
     
     void registerJob(KJob *job, const QString &title);
+    void doDelete(PaneWidget *pane = nullptr, bool permanent = false);
     void registerShortcuts();
     KActionCollection *actionCollection() const { return m_actionCollection; }
     

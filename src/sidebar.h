@@ -62,6 +62,9 @@ public slots:
     void setupPlaces();
     void addPlace(const QString &path);
     void addToGroup(const QString &groupName, QListWidget *list, const QString &path);
+    QStringList groupNames() const;
+    void addPathToGroup(const QString &groupName, const QString &path);
+    void addNetworkPlace(const QString &path, const QString &name);
     void setupRemotes();
     void setupTags();
 

@@ -41,6 +41,7 @@
 #include <QTimer>
 #include <QToolButton>
 #include <QUrl>
+#include <QFormLayout>
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 
@@ -49,6 +50,9 @@
 #include <KIO/CopyJob>
 #include <KIO/ListJob>
 #include <KPropertiesDialog>
+#include <KIconDialog>
+#include <KUrlRequester>
+#include <KFile>
 #include <Solid/Device>
 #include <Solid/DeviceNotifier>
 #include <Solid/OpticalDrive>
@@ -124,75 +128,109 @@ static QString sc_normalizePath(QString s)
     return s;
 }
 
-// Kontextmenü-Einträge für Favoriten/Gruppen-Einträge
-static void sc_buildPlaceMenu(QMenu &menu, const QString &path,
-    std::function<void()> removeAction,
-    std::function<void(const QString &, const QString &)> editAction)
+// --- KDE-Style Edit Dialog ---
+static bool sc_editPlaceDialog(QWidget *parent, QString &name, QString &path, QString &icon)
 {
-    (void)editAction;
-    if (removeAction)
-        QObject::connect(
-            menu.addAction(QIcon::fromTheme(QStringLiteral("list-remove")), QObject::tr("Aus Gruppe entfernen")),
-            &QAction::triggered, removeAction);
+    QDialog dlg(parent);
+    dlg.setWindowTitle(QObject::tr("Eintrag bearbeiten"));
+    dlg.setFixedWidth(500);
 
-    // Bearbeiten-Untermenü (wie Detailliste)
-    auto *editMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("document-edit")), QObject::tr("Bearbeiten"));
-    editMenu->setStyleSheet(menu.styleSheet());
-    editMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-cut")), QObject::tr("Ausschneiden"),
-        [path]() {
-            auto *mime = new QMimeData();
-            mime->setUrls({QUrl::fromLocalFile(path)});
-            mime->setData("x-special/gnome-copied-files", QByteArray("cut\n") + QUrl::fromLocalFile(path).toEncoded());
-            QGuiApplication::clipboard()->setMimeData(mime);
-        });
-    editMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-copy")), QObject::tr("Kopieren"),
-        [path]() {
-            auto *mime = new QMimeData();
-            mime->setUrls({QUrl::fromLocalFile(path)});
-            QGuiApplication::clipboard()->setMimeData(mime);
-        });
-    editMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-paste")), QObject::tr("Einfügen"),
-        [path]() {
-            const QMimeData *mime = QGuiApplication::clipboard()->mimeData();
-            if (!mime->hasUrls()) return;
-            for (const QUrl &u : mime->urls()) {
-                const QString src = u.toLocalFile();
-                if (src.isEmpty()) continue;
-                QFile::copy(src, path + "/" + QFileInfo(src).fileName());
-            }
-        });
-    editMenu->addSeparator();
-    editMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-copy")), QObject::tr("Adresse kopieren"),
-        [path]() { QGuiApplication::clipboard()->setText(path); });
-    editMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-copy-path")), QObject::tr("Hier duplizieren"),
-        [path]() {
-            const QString newPath = path + " (Kopie)";
-            QFile::copy(path, newPath);
-        });
+    auto *mainVl = new QVBoxLayout(&dlg);
+    mainVl->setSizeConstraint(QLayout::SetFixedSize);
+    mainVl->setContentsMargins(12, 12, 12, 12);
+    mainVl->setSpacing(12);
+
+    auto *topHl = new QHBoxLayout();
+    topHl->setSpacing(12);
+
+    // Icon Button (Oben links)
+    auto *iconBtn = new QPushButton(&dlg);
+    QString currentIcon = icon.isEmpty() ? QStringLiteral("folder") : icon;
+    iconBtn->setIcon(QIcon::fromTheme(currentIcon));
+    iconBtn->setFixedSize(64, 64);
+    iconBtn->setIconSize(QSize(32, 32));
+    iconBtn->setCursor(Qt::PointingHandCursor);
+    iconBtn->setStyleSheet("QPushButton { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; }"
+                           "QPushButton:hover { background: rgba(255,255,255,0.08); }");
+    topHl->addWidget(iconBtn, 0, Qt::AlignTop);
+
+    // Formular (Rechts)
+    auto *form = new QFormLayout();
+    form->setContentsMargins(0, 0, 0, 0);
+    form->setSpacing(8);
+    form->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+
+    auto *nameEdit = new QLineEdit(name, &dlg);
+    form->addRow(QObject::tr("Name:"), nameEdit);
+
+    auto *urlReq = new KUrlRequester(QUrl::fromUserInput(path), &dlg);
+    urlReq->setMode(KFile::Directory | KFile::File | KFile::LocalOnly);
+    form->addRow(QObject::tr("Adresse:"), urlReq);
+
+    topHl->addLayout(form, 1);
+    mainVl->addLayout(topHl);
+
+    QObject::connect(iconBtn, &QPushButton::clicked, [&]() {
+        KIconDialog iconDlg(&dlg);
+        iconDlg.setSelectedIcon(currentIcon);
+        QString newIcon = iconDlg.openDialog();
+        if (!newIcon.isEmpty()) {
+            currentIcon = newIcon;
+            iconBtn->setIcon(QIcon::fromTheme(newIcon));
+        }
+    });
+
+    auto *bbox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dlg);
+    mainVl->addWidget(bbox);
+
+    QObject::connect(bbox, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
+    QObject::connect(bbox, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
+
+    if (dlg.exec() == QDialog::Accepted) {
+        name = nameEdit->text().trimmed();
+        path = urlReq->url().toLocalFile();
+        if (path.isEmpty()) path = urlReq->text();
+        icon = currentIcon;
+        return true;
+    }
+    return false;
+}
+
+static void sc_buildPlaceMenu(QMenu &menu, const QString &path, const QString &name, const QString &icon,
+                       std::function<void()> removeAction,
+                       std::function<void(const QString &, const QString &, const QString &)> editAction)
+{
+    // 1. Bearbeiten (Direkt-Aktion)
+    menu.addAction(QIcon::fromTheme(QStringLiteral("edit-entry")), QObject::tr("Bearbeiten..."), [editAction, path, name, icon]() {
+        QString n = name;
+        QString p = path;
+        QString i = icon;
+        if (sc_editPlaceDialog(nullptr, n, p, i)) {
+            editAction(n, p, i);
+        }
+    });
 
     menu.addSeparator();
-    menu.addAction(QIcon::fromTheme(QStringLiteral("utilities-terminal")), QObject::tr("In Terminal öffnen"),
-        [path]() { sc_openTerminal(path); });
+
+    // 2. System-Aktionen
+    menu.addAction(QIcon::fromTheme(QStringLiteral("utilities-terminal")), QObject::tr("In Terminal öffnen"), [path]() {
+        sc_openTerminal(path);
+    });
+    menu.addAction(QIcon::fromTheme(QStringLiteral("edit-copy")), QObject::tr("Pfad kopieren"), [path]() {
+        QGuiApplication::clipboard()->setText(path);
+    });
+
+    // 3. Entfernen
+    if (removeAction) {
+        menu.addSeparator();
+        menu.addAction(QIcon::fromTheme(QStringLiteral("list-remove")), QObject::tr("Aus Gruppe entfernen"), removeAction);
+    }
+
+    // 4. Eigenschaften (Ganz unten)
     menu.addSeparator();
-    menu.addAction(QIcon::fromTheme(QStringLiteral("edit-copy")), QObject::tr("Pfad kopieren"),
-        [path]() { QGuiApplication::clipboard()->setText(path); });
-    menu.addAction(QIcon::fromTheme(QStringLiteral("emblem-symbolic-link")), QObject::tr("Verknüpfung erstellen"),
-        [path]() {
-            QString d = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
-            QFile f(d + "/" + QFileInfo(path).fileName() + ".desktop");
-            if (f.open(QIODevice::WriteOnly)) {
-                QTextStream s(&f);
-                s << "[Desktop Entry]\nType=Link\nName=" << QFileInfo(path).fileName()
-                  << "\nURL=" << path << "\nIcon=folder\n";
-            }
-        });
-    menu.addSeparator();
-    menu.addAction(QIcon::fromTheme(QStringLiteral("document-properties")), QObject::tr("Eigenschaften"),
-        [path]() {
-            auto *d = new KPropertiesDialog(QUrl::fromLocalFile(path), nullptr);
-            d->setAttribute(Qt::WA_DeleteOnClose);
-            d->show();
-        });
+    menu.addAction(QIcon::fromTheme(QStringLiteral("document-properties")), QObject::tr("Eigenschaften"), [path]() {
+        KPropertiesDialog::showDialog(QUrl::fromUserInput(path));
+    });
 }
 
 // --- Konstanten ---
@@ -908,23 +946,23 @@ void Sidebar::renameNetworkPlace(const QString &path, const QString &newName)
     auto gs = Config::group("CustomGroups");
     const QStringList groups = gs.readEntry("groups", QStringList());
     for (const QString &grp : groups) {
-        auto g = gs.group("group_" + grp);
+        KConfigGroup g(gs.config(), gs.name() + "/group_" + grp);
         int cnt = g.readEntry("size", 0);
         QList<QPair<QString,QString>> items;
         bool changed = false;
         for (int i = 1; i <= cnt; ++i) {
-            auto itemG = g.group(QString::number(i));
+            KConfigGroup itemG(g.config(), g.name() + "/" + QString::number(i));
             QString p = itemG.readEntry("path", QString());
             QString n = itemG.readEntry("name", QString());
             if (p == path) { n = newName; changed = true; }
             items << qMakePair(p, n);
         }
         if (changed) {
-            gs.group("group_" + grp).deleteGroup();
-            auto gNew = gs.group("group_" + grp);
+            KConfigGroup(gs.config(), gs.name() + "/group_" + grp).deleteGroup();
+            KConfigGroup gNew(gs.config(), gs.name() + "/group_" + grp);
             gNew.writeEntry("size", items.size());
             for (int i = 0; i < items.size(); ++i) {
-                auto itemG = gNew.group(QString::number(i + 1));
+                KConfigGroup itemG(gNew.config(), gNew.name() + "/" + QString::number(i + 1));
                 itemG.writeEntry("path", items[i].first);
                 itemG.writeEntry("name", items[i].second);
             }
@@ -1550,13 +1588,13 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
             int idx = grps.indexOf(oldName);
             if (idx != -1) { grps[idx] = *sharedName; gs.writeEntry("groups", grps); }
  
-            auto oldGrp = gs.group("group_" + oldName);
-            auto newGrp = gs.group("group_" + *sharedName);
+            KConfigGroup oldGrp(gs.config(), gs.name() + "/group_" + oldName);
+            KConfigGroup newGrp(gs.config(), gs.name() + "/group_" + *sharedName);
             int cnt = oldGrp.readEntry("size", 0);
             newGrp.writeEntry("size", cnt);
             for (int j = 1; j <= cnt; ++j) {
-                auto oldItem = oldGrp.group(QString::number(j));
-                auto newItem = newGrp.group(QString::number(j));
+                KConfigGroup oldItem(oldGrp.config(), oldGrp.name() + "/" + QString::number(j));
+                KConfigGroup newItem(newGrp.config(), newGrp.name() + "/" + QString::number(j));
                 newItem.writeEntry("path", oldItem.readEntry("path", QString()));
                 newItem.writeEntry("name", oldItem.readEntry("name", QString()));
             }
@@ -1602,7 +1640,7 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
         connect(delAct, &QAction::triggered, this, [this, wrapper, sharedName]() {
             m_contentLayout->removeWidget(wrapper); wrapper->deleteLater();
             auto gs = Config::group("CustomGroups");
-            gs.group("group_" + *sharedName).deleteGroup();
+            KConfigGroup(gs.config(), gs.name() + "/group_" + *sharedName).deleteGroup();
             gs.config()->sync();
             saveGroupOrder();
         });
@@ -1637,15 +1675,19 @@ void Sidebar::loadCustomGroups()
         QListWidget *list = createGroupWidget(groupName, m_newGroupBox);
         if (groupName == "Favoriten") m_favList = list;
 
-        auto g = s.group("group_" + groupName);
+        KConfigGroup g(s.config(), s.name() + "/group_" + groupName);
         int cnt = g.readEntry("size", 0);
         for (int i = 1; i <= cnt; ++i) {
-            auto itemG = g.group(QString::number(i));
-            const QString path     = itemG.readEntry("path", QString());
-            const QString itemName = itemG.readEntry("name", QString());
+            KConfigGroup itemG(g.config(), g.name() + "/" + QString::number(i));
+            const QString path      = itemG.readEntry("path", QString());
+            const QString itemName  = itemG.readEntry("name", QString());
+            const QString customIco = itemG.readEntry("icon", QString());
             if (path.isEmpty()) continue;
+
             QIcon ico;
-            if (!path.startsWith("/")) {
+            if (!customIco.isEmpty()) {
+                ico = QIcon::fromTheme(customIco);
+            } else if (!path.startsWith("/")) {
                 const QString scheme = QUrl::fromUserInput(path).scheme().toLower();
                 ico = QIcon::fromTheme(
                     scheme == "gdrive"    ? "folder-gdrive"     :
@@ -1661,6 +1703,7 @@ void Sidebar::loadCustomGroups()
             if (ico.isNull()) ico = QIcon::fromTheme(QStringLiteral("folder"));
             auto *it = new QListWidgetItem(ico, itemName, list);
             it->setData(Qt::UserRole, path);
+            it->setData(Qt::UserRole + 2, customIco);
         }
         adjustListHeight(list);
     }
@@ -1714,12 +1757,12 @@ void Sidebar::addToGroup(const QString &groupName, QListWidget *list, const QStr
     adjustListHeight(list);
 
     auto gs = Config::group("CustomGroups");
-    gs.group("group_" + groupName).deleteGroup();
-    auto gNew = gs.group("group_" + groupName);
+    KConfigGroup(gs.config(), gs.name() + "/group_" + groupName).deleteGroup();
+    KConfigGroup gNew(gs.config(), gs.name() + "/group_" + groupName);
     gNew.writeEntry("size", list->count());
 
     for (int i = 0; i < list->count(); ++i) {
-                auto itemG = gNew.group(QString::number(i + 1));
+        KConfigGroup itemG(gNew.config(), gNew.name() + "/" + QString::number(i + 1));
 
         itemG.writeEntry("path", list->item(i)->data(Qt::UserRole).toString());
         itemG.writeEntry("name", list->item(i)->text());
@@ -1735,11 +1778,67 @@ void Sidebar::addPlace(const QString &path)
     addToGroup("Favoriten", m_favList, path);
 }
 
+QStringList Sidebar::groupNames() const
+{
+    QStringList names;
+    if (!m_contentLayout) return names;
+    for (int i = 0; i < m_contentLayout->count(); ++i) {
+        auto *item = m_contentLayout->itemAt(i);
+        if (!item) continue;
+        auto *wrapper = item->widget();
+        if (!wrapper) continue;
+        auto *box = wrapper->findChild<QWidget*>("groupBox");
+        if (box) {
+            QString name = box->property("groupName").toString();
+            if (!name.isEmpty()) names << name;
+        }
+    }
+    return names;
+}
+
+void Sidebar::addPathToGroup(const QString &groupName, const QString &path)
+{
+    if (!m_contentLayout) return;
+    for (int i = 0; i < m_contentLayout->count(); ++i) {
+        auto *item = m_contentLayout->itemAt(i);
+        if (!item) continue;
+        auto *wrapper = item->widget();
+        if (!wrapper) continue;
+        auto *box = wrapper->findChild<QWidget*>("groupBox");
+        if (box && box->property("groupName").toString() == groupName) {
+            auto *list = box->findChild<QListWidget*>();
+            if (list) {
+                addToGroup(groupName, list, path);
+                return;
+            }
+        }
+    }
+}
+
+void Sidebar::addNetworkPlace(const QString &path, const QString &name)
+{
+    if (path.isEmpty()) return;
+    auto s = Config::group("NetworkPlaces");
+    QStringList saved = s.readEntry("places", QStringList());
+    const QString npath = sc_normalizePath(path);
+    if (!saved.contains(npath)) {
+        saved << npath;
+        s.writeEntry("places", saved);
+        s.writeEntry("name_" + QString(npath).replace("/","_").replace(":","_"), name);
+        s.config()->sync();
+    }
+    updateDrives();
+    emit drivesChanged();
+}
+
 // --- Sidebar::showPlaceContextMenu ---
 void Sidebar::showPlaceContextMenu(QListWidgetItem *item, QListWidget *list,
                                    const QPoint &pos, const QString &groupName)
 {
     const QString path = item->data(Qt::UserRole).toString();
+    const QString name = item->text();
+    const QString icon = item->data(Qt::UserRole + 2).toString();
+
     QMenu menu(this);
     sc_applyMenuShadow(&menu);
     menu.setStyleSheet(TM().ssMenu());
@@ -1752,30 +1851,39 @@ void Sidebar::showPlaceContextMenu(QListWidgetItem *item, QListWidget *list,
     auto saveList = [list, groupName]() {
         if (!groupName.isEmpty()) {
             auto gs = Config::group("CustomGroups");
-            gs.group("group_" + groupName).deleteGroup();
-            auto gNew = gs.group("group_" + groupName);
+            KConfigGroup(gs.config(), gs.name() + "/group_" + groupName).deleteGroup();
+            KConfigGroup gNew(gs.config(), gs.name() + "/group_" + groupName);
             gNew.writeEntry("size", list->count());
 
             for (int i = 0; i < list->count(); ++i) {
-                        auto itemG = gNew.group(QString::number(i + 1));
-
+                KConfigGroup itemG(gNew.config(), gNew.name() + "/" + QString::number(i + 1));
                 itemG.writeEntry("path", list->item(i)->data(Qt::UserRole).toString());
                 itemG.writeEntry("name", list->item(i)->text());
+                itemG.writeEntry("icon", list->item(i)->data(Qt::UserRole + 2).toString());
             }
             gs.config()->sync();
         }
     };
 
-
-    sc_buildPlaceMenu(menu, path,
+    sc_buildPlaceMenu(menu, path, name, icon,
         [list, item, saveList]() {
             delete list->takeItem(list->row(item));
             adjustListHeight(list);
             saveList();
         },
-        [item, saveList](const QString &newName, const QString &newPath) {
+        [item, saveList](const QString &newName, const QString &newPath, const QString &newIcon) {
             item->setText(newName);
             item->setData(Qt::UserRole, newPath);
+            item->setData(Qt::UserRole + 2, newIcon);
+            
+            // Icon aktualisieren
+            if (!newIcon.isEmpty()) {
+                item->setIcon(QIcon::fromTheme(newIcon));
+            } else {
+                // Fallback auf Standard-Icon falls manuelles Icon gelöscht wurde
+                QFileIconProvider ip;
+                item->setIcon(ip.icon(QFileInfo(newPath)));
+            }
             saveList();
         });
 
@@ -1868,11 +1976,11 @@ void Sidebar::setupTags()
 void Sidebar::saveTags()
 {
     auto s = Config::group("Tags");
-    s.group("tags").deleteGroup();
-    auto tagsG = s.group("tags");
+    KConfigGroup(s.config(), s.name() + "/tags").deleteGroup();
+    KConfigGroup tagsG(s.config(), s.name() + "/tags");
     tagsG.writeEntry("size", m_tagList->count());
     for (int i = 0; i < m_tagList->count(); ++i) {
-        auto tG = tagsG.group(QString::number(i + 1));
+        KConfigGroup tG(tagsG.config(), tagsG.name() + "/" + QString::number(i + 1));
         tG.writeEntry("name",  m_tagList->item(i)->text());
         tG.writeEntry("color", m_tagList->item(i)->data(Qt::UserRole).toString());
         tG.writeEntry("font",  m_tagList->item(i)->data(Qt::UserRole + 1).toString());
@@ -1889,13 +1997,13 @@ void Sidebar::savePlaces(QListWidget **list)
 {
     if (!list || !*list) return;
     auto gs = Config::group("CustomGroups");
-    auto g = gs.group("group_Favoriten");
+    KConfigGroup g(gs.config(), gs.name() + "/group_Favoriten");
     g.deleteGroup();
     int idx = 1;
     for (int i = 0; i < (*list)->count(); ++i) {
         auto *item = (*list)->item(i);
         if (item->data(Qt::UserRole + 1).toBool()) continue;
-        auto itemG = g.group(QString::number(idx++));
+        KConfigGroup itemG(g.config(), g.name() + "/" + QString::number(idx++));
         itemG.writeEntry("path", item->data(Qt::UserRole).toString());
         itemG.writeEntry("name", item->text());
     }
