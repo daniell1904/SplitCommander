@@ -28,7 +28,6 @@
 #include <Solid/StorageVolume>
 
 #include "dialogutils.h"
-#include <KFileItem>
 #include <QActionGroup>
 #include <QApplication>
 #include <QButtonGroup>
@@ -303,10 +302,8 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
   connect(m_lister, &KDirLister::newItems, this,
           [this](const KFileItemList &items) {
             if (m_path == "__drives__") {
-              qDebug() << "DRIVES newItems LEAK count:" << items.count()
                        << "list count before:" << m_list->count();
               for (const KFileItem &item : items)
-                qDebug() << "  LEAK item:" << item.url() << item.name();
               return;
             }
             QFileIconProvider iconProv;
@@ -317,7 +314,6 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
                   item.name(), item.isDir());
               it->setData(Qt::UserRole, item.url().toString());
               m_list->addItem(it);
-              qDebug() << "newItems addItem:" << item.name()
                        << "path:" << m_path << "list count:" << m_list->count();
             }
           });
@@ -629,7 +625,6 @@ void MillerColumn::populateDrives() {
     }
 
     auto *it = new QListWidgetItem(m_list);
-    qDebug() << "DRIVES ITEM:" << driveName
              << "path:" << (mounted ? p : QString("solid:") + dev.udi())
              << "mounted:" << mounted;
     it->setData(Qt::DisplayRole, driveName);
@@ -668,7 +663,6 @@ void MillerColumn::populateDrives() {
                    : (fs == "sshfs" || fs == "fuse.sshfs") ? "network-connect"
                                                            : "network-server";
     auto *it = new QListWidgetItem(m_list);
-    qDebug() << "FUSE ITEM:" << name << "path:" << path << "fs:" << fs;
     it->setData(Qt::DisplayRole, name);
     it->setData(Qt::DecorationRole, QIcon::fromTheme(icon));
     it->setData(Qt::UserRole, path);
@@ -704,7 +698,6 @@ void MillerColumn::populateDrives() {
                          : scheme == "bluetooth" ? "bluetooth"
                                                  : "network-server";
       auto *it = new QListWidgetItem(m_list);
-      qDebug() << "NETPLACE ITEM:" << savedName << "url:" << pUrl.toString();
       it->setData(Qt::DisplayRole, savedName);
       it->setData(Qt::DecorationRole, QIcon::fromTheme(iconName));
       QString url = pUrl.toString();
@@ -716,7 +709,6 @@ void MillerColumn::populateDrives() {
       it->setSizeHint(QSize(0, 44));
     }
   }
-  qDebug() << "DRIVES TOTAL ITEMS:" << m_list->count();
 }
 void MillerColumn::populateDir(const QString &path) {
   m_path = path;
