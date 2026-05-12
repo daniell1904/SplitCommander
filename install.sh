@@ -57,7 +57,7 @@ install_deps() {
                 kf6-kwindowsystem-devel kf6-solid-devel kf6-karchive-devel \
                 kf6-kservice-devel
             # Optional: Google Drive, MTP
-            sudo dnf install -y kio-gdrive kio-extras 2>/dev/null || true
+            sudo zypper install -y kio-gdrive kio-extras 2>/dev/null || true
             ;;
         ubuntu|debian|linuxmint|pop)
             sudo apt-get update
@@ -82,7 +82,7 @@ install_deps() {
                 kf6-kwindowsystem-devel kf6-solid-devel kf6-karchive-devel \
                 kf6-kservice-devel
             # Optional: Google Drive, MTP
-            sudo dnf install -y kio-gdrive kio-extras 2>/dev/null || true
+            sudo zypper install -y kio-gdrive kio-extras 2>/dev/null || true
             ;;
         *)
             print_warn "Unbekannte Distro '$distro' — überspringe automatische Dep-Installation."
