@@ -13,6 +13,7 @@
 #include <QTimer>
 #include <QPushButton>
 #include <QStackedWidget>
+#include <QFileSystemWatcher>
 #include <KDirLister>
 #include <KActionCollection>
 #include <QApplication>
@@ -221,6 +222,7 @@ private:
     int         m_currentMode = 1;
     bool        m_panesSplitterRestored = false;
     KActionCollection *m_actionCollection = nullptr;
+    QFileSystemWatcher *m_fsWatcher = nullptr;
 };
 
 inline MainWindow *MW() { 

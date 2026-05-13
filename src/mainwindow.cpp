@@ -45,6 +45,7 @@
 #include <QFileDialog>
 #include <QFileIconProvider>
 #include <QFileInfo>
+#include <QFileSystemWatcher>
 #include <QFrame>
 #include <QFutureWatcher>
 #include <QGraphicsDropShadowEffect>
@@ -631,6 +632,48 @@ void MillerColumn::populateDrives() {
     if (!mounted) {
       it->setForeground(QColor(TM().colors().textMuted));
     }
+  }
+
+  // --- Nicht gemountete Block-Geräte ---
+  const auto vdevices = Solid::Device::listFromType(Solid::DeviceInterface::StorageVolume);
+  for (const Solid::Device &device : vdevices) {
+    // Bereits in Schleife 1 gezeigt — überspringen
+    if (shownUdis.contains(device.udi())) continue;
+
+    const auto *vol = device.as<Solid::StorageVolume>();
+    if (!vol) continue;
+    if (vol->usage() != Solid::StorageVolume::FileSystem
+        && vol->usage() != Solid::StorageVolume::Other) continue;
+
+    const QString label  = vol->label();
+    const QString lbl    = label.toUpper();
+    const QString fsType = vol->fsType().toLower();
+    // Entfernt: if (label.isEmpty()) continue;
+    if (lbl == "BOOT" || lbl == "EFI" || lbl == "EFI SYSTEM PARTITION" || lbl == "ESP") continue;
+    if (fsType == "iso9660" || fsType == "udf") continue;
+
+    const auto *access = device.as<Solid::StorageAccess>();
+    if (access && access->isAccessible()) continue;
+
+    QString name = label;
+    if (name.isEmpty()) name = device.udi().section('/', -1);
+    if (name.isEmpty()) continue;  // Fallback, falls UDI leer
+
+    QString iconName = "drive-harddisk";
+    if (const auto *drv = device.as<Solid::StorageDrive>()) {
+      if (drv->driveType() == Solid::StorageDrive::CdromDrive) iconName = "drive-optical";
+      else if (drv->isRemovable() || drv->isHotpluggable())    iconName = "drive-removable-media";
+    } else if (!device.icon().isEmpty()) {
+      iconName = device.icon();
+    }
+
+    auto *it = new QListWidgetItem(m_list);
+    it->setData(Qt::DisplayRole, name);
+    it->setData(Qt::DecorationRole, QIcon::fromTheme(iconName));
+    it->setData(Qt::UserRole, QString(QStringLiteral("solid:") + device.udi()));
+    it->setData(Qt::UserRole + 1, device.udi());
+    it->setSizeHint(QSize(0, 44));
+    it->setForeground(QColor(TM().colors().textMuted));
   }
 
   // --- Netzwerklaufwerke (FUSE-gemountet) ---
@@ -2880,6 +2923,40 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
             m_rightPane->miller()->refreshDrives();
             m_sidebar->updateDrives();
           });
+
+  // FileSystem Watcher für Mount-Punkte (zusätzlich zu Solid)
+  m_fsWatcher = new QFileSystemWatcher(this);
+  QString userMediaPath = QDir::homePath() + "/.local/share/Trash"; // Fallback
+  if (QDir("/run/media").exists()) {
+    QString userPath = "/run/media/" + QString::fromLocal8Bit(qgetenv("USER"));
+    if (QDir(userPath).exists()) {
+      m_fsWatcher->addPath(userPath);
+    } else {
+      m_fsWatcher->addPath("/run/media");
+    }
+  }
+  if (QDir("/media").exists()) {
+    m_fsWatcher->addPath("/media");
+  }
+  connect(m_fsWatcher, &QFileSystemWatcher::directoryChanged, this, [this](const QString &) {
+    m_leftPane->miller()->refreshDrives();
+    m_rightPane->miller()->refreshDrives();
+    m_sidebar->updateDrives();
+  });
+  connect(m_fsWatcher, &QFileSystemWatcher::fileChanged, this, [this](const QString &) {
+    m_leftPane->miller()->refreshDrives();
+    m_rightPane->miller()->refreshDrives();
+    m_sidebar->updateDrives();
+  });
+
+  // Fallback: Timer für regelmäßige Aktualisierung
+  QTimer *driveTimer = new QTimer(this);
+  connect(driveTimer, &QTimer::timeout, this, [this]() {
+    m_leftPane->miller()->refreshDrives();
+    m_rightPane->miller()->refreshDrives();
+    m_sidebar->updateDrives();
+  });
+  driveTimer->start(5000); // Alle 5 Sekunden
 
   connect(m_leftPane->filePane(), &FilePane::columnsChanged, this,
           [this](int colId, bool visible) {

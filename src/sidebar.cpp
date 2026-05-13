@@ -1083,12 +1083,16 @@ void Sidebar::updateDrives()
         const QString label  = vol->label();
         const QString lbl    = label.toUpper();
         const QString fsType = vol->fsType().toLower();
-        if (label.isEmpty()) continue;
+        // Entfernt: if (label.isEmpty()) continue;
         if (lbl == "BOOT" || lbl == "EFI" || lbl == "EFI SYSTEM PARTITION" || lbl == "ESP") continue;
         if (fsType == "iso9660" || fsType == "udf") continue;
 
         const auto *access = device.as<Solid::StorageAccess>();
         if (access && access->isAccessible()) continue;
+
+        QString name = label;
+        if (name.isEmpty()) name = device.udi().section('/', -1);
+        if (name.isEmpty()) continue;  // Fallback, falls UDI leer
 
         QString iconName = "drive-harddisk";
         if (const auto *drv = device.as<Solid::StorageDrive>()) {
@@ -1098,7 +1102,7 @@ void Sidebar::updateDrives()
             iconName = device.icon();
         }
 
-        auto *it = new QListWidgetItem(QIcon::fromTheme(iconName), label, m_driveList);
+        auto *it = new QListWidgetItem(QIcon::fromTheme(iconName), name, m_driveList);
         it->setData(Qt::UserRole,     QString(QStringLiteral("solid:") + device.udi()));
         it->setData(Qt::UserRole + 1, QString("Nicht eingehängt – klicken zum Einhängen"));
     }
