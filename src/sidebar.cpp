@@ -338,11 +338,8 @@ void Sidebar::adjustListHeight(QListWidget *list)
     if (n == 0) {
         list->setFixedHeight(0);
         list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    } else if (n <= SC_MAX_VISIBLE) {
-        list->setFixedHeight(n * SC_SIDEBAR_ROW_H);
-        list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     } else {
-        list->setFixedHeight(SC_MAX_VISIBLE * SC_SIDEBAR_ROW_H);
+        list->setFixedHeight(n * SC_SIDEBAR_ROW_H);
         list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     }
     list->updateGeometry();
@@ -1192,17 +1189,9 @@ void Sidebar::updateDrives()
     int totalH = 0;
     for (int i = 0; i < m_driveList->count(); ++i)
         totalH += m_driveList->sizeHintForRow(i);
-    int maxH = 0;
-    for (int i = 0; i < qMin(m_driveList->count(), SC_MAX_VISIBLE); ++i)
-        maxH += m_driveList->sizeHintForRow(i);
 
-    if (m_driveList->count() <= SC_MAX_VISIBLE) {
-        m_driveList->setFixedHeight(qMax(1, totalH));
-        m_driveList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    } else {
-        m_driveList->setFixedHeight(qMax(1, maxH));
-        m_driveList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    }
+    m_driveList->setFixedHeight(qMax(1, totalH));
+    m_driveList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_driveList->updateGeometry();
 
     // --- Hot-Plug (einmalig verbinden) ---
