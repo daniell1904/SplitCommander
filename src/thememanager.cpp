@@ -508,7 +508,7 @@ QString ThemeManager::ssColDrives() const {
         "QListWidget:hover QScrollBar::handle:vertical{background:transparent;}"
         "QListWidget QScrollBar::add-line:vertical,QListWidget QScrollBar::sub-line:vertical{height:0;}"
         "QListWidget QScrollBar:horizontal{height:0;}")
-        .arg(c.bgList, c.textPrimary, c.bgMain, c.bgHover, c.textAccent, c.border);
+        .arg(c.bgList, c.textPrimary, c.bgHover, c.bgHover, c.textAccent, c.border);
 }
 
 QString ThemeManager::ssMenu() const {

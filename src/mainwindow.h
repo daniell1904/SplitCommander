@@ -13,7 +13,8 @@
 #include <QTimer>
 #include <QPushButton>
 #include <QStackedWidget>
-#include <QFileSystemWatcher>
+#include <QFutureWatcher>
+#include <KDirWatch>
 #include <KDirLister>
 #include <KActionCollection>
 #include <QApplication>
@@ -184,7 +185,7 @@ private:
     bool m_focused = false;
     QStack<QString> m_histBack;
     QStack<QString> m_histFwd;
-    QProcess *m_searchProc = nullptr;
+    QFutureWatcher<QStringList> *m_searchWatcher = nullptr;
 };
 
 class Sidebar;
@@ -222,7 +223,7 @@ private:
     int         m_currentMode = 1;
     bool        m_panesSplitterRestored = false;
     KActionCollection *m_actionCollection = nullptr;
-    QFileSystemWatcher *m_fsWatcher = nullptr;
+    KDirWatch *m_fsWatcher = nullptr;
 };
 
 inline MainWindow *MW() { 

@@ -17,9 +17,13 @@
 #include <KFileItem>
 #include <KFormat>
 #include <KIO/CopyJob>
+#include <KIO/Global>
 #include <KIO/DeleteOrTrashJob>
 #include <KIO/EmptyTrashJob>
 #include <KIO/JobUiDelegateFactory>
+#include <KIO/MkdirJob>
+#include <KIO/SimpleJob>
+#include <KIO/FileSystemFreeSpaceJob>
 #include <KJobWidgets>
 #include <KPropertiesDialog>
 #include <Solid/Device>
@@ -37,16 +41,17 @@
 
 #include <QClipboard>
 #include <QCloseEvent>
-#include <QDesktopServices>
+#include <KIO/OpenUrlJob>
+#include <KAboutData>
+#include <KAboutApplicationDialog>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QDirIterator>
 #include <QFile>
 #include <QFileDialog>
-#include <QFileIconProvider>
 #include <QFileInfo>
-#include <QFileSystemWatcher>
+#include <KDirWatch>
 #include <QFrame>
 #include <QFutureWatcher>
 #include <QGraphicsDropShadowEffect>
@@ -55,7 +60,8 @@
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QPainter>
-#include <QProcess>
+#include <Baloo/Query>
+#include <Baloo/ResultIterator>
 #include <QResizeEvent>
 #include <QScrollBar>
 #include <QSlider>
@@ -301,11 +307,10 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
             if (m_path == "__drives__") {
               return;
             }
-            QFileIconProvider iconProv;
             for (const KFileItem &item : items) {
               auto *it = new MillerWidgetItem(
                   QIcon::fromTheme(item.iconName(),
-                                   iconProv.icon(QFileIconProvider::Folder)),
+                                   QIcon::fromTheme(QStringLiteral("folder"))),
                   item.name(), item.isDir());
               it->setData(Qt::UserRole, item.url().toString());
               m_list->addItem(it);
@@ -555,8 +560,21 @@ void MillerColumn::populateDrives() {
   m_lister->stop();
   m_header->setText(tr("Dieser PC"));
   m_header->setIcon(QIcon::fromTheme("computer"));
+
+  // Cache Speicherdaten vor dem Leeren
+  QHash<QString, QPair<double,double>> freeSpaceCache;
+  for (int i = 0; i < m_list->count(); ++i) {
+    QListWidgetItem *it = m_list->item(i);
+    const double total = it->data(Qt::UserRole + 10).toDouble();
+    if (total > 0) {
+      freeSpaceCache.insert(it->data(Qt::UserRole).toString(),
+                            {total, it->data(Qt::UserRole + 11).toDouble()});
+    }
+  }
+
   m_list->clear();
   m_list->setStyleSheet(TM().ssColDrives());
+  m_list->setItemDelegate(new MillerItemDelegate(m_list));
   m_list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   m_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   m_list->verticalScrollBar()->hide();
@@ -628,7 +646,15 @@ void MillerColumn::populateDrives() {
     it->setData(Qt::DecorationRole, QIcon::fromTheme(iconName));
     it->setData(Qt::UserRole, mounted ? p : QString("solid:") + dev.udi());
     it->setData(Qt::UserRole + 1, dev.udi());
-    it->setSizeHint(QSize(0, 44));
+    it->setSizeHint(QSize(0, 52));
+
+    if (mounted && !p.isEmpty()) {
+      QStorageInfo info(p);
+      if (info.isValid()) {
+        it->setData(Qt::UserRole + 10, info.bytesTotal() / 1073741824.0);
+        it->setData(Qt::UserRole + 11, info.bytesFree()  / 1073741824.0);
+      }
+    }
 
     if (!mounted) {
       it->setForeground(QColor(TM().colors().textMuted));
@@ -673,7 +699,7 @@ void MillerColumn::populateDrives() {
     it->setData(Qt::DecorationRole, QIcon::fromTheme(iconName));
     it->setData(Qt::UserRole, QString(QStringLiteral("solid:") + device.udi()));
     it->setData(Qt::UserRole + 1, device.udi());
-    it->setSizeHint(QSize(0, 44));
+    it->setSizeHint(QSize(0, 52));
     it->setForeground(QColor(TM().colors().textMuted));
   }
 
@@ -706,7 +732,7 @@ void MillerColumn::populateDrives() {
     it->setData(Qt::DecorationRole, QIcon::fromTheme(icon));
     it->setData(Qt::UserRole, path);
     it->setData(Qt::UserRole + 1, fs);
-    it->setSizeHint(QSize(0, 44));
+    it->setSizeHint(QSize(0, 52));
   }
 
   // --- Gespeicherte Netzwerkplätze (NetworkPlaces) ---
@@ -745,7 +771,34 @@ void MillerColumn::populateDrives() {
         url += "/";
       it->setData(Qt::UserRole, url);
       it->setData(Qt::UserRole + 1, scheme);
-      it->setSizeHint(QSize(0, 44));
+      it->setSizeHint(QSize(0, 52));
+
+      // Cache wiederverwenden oder neuen Job starten
+      if (freeSpaceCache.contains(url)) {
+        const auto &fs = freeSpaceCache.value(url);
+        it->setData(Qt::UserRole + 10, fs.first);
+        it->setData(Qt::UserRole + 11, fs.second);
+      } else {
+        auto *freeJob = KIO::fileSystemFreeSpace(QUrl(url));
+        freeJob->setAutoDelete(true);
+        const QString itemUrl = url;
+        QPointer<QListWidget> listPtr = m_list;
+        connect(freeJob, &KIO::FileSystemFreeSpaceJob::result, m_list,
+                [listPtr, itemUrl, freeJob](KJob *) {
+                  if (freeJob->error() || !listPtr) return;
+                  const double total = freeJob->size()          / 1073741824.0;
+                  const double free  = freeJob->availableSize() / 1073741824.0;
+                  if (total <= 0) return;
+                  for (int i = 0; i < listPtr->count(); ++i) {
+                    QListWidgetItem *it = listPtr->item(i);
+                    if (it && it->data(Qt::UserRole).toString() == itemUrl) {
+                      it->setData(Qt::UserRole + 10, total);
+                      it->setData(Qt::UserRole + 11, free);
+                      break;
+                    }
+                  }
+                });
+      }
     }
   }
 }
@@ -1520,12 +1573,32 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   auto *actAbout = hamburgerMenu->addAction(QIcon::fromTheme("help-about"),
                                             tr("Über SplitCommander"));
   connect(actAbout, &QAction::triggered, this, [this]() {
-    const QString body =
-        tr("<b>SplitCommander</b> &nbsp;<small>v%1</small><br>")
-            .arg(QCoreApplication::applicationVersion()) +
-        tr("<small>Ein nativer KDE-Dateimanager.</small><br><br><b>Stack:</b> "
-           "Qt6 · KF6 · C++20<br><b>Autor:</b> D. Lange");
-    DialogUtils::message(this, tr("Über SplitCommander"), body);
+    KAboutData aboutData(
+        QStringLiteral("splitcommander"),
+        tr("SplitCommander"),
+        QCoreApplication::applicationVersion(),
+        tr("Nativer Dual-Pane-Dateimanager für Linux mit KDE Plasma.\n"
+           "Miller-Column-Interface mit KIO-Integration für lokale und Remote-Dateisysteme."),
+        KAboutLicense::GPL_V3,
+        tr("© 2025–2026 D. Lange"),
+        tr("Unterstützt Google Drive, SFTP, SMB, MTP und weitere KIO-Protokolle.\n"
+           "Inspiriert von OneCommander."),
+        QStringLiteral("https://github.com/daniell1904/SplitCommander"),
+        QStringLiteral("https://github.com/daniell1904/SplitCommander/issues")
+    );
+    aboutData.addAuthor(
+        QStringLiteral("D. Lange"),
+        tr("Entwickler und Maintainer"),
+        QStringLiteral(""),
+        QStringLiteral("https://github.com/daniell1904")
+    );
+    aboutData.setOrganizationDomain("github.com/daniell1904");
+    aboutData.setDesktopFileName(QStringLiteral("splitcommander"));
+
+    KAboutApplicationDialog *dlg = new KAboutApplicationDialog(aboutData, this);
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    dlg->setMinimumHeight(480);
+    dlg->exec();
   });
 
   hamburgerBtn->setMenu(hamburgerMenu);
@@ -1677,8 +1750,10 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     bool ok;
     QString name = DialogUtils::getText(this, tr("Verknuepfungsname"),
                                         tr("Name:"), tr("Link"), &ok);
-    if (ok && !name.isEmpty())
-      QFile::link(target, dir + "/" + name);
+    if (ok && !name.isEmpty()) {
+      auto *job = KIO::symlink(target, QUrl::fromLocalFile(dir + "/" + name), KIO::HideProgressInfo);
+      job->setUiDelegate(KIO::createDefaultJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
+    }
   });
 
   // (Connections were already set up above)
@@ -1894,53 +1969,56 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
         searchOverlay->raise();
         spTabRow->show();
 
-        if (m_searchProc) {
-          m_searchProc->disconnect();
-          m_searchProc->kill();
-          m_searchProc->deleteLater();
-          m_searchProc = nullptr;
+        if (m_searchWatcher) {
+          m_searchWatcher->cancel();
+          m_searchWatcher->deleteLater();
+          m_searchWatcher = nullptr;
         }
-        auto *proc = new QProcess(this);
-        m_searchProc = proc;
-        proc->setProgram("baloosearch6");
-        proc->setArguments({term});
-        connect(
-            proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, [this, proc, searchResults](int, QProcess::ExitStatus) {
-              if (proc != m_searchProc) {
-                proc->deleteLater();
-                return;
-              }
-              m_searchProc = nullptr;
-              const QString out = proc->readAllStandardOutput().trimmed();
-              proc->deleteLater();
-              searchResults->clear();
-              if (out.isEmpty()) {
-                auto *empty = new QTreeWidgetItem(searchResults);
-                empty->setText(0, QObject::tr("Keine Ergebnisse"));
-                return;
-              }
-              QFileIconProvider ip;
-              for (const QString &line : out.split('\n', Qt::SkipEmptyParts)) {
-                const QString path = line.trimmed();
-                if (!QFileInfo::exists(path))
-                  continue;
-                const QFileInfo fi(path);
-                auto *it = new QTreeWidgetItem(searchResults);
-                it->setIcon(0, ip.icon(fi));
-                it->setText(0, fi.fileName());
-                it->setText(
-                    1, QString("~/%1").arg(
-                           QDir::home().relativeFilePath(fi.absolutePath())));
-                it->setText(2, fi.lastModified().toString("dd.MM.yy"));
-                it->setData(0, Qt::UserRole, path);
-              }
-              if (searchResults->topLevelItemCount() == 0) {
-                auto *empty = new QTreeWidgetItem(searchResults);
-                empty->setText(0, QObject::tr("Keine Ergebnisse"));
-              }
-            });
-        proc->start();
+
+        Baloo::Query query;
+        query.setSearchString(term);
+        query.setLimit(200);
+
+        auto *watcher = new QFutureWatcher<QStringList>(this);
+        m_searchWatcher = watcher;
+        connect(watcher, &QFutureWatcher<QStringList>::finished, this,
+                [this, watcher, searchResults]() {
+                  if (watcher != m_searchWatcher) {
+                    watcher->deleteLater();
+                    return;
+                  }
+                  m_searchWatcher = nullptr;
+                  const QStringList paths = watcher->result();
+                  watcher->deleteLater();
+                  searchResults->clear();
+                  if (paths.isEmpty()) {
+                    auto *empty = new QTreeWidgetItem(searchResults);
+                    empty->setText(0, tr("Keine Ergebnisse"));
+                    return;
+                  }
+                  for (const QString &path : paths) {
+                    const QFileInfo fi(path);
+                    const QUrl url = QUrl::fromLocalFile(path);
+                    auto *it = new QTreeWidgetItem(searchResults);
+                    it->setIcon(0, QIcon::fromTheme(KIO::iconNameForUrl(url)));
+                    it->setText(0, fi.fileName());
+                    it->setText(1, QString("~/%1").arg(
+                                       QDir::home().relativeFilePath(fi.absolutePath())));
+                    it->setText(2, fi.lastModified().toString("dd.MM.yy"));
+                    it->setData(0, Qt::UserRole, path);
+                  }
+                  if (searchResults->topLevelItemCount() == 0) {
+                    auto *empty = new QTreeWidgetItem(searchResults);
+                    empty->setText(0, tr("Keine Ergebnisse"));
+                  }
+                });
+        watcher->setFuture(QtConcurrent::run([query]() mutable -> QStringList {
+          QStringList results;
+          Baloo::ResultIterator it = query.exec();
+          while (it.next())
+            results << it.filePath();
+          return results;
+        }));
       });
   connect(
       searchResults, &QTreeWidget::itemClicked, this,
@@ -2115,7 +2193,9 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
             if (isKio || QFileInfo(path).isDir()) {
               navigateTo(path);
             } else {
-              QDesktopServices::openUrl(QUrl::fromUserInput(path));
+              auto *job = new KIO::OpenUrlJob(QUrl::fromUserInput(path));
+              job->setUiDelegate(KIO::createDefaultJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
+              job->start();
             }
           });
 
@@ -2126,9 +2206,12 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
         this, tr("Neuer Ordner"), tr("Ordnername:"), tr("Neuer Ordner"), &ok);
     if (!ok || name.isEmpty())
       return;
-    if (!QDir(currentPath()).mkdir(name))
-      DialogUtils::message(this, tr("Fehler"),
-                           tr("Ordner konnte nicht erstellt werden."));
+    auto *job = KIO::mkdir(QUrl::fromLocalFile(currentPath() + "/" + name));
+    job->setUiDelegate(KIO::createDefaultJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
+    connect(job, &KJob::result, this, [this, job]() {
+      if (job->error())
+        DialogUtils::message(this, tr("Fehler"), tr("Ordner konnte nicht erstellt werden."));
+    });
   });
   connect(m_toolbar, &PaneToolbar::deleteClicked, this, [this]() {
     emit filePane()->deleteRequested();
@@ -2432,11 +2515,11 @@ void PaneWidget::refreshFooter(const QString &path, int selectedCount) {
             iconSize, iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
       } else {
         m_previewIcon->setPixmap(
-            QFileIconProvider().icon(fi).pixmap(iconSize, iconSize));
+            QIcon::fromTheme(KIO::iconNameForUrl(url.isLocalFile() ? url : QUrl::fromLocalFile(path))).pixmap(iconSize, iconSize));
       }
     } else {
       m_previewIcon->setPixmap(
-          QFileIconProvider().icon(fi).pixmap(iconSize, iconSize));
+          QIcon::fromTheme(KIO::iconNameForUrl(url.isLocalFile() ? url : QUrl::fromLocalFile(path))).pixmap(iconSize, iconSize));
     }
 
     QString info = QString("<table cellpadding='1' cellspacing='0' "
@@ -2609,9 +2692,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
           this, tr("Neuer Ordner"), tr("Ordnername:"), tr("Neuer Ordner"), &ok);
       if (!ok || name.isEmpty())
         return;
-      if (!QDir(pane->currentPath()).mkdir(name))
-        DialogUtils::message(this, tr("Fehler"),
-                             tr("Ordner konnte nicht erstellt werden."));
+      auto *job = KIO::mkdir(QUrl::fromLocalFile(pane->currentPath() + "/" + name));
+      job->setUiDelegate(KIO::createDefaultJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
+      connect(job, &KJob::result, this, [this, job]() {
+        if (job->error())
+          DialogUtils::message(this, tr("Fehler"), tr("Ordner konnte nicht erstellt werden."));
+      });
     });
     connect(pane, &PaneWidget::hiddenFilesToggled, this, [this](bool show) {
       emit m_sidebar->hiddenFilesChanged(show);
@@ -2909,26 +2995,30 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
             m_sidebar->updateDrives();
           });
 
-  // FileSystem Watcher für Mount-Punkte (zusätzlich zu Solid)
-  m_fsWatcher = new QFileSystemWatcher(this);
-  QString userMediaPath = QDir::homePath() + "/.local/share/Trash"; // Fallback
+  // KDirWatch für Mount-Punkte (zusätzlich zu Solid)
+  m_fsWatcher = new KDirWatch(this);
   if (QDir("/run/media").exists()) {
     QString userPath = "/run/media/" + QString::fromLocal8Bit(qgetenv("USER"));
     if (QDir(userPath).exists()) {
-      m_fsWatcher->addPath(userPath);
+      m_fsWatcher->addDir(userPath, KDirWatch::WatchSubDirs);
     } else {
-      m_fsWatcher->addPath("/run/media");
+      m_fsWatcher->addDir("/run/media", KDirWatch::WatchSubDirs);
     }
   }
   if (QDir("/media").exists()) {
-    m_fsWatcher->addPath("/media");
+    m_fsWatcher->addDir("/media", KDirWatch::WatchSubDirs);
   }
-  connect(m_fsWatcher, &QFileSystemWatcher::directoryChanged, this, [this](const QString &) {
+  connect(m_fsWatcher, &KDirWatch::dirty, this, [this](const QString &) {
     m_leftPane->miller()->refreshDrives();
     m_rightPane->miller()->refreshDrives();
     m_sidebar->updateDrives();
   });
-  connect(m_fsWatcher, &QFileSystemWatcher::fileChanged, this, [this](const QString &) {
+  connect(m_fsWatcher, &KDirWatch::created, this, [this](const QString &) {
+    m_leftPane->miller()->refreshDrives();
+    m_rightPane->miller()->refreshDrives();
+    m_sidebar->updateDrives();
+  });
+  connect(m_fsWatcher, &KDirWatch::deleted, this, [this](const QString &) {
     m_leftPane->miller()->refreshDrives();
     m_rightPane->miller()->refreshDrives();
     m_sidebar->updateDrives();

@@ -23,7 +23,6 @@
 #include <QFileDialog>
 #include <QKeyEvent>
 #include <QScrollBar>
-#include <QSettings>
 
 #include "drophandler.h"
 #include <QStandardPaths>
@@ -34,7 +33,8 @@
 
 #include <QClipboard>
 #include <QDebug>
-#include <QDesktopServices>
+#include <KIO/OpenUrlJob>
+#include <KDesktopFile>
 #include <QFile>
 #include <QFileInfo>
 #include <QGuiApplication>
@@ -1488,16 +1488,14 @@ void FilePane::onItemActivated(const QModelIndex &index) {
   static bool remoteViewLoaded = false;
   if (!remoteViewLoaded) {
     remoteViewLoaded = true;
-    const QDir remoteDir("/usr/share/remoteview");
+    const QDir remoteDir(QStringLiteral("/usr/share/remoteview"));
     for (const QFileInfo &fi :
-         remoteDir.entryInfoList({"*.desktop"}, QDir::Files)) {
-      QSettings ds(fi.absoluteFilePath(), QSettings::IniFormat);
-      ds.beginGroup(QStringLiteral("Desktop Entry"));
-      const QString urlVal = ds.value(QStringLiteral("URL")).toString();
+         remoteDir.entryInfoList({QStringLiteral("*.desktop")}, QDir::Files)) {
+      KDesktopFile df(fi.absoluteFilePath());
+      const QString urlVal = df.readUrl();
       const QString baseName = fi.completeBaseName();
       if (!urlVal.isEmpty())
         remoteViewMap.insert(baseName, urlVal);
-      ds.endGroup();
     }
   }
 
@@ -1518,7 +1516,9 @@ void FilePane::onItemActivated(const QModelIndex &index) {
   }
 
   // Datei öffnen
-  QDesktopServices::openUrl(item.url());
+  auto *job = new KIO::OpenUrlJob(item.url());
+  job->setUiDelegate(KIO::createDefaultJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
+  job->start();
 }
 
 // --- resizeEvent / eventFilter ---
@@ -1766,8 +1766,11 @@ void FilePane::showContextMenu(const QPoint &pos) {
                        setRootPath(contextItem.localPath().isEmpty()
                                        ? contextItem.url().toString()
                                        : contextItem.localPath());
-                     else
-                       QDesktopServices::openUrl(contextItem.url());
+                     else {
+                       auto *job = new KIO::OpenUrlJob(contextItem.url());
+                       job->setUiDelegate(KIO::createDefaultJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
+                       job->start();
+                     }
                    });
     actions.insertOpenWithActionsTo(
         nullptr, &menu, QStringList{QCoreApplication::applicationName()});

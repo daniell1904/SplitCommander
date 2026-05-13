@@ -13,7 +13,6 @@
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QFile>
-#include <QFileIconProvider>
 #include <QFileInfo>
 #include <QGraphicsDropShadowEffect>
 #include <QGridLayout>
@@ -44,10 +43,13 @@
 #include <QFormLayout>
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
+#include <QPointer>
 
 // 2. KDE / KIO / Solid
 #include <KDirLister>
 #include <KIO/CopyJob>
+#include <KIO/Global>
+#include <KIO/FileSystemFreeSpaceJob>
 #include <KIO/ListJob>
 #include <KPropertiesDialog>
 #include <KIconDialog>
@@ -261,7 +263,7 @@ void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QM
     icon.paint(p, iconX, iconY, iconSz, iconSz);
     p->setFont(QFont("sans-serif", 9));
 
-    if (m_showBars && path.startsWith("/")) {
+    if (m_showBars && (path.startsWith("/") || idx.data(Qt::UserRole + 10).toDouble() > 0)) {
         const double total = idx.data(Qt::UserRole + 10).toDouble();
         const double free  = idx.data(Qt::UserRole + 11).toDouble();
 
@@ -490,7 +492,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     m_netList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_netList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_netList->setStyleSheet(TM().ssListWidget());
-    m_netList->setItemDelegate(new DriveDelegate(false, this));
+    m_netList->setItemDelegate(new DriveDelegate(true, this));
     netWLay->addWidget(m_netList);
 
     // Netzwerk-Box in vbox einfügen (nach listCont, vor Toggle)
@@ -1107,7 +1109,17 @@ void Sidebar::updateDrives()
     // --- Google Drive → wird in Netzwerk-Sektion angezeigt (siehe unten) ---
 
     // --- Netzwerklaufwerke in m_netList ---
-    if (m_netList) m_netList->clear();
+    // Cache Speicherdaten vor dem Leeren
+    QHash<QString, QPair<double,double>> netFreeCache;
+    if (m_netList) {
+        for (int i = 0; i < m_netList->count(); ++i) {
+            QListWidgetItem *it = m_netList->item(i);
+            const double total = it->data(Qt::UserRole + 10).toDouble();
+            if (total > 0)
+                netFreeCache.insert(it->data(Qt::UserRole).toString(), {total, it->data(Qt::UserRole + 11).toDouble()});
+        }
+        m_netList->clear();
+    }
     bool hasNet = false;
 
     // Gespeicherte Netzwerkplätze (persistent)
@@ -1137,7 +1149,32 @@ void Sidebar::updateDrives()
             auto *it = new QListWidgetItem(QIcon::fromTheme(savedIcon), savedName, m_netList);
             it->setData(Qt::UserRole, url);
             it->setData(Qt::UserRole + 1, url);
-            it->setSizeHint(QSize(0, 36));
+            it->setSizeHint(QSize(0, 44));
+            if (netFreeCache.contains(url)) {
+                const auto &fs = netFreeCache.value(url);
+                it->setData(Qt::UserRole + 10, fs.first);
+                it->setData(Qt::UserRole + 11, fs.second);
+            } else {
+                auto *freeJob = KIO::fileSystemFreeSpace(QUrl(url));
+                freeJob->setAutoDelete(true);
+                const QString itemUrl = url;
+                QPointer<QListWidget> listPtr = m_netList;
+                connect(freeJob, &KIO::FileSystemFreeSpaceJob::result, m_netList,
+                        [listPtr, itemUrl, freeJob](KJob *) {
+                            if (freeJob->error() || !listPtr) return;
+                            const double total = freeJob->size()          / 1073741824.0;
+                            const double free  = freeJob->availableSize() / 1073741824.0;
+                            if (total <= 0) return;
+                            for (int i = 0; i < listPtr->count(); ++i) {
+                                QListWidgetItem *it = listPtr->item(i);
+                                if (it && it->data(Qt::UserRole).toString() == itemUrl) {
+                                    it->setData(Qt::UserRole + 10, total);
+                                    it->setData(Qt::UserRole + 11, free);
+                                    break;
+                                }
+                            }
+                        });
+            }
         }
     }
 
@@ -1234,15 +1271,35 @@ void Sidebar::setupDriveContextMenu()
             });
         }
 
-        // Nicht-gemountetes normales Laufwerk: umount
+        // Nicht-gemountetes normales Laufwerk: umount via Solid
         if (!isSolid && !isMountedSolid && path != "/" && !path.isEmpty() && !isGdrive) {
             menu.addAction(QIcon::fromTheme(QStringLiteral("media-eject")), tr("Auswerfen"), this, [this, path]() {
-                auto *proc = new QProcess(this);
-                connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                        this, [this, proc](int, QProcess::ExitStatus) {
-                    updateDrives(); emit drivesChanged(); proc->deleteLater();
-                });
-                proc->start("umount", {path});
+                const auto devices = Solid::Device::listFromType(Solid::DeviceInterface::StorageAccess);
+                QString foundUdi;
+                for (const Solid::Device &d : devices) {
+                    const auto *a = d.as<Solid::StorageAccess>();
+                    if (a && a->filePath() == path) {
+                        foundUdi = d.udi();
+                        break;
+                    }
+                }
+                if (foundUdi.isEmpty()) {
+                    updateDrives(); emit drivesChanged();
+                    return;
+                }
+                auto *device = new Solid::Device(foundUdi);
+                auto *acc = device->as<Solid::StorageAccess>();
+                if (!acc) {
+                    delete device;
+                    updateDrives(); emit drivesChanged();
+                    return;
+                }
+                connect(acc, &Solid::StorageAccess::teardownDone, this,
+                        [this, device](Solid::ErrorType, QVariant, const QString &) {
+                            updateDrives(); emit drivesChanged();
+                            delete device;
+                        }, Qt::SingleShotConnection);
+                acc->teardown();
             });
         }
 
@@ -1681,8 +1738,7 @@ void Sidebar::loadCustomGroups()
                     scheme == "bluetooth" ? "bluetooth"          :
                     "network-server");
             } else {
-                QFileIconProvider ip;
-                ico = ip.icon(QFileInfo(path));
+                ico = QIcon::fromTheme(KIO::iconNameForUrl(QUrl::fromLocalFile(path)));
             }
             if (ico.isNull()) ico = QIcon::fromTheme(QStringLiteral("folder"));
             auto *it = new QListWidgetItem(ico, itemName, list);
@@ -1731,8 +1787,7 @@ void Sidebar::addToGroup(const QString &groupName, QListWidget *list, const QStr
             scheme == "afc"       ? "phone"               :
             "network-server");
     } else {
-        QFileIconProvider ip;
-        ico = ip.icon(QFileInfo(path));
+        ico = QIcon::fromTheme(KIO::iconNameForUrl(QUrl::fromLocalFile(path)));
     }
     if (ico.isNull()) ico = QIcon::fromTheme(QStringLiteral("folder"));
 
@@ -1864,9 +1919,7 @@ void Sidebar::showPlaceContextMenu(QListWidgetItem *item, QListWidget *list,
             if (!newIcon.isEmpty()) {
                 item->setIcon(QIcon::fromTheme(newIcon));
             } else {
-                // Fallback auf Standard-Icon falls manuelles Icon gelöscht wurde
-                QFileIconProvider ip;
-                item->setIcon(ip.icon(QFileInfo(newPath)));
+                item->setIcon(QIcon::fromTheme(KIO::iconNameForUrl(QUrl::fromLocalFile(newPath))));
             }
             saveList();
         });

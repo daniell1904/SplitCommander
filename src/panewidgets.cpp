@@ -496,10 +496,65 @@ MillerItemDelegate::MillerItemDelegate(QObject *parent)
 void MillerItemDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
                                 const QModelIndex &idx) const
 {
+    // --- Speicherbalken für Laufwerke ---
+    const double total = idx.data(Qt::UserRole + 10).toDouble();
+    const double free  = idx.data(Qt::UserRole + 11).toDouble();
+    if (total > 0) {
+        const double used  = total - free;
+        const double pct   = used / total;
+        const QRect  r     = opt.rect;
+        const int    textX = r.left() + 32;
+        const int    textW = r.width() - 40;
+        const int    lineH = r.height() / 2;
+        const int    barY  = r.top() + lineH + (r.height() - lineH) / 2 - 2;
+
+        p->save();
+
+        // Hintergrund
+        const QColor bg = (opt.state & QStyle::State_Selected)
+            ? QColor(TM().colors().bgSelect)
+            : QColor(TM().colors().bgList);
+        p->fillRect(r, bg);
+
+        // Icon
+        const QIcon icon = idx.data(Qt::DecorationRole).value<QIcon>();
+        icon.paint(p, r.left() + 8, r.top() + (r.height() - 16) / 2, 16, 16);
+
+        // Text
+        p->setFont(QFont("sans-serif", 9));
+        QFontMetrics fm(p->font());
+        const QString name    = idx.data(Qt::DisplayRole).toString();
+        const QString usedStr = QString("%1").arg((int)used);
+        const QString restStr = QString(" / %1 GB").arg((int)total);
+        const int usedW = fm.horizontalAdvance(usedStr);
+        const int restW = fm.horizontalAdvance(restStr);
+        const int nameW = textW - usedW - restW - 6;
+        const int sizeX = r.right() - usedW - restW - 8;
+
+        p->setPen(QColor(TM().colors().textPrimary));
+        p->drawText(textX, r.top(), nameW, lineH, Qt::AlignLeft | Qt::AlignVCenter,
+                    fm.elidedText(name, Qt::ElideRight, nameW));
+        p->setPen(QColor(TM().colors().textLight));
+        p->drawText(sizeX, r.top(), usedW, lineH, Qt::AlignLeft | Qt::AlignVCenter, usedStr);
+        p->setPen(QColor(TM().colors().textAccent));
+        p->drawText(sizeX + usedW, r.top(), restW, lineH, Qt::AlignLeft | Qt::AlignVCenter, restStr);
+
+        // Separator
+        p->setPen(QColor(TM().colors().bgHover));
+        p->drawLine(r.left(), r.bottom(), r.right(), r.bottom());
+        p->setBrush(QColor(TM().colors().splitter));
+        p->drawRoundedRect(textX, barY, textW, 3, 1, 1);
+        p->setBrush(QColor(TM().colors().accentHover));
+        p->drawRoundedRect(textX, barY, (int)(textW * pct), 3, 1, 1);
+
+        p->restore();
+        return;
+    }
+
     QStyledItemDelegate::paint(p, opt, idx);
 
+    // --- Age-Badge ---
     if (!Config::showNewIndicator()) return;
-
 
     const QString path = idx.data(Qt::UserRole).toString();
     if (path.isEmpty()) return;
