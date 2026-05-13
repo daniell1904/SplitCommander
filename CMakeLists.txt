@@ -34,8 +34,6 @@ add_executable(splitcommander
     src/themedialog.cpp
     src/agebadgedialog.cpp
     src/thememanager.cpp
-    src/terminalutils.cpp
-
     src/dialogutils.cpp
 )
 

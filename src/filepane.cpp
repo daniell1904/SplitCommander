@@ -45,7 +45,8 @@
 #include <QMimeType>
 #include <QProcess>
 
-#include "terminalutils.h"
+#include <KTerminalLauncherJob>
+#include <KDialogJobUiDelegate>
 #include <KApplicationTrader>
 #include <KDirLister>
 #include <KDirModel>
@@ -147,13 +148,8 @@ static QString menuStyle() {
 }
 
 static void fp_applyMenuShadow(QMenu *menu) {
-  if (!menu)
-    return;
-  auto *shadow = new QGraphicsDropShadowEffect(menu);
-  shadow->setBlurRadius(20);
-  shadow->setOffset(0, 4);
-  shadow->setColor(QColor(0, 0, 0, 140));
-  menu->setGraphicsEffect(shadow);
+  Q_UNUSED(menu)
+  // QGraphicsDropShadowEffect auf QMenu zerstört Submenü-Positionierung — nicht verwenden
 }
 
 // --- SCTreeView: QTreeView-Subklasse die Drag vs. Rubber-Band wie Dolphin steuert ---
@@ -1895,7 +1891,12 @@ void FilePane::showContextMenu(const QPoint &pos) {
                         tr("Terminal hier öffnen"), &menu);
         termAct->setShortcut(QKeySequence(Qt::ALT | Qt::SHIFT | Qt::Key_F4));
         connect(termAct, &QAction::triggered, this,
-                [path]() { sc_openTerminal(path); });
+                [this, path]() {
+                    auto *job = new KTerminalLauncherJob(QString());
+                    job->setWorkingDirectory(path);
+                    job->setUiDelegate(new KDialogJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
+                    job->start();
+                });
         additionalActions << termAct;
       }
       if (props.isDirectory()) {
@@ -2130,7 +2131,7 @@ void FilePane::showContextMenu(const QPoint &pos) {
     if (m_newFileMenu && dirUrl.scheme() != "trash") {
       m_newFileMenu->setWorkingDirectory(dirUrl);
       m_newFileMenu->checkUpToDate();
-      auto *newMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("list-add")),
+      auto *newMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("document-new")),
                                    tr("Neu erstellen"));
       for (QAction *act : m_newFileMenu->menu()->actions())
         newMenu->addAction(act);
@@ -2160,23 +2161,64 @@ void FilePane::showContextMenu(const QPoint &pos) {
     menu.addSeparator();
 
     // --- 3. ANSICHT-BLOCK ---
-    auto *sortMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("view-sort")),
+    auto *sortMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("view-sort-ascending")),
                                   tr("Sortieren nach"));
-    if (auto *tree = qobject_cast<QTreeView *>(view)) {
-      auto *hdr = tree->header();
-      for (int i = 0; i < hdr->count(); ++i) {
-        if (hdr->isSectionHidden(i))
-          continue;
-        QString label = tree->model()->headerData(i, Qt::Horizontal).toString();
-        QAction *a = sortMenu->addAction(label);
-        a->setCheckable(true);
-        a->setChecked(hdr->sortIndicatorSection() == i);
-        connect(a, &QAction::triggered, this,
-                [i, tree]() { tree->sortByColumn(i, Qt::AscendingOrder); });
-      }
-    }
 
-    auto *modeMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("view-mode")),
+    // Festes Sort-Set wie Dolphin
+    struct SortEntry { QString label; int col; QString icon; };
+    const QList<SortEntry> sortEntries = {
+        { tr("Name"),            0, "sort-name"             },
+        { tr("Größe"),           2, "sort-size"             },
+        { tr("Geändert"),        3, "sort-time"             },
+        { tr("Erstellt"),        3, ""                      },
+        { tr("Letzter Zugriff"), 3, ""                      },
+        { tr("Typ"),             1, "sort-file-type"        },
+        { tr("Bewertung"),      -1, "rating"                },
+    };
+    auto *tree = qobject_cast<QTreeView *>(view);
+    for (const SortEntry &e : sortEntries) {
+        if (e.col < 0) continue; // Baloo-Felder — nur wenn vorhanden
+        QAction *a = sortMenu->addAction(e.icon.isEmpty()
+            ? QIcon() : QIcon::fromTheme(e.icon), e.label);
+        a->setCheckable(true);
+        if (tree) a->setChecked(tree->header()->sortIndicatorSection() == e.col
+                                && e.label == tr("Name") ? tree->header()->sortIndicatorSection() == 0
+                                : false);
+        const int col = e.col;
+        connect(a, &QAction::triggered, this, [col, tree]() {
+            if (tree) tree->sortByColumn(col, Qt::AscendingOrder);
+        });
+    }
+    sortMenu->addSeparator();
+    // A-Z / Z-A
+    auto *azAct = sortMenu->addAction(tr("A-Z"));
+    azAct->setCheckable(true);
+    auto *zaAct = sortMenu->addAction(tr("Z-A"));
+    zaAct->setCheckable(true);
+    if (tree) {
+        azAct->setChecked(tree->header()->sortIndicatorOrder() == Qt::AscendingOrder);
+        zaAct->setChecked(tree->header()->sortIndicatorOrder() == Qt::DescendingOrder);
+    }
+    connect(azAct, &QAction::triggered, this, [tree]() {
+        if (tree) tree->sortByColumn(tree->header()->sortIndicatorSection(), Qt::AscendingOrder);
+    });
+    connect(zaAct, &QAction::triggered, this, [tree]() {
+        if (tree) tree->sortByColumn(tree->header()->sortIndicatorSection(), Qt::DescendingOrder);
+    });
+    sortMenu->addSeparator();
+    // Ordner zuerst
+    auto *folderFirstAct = sortMenu->addAction(tr("Ordner zuerst"));
+    folderFirstAct->setCheckable(true);
+    folderFirstAct->setChecked(m_foldersFirst);
+    connect(folderFirstAct, &QAction::triggered, this, [this](bool checked) {
+        setFoldersFirst(checked);
+    });
+    // Versteckte Dateien zuletzt
+    auto *hiddenLastAct = sortMenu->addAction(tr("Versteckte Dateien zuletzt"));
+    hiddenLastAct->setCheckable(true);
+    connect(hiddenLastAct, &QAction::triggered, this, [](bool) {});
+
+    auto *modeMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("view-list-details")),
                                   tr("Ansichtsmodus ändern"));
     auto addMode = [&](const QString &label, const QString &icon, int m) {
       QAction *a = modeMenu->addAction(QIcon::fromTheme(icon), label);
@@ -2186,14 +2228,68 @@ void FilePane::showContextMenu(const QPoint &pos) {
     };
     addMode(tr("Details"), "view-list-details", 0);
     addMode(tr("Symbole"), "view-list-icons", 1);
+
+    // --- 4. KIO-AKTIONEN (Aktionen, Stichwörter, Komprimieren, Aktivitäten) ---
+    menu.addSeparator();
+
+    // Aktionen in temporäres Menü sammeln
+    QMenu tempMenu;
+    actions.addActionsTo(&tempMenu, KFileItemActions::MenuActionSource::All, {});
+
+    // Submenüs nach Titel aus tempMenu holen
+    auto findSubMenu = [&](const QString &title) -> QAction* {
+        for (QAction *act : tempMenu.actions()) {
+            if (!act->isSeparator() && act->text().contains(title, Qt::CaseInsensitive))
+                return act;
+        }
+        return nullptr;
+    };
+
+    // Aktionen-Submenü bauen — Terminal + restliche Einträge
+    auto *actMenu = new QMenu(tr("Aktionen"), &menu);
+    actMenu->setIcon(QIcon::fromTheme(QStringLiteral("system-run")));
+
+    // Terminal hier öffnen als ersten Eintrag
+    auto *termAct = new QAction(QIcon::fromTheme(QStringLiteral("utilities-terminal")),
+                                tr("Terminal hier öffnen"), actMenu);
+    termAct->setShortcut(QKeySequence(Qt::ALT | Qt::SHIFT | Qt::Key_F4));
+    connect(termAct, &QAction::triggered, this, [this, dirUrl]() {
+        auto *job = new KTerminalLauncherJob(QString());
+        job->setWorkingDirectory(dirUrl.toLocalFile());
+        job->setUiDelegate(new KDialogJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
+        job->start();
+    });
+    actMenu->addAction(termAct);
+
+    // Restliche KIO-Aktionen die nicht Stichwörter/Komprimieren/Aktivitäten sind
+    static const QStringList skipTitles = {
+        tr("Stichwörter zuweisen"), tr("Komprimieren"), tr("Aktivitäten")
+    };
+    for (QAction *act : tempMenu.actions()) {
+        if (act->isSeparator()) continue;
+        // Farbige Ordner-Widget-Aktionen (haben kein Text oder sind Widgets) überspringen
+        if (act->text().isEmpty()) continue;
+        bool skip = false;
+        for (const QString &t : skipTitles)
+            if (act->text().contains(t, Qt::CaseInsensitive)) { skip = true; break; }
+        if (!skip) actMenu->addAction(act);
+    }
+
+    // Reihenfolge wie Dolphin: Aktionen, Stichwörter, Komprimieren, Aktivitäten
+    menu.addMenu(actMenu);
+    if (auto *a = findSubMenu(tr("Stichwörter zuweisen"))) menu.addAction(a);
+    if (auto *a = findSubMenu(tr("Komprimieren")))          menu.addAction(a);
+    if (auto *a = findSubMenu(tr("Aktivitäten")))           menu.addAction(a);
+
     menu.addSeparator();
   }
 
   // --- 5. EIGENSCHAFTEN (Immer ganz unten) ---
   menu.addSeparator();
+  const QUrl propsUrl = hasItem ? itemUrl : dirUrl;
   menu.addAction(QIcon::fromTheme(QStringLiteral("document-properties")),
-                 tr("Eigenschaften"), this, [itemUrl]() {
-                   auto *dlg = new KPropertiesDialog(itemUrl, nullptr);
+                 tr("Eigenschaften"), this, [propsUrl]() {
+                   auto *dlg = new KPropertiesDialog(propsUrl, nullptr);
                    dlg->setAttribute(Qt::WA_DeleteOnClose);
                    dlg->show();
                  });

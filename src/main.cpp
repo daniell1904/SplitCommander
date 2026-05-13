@@ -7,9 +7,36 @@
 #include <QLocale>
 #include <QLibraryInfo>
 #include <QStandardPaths>
+#include <QDialog>
+#include <QEvent>
+#include <QLineEdit>
+#include <QAbstractItemView>
 #include "mainwindow.h"
 #include "thememanager.h"
 #include "config.h"
+
+// Stylt KEditTagsDialog (Stichwörter) wie unsere eigenen Dialoge
+class ScKdeDialogFilter : public QObject {
+public:
+    explicit ScKdeDialogFilter(QObject *parent = nullptr) : QObject(parent) {}
+    bool eventFilter(QObject *obj, QEvent *ev) override {
+        if (ev->type() == QEvent::Show) {
+            if (QByteArray(obj->metaObject()->className()) == "KEditTagsDialog") {
+                auto *dlg = static_cast<QDialog*>(obj);
+                const auto &c = TM().colors();
+                dlg->setStyleSheet(TM().ssDialog() + QString(
+                    "QListView { background:%1; border:1px solid %2; color:%3; border-radius:4px; }"
+                    "QListView::item { color:%3; padding:2px; }"
+                    "QListView::item:selected { background:%4; color:%5; }"
+                    "QTreeView { background:%1; border:1px solid %2; color:%3; border-radius:4px; }"
+                    "QTreeView::item { color:%3; padding:2px; }"
+                    "QTreeView::item:selected { background:%4; color:%5; }")
+                    .arg(c.bgDeep, c.accentHover, c.textPrimary, c.bgSelect, c.textLight));
+            }
+        }
+        return false;
+    }
+};
 
 static void scMessageHandler(QtMsgType type, const QMessageLogContext &, const QString &msg)
 {
@@ -62,6 +89,7 @@ int main(int argc, char *argv[])
 
     // Theme vor MainWindow laden — Sidebar liest Farben beim Aufbau
     TM().apply();
+    app.installEventFilter(new ScKdeDialogFilter(&app));
 
     MainWindow w;
     w.show();

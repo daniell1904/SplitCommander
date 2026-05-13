@@ -63,7 +63,8 @@
 // 3. SplitCommander
 #include "dialogutils.h"
 #include "config.h"
-#include "terminalutils.h"
+#include <KTerminalLauncherJob>
+#include <KDialogJobUiDelegate>
 #include "tagmanager.h"
 
 
@@ -113,12 +114,8 @@ static QString sc_rootVolumeName()
 
 static void sc_applyMenuShadow(QMenu *menu)
 {
-    if (!menu) return;
-    auto *shadow = new QGraphicsDropShadowEffect(menu);
-    shadow->setBlurRadius(20);
-    shadow->setOffset(0, 4);
-    shadow->setColor(QColor(0, 0, 0, 140));
-    menu->setGraphicsEffect(shadow);
+    Q_UNUSED(menu)
+    // QGraphicsDropShadowEffect auf QMenu zerstört Submenü-Positionierung — nicht verwenden
 }
 
 static QString sc_normalizePath(QString s)
@@ -214,7 +211,10 @@ static void sc_buildPlaceMenu(QMenu &menu, const QString &path, const QString &n
 
     // 2. System-Aktionen
     menu.addAction(QIcon::fromTheme(QStringLiteral("utilities-terminal")), QObject::tr("In Terminal öffnen"), [path]() {
-        sc_openTerminal(path);
+        auto *job = new KTerminalLauncherJob(QString());
+        job->setWorkingDirectory(path);
+        job->setUiDelegate(new KDialogJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, nullptr));
+        job->start();
     });
     menu.addAction(QIcon::fromTheme(QStringLiteral("edit-copy")), QObject::tr("Pfad kopieren"), [path]() {
         QGuiApplication::clipboard()->setText(path);
@@ -1397,6 +1397,7 @@ void Sidebar::onNewGroupDialog()
 
 
     QListWidget *list = createGroupWidget(grpName, nullptr);
+    saveGroupOrder();
 
     if (btnGrp->checkedId() == 1) {
         const QStringList xdgPaths = {
@@ -1631,6 +1632,8 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
         });
         connect(delAct, &QAction::triggered, this, [this, wrapper, sharedName]() {
             m_contentLayout->removeWidget(wrapper); wrapper->deleteLater();
+            if (m_scrollArea && m_scrollArea->widget())
+                m_scrollArea->widget()->adjustSize();
             auto gs = Config::group("CustomGroups");
             KConfigGroup(gs.config(), gs.name() + "/group_" + *sharedName).deleteGroup();
             gs.config()->sync();

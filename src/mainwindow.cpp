@@ -6,7 +6,8 @@
 #include "filepane.h"
 #include "joboverlay.h"
 #include "panewidgets.h"
-#include "terminalutils.h"
+#include <KTerminalLauncherJob>
+#include <KDialogJobUiDelegate>
 #include "thememanager.h"
 #include <KActionCollection>
 #include <KShortcutsDialog>
@@ -93,13 +94,8 @@ static QString sc_rootVolumeName() {
 }
 
 static void mw_applyMenuShadow(QMenu *menu) {
-  if (!menu)
-    return;
-  auto *shadow = new QGraphicsDropShadowEffect(menu);
-  shadow->setBlurRadius(20);
-  shadow->setOffset(0, 4);
-  shadow->setColor(QColor(0, 0, 0, 140));
-  menu->setGraphicsEffect(shadow);
+  Q_UNUSED(menu)
+  // QGraphicsDropShadowEffect auf QMenu zerstört Submenü-Positionierung — nicht verwenden
 }
 
 // --- PaneToolbar ---
@@ -534,7 +530,12 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
       menu.addSeparator();
       menu.addAction(QIcon::fromTheme("utilities-terminal"),
                      tr("Im Terminal öffnen"), this,
-                     [itemPath]() { sc_openTerminal(itemPath); });
+                     [this, itemPath]() {
+                         auto *job = new KTerminalLauncherJob(QString());
+                         job->setWorkingDirectory(itemPath);
+                         job->setUiDelegate(new KDialogJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
+                         job->start();
+                     });
       menu.addSeparator();
       menu.addAction(
           QIcon::fromTheme("edit-copy"), tr("Pfad kopieren"), this,
@@ -1335,8 +1336,10 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   menuTerminal->addAction(QIcon::fromTheme("utilities-terminal"),
                           tr("Im Terminal öffnen"), this, [this]() {
                             const QString path = this->currentPath();
-                            sc_openTerminal(path.isEmpty() ? QDir::homePath()
-                                                           : path);
+                            auto *job = new KTerminalLauncherJob(QString());
+                            job->setWorkingDirectory(path.isEmpty() ? QDir::homePath() : path);
+                            job->setUiDelegate(new KDialogJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
+                            job->start();
                           });
 
   hamburgerMenu->addSeparator();
@@ -1505,25 +1508,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
                                    this);
   });
 
-  // 3. Terminal wählen … (Submenu)
-  auto *menuTerminalSelect = menuConfigure->addMenu(
-      QIcon::fromTheme("utilities-terminal"), tr("Terminal wählen…"));
-  menuTerminalSelect->setStyleSheet(TM().ssMenu());
-  connect(menuTerminalSelect, &QMenu::aboutToShow, this,
-          [this, menuTerminalSelect]() {
-            menuTerminalSelect->clear();
-            const QStringList installed = sc_installedTerminals();
-            const QString current = sc_detectTerminal();
-            for (const QString &t : installed) {
-              auto *act = menuTerminalSelect->addAction(t);
-              act->setCheckable(true);
-              act->setChecked(t == current);
-              connect(act, &QAction::triggered, this,
-                      [t]() { Config::setTerminalApp(t); });
-            }
-          });
-
-  // 4. Altersbadges
+  // 3. Altersbadges
   auto *actAgeBadge = menuConfigure->addAction(QIcon::fromTheme("chronometer"),
                                                tr("Altersbadges"));
   connect(actAgeBadge, &QAction::triggered, this,
