@@ -2,6 +2,7 @@
 // --- sidebar.cpp — SplitCommander Sidebar ---
 
 #include "sidebar.h"
+#include "scglobal.h"
 
 // 1. Qt Core / UI
 #include <QApplication>
@@ -107,12 +108,6 @@ static QString sc_getText(QWidget *parent, const QString &title, const QString &
 }
 
 // --- Hilfsfunktionen (file-scope) ---
-
-static QString sc_rootVolumeName()
-{
-    const QString name = QStorageInfo(QStringLiteral("/")).name();
-    return name.isEmpty() ? QObject::tr("System") : name;
-}
 
 static void sc_applyMenuShadow(QMenu *menu)
 {
@@ -1149,7 +1144,7 @@ void Sidebar::updateDrives()
             auto *it = new QListWidgetItem(QIcon::fromTheme(savedIcon), savedName, m_netList);
             it->setData(Qt::UserRole, url);
             it->setData(Qt::UserRole + 1, url);
-            it->setSizeHint(QSize(0, 44));
+            it->setSizeHint(QSize(0, SC_SIDEBAR_DRIVE_ROW_H));
             if (netFreeCache.contains(url)) {
                 const auto &fs = netFreeCache.value(url);
                 it->setData(Qt::UserRole + 10, fs.first);
@@ -1202,7 +1197,7 @@ void Sidebar::updateDrives()
             auto *it = new QListWidgetItem(QIcon::fromTheme(icon), name, m_netList);
             it->setData(Qt::UserRole,     path);
             it->setData(Qt::UserRole + 1, QString(fs + " – " + path));
-            it->setSizeHint(QSize(0, 36));
+            it->setSizeHint(QSize(0, SC_SIDEBAR_NET_ROW_H - 8));
         }
     }
 

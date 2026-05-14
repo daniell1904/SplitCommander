@@ -241,15 +241,7 @@ private:
   QAction *m_action;
 };
 
-static QString fmtSize(qint64 sz) {
-  if (sz < 1024)
-    return QString("%1 B").arg(sz);
-  if (sz < 1024 * 1024)
-    return QString("%1 KB").arg(sz / 1024);
-  if (sz < 1024LL * 1024 * 1024)
-    return QString("%1 MB").arg(sz / (1024 * 1024));
-  return QString("%1 GB").arg(sz / (1024LL * 1024 * 1024));
-}
+#include "scglobal.h"
 
 static QString fmtRwx(QFileDevice::Permissions p) {
   QString s;
@@ -628,7 +620,7 @@ QVariant FPColumnsProxy::data(const QModelIndex &index, int role) const {
                 .count());
       return {};
     }
-    return fmtSize(item.size());
+    return mw_fmtSize(item.size());
   }
   if (col == FP_GROESSE && role == Qt::UserRole)
     return (qint64)item.size();
