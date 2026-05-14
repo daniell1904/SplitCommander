@@ -28,3 +28,4 @@ versions/
 src/Sicherung/
 release.sh
 gcp
+.vscode/
