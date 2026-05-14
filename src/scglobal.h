@@ -5,8 +5,9 @@
 #include <QMenu>
 
 // --- Größenkonstanten ---
-static constexpr int SC_MILLER_DRIVE_ROW_H  = 52;  // Laufwerk-Items im Miller
-static constexpr int SC_SIDEBAR_DRIVE_ROW_H = 44;  // Laufwerk-Items in der Sidebar
+static constexpr int SC_MILLER_DRIVE_ROW_H  = 52;
+static constexpr int SC_SIDEBAR_ROW_H       = 34;  // Standard Sidebar-Zeilenhöhe
+static constexpr int SC_SIDEBAR_DRIVE_ROW_H = 44;
 static constexpr int SC_SIDEBAR_NET_ROW_H   = 44;  // Netzwerk-Items in der Sidebar
 static constexpr int SC_MILLER_HEADER_H     = 40;  // Miller-Spalten-Header
 static constexpr int SC_TOOLBAR_H           = 96;  // PaneToolbar Höhe
@@ -23,15 +24,12 @@ inline QString sc_rootVolumeName() {
     return name.isEmpty() ? QCoreApplication::translate("SplitCommander", "System") : name;
 }
 
-inline QString mw_fmtSize(qint64 sz) {
-    if (sz < 1024)
-        return QString("%1 B").arg(sz);
-    if (sz < 1024 * 1024)
-        return QString("%1 KB").arg(sz / 1024);
-    if (sz < 1024LL * 1024 * 1024)
-        return QString("%1 MB").arg(sz / (1024 * 1024));
-    return QString("%1 GB").arg(sz / (1024LL * 1024 * 1024));
+inline QString sc_fmtStorage(double gb) {
+    if (gb >= 1000.0)
+        return QString("%1 TB").arg(gb / 1024.0, 0, 'f', 1);
+    return QString("%1 GB").arg((int)gb);
 }
+
 
 inline void mw_applyMenuShadow(QMenu *menu) {
     Q_UNUSED(menu)

@@ -1,5 +1,4 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#pragma once
 
 #include <QString>
 #include <QColor>
@@ -44,4 +43,3 @@ public:
 
 };
 
-#endif // CONFIG_H

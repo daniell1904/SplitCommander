@@ -3,6 +3,7 @@
 #include <QUrl>
 #include <QWidget>
 #include <QTreeView>
+#include <KActionCollection>
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
 #include <QVBoxLayout>
@@ -15,6 +16,8 @@
 #include <QAction>
 #include <QMenu>
 #include <QScrollBar>
+#include <KFileItemActions>
+#include <KFileItemListProperties>
 
 #include <KDirModel>
 #include <KDirLister>
@@ -113,21 +116,8 @@ private:
     KDirModel                *m_kdirModel = nullptr;
 };
 
-// --- FilePaneDelegate --- (Zeichnet die Einträge in der Dateiliste (Farben, Icons, Text))
-class FilePaneDelegate : public QStyledItemDelegate {
-    Q_OBJECT
-public:
-    bool focused   = true;
-    int  rowHeight = 26;
-    int  fontSize  = 11;
-
-        explicit FilePaneDelegate(QObject *par = nullptr);
-    void  paint(QPainter*, const QStyleOptionViewItem&, const QModelIndex&) const override;
-    QSize sizeHint(const QStyleOptionViewItem&, const QModelIndex&) const override;
-
-    static QColor   ageColor(qint64 secs);
-    static QString  formatAge(qint64 secs);
-};
+// --- FilePaneDelegate ---
+#include "filepanedelegate.h"
 
 // --- FilePane --- (Haupt-Widget für eine Dateiliste (enthält Liste, Icons, Modelle))
 class FilePane : public QWidget {
@@ -140,7 +130,6 @@ public:
     void setNameFilter(const QString &pattern);
     void setFoldersFirst(bool on);
     void setShowHiddenFiles(bool show);
-    [[nodiscard]] bool    hasFocus()    const;
     [[nodiscard]] const QString& currentPath() const;
     QTreeView *view()     { return m_view; }
     [[nodiscard]] QList<QUrl> selectedUrls() const;
@@ -165,6 +154,8 @@ public:
     int  viewMode() const { return m_viewMode; }
     void setRowHeight(int height);
     void showTaggedFiles(const QString &tagName);
+    void setActionCollection(KActionCollection *ac);
+    void stopLister();
     [[nodiscard]] static const QList<FPColDef>& colDefs();
 
 private slots:
@@ -179,8 +170,32 @@ protected:
     bool eventFilter(QObject *obj, QEvent *e) override;
 
 private:
+    struct ContextMenuState {
+        QAbstractItemView       *view      = nullptr;
+        KFileItem                item;
+        KFileItemList            selectedItems;
+        KFileItemList            items;
+        QString                  path;
+        QUrl                     itemUrl;
+        QUrl                     dirUrl;
+        bool                     hasItem   = false;
+        bool                     isKioPath = false;
+        bool                     isTrash   = false;
+    };
+
+    ContextMenuState buildContextMenuState(const QPoint &pos);
+    void populateTrashMenu(QMenu &menu, const ContextMenuState &ctx,
+                           KFileItemActions &actions, KFileItemListProperties &props);
+    void populateItemMenu(QMenu &menu, const ContextMenuState &ctx,
+                          KFileItemActions &actions, KFileItemListProperties &props);
+    void populateBackgroundMenu(QMenu &menu, const ContextMenuState &ctx,
+                               KFileItemActions &actions, KFileItemListProperties &props);
+    void applyMenuStyling(QMenu &menu);
+
     void setupColumns();
-    void openWithApp(const QString &entry, const QString &path);
+    void setupModel();
+    void setupView();
+    void setupConnections();
 
     QStackedWidget           *m_stack;
     QTreeView                *m_view;
@@ -195,14 +210,14 @@ private:
     KDirSortFilterProxyModel *m_sortProxy;
     FPColumnsProxy           *m_proxy;
 
-    KNewFileMenu             *m_newFileMenu = nullptr;
+    KNewFileMenu             *m_newFileMenu        = nullptr;
+    KActionCollection        *m_actionCollection   = nullptr;
 
     QString  m_currentPath;
-    QString  m_settingsKey; // pane-spezifischer Settings-Key
+    QString  m_settingsKey;
     QUrl     m_currentUrl;
-    bool     m_kioMode    = false;
-    int      m_viewMode   = 0;
-    QString  m_filter;
+    bool     m_kioMode      = false;
+    int      m_viewMode     = 0;
     bool     m_foldersFirst = true;
     QString  m_currentTagFilter;
     QList<bool> m_colVisible;

@@ -2,6 +2,7 @@
 // --- sidebar.cpp — SplitCommander Sidebar ---
 
 #include "sidebar.h"
+#include "addnetworkdialog.h"
 #include "scglobal.h"
 
 // 1. Qt Core / UI
@@ -37,7 +38,8 @@
 
 #include <QStandardPaths>
 #include <QStorageInfo>
-#include <QTextStream>
+#include <KIO/StoredTransferJob>
+#include <KIO/JobUiDelegateFactory>
 #include <QTimer>
 #include <QToolButton>
 #include <QUrl>
@@ -109,19 +111,6 @@ static QString sc_getText(QWidget *parent, const QString &title, const QString &
 
 // --- Hilfsfunktionen (file-scope) ---
 
-static void sc_applyMenuShadow(QMenu *menu)
-{
-    Q_UNUSED(menu)
-    // QGraphicsDropShadowEffect auf QMenu zerstört Submenü-Positionierung — nicht verwenden
-}
-
-static QString sc_normalizePath(QString s)
-{
-    if (s.length() > 1 && s.endsWith('/'))
-        s.chop(1);
-    return s;
-}
-
 // --- KDE-Style Edit Dialog ---
 static bool sc_editPlaceDialog(QWidget *parent, QString &name, QString &path, QString &icon)
 {
@@ -144,8 +133,10 @@ static bool sc_editPlaceDialog(QWidget *parent, QString &name, QString &path, QS
     iconBtn->setFixedSize(64, 64);
     iconBtn->setIconSize(QSize(32, 32));
     iconBtn->setCursor(Qt::PointingHandCursor);
-    iconBtn->setStyleSheet("QPushButton { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; }"
-                           "QPushButton:hover { background: rgba(255,255,255,0.08); }");
+    iconBtn->setStyleSheet(
+        QString("QPushButton { background: %1; border: 1px solid %2; border-radius: 8px; }"
+                "QPushButton:hover { background: %3; }")
+            .arg(TM().colors().bgBox, TM().colors().border, TM().colors().bgHover));
     topHl->addWidget(iconBtn, 0, Qt::AlignTop);
 
     // Formular (Rechts)
@@ -231,100 +222,8 @@ static void sc_buildPlaceMenu(QMenu &menu, const QString &path, const QString &n
 }
 
 // --- Konstanten ---
-static constexpr int SC_SIDEBAR_ROW_H   = 34;
-static constexpr int SC_MAX_VISIBLE     = 8;
 
 // --- DriveDelegate ---
-void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QModelIndex &idx) const
-{
-    p->save();
-    p->setRenderHint(QPainter::Antialiasing, false);
-
-    if (opt.state & QStyle::State_Selected)
-        p->fillRect(opt.rect, QColor(TM().colors().bgSelect));
-    else if (opt.state & QStyle::State_MouseOver)
-        p->fillRect(opt.rect, QColor(TM().colors().bgHover));
-
-    const QRect    r       = opt.rect;
-    const QIcon    icon    = idx.data(Qt::DecorationRole).value<QIcon>();
-    const QString  name    = idx.data(Qt::DisplayRole).toString();
-    const QString  path    = idx.data(Qt::UserRole).toString();
-    const int      iconSz  = 16;
-    const int      iconX   = r.left() + 8;
-    const int      iconY   = r.top() + (r.height() - iconSz) / 2;
-    const int      textX   = r.left() + 32;
-    const int      textW   = r.width() - 40;
-
-    icon.paint(p, iconX, iconY, iconSz, iconSz);
-    p->setFont(QFont("sans-serif", 9));
-
-    if (m_showBars && (path.startsWith("/") || idx.data(Qt::UserRole + 10).toDouble() > 0)) {
-        const double total = idx.data(Qt::UserRole + 10).toDouble();
-        const double free  = idx.data(Qt::UserRole + 11).toDouble();
-
-        if (total > 0) {
-            const double used  = total - free;
-            const double pct   = used / total;
-
-            QFontMetrics fm(p->font());
-            const QString usedStr  = QString("%1").arg((int)used);
-            const QString restStr  = QString(" / %1 GB").arg((int)total);
-            const int     usedW    = fm.horizontalAdvance(usedStr);
-            const int     restW    = fm.horizontalAdvance(restStr);
-            const int     sizeW    = usedW + restW;
-            const int     nameW    = textW - sizeW - 6;
-            const int     sizeX    = r.right() - sizeW - 6;
-            const int     lineH    = r.height() / 2;
-            const int     barY     = r.top() + lineH + (r.height() - lineH) / 2 - 1;
-
-            p->setPen(QColor(TM().colors().textPrimary));
-            p->drawText(textX, r.top(), nameW, lineH, Qt::AlignLeft | Qt::AlignVCenter,
-                        fm.elidedText(name, Qt::ElideRight, nameW));
-
-            p->setPen(QColor(TM().colors().textLight));
-            p->drawText(sizeX, r.top(), usedW, lineH, Qt::AlignLeft | Qt::AlignVCenter, usedStr);
-            p->setPen(QColor(TM().colors().textAccent));
-            p->drawText(sizeX + usedW, r.top(), restW, lineH, Qt::AlignLeft | Qt::AlignVCenter, restStr);
-
-            p->setBrush(QColor(TM().colors().splitter)); p->setPen(Qt::NoPen);
-            p->drawRoundedRect(textX, barY, textW, 3, 1, 1);
-            p->setBrush(QColor(TM().colors().accentHover));
-            p->drawRoundedRect(textX, barY, (int)(textW * pct), 3, 1, 1);
-        } else {
-            p->setPen(QColor(TM().colors().textPrimary));
-            p->drawText(textX, r.top(), textW, r.height(), Qt::AlignLeft | Qt::AlignVCenter, name);
-        }
-    } else {
-        // Nicht eingehängt: Name gedämpft + Eject-Symbol rechts
-        const bool unmounted = path.startsWith("solid:");
-        p->setPen(QColor(unmounted ? TM().colors().textMuted : TM().colors().textPrimary));
-        if (unmounted) {
-            // Name linksbündig, Eject-Icon rechts
-            const QIcon ejectIcon = QIcon::fromTheme(QStringLiteral("media-eject"));
-            const int   eSz  = 12;
-            const int   eX   = r.right() - eSz - 6;
-            const int   eY   = r.top() + (r.height() - eSz) / 2;
-            p->drawText(textX, r.top(), textW - eSz - 10, r.height(), Qt::AlignLeft | Qt::AlignVCenter, name);
-            ejectIcon.paint(p, eX, eY, eSz, eSz, Qt::AlignCenter, QIcon::Disabled);
-        } else {
-            p->drawText(textX, r.top(), textW, r.height(), Qt::AlignLeft | Qt::AlignVCenter, name);
-        }
-    }
-    p->restore();
-
-    // 1px Trennlinie am unteren Rand
-    p->save();
-    p->setPen(QPen(QColor(TM().colors().border), 1));
-    p->drawLine(opt.rect.left(), opt.rect.bottom(), opt.rect.right(), opt.rect.bottom());
-    p->restore();
-}
-
-QSize DriveDelegate::sizeHint(const QStyleOptionViewItem &, const QModelIndex &idx) const
-{
-    const QString path = idx.data(Qt::UserRole).toString();
-    // Eingehängt (Pfad) oder ausgehängt (solid:): beide bekommen 44px wenn showBars
-    return QSize(200, m_showBars ? 44 : SC_SIDEBAR_ROW_H);
-}
 
 // --- Sidebar::adjustListHeight ---
 void Sidebar::adjustListHeight(QListWidget *list)
@@ -528,7 +427,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
         const QString accountId = item->data(Qt::UserRole + 2).toString(); // nur bei gdrive gesetzt
 
         QMenu menu(this);
-        sc_applyMenuShadow(&menu);
+        mw_applyMenuShadow(&menu);
         menu.setStyleSheet(TM().ssMenu());
         menu.addAction(QIcon::fromTheme(QStringLiteral("folder-open")), tr("Öffnen"), this,
             [this, path]() { emit driveClicked(path); });
@@ -542,10 +441,10 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
         {
             auto netCheck = Config::group("NetworkPlaces");
             const QStringList netPlaces = netCheck.readEntry("places", QStringList());
-            const QString npath = sc_normalizePath(path);
+            const QString npath = mw_normalizePath(path);
             bool alreadyIn = false;
             for (const QString &p : netPlaces) {
-                if (sc_normalizePath(p) == npath) { alreadyIn = true; break; }
+                if (mw_normalizePath(p) == npath) { alreadyIn = true; break; }
             }
 
             if (alreadyIn) {
@@ -566,10 +465,10 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
         {
             auto netCheck = Config::group("NetworkPlaces");
             const QStringList netPlaces = netCheck.readEntry("places", QStringList());
-            const QString npath = sc_normalizePath(path);
+            const QString npath = mw_normalizePath(path);
             bool alreadyIn = false;
             for (const QString &p : netPlaces) {
-                if (sc_normalizePath(p) == npath) { alreadyIn = true; break; }
+                if (mw_normalizePath(p) == npath) { alreadyIn = true; break; }
             }
 
             if (!alreadyIn) {
@@ -577,7 +476,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
                     [this, path, name]() {
                         auto s = Config::group("NetworkPlaces");
                         QStringList saved = s.readEntry("places", QStringList());
-                        const QString npath = sc_normalizePath(path);
+                        const QString npath = mw_normalizePath(path);
                         if (!saved.contains(npath)) {
                             saved << npath;
                             s.writeEntry("places", saved);
@@ -597,7 +496,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
                 [this, path]() {
                     auto s = Config::group("NetworkPlaces");
                     QStringList saved = s.readEntry("places", QStringList());
-                    const QString npath = sc_normalizePath(path);
+                    const QString npath = mw_normalizePath(path);
                     saved.removeAll(npath);
                     QString otherVersion = npath.endsWith('/') ? npath.left(npath.length()-1) : npath + "/";
                     if (otherVersion != "/") saved.removeAll(otherVersion);
@@ -626,7 +525,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     // Drives-Menü
     connect(menuBtn, &QPushButton::clicked, this, [this, menuBtn, lbl]() {
         auto *m = new QMenu(this);
-        sc_applyMenuShadow(m);
+        mw_applyMenuShadow(m);
         m->setStyleSheet(TM().ssMenu());
         m->addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Box umbenennen …"), this, [this, lbl]() {
             bool ok;
@@ -646,6 +545,30 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
         m->addSeparator();
         m->addAction(QIcon::fromTheme(QStringLiteral("network-connect")), tr("Netzwerklaufwerk verbinden"),
                      this, [this]() { emit driveClicked("remote:/"); });
+        m->addAction(QIcon::fromTheme(QStringLiteral("bookmark-new")), tr("Netzlaufwerk hinzufügen ..."),
+                     this, [this]() {
+                         auto *dlg = new AddNetworkDialog(this);
+                         dlg->setAttribute(Qt::WA_DeleteOnClose);
+                         connect(dlg, &QDialog::accepted, this, [this, dlg]() {
+                             const QString url  = dlg->url();
+                             const QString name = dlg->name();
+                             const QString icon = dlg->iconName();
+                             if (url.isEmpty()) return;
+                             auto s = Config::group("NetworkPlaces");
+                             QStringList saved = s.readEntry("places", QStringList());
+                             const QString key = QString(url).replace("/","_").replace(":","_");
+                             if (!saved.contains(url)) {
+                                 saved << url;
+                                 s.writeEntry("places", saved);
+                                 s.writeEntry("name_" + key, name);
+                                 s.writeEntry("icon_" + key, icon);
+                                 s.config()->sync();
+                             }
+                             updateDrives();
+                             emit drivesChanged();
+                         });
+                         dlg->open();
+                     });
         m->popup(menuBtn->mapToGlobal(QPoint(0, menuBtn->height())));
     });
 }
@@ -678,11 +601,12 @@ void Sidebar::buildGroupsSection(QVBoxLayout *parent)
     // Overlay-Scrollbar
     m_overlayBar = new QScrollBar(Qt::Vertical, this);
     m_overlayBar->setStyleSheet(
-        "QScrollBar:vertical{background:transparent;width:8px;margin:0px;border:none;}"
-        "QScrollBar::handle:vertical{background:rgba(136,192,208,60);border-radius:4px;min-height:20px;margin:1px;}"
-        "QScrollBar::handle:vertical:hover{background:rgba(136,192,208,140);}"
-        "QScrollBar::add-line:vertical,QScrollBar::sub-line:vertical{height:0px;}"
-        "QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical{background:transparent;}");
+        QString("QScrollBar:vertical{background:transparent;width:8px;margin:0px;border:none;}"
+                "QScrollBar::handle:vertical{background:%1;border-radius:4px;min-height:20px;margin:1px;}"
+                "QScrollBar::handle:vertical:hover{background:%2;}"
+                "QScrollBar::add-line:vertical,QScrollBar::sub-line:vertical{height:0px;}"
+                "QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical{background:transparent;}")
+            .arg(TM().colors().separator, TM().colors().accent));
     m_overlayBar->hide();
     m_overlayBar->raise();
 
@@ -932,7 +856,7 @@ void Sidebar::renameNetworkPlace(const QString &path, const QString &newName)
 {
     // NetworkPlaces aktualisieren
     auto s = Config::group("NetworkPlaces");
-    const QString npath = sc_normalizePath(path);
+    const QString npath = mw_normalizePath(path);
     s.writeEntry("name_" + QString(npath).replace("/","_").replace(":","_"), newName);
     s.config()->sync();
 
@@ -993,7 +917,8 @@ void Sidebar::updateDrives()
 
     m_driveList->clear();
     QSet<QString> shownPaths;
-    QSet<QString> shownUdis;  // verhindert Duplikate zwischen beiden Schleifen
+    QSet<QString> shownUdis;
+    QHash<QString, QPair<double,double>> netFreeCache;
 
     // --- Gemountete Volumes via Solid ---
     const auto devices = Solid::Device::listFromType(Solid::DeviceInterface::StorageAccess);
@@ -1048,64 +973,52 @@ void Sidebar::updateDrives()
             if (info.isValid()) {
                 totalG = info.bytesTotal() / 1073741824.0;
                 freeG  = info.bytesFree()  / 1073741824.0;
-                freeStr = QString("%1 GB frei / %2 GB")
-                    .arg(freeG, 0, 'f', 0)
-                    .arg(totalG, 0, 'f', 0);
+                freeStr = QString("%1 frei / %2")
+                    .arg(sc_fmtStorage(freeG))
+                    .arg(sc_fmtStorage(totalG));
             }
         }
 
         auto *it = new QListWidgetItem(QIcon::fromTheme(iconName), name, m_driveList);
-        it->setData(Qt::UserRole,      mounted ? path : QString("solid:") + device.udi());
+        it->setData(Qt::UserRole,      mounted ? path : QString("solid:%1").arg(device.udi()));
         it->setData(Qt::UserRole + 1,  freeStr);
         it->setData(Qt::UserRole + 2,  device.udi());
         it->setData(Qt::UserRole + 10, totalG);
         it->setData(Qt::UserRole + 11, freeG);
         if (!mounted) it->setForeground(QColor(TM().colors().textMuted));
     }
-
-    // --- Nicht gemountete Block-Geräte ---
     const auto vdevices = Solid::Device::listFromType(Solid::DeviceInterface::StorageVolume);
     for (const Solid::Device &device : vdevices) {
-        // Bereits in Schleife 1 gezeigt — überspringen
         if (shownUdis.contains(device.udi())) continue;
-
         const auto *vol = device.as<Solid::StorageVolume>();
         if (!vol) continue;
-        if (vol->usage() != Solid::StorageVolume::FileSystem
-            && vol->usage() != Solid::StorageVolume::Other) continue;
-
-        const QString label  = vol->label();
-        const QString lbl    = label.toUpper();
+        if (vol->usage() != Solid::StorageVolume::FileSystem) continue;
         const QString fsType = vol->fsType().toLower();
-        // Entfernt: if (label.isEmpty()) continue;
-        if (lbl == "BOOT" || lbl == "EFI" || lbl == "EFI SYSTEM PARTITION" || lbl == "ESP") continue;
-        if (fsType == "iso9660" || fsType == "udf") continue;
-
-        const auto *access = device.as<Solid::StorageAccess>();
-        if (access && access->isAccessible()) continue;
-
-        QString name = label;
-        if (name.isEmpty()) name = device.udi().section('/', -1);
-        if (name.isEmpty()) continue;  // Fallback, falls UDI leer
-
+        if (fsType == "iso9660" || fsType == "udf" || fsType == "swap" ||
+            fsType == "vfat" || fsType == "fat32") continue;
+        const QString lbl = vol->label().toUpper();
+        if (lbl.isEmpty() || lbl == "EFI" || lbl == "BOOT" ||
+            lbl == "EFI SYSTEM PARTITION" || lbl == "ESP" ||
+            lbl.startsWith("RECOVERY")) continue;
+        const auto *acc = device.as<Solid::StorageAccess>();
+        if (acc && acc->isAccessible()) continue;
+        shownUdis.insert(device.udi());
+        const auto *drv = device.as<Solid::StorageDrive>();
         QString iconName = "drive-harddisk";
-        if (const auto *drv = device.as<Solid::StorageDrive>()) {
-            if (drv->driveType() == Solid::StorageDrive::CdromDrive) iconName = "drive-optical";
-            else if (drv->isRemovable() || drv->isHotpluggable())    iconName = "drive-removable-media";
-        } else if (!device.icon().isEmpty()) {
-            iconName = device.icon();
+        if (drv) {
+            if (drv->driveType() == Solid::StorageDrive::CdromDrive)
+                iconName = "drive-optical";
+            else if (drv->isRemovable() || drv->isHotpluggable())
+                iconName = "drive-removable-media";
         }
-
+        const QString name = vol->label();
         auto *it = new QListWidgetItem(QIcon::fromTheme(iconName), name, m_driveList);
-        it->setData(Qt::UserRole,     QString(QStringLiteral("solid:") + device.udi()));
-        it->setData(Qt::UserRole + 1, QString("Nicht eingehängt – klicken zum Einhängen"));
+        it->setData(Qt::UserRole, QString("solid:%1").arg(device.udi()));
+        it->setData(Qt::UserRole + 2, device.udi());
+        it->setForeground(QColor(TM().colors().textMuted));
+        it->setSizeHint(QSize(0, SC_SIDEBAR_DRIVE_ROW_H));
+        m_driveList->setItemDelegate(new DriveDelegate(false, m_driveList));
     }
-
-    // --- Google Drive → wird in Netzwerk-Sektion angezeigt (siehe unten) ---
-
-    // --- Netzwerklaufwerke in m_netList ---
-    // Cache Speicherdaten vor dem Leeren
-    QHash<QString, QPair<double,double>> netFreeCache;
     if (m_netList) {
         for (int i = 0; i < m_netList->count(); ++i) {
             QListWidgetItem *it = m_netList->item(i);
@@ -1113,13 +1026,44 @@ void Sidebar::updateDrives()
             if (total > 0)
                 netFreeCache.insert(it->data(Qt::UserRole).toString(), {total, it->data(Qt::UserRole + 11).toDouble()});
         }
-        m_netList->clear();
+
+        // Nur leeren wenn sich die gespeicherten Plätze geändert haben
+        // → verhindert Flackern bei laufenden async Freespace-Jobs
+        auto netSettings2 = Config::group("NetworkPlaces");
+        const QStringList currentPlaces = netSettings2.readEntry("places", QStringList());
+        QStringList existingUrls;
+        for (int i = 0; i < m_netList->count(); ++i)
+            existingUrls << m_netList->item(i)->data(Qt::UserRole).toString();
+        const bool placesChanged = (existingUrls != currentPlaces);
+        if (placesChanged)
+            m_netList->clear();
     }
     bool hasNet = false;
 
     // Gespeicherte Netzwerkplätze (persistent)
     auto netSettings = Config::group("NetworkPlaces");
     QStringList savedPlaces = netSettings.readEntry("places", QStringList());
+
+    // Wenn sich die Plätze nicht geändert haben: nur Freespace aus Cache aktualisieren
+    if (m_netList) {
+        QStringList existingCheck;
+        for (int i = 0; i < m_netList->count(); ++i)
+            existingCheck << m_netList->item(i)->data(Qt::UserRole).toString();
+        if (existingCheck == savedPlaces) {
+            // Freespace-Cache zurückschreiben (aktualisierte Werte von letztem Job)
+            for (int i = 0; i < m_netList->count(); ++i) {
+                QListWidgetItem *it = m_netList->item(i);
+                const QString url = it->data(Qt::UserRole).toString();
+                if (netFreeCache.contains(url)) {
+                    it->setData(Qt::UserRole + 10, netFreeCache[url].first);
+                    it->setData(Qt::UserRole + 11, netFreeCache[url].second);
+                }
+            }
+            // Weiter mit Solid-Geräten und aktiv gemounteten Volumes — netList überspringen
+            goto skip_netlist_rebuild;
+        }
+    }
+
     for (const QString &p : savedPlaces) {
         if (shownPaths.contains(p)) continue;
         shownPaths.insert(p);
@@ -1128,20 +1072,28 @@ void Sidebar::updateDrives()
         const QString savedName = netSettings.readEntry("name_" + QString(p).replace("/","_").replace(":","_"),
             scheme == "gdrive" ? "Google Drive" : QDir(p).dirName());
 
-        // Icon je nach Protokoll
-        QString savedIcon = scheme == "gdrive"    ? "folder-gdrive"
-                          : scheme == "smb"       ? "network-workgroup"
-                          : scheme == "sftp" || scheme == "ssh" ? "network-connect"
-                          : scheme == "mtp"       ? "multimedia-player"
-                          : scheme == "bluetooth" ? "bluetooth"
-                          : scheme == "afc"       ? "phone"
-                          : "network-server";
+        // Gespeichertes Icon hat Vorrang (explizit vom User gewählt)
+        // Protokoll-Icon als Fallback und einmalig in Settings schreiben
+        const QString savedKey = QString(p).replace("/","_").replace(":","_");
+        QString iconName = netSettings.readEntry("icon_" + savedKey, QString());
+        if (iconName.isEmpty()) {
+            if      (scheme == "smb")                      iconName = "folder-remote-smb";
+            else if (scheme == "gdrive")                   iconName = "folder-gdrive";
+            else if (scheme == "sftp" || scheme == "ssh")  iconName = "network-connect";
+            else if (scheme == "mtp")                      iconName = "multimedia-player";
+            else if (scheme == "bluetooth")                iconName = "bluetooth";
+            else if (scheme == "afc")                      iconName = "phone";
+            else                                           iconName = "network-server";
+            // Einmalig speichern damit spätere Änderungen per Dialog erhalten bleiben
+            netSettings.writeEntry("icon_" + savedKey, iconName);
+            netSettings.config()->sync();
+        }
         QString url = p;
         if ((scheme == "gdrive" || scheme == "mtp") && !url.endsWith("/"))
             url += "/";
 
         if (m_netList) {
-            auto *it = new QListWidgetItem(QIcon::fromTheme(savedIcon), savedName, m_netList);
+            auto *it = new QListWidgetItem(QIcon::fromTheme(iconName), savedName, m_netList);
             it->setData(Qt::UserRole, url);
             it->setData(Qt::UserRole + 1, url);
             it->setSizeHint(QSize(0, SC_SIDEBAR_DRIVE_ROW_H));
@@ -1150,10 +1102,24 @@ void Sidebar::updateDrives()
                 it->setData(Qt::UserRole + 10, fs.first);
                 it->setData(Qt::UserRole + 11, fs.second);
             } else {
-                auto *freeJob = KIO::fileSystemFreeSpace(QUrl(url));
-                freeJob->setAutoDelete(true);
                 const QString itemUrl = url;
                 QPointer<QListWidget> listPtr = m_netList;
+
+                // kio-gdrive implementiert fileSystemFreeSpace im Worker korrekt,
+                // aber nur auf Account-Pfaden (gdrive:/accountname/), nicht auf gdrive:/
+                // Für andere KIO-Protokolle: direkt die gespeicherte URL verwenden
+                const QUrl freeSpaceUrl = [&]() -> QUrl {
+                    const QUrl u(url);
+                    if (u.scheme() == QStringLiteral("gdrive") && u.path() == QStringLiteral("/")) {
+                        // gdrive:/ → ersten Account-Pfad via KIO::listDir nicht verfügbar hier
+                        // Direkt mit gdrive:/ versuchen — neuere kio-gdrive Versionen unterstützen das
+                        return u;
+                    }
+                    return u;
+                }();
+
+                auto *freeJob = KIO::fileSystemFreeSpace(freeSpaceUrl);
+                freeJob->setAutoDelete(true);
                 connect(freeJob, &KIO::FileSystemFreeSpaceJob::result, m_netList,
                         [listPtr, itemUrl, freeJob](KJob *) {
                             if (freeJob->error() || !listPtr) return;
@@ -1174,6 +1140,7 @@ void Sidebar::updateDrives()
     }
 
     // Aktiv gemountete Netzwerklaufwerke
+    skip_netlist_rebuild:
     for (const QStorageInfo &storage : QStorageInfo::mountedVolumes()) {
         if (!storage.isValid() || !storage.isReady()) continue;
         const QString fs = storage.fileSystemType();
@@ -1189,7 +1156,7 @@ void Sidebar::updateDrives()
         QString name = storage.name().isEmpty() ? QUrl::fromLocalFile(path).fileName() : storage.name();
         if (name.isEmpty()) name = path;
 
-        QString icon = (fs == "cifs" || fs == "smb3") ? "network-workgroup"
+        QString icon = (fs == "cifs" || fs == "smb3") ? "folder-remote-smb"
                      : (fs == "sshfs" || fs == "fuse.sshfs") ? "network-connect"
                      : "network-server";
 
@@ -1204,34 +1171,29 @@ void Sidebar::updateDrives()
     // Netzwerk-Sektion ein-/ausblenden
     if (m_netBox) {
         m_netBox->setVisible(hasNet);
-        if (hasNet) {
-            if (m_netList) {
-                int netH = 0;
-                for (int i = 0; i < m_netList->count(); ++i)
-                    netH += m_netList->sizeHintForRow(i);
-                if (netH > 0) m_netList->setFixedHeight(netH);
+        if (hasNet && m_netList) {
+            int netH = 0;
+            for (int i = 0; i < m_netList->count(); ++i)
+                netH += m_netList->sizeHintForRow(i);
+            if (netH > 0 && m_netList->height() != netH) {
+                m_netList->setFixedHeight(netH);
+                m_netBox->adjustSize();
+                if (m_netBox->parentWidget())
+                    m_netBox->parentWidget()->adjustSize();
             }
-            m_netBox->adjustSize();
-            if (m_netBox->parentWidget())
-                m_netBox->parentWidget()->adjustSize();
         }
     }
-
     // --- Höhe anpassen ---
     int totalH = 0;
     for (int i = 0; i < m_driveList->count(); ++i)
         totalH += m_driveList->sizeHintForRow(i);
-
-    m_driveList->setFixedHeight(qMax(1, totalH));
+    if (m_driveList->height() != qMax(1, totalH))
+        m_driveList->setFixedHeight(qMax(1, totalH));
     m_driveList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_driveList->updateGeometry();
-
-    // --- Hot-Plug (einmalig verbinden) ---
-
     s_updating = false;
 }
 
-// --- Sidebar::setupDriveContextMenu ---
 void Sidebar::setupDriveContextMenu()
 {
     m_driveList->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -1239,7 +1201,12 @@ void Sidebar::setupDriveContextMenu()
             [this](const QPoint &pos) {
         auto *item = m_driveList->itemAt(pos);
         if (!item) return;
+        showDriveContextMenu(item, pos);
+    });
+}
 
+void Sidebar::showDriveContextMenu(QListWidgetItem *item, const QPoint &pos)
+{
         const QString path     = item->data(Qt::UserRole).toString();
         const QString name     = item->text();
         const QString udi      = item->data(Qt::UserRole + 2).toString();
@@ -1249,7 +1216,7 @@ void Sidebar::setupDriveContextMenu()
         const bool    isMountedSolid = !udi.isEmpty() && !isSolid && !isGdrive;
 
         QMenu menu(this);
-        sc_applyMenuShadow(&menu);
+        mw_applyMenuShadow(&menu);
         menu.setStyleSheet(TM().ssMenu());
 
         menu.addAction(QIcon::fromTheme(QStringLiteral("folder-open")), tr("Öffnen"), this, [this, path]() { emit driveClicked(path); });
@@ -1309,7 +1276,17 @@ void Sidebar::setupDriveContextMenu()
                 });
             } else {
                 menu.addAction(QIcon::fromTheme(QStringLiteral("drive-harddisk")), tr("Einhängen"),
-                               this, [this, path]() { emit driveClicked(path); });
+                               this, [this, solidUdi]() {
+                    Solid::Device dev(solidUdi);
+                    auto *acc = dev.as<Solid::StorageAccess>();
+                    if (!acc) return;
+                    connect(acc, &Solid::StorageAccess::setupDone, this,
+                            [this](Solid::ErrorType, QVariant, const QString &) {
+                                updateDrives();
+                                emit drivesChanged();
+                            }, Qt::SingleShotConnection);
+                    acc->setup();
+                });
             }
         }
 
@@ -1341,7 +1318,7 @@ void Sidebar::setupDriveContextMenu()
                     [this, path]() {
                         auto s = Config::group("NetworkPlaces");
                         QStringList saved = s.readEntry("places", QStringList());
-                        const QString npath = sc_normalizePath(path);
+                        const QString npath = mw_normalizePath(path);
                         saved.removeAll(npath);
                         QString otherVersion = npath.endsWith('/') ? npath.left(npath.length()-1) : npath + "/";
                         if (otherVersion != "/") saved.removeAll(otherVersion);
@@ -1365,16 +1342,18 @@ void Sidebar::setupDriveContextMenu()
 
         if (!isSolid && !isGdrive) {
             menu.addAction(QIcon::fromTheme(QStringLiteral("emblem-symbolic-link")), tr("Verknüpfung erstellen"),
-                           this, [path]() {
-                QString desktop  = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+                           this, [this, path]() {
+                const QString desktop = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
                 const QUrl url = QUrl::fromUserInput(path);
                 const QString dirName = url.isLocalFile() ? QDir(url.toLocalFile()).dirName() : url.fileName();
-                QFile f(desktop + "/" + dirName + ".desktop");
-                if (f.open(QIODevice::WriteOnly)) {
-                    QTextStream s(&f);
-                    s << "[Desktop Entry]\nType=Link\nName=" << dirName
-                      << "\nURL=" << path << "\nIcon=folder\n";
-                }
+                const QByteArray content =
+                    QStringLiteral("[Desktop Entry]\nType=Link\nName=%1\nURL=%2\nIcon=folder\n")
+                    .arg(dirName, path).toUtf8();
+                const QUrl dest = QUrl::fromLocalFile(desktop + "/" + dirName + ".desktop");
+                auto *job = KIO::storedPut(content, dest, -1, KIO::Overwrite);
+                job->setUiDelegate(KIO::createDefaultJobUiDelegate(
+                    KJobUiDelegate::AutoHandlingEnabled, this));
+                job->start();
             });
             menu.addSeparator();
             menu.addAction(QIcon::fromTheme(QStringLiteral("document-properties")), tr("Eigenschaften"),
@@ -1386,475 +1365,16 @@ void Sidebar::setupDriveContextMenu()
         }
 
         menu.exec(m_driveList->mapToGlobal(pos));
-    });
 }
 
 // --- Sidebar::onNewGroupDialog ---
-void Sidebar::onNewGroupDialog()
-{
-    QDialog dlg(this);
-    dlg.setWindowTitle(tr("Neue Gruppe"));
-    dlg.setMinimumWidth(360);
-    dlg.setStyleSheet(TM().ssDialog());
-
-    auto *vl       = new QVBoxLayout(&dlg);
-    vl->setSpacing(10);
-    vl->setContentsMargins(16, 16, 16, 16);
-    vl->addWidget(new QLabel(tr("Gruppenname:")));
-    auto *nameEdit = new QLineEdit(&dlg);
-    nameEdit->setPlaceholderText(tr("Mein Ordner..."));
-    vl->addWidget(nameEdit);
-
-    vl->addWidget(new QLabel(tr("Inhalt:")));
-    auto *btnGrp   = new QButtonGroup(&dlg);
-    auto *emptyBtn = new QPushButton(tr("Leere Gruppe"));
-    auto *homeBtn  = new QPushButton(tr("Home-Favoriten"));
-    for (auto *b : {emptyBtn, homeBtn}) { b->setCheckable(true); b->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred); }
-    emptyBtn->setChecked(true);
-    btnGrp->addButton(emptyBtn, 0);
-    btnGrp->addButton(homeBtn,  1);
-    auto *optRow = new QHBoxLayout(); optRow->setSpacing(6);
-    optRow->addWidget(emptyBtn); optRow->addWidget(homeBtn);
-    vl->addLayout(optRow);
-
-    auto *btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    connect(btns, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
-    connect(btns, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
-    vl->addWidget(btns);
-
-    nameEdit->setFocus();
-    if (dlg.exec() != QDialog::Accepted) return;
-
-    const QString grpName = nameEdit->text().trimmed();
-    if (grpName.isEmpty()) return;
-
-    auto s = Config::group("CustomGroups");
-    QStringList groups = s.readEntry("groups", QStringList());
-    if (!groups.contains(grpName)) {
-        groups << grpName;
-        s.writeEntry("groups", groups);
-        s.config()->sync();
-    }
-
-
-    QListWidget *list = createGroupWidget(grpName, nullptr);
-    saveGroupOrder();
-
-    if (btnGrp->checkedId() == 1) {
-        const QStringList xdgPaths = {
-            QDir::homePath(),
-            QStandardPaths::writableLocation(QStandardPaths::DesktopLocation),
-            QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
-            QStandardPaths::writableLocation(QStandardPaths::PicturesLocation),
-            QStandardPaths::writableLocation(QStandardPaths::MoviesLocation),
-            QStandardPaths::writableLocation(QStandardPaths::MusicLocation),
-            QStandardPaths::writableLocation(QStandardPaths::DownloadLocation),
-            QStringLiteral("trash:/"),
-        };
-        for (const QString &path : xdgPaths) {
-            const QUrl url(path);
-            const bool isKio = !url.scheme().isEmpty() && url.scheme() != "file";
-            if (!path.isEmpty() && (isKio || QDir(path).exists()))
-                addToGroup(grpName, list, path);
-        }
-    }
-}
-
-// --- Sidebar::createGroupWidget ---
-QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidget)
-{
-    // Äußere Box
-    auto *outerBox = new QWidget();
-    outerBox->setObjectName(QStringLiteral("groupBox"));
-    outerBox->setStyleSheet(TM().ssBox());
-    outerBox->setProperty("groupName", name);
-
-    {
-        auto pinSettings = Config::group("CustomGroups");
-        outerBox->setProperty("pinned", pinSettings.readEntry("pinned_" + name, false));
-    }
-
-
-    auto *vbox = new QVBoxLayout(outerBox);
-    vbox->setContentsMargins(0, 0, 0, 0);
-    vbox->setSpacing(0);
-    vbox->setSizeConstraint(QLayout::SetMinAndMaxSize);
-
-    // Header (einfaches Widget ohne Drag-Funktion)
-    auto *headerRow = new QWidget(outerBox);
-    headerRow->setStyleSheet("background:transparent; border:none;");
-    auto *hLay = new QHBoxLayout(headerRow);
-    hLay->setContentsMargins(12, 10, 8, 6);
-    hLay->setSpacing(4);
-
-    auto *lbl = new QLabel(name.toUpper());
-    lbl->setStyleSheet(QString("font-size:12px;font-weight:normal;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
-    hLay->addWidget(lbl, 1);
-
-    // Menü-Button (KDE Style)
-    auto *menuBtn = new QPushButton();
-    menuBtn->setIcon(QIcon::fromTheme(QStringLiteral("application-menu")));
-    if (menuBtn->icon().isNull()) menuBtn->setIcon(QIcon::fromTheme(QStringLiteral("view-more-symbolic")));
-    menuBtn->setFixedSize(26, 22);
-    menuBtn->setCursor(Qt::PointingHandCursor);
-    menuBtn->setStyleSheet(
-        "QPushButton { background: transparent; border: none; padding: 2px; }"
-        "QPushButton:hover { background: #3b4252; border-radius: 4px; }"
-    );
-    hLay->addWidget(menuBtn);
-
-    // Plus-Button (KDE Style)
-    auto *addBtn = new QPushButton();
-    addBtn->setIcon(QIcon::fromTheme(QStringLiteral("list-add")));
-    if (addBtn->icon().isNull()) addBtn->setIcon(QIcon::fromTheme(QStringLiteral("add-subtitle-symbolic")));
-    addBtn->setFixedSize(26, 22);
-    addBtn->setCursor(Qt::PointingHandCursor);
-    addBtn->setStyleSheet(QString(
-        "QPushButton { background:transparent; border:none; padding:2px; }"
-        "QPushButton:hover { background:%1; border-radius:4px; }")
-        .arg(TM().colors().bgHover));
-    hLay->addWidget(addBtn);
-    vbox->addWidget(headerRow);
-
-    // --- Liste in einen Container einbetten (für die Margins) ---
-    auto *listCont = new QWidget();
-    listCont->setStyleSheet("background:transparent; border:none;");
-    auto *listLay = new QVBoxLayout(listCont);
-
-    // Hier werden die Abstände gesetzt: 6px links/rechts, passend zur Geräte-Box
-    listLay->setContentsMargins(6, 0, 6, 0);
-    listLay->setSpacing(0);
-    listLay->setSizeConstraint(QLayout::SetMinAndMaxSize);
-
-    auto *list = new QListWidget();
-    list->setSelectionMode(QAbstractItemView::NoSelection);
-    list->setFrameShape(QFrame::NoFrame);
-    list->setContextMenuPolicy(Qt::CustomContextMenu);
-    list->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-    list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    list->setSpacing(0);
-    list->setStyleSheet(TM().ssListWidget());
-    list->setItemDelegate(new DriveDelegate(false, this));
-    list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    list->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-
-    // Liste zum Container-Layout hinzufügen
-    listLay->addWidget(list);
-
-    adjustListHeight(list);
-    vbox->addWidget(listCont);
-
-    // Toggle für Orte (Favoriten)
-    auto *toggleBtn = new QPushButton(); // KEIN "▲" im Konstruktor
-    toggleBtn->setCheckable(true);
-    toggleBtn->setFixedHeight(16); // Etwas höher für bessere Klickbarkeit
-    toggleBtn->setIcon(QIcon::fromTheme(QStringLiteral("go-up")));
-    toggleBtn->setIconSize(QSize(10, 10));
-
-    // font-size:7px entfernen, da Icons nicht auf Schriftgröße reagieren
-    toggleBtn->setStyleSheet("QPushButton{background:transparent !important; border:none;}");
-
-    vbox->addWidget(toggleBtn, 0, Qt::AlignCenter);
-
-    connect(toggleBtn, &QPushButton::toggled, this, [listCont, toggleBtn](bool on) {
-        listCont->setVisible(!on);
-        toggleBtn->setIcon(QIcon::fromTheme(on ? "go-down" : "go-up"));
-    });
-
-    // Wrapper mit dunklem Hintergrund (wie GERÄTE-Box)
-    auto *wrapper = new QWidget();
-    wrapper->setObjectName(QStringLiteral("groupWrapper"));
-    wrapper->setStyleSheet(QString("background:%1;").arg(TM().colors().bgMain));
-    auto *wLay = new QVBoxLayout(wrapper);
-    wLay->setContentsMargins(10, 2, 6, 2);
-    wLay->setSpacing(0);
-    wLay->addWidget(outerBox);
-
-    // In Layout einfügen: Wenn kein spezielles Ziel, dann immer auf Index 0 (ganz oben)
-    int insertIdx = beforeWidget ? m_contentLayout->indexOf(beforeWidget) : 0;
-    m_contentLayout->insertWidget(insertIdx, wrapper);
-
-    // Signals
-    auto sharedName = std::make_shared<QString>(name);
-
-    connect(toggleBtn, &QPushButton::toggled, list, [list, toggleBtn](bool on) {
-        list->setVisible(!on);
-        toggleBtn->setIcon(QIcon::fromTheme(on ? "go-down" : "go-up"));
-    });
-
-    connect(addBtn, &QPushButton::clicked, this, [this, list, sharedName]() {
-        QString activePath;
-        emit requestActivePath(&activePath);
-        addToGroup(*sharedName, list, activePath);
-    });
-
-    connect(list, &QListWidget::itemClicked, this, [this](QListWidgetItem *it) {
-        emit driveClicked(it->data(Qt::UserRole).toString());
-    });
-
-    connect(list, &QListWidget::customContextMenuRequested, this,
-            [this, list, sharedName](const QPoint &pos) {
-        auto *item = list->itemAt(pos);
-        if (!item) return;
-        showPlaceContextMenu(item, list, pos, *sharedName);
-    });
-
-    connect(menuBtn, &QPushButton::clicked, this,
-            [this, menuBtn, lbl, sharedName, outerBox, wrapper]() {
-        auto *m = new QMenu(this);
-        m->setAttribute(Qt::WA_DeleteOnClose);
-        sc_applyMenuShadow(m);
-        m->setStyleSheet(TM().ssMenu());
-
-        // Umbenennen
-        connect(m->addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Gruppe umbenennen")),
-                &QAction::triggered, this, [this, lbl, sharedName]() {
-            bool ok;
-            QString newName = sc_getText(this, tr("Gruppe umbenennen"), tr("Neuer Name:"), *sharedName);
-            ok = !newName.isNull();
-            if (!ok || newName.trimmed().isEmpty() || newName.trimmed() == *sharedName) return;
-            const QString oldName = *sharedName;
-            *sharedName = newName.trimmed();
-            lbl->setText(sharedName->toUpper());
-
-            auto gs = Config::group("CustomGroups");
-            QStringList grps = gs.readEntry("groups", QStringList());
-            int idx = grps.indexOf(oldName);
-            if (idx != -1) { grps[idx] = *sharedName; gs.writeEntry("groups", grps); }
- 
-            KConfigGroup oldGrp(gs.config(), gs.name() + "/group_" + oldName);
-            KConfigGroup newGrp(gs.config(), gs.name() + "/group_" + *sharedName);
-            int cnt = oldGrp.readEntry("size", 0);
-            newGrp.writeEntry("size", cnt);
-            for (int j = 1; j <= cnt; ++j) {
-                KConfigGroup oldItem(oldGrp.config(), oldGrp.name() + "/" + QString::number(j));
-                KConfigGroup newItem(newGrp.config(), newGrp.name() + "/" + QString::number(j));
-                newItem.writeEntry("path", oldItem.readEntry("path", QString()));
-                newItem.writeEntry("name", oldItem.readEntry("name", QString()));
-            }
-            oldGrp.deleteGroup();
-            gs.writeEntry("pinned_" + *sharedName, gs.readEntry("pinned_" + oldName, false));
-            gs.deleteEntry("pinned_" + oldName);
-            gs.config()->sync();
-
-        });
-
-        m->addSeparator();
-
-        // Pin/Unpin
-        const bool isPinned = outerBox->property("pinned").toBool();
-        connect(m->addAction(QIcon::fromTheme(isPinned ? "window-unpin" : "window-pin"),
-                             isPinned ? tr("Lösen") : tr("An Position verankern")),
-                &QAction::triggered, this, [outerBox, sharedName]() {
-
-            const bool nowPinned = !outerBox->property("pinned").toBool();
-            outerBox->setProperty("pinned", nowPinned);
-            auto gs = Config::group("CustomGroups");
-            gs.writeEntry("pinned_" + *sharedName, nowPinned);
-            gs.config()->sync();
-        });
-
-        m->addSeparator();
-
-        auto *upAct   = m->addAction(QIcon::fromTheme(QStringLiteral("go-up")),   tr("Nach oben"));
-        auto *downAct = m->addAction(QIcon::fromTheme(QStringLiteral("go-down")), tr("Nach unten"));
-        if (isPinned) { upAct->setEnabled(false); downAct->setEnabled(false); }
-
-        m->addSeparator();
-        auto *delAct = m->addAction(QIcon::fromTheme(QStringLiteral("edit-delete")), tr("Gruppe löschen"));
-
-        connect(upAct, &QAction::triggered, this, [this, wrapper]() {
-            int idx = m_contentLayout->indexOf(wrapper);
-            if (idx > 0) { m_contentLayout->removeWidget(wrapper); m_contentLayout->insertWidget(idx - 1, wrapper); saveGroupOrder(); }
-        });
-        connect(downAct, &QAction::triggered, this, [this, wrapper]() {
-            int idx = m_contentLayout->indexOf(wrapper);
-            if (idx >= 0 && idx < m_contentLayout->count() - 2) { m_contentLayout->removeWidget(wrapper); m_contentLayout->insertWidget(idx + 1, wrapper); saveGroupOrder(); }
-        });
-        connect(delAct, &QAction::triggered, this, [this, wrapper, sharedName]() {
-            m_contentLayout->removeWidget(wrapper); wrapper->deleteLater();
-            if (m_scrollArea && m_scrollArea->widget())
-                m_scrollArea->widget()->adjustSize();
-            auto gs = Config::group("CustomGroups");
-            KConfigGroup(gs.config(), gs.name() + "/group_" + *sharedName).deleteGroup();
-            gs.config()->sync();
-            saveGroupOrder();
-        });
-
-
-        m->popup(menuBtn->mapToGlobal(QPoint(0, menuBtn->height())));
-    });
-
-    return list;
-}
-
-// --- Sidebar::saveGroupOrder ---
-void Sidebar::saveGroupOrder()
-{
-    QStringList order;
-    for (int i = 0; i < m_contentLayout->count(); ++i) {
-        auto *w = m_contentLayout->itemAt(i) ? m_contentLayout->itemAt(i)->widget() : nullptr;
-        if (!w || w->objectName() != "groupWrapper") continue;
-        auto *ob = w->findChild<QWidget *>("groupBox");
-        if (ob) order << ob->property("groupName").toString();
-    }
-    auto gs = Config::group("CustomGroups");
-    gs.writeEntry("groups", order);
-    gs.config()->sync();
-}
-
-void Sidebar::loadCustomGroups()
-{
-    auto s = Config::group("CustomGroups");
-    const QStringList groups = s.readEntry("groups", QStringList());
-    for (const QString &groupName : groups) {
-        QListWidget *list = createGroupWidget(groupName, m_newGroupBox);
-        if (groupName == "Favoriten") m_favList = list;
-
-        KConfigGroup g(s.config(), s.name() + "/group_" + groupName);
-        int cnt = g.readEntry("size", 0);
-        for (int i = 1; i <= cnt; ++i) {
-            KConfigGroup itemG(g.config(), g.name() + "/" + QString::number(i));
-            const QString path      = itemG.readEntry("path", QString());
-            const QString itemName  = itemG.readEntry("name", QString());
-            const QString customIco = itemG.readEntry("icon", QString());
-            if (path.isEmpty()) continue;
-
-            QIcon ico;
-            if (!customIco.isEmpty()) {
-                ico = QIcon::fromTheme(customIco);
-            } else if (!path.startsWith("/")) {
-                const QString scheme = QUrl::fromUserInput(path).scheme().toLower();
-                ico = QIcon::fromTheme(
-                    scheme == "gdrive"    ? "folder-gdrive"     :
-                    scheme == "smb"       ? "network-workgroup"  :
-                    scheme == "sftp" || scheme == "ssh" ? "network-connect" :
-                    scheme == "mtp"       ? "multimedia-player"  :
-                    scheme == "bluetooth" ? "bluetooth"          :
-                    "network-server");
-            } else {
-                ico = QIcon::fromTheme(KIO::iconNameForUrl(QUrl::fromLocalFile(path)));
-            }
-            if (ico.isNull()) ico = QIcon::fromTheme(QStringLiteral("folder"));
-            auto *it = new QListWidgetItem(ico, itemName, list);
-            it->setData(Qt::UserRole, path);
-            it->setData(Qt::UserRole + 2, customIco);
-        }
-        adjustListHeight(list);
-    }
-}
-
-
-// --- Sidebar::addToGroup ---
-void Sidebar::addToGroup(const QString &groupName, QListWidget *list, const QString &path)
-{
-    if (path.isEmpty() || !list) return;
-    for (int i = 0; i < list->count(); ++i)
-        if (list->item(i)->data(Qt::UserRole).toString() == path) return;
-
-    QUrl url(path);
-    QString name = url.isLocalFile() ? QDir(path).dirName() : url.fileName();
-    if (name.isEmpty()) name = path;
-
-    // Spezielle Namen für bekannte KIO-Pfade
-    const QString scheme = url.scheme().toLower();
-    if (scheme == "trash")             name = tr("Papierkorb");
-    else if (scheme == "recentdocuments") name = tr("Zuletzt verwendet");
-    else if (scheme == "remote")       name = tr("Netzwerk");
-    else if (path == QDir::homePath()) name = tr("Persönlicher Ordner");
-
-    // Icon immer aus System-Theme
-    QIcon ico;
-    if (scheme == "trash") {
-        ico = QIcon::fromTheme("user-trash");
-        if (ico.isNull()) ico = QIcon::fromTheme("user-trash-full");
-        if (ico.isNull()) ico = QIcon::fromTheme("trash-empty");
-        if (ico.isNull()) ico = QIcon::fromTheme("trash");
-    } else if (scheme == "recentdocuments") {
-        ico = QIcon::fromTheme("document-open-recent");
-    } else if (!path.startsWith("/")) {
-        ico = QIcon::fromTheme(
-            scheme == "gdrive"    ? "folder-gdrive"      :
-            scheme == "smb"       ? "network-workgroup"   :
-            scheme == "sftp" || scheme == "ssh" ? "network-connect" :
-            scheme == "mtp"       ? "multimedia-player"   :
-            scheme == "bluetooth" ? "bluetooth"           :
-            scheme == "afc"       ? "phone"               :
-            "network-server");
-    } else {
-        ico = QIcon::fromTheme(KIO::iconNameForUrl(QUrl::fromLocalFile(path)));
-    }
-    if (ico.isNull()) ico = QIcon::fromTheme(QStringLiteral("folder"));
-
-    auto *it = new QListWidgetItem(ico, name, list);
-    it->setData(Qt::UserRole, path);
-    adjustListHeight(list);
-
-    auto gs = Config::group("CustomGroups");
-    KConfigGroup(gs.config(), gs.name() + "/group_" + groupName).deleteGroup();
-    KConfigGroup gNew(gs.config(), gs.name() + "/group_" + groupName);
-    gNew.writeEntry("size", list->count());
-
-    for (int i = 0; i < list->count(); ++i) {
-        KConfigGroup itemG(gNew.config(), gNew.name() + "/" + QString::number(i + 1));
-
-        itemG.writeEntry("path", list->item(i)->data(Qt::UserRole).toString());
-        itemG.writeEntry("name", list->item(i)->text());
-    }
-    gs.config()->sync();
-
-}
-
-// --- Sidebar::addPlace ---
-void Sidebar::addPlace(const QString &path)
-{
-    if (path.isEmpty() || !m_favList) return;
-    addToGroup("Favoriten", m_favList, path);
-}
-
-QStringList Sidebar::groupNames() const
-{
-    QStringList names;
-    if (!m_contentLayout) return names;
-    for (int i = 0; i < m_contentLayout->count(); ++i) {
-        auto *item = m_contentLayout->itemAt(i);
-        if (!item) continue;
-        auto *wrapper = item->widget();
-        if (!wrapper) continue;
-        auto *box = wrapper->findChild<QWidget*>("groupBox");
-        if (box) {
-            QString name = box->property("groupName").toString();
-            if (!name.isEmpty()) names << name;
-        }
-    }
-    return names;
-}
-
-void Sidebar::addPathToGroup(const QString &groupName, const QString &path)
-{
-    if (!m_contentLayout) return;
-    for (int i = 0; i < m_contentLayout->count(); ++i) {
-        auto *item = m_contentLayout->itemAt(i);
-        if (!item) continue;
-        auto *wrapper = item->widget();
-        if (!wrapper) continue;
-        auto *box = wrapper->findChild<QWidget*>("groupBox");
-        if (box && box->property("groupName").toString() == groupName) {
-            auto *list = box->findChild<QListWidget*>();
-            if (list) {
-                addToGroup(groupName, list, path);
-                return;
-            }
-        }
-    }
-}
 
 void Sidebar::addNetworkPlace(const QString &path, const QString &name)
 {
     if (path.isEmpty()) return;
     auto s = Config::group("NetworkPlaces");
     QStringList saved = s.readEntry("places", QStringList());
-    const QString npath = sc_normalizePath(path);
+    const QString npath = mw_normalizePath(path);
     if (!saved.contains(npath)) {
         saved << npath;
         s.writeEntry("places", saved);
@@ -1874,7 +1394,7 @@ void Sidebar::showPlaceContextMenu(QListWidgetItem *item, QListWidget *list,
     const QString icon = item->data(Qt::UserRole + 2).toString();
 
     QMenu menu(this);
-    sc_applyMenuShadow(&menu);
+    mw_applyMenuShadow(&menu);
     menu.setStyleSheet(TM().ssMenu());
 
     auto *openIn = menu.addMenu(QIcon::fromTheme(QStringLiteral("folder-open")), tr("Öffnen in"));
@@ -1923,226 +1443,8 @@ void Sidebar::showPlaceContextMenu(QListWidgetItem *item, QListWidget *list,
 }
 
 // --- Sidebar::setupTags / addTagItem / saveTags ---
-void Sidebar::addTagItem(const QString &name, const QString &color, const QString &fontFamily)
-{
-    QPixmap pix(10, 10);
-    pix.fill(Qt::transparent);
-    QPainter p(&pix);
-    p.setRenderHint(QPainter::Antialiasing);
-    p.setBrush(QColor(color)); p.setPen(Qt::NoPen);
-    p.drawEllipse(0, 0, 10, 10);
-
-    auto *it = new QListWidgetItem(QIcon(pix), name, m_tagList);
-    it->setData(Qt::UserRole,     color);
-    it->setData(Qt::UserRole + 1, fontFamily);
-    if (!fontFamily.isEmpty()) it->setFont(QFont(fontFamily));
-}
-
-void Sidebar::setupTags()
-{
-    m_tagList->clear();
-    for (const auto &t : TagManager::instance().tags()) {
-        addTagItem(t.first, t.second, QString());
-    }
-
- 
-    adjustListHeight(m_tagList);
-    if (m_tagsBox)  m_tagsBox->updateGeometry();
-    if (m_tagsWrap) m_tagsWrap->updateGeometry();
- 
-    connect(m_tagList, &QListWidget::itemClicked, this, [this](QListWidgetItem *it) {
-        emit tagClicked(it->text());
-        QTimer::singleShot(150, m_tagList, [this]() {
-            m_tagList->clearSelection();
-        });
-    });
 
 
-
-    m_tagList->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(m_tagList, &QListWidget::customContextMenuRequested, this,
-            [this](const QPoint &pos) {
-        auto *item = m_tagList->itemAt(pos);
-        if (!item) return;
-        QMenu menu(this);
-        sc_applyMenuShadow(&menu);
-        menu.setStyleSheet(TM().ssMenu());
-
-        menu.addAction(QIcon::fromTheme(QStringLiteral("color-picker")), tr("Farbe ändern …"), this,
-            [this, item]() {
-                QColorDialog dlg(QColor(item->data(Qt::UserRole).toString()), this);
-                dlg.setWindowTitle(tr("Farbe wählen"));
-                dlg.setOptions(QColorDialog::DontUseNativeDialog);
-                dlg.setStyleSheet(TM().ssDialog());
-                if (dlg.exec() != QDialog::Accepted) return;
-                QColor col = dlg.currentColor();
-                if (!col.isValid()) return;
-                item->setData(Qt::UserRole, col.name());
-                QPixmap pix(10, 10); pix.fill(Qt::transparent);
-                QPainter p(&pix); p.setRenderHint(QPainter::Antialiasing);
-                p.setBrush(col); p.setPen(Qt::NoPen); p.drawEllipse(0, 0, 10, 10);
-                item->setIcon(QIcon(pix));
-                saveTags();
-            });
-        menu.addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Umbenennen …"), this,
-            [this, item]() {
-                bool ok;
-                QString name = sc_getText(this, tr("Tag umbenennen"), tr("Name:"), item->text());
-                ok = !name.isNull();
-                if (ok && !name.isEmpty()) { item->setText(name); saveTags(); }
-            });
-        menu.addSeparator();
-        menu.addAction(QIcon::fromTheme(QStringLiteral("edit-delete")), tr("Löschen"), this,
-            [this, item]() {
-                delete m_tagList->takeItem(m_tagList->row(item));
-                adjustListHeight(m_tagList);
-                if (m_tagsBox)  m_tagsBox->updateGeometry();
-                if (m_tagsWrap) m_tagsWrap->updateGeometry();
-                saveTags();
-            });
-
-        menu.exec(m_tagList->mapToGlobal(pos));
-    });
-}
-
-void Sidebar::saveTags()
-{
-    auto s = Config::group("Tags");
-    KConfigGroup(s.config(), s.name() + "/tags").deleteGroup();
-    KConfigGroup tagsG(s.config(), s.name() + "/tags");
-    tagsG.writeEntry("size", m_tagList->count());
-    for (int i = 0; i < m_tagList->count(); ++i) {
-        KConfigGroup tG(tagsG.config(), tagsG.name() + "/" + QString::number(i + 1));
-        tG.writeEntry("name",  m_tagList->item(i)->text());
-        tG.writeEntry("color", m_tagList->item(i)->data(Qt::UserRole).toString());
-        tG.writeEntry("font",  m_tagList->item(i)->data(Qt::UserRole + 1).toString());
-    }
-    s.config()->sync();
-}
-
-
-
-// --- Sidebar — leere Stubs (Interface-Kompatibilität) ---
-void Sidebar::setupPlaces()  {}
-void Sidebar::setupRemotes() {}
-void Sidebar::savePlaces(QListWidget **list)
-{
-    if (!list || !*list) return;
-    auto gs = Config::group("CustomGroups");
-    KConfigGroup g(gs.config(), gs.name() + "/group_Favoriten");
-    g.deleteGroup();
-    int idx = 1;
-    for (int i = 0; i < (*list)->count(); ++i) {
-        auto *item = (*list)->item(i);
-        if (item->data(Qt::UserRole + 1).toBool()) continue;
-        KConfigGroup itemG(g.config(), g.name() + "/" + QString::number(idx++));
-        itemG.writeEntry("path", item->data(Qt::UserRole).toString());
-        itemG.writeEntry("name", item->text());
-    }
-    g.writeEntry("size", idx - 1);
-    adjustListHeight(*list);
-    gs.config()->sync();
-}
-
-
-// --- GroupDragHandle — Implementierung ---
-GroupDragHandle::GroupDragHandle(QWidget *outerBox, QWidget *parent)
-    : QWidget(parent), m_outerBox(outerBox)
-{
-    setMouseTracking(true);
-    outerBox->setMouseTracking(true);
-    outerBox->installEventFilter(this);
-}
-
-bool GroupDragHandle::eventFilter(QObject *obj, QEvent *ev)
-{
-    if (obj != m_outerBox) return false;
-
-    if (ev->type() == QEvent::MouseButtonPress) {
-        auto *e = static_cast<QMouseEvent *>(ev);
-        if (e->button() == Qt::LeftButton
-            && e->position().y() <= 36
-            && e->position().x() < m_outerBox->width() - 60) {
-            m_dragging     = true;
-            m_startY       = e->globalPosition().toPoint().y();
-            m_dragIndex    = layoutIndex();
-            m_currentIndex = m_dragIndex;
-            auto *eff = new QGraphicsOpacityEffect(m_outerBox);
-            eff->setOpacity(0.5);
-            m_outerBox->setGraphicsEffect(eff);
-            m_outerBox->setCursor(Qt::ClosedHandCursor);
-            showIndicator(m_dragIndex);
-        }
-    } else if (ev->type() == QEvent::MouseMove) {
-        auto *e = static_cast<QMouseEvent *>(ev);
-        if (!m_dragging) {
-            m_outerBox->setCursor(
-                (e->position().y() <= 36 && e->position().x() < m_outerBox->width() - 60)
-                ? Qt::OpenHandCursor : Qt::ArrowCursor);
-            return false;
-        }
-        auto *l = parentLayout();
-        if (!l) return false;
-        int dy       = e->globalPosition().toPoint().y() - m_startY;
-        int boxH     = qMax(m_outerBox->height(), 50);
-        int newIndex = qBound(1, m_dragIndex + (int)(dy / (boxH * 0.6)), l->count() - 2);
-        if (newIndex != m_currentIndex) {
-            m_currentIndex = newIndex;
-            showIndicator(m_currentIndex);
-        }
-    } else if (ev->type() == QEvent::MouseButtonRelease) {
-        if (m_dragging) {
-            m_dragging = false;
-            m_outerBox->setGraphicsEffect(nullptr);
-            m_outerBox->setCursor(Qt::ArrowCursor);
-            auto *l = parentLayout();
-            if (l && m_currentIndex != m_dragIndex) {
-                l->removeWidget(m_outerBox);
-                l->insertWidget(m_currentIndex, m_outerBox);
-            }
-            hideIndicator();
-        }
-    }
-    return false;
-}
-
-void GroupDragHandle::showIndicator(int index)
-{
-    auto *l = parentLayout();
-    if (!l) return;
-    if (!m_indicator) {
-        m_indicator = new QWidget(m_outerBox->parentWidget());
-        m_indicator->setStyleSheet("background:#5e81ac;");
-        m_indicator->setFixedHeight(2);
-        m_indicator->raise();
-    }
-    for (int i = 0; i < l->count(); ++i) {
-        auto *item = l->itemAt(i);
-        if (item && item->widget() && l->indexOf(item->widget()) == index) {
-            auto *ref = item->widget();
-            m_indicator->setGeometry(ref->x(), ref->y() - 1, ref->width(), 2);
-            m_indicator->show();
-            return;
-        }
-    }
-}
-
-void GroupDragHandle::hideIndicator()
-{
-    if (m_indicator) m_indicator->hide();
-}
-
-QVBoxLayout *GroupDragHandle::parentLayout() const
-{
-    if (!m_outerBox || !m_outerBox->parentWidget()) return nullptr;
-    return qobject_cast<QVBoxLayout *>(m_outerBox->parentWidget()->layout());
-}
-
-int GroupDragHandle::layoutIndex() const
-{
-    auto *l = parentLayout();
-    return l ? l->indexOf(m_outerBox) : -1;
-}
 
 void Sidebar::onTrashChanged() {
     if (!m_trashLister) return;

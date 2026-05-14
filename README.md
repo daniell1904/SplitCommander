@@ -24,8 +24,9 @@ Built with Qt6 and KDE Frameworks 6.
 - **Dual-pane layout** — browse two directories side by side
 - **Miller columns view** — fast directory tree navigation
 - **Sidebar** with drives, network mounts, bookmarks, custom groups and tags
-- **Google Drive** — native integration via KIO (kio-gdrive)
-- **Network drives** — SMB, NFS, SFTP, WebDAV, MTP auto-detected
+- **Google Drive** — native integration via KIO (kio-gdrive) with quota bar
+- **Network drives** — SMB, NFS, SFTP, WebDAV, MTP — add manually or auto-detected
+- **Add network drive dialog** — set URL, display name and icon
 - **Detail view** with configurable columns (name, type, size, date, permissions, and more)
 - **Icon view** for media-rich directories
 - **Tag system** — mark and filter files with colored tags
@@ -33,7 +34,8 @@ Built with Qt6 and KDE Frameworks 6.
 - **Terminal integration** — open terminal in current directory
 - **Batch renamer** — rename multiple files at once
 - **Themes** — Nord, Catppuccin Mocha, Gruvbox Dark and KDE Global Theme support
-- **KIO integration** — network drives, SSH, SFTP, Google Drive out of the box
+- **KIO integration** — all file operations via KIO (copy, move, delete, symlinks, new files)
+- **Drag & drop** — full KIO-based drag and drop support
 
 ### Installation
 
@@ -69,8 +71,8 @@ sudo cmake --install build-release
 
 ### Dependencies
 
-- Qt 6 — Core, Gui, Widgets, Svg
-- KDE Frameworks 6 — KIO, Solid, IconThemes, ConfigWidgets, XmlGui, WidgetsAddons, WindowSystem, Archive, Service, I18n
+- Qt 6 — Core, Gui, Widgets, Svg, Concurrent
+- KDE Frameworks 6 — KIO, Solid, IconThemes, ConfigWidgets, XmlGui, WidgetsAddons, WindowSystem, Archive, Service, I18n, Baloo
 - CMake ≥ 3.18, Ninja, GCC/Clang with C++20
 
 ### Note
@@ -100,8 +102,9 @@ Gebaut mit Qt6 und KDE Frameworks 6.
 - **Dual-Pane-Layout** — zwei Verzeichnisse gleichzeitig im Blick
 - **Miller-Columns-Ansicht** — schnelle Navigation durch Verzeichnisbäume
 - **Sidebar** mit Laufwerken, Netzwerklaufwerken, Lesezeichen, Gruppen und Tags
-- **Google Drive** — direkte Integration über KIO (kio-gdrive)
-- **Netzwerklaufwerke** — SMB, NFS, SFTP, WebDAV, MTP automatisch erkannt
+- **Google Drive** — direkte Integration über KIO (kio-gdrive) mit Speicherbalken
+- **Netzwerklaufwerke** — SMB, NFS, SFTP, WebDAV, MTP — manuell hinzufügen oder automatisch erkannt
+- **Netzlaufwerk-Dialog** — URL, Anzeigename und Symbol frei wählbar
 - **Detailansicht** mit konfigurierbaren Spalten (Name, Typ, Größe, Datum, Rechte u.v.m.)
 - **Icon-Ansicht** für medienreiche Verzeichnisse
 - **Tag-System** — Dateien mit farbigen Tags markieren und filtern
@@ -109,7 +112,8 @@ Gebaut mit Qt6 und KDE Frameworks 6.
 - **Terminal-Integration** — Terminal im aktuellen Verzeichnis öffnen
 - **Batch-Umbenenner** — mehrere Dateien gleichzeitig umbenennen
 - **Themes** — Nord, Catppuccin Mocha, Gruvbox Dark sowie KDE Global Themes
-- **KIO-Integration** — Netzlaufwerke, SSH, SFTP, Google Drive direkt nutzbar
+- **KIO-Integration** — alle Dateioperationen über KIO (Kopieren, Verschieben, Löschen, Symlinks, neue Dateien)
+- **Drag & Drop** — vollständiges KIO-basiertes Drag & Drop
 
 ### Installation
 
@@ -145,8 +149,8 @@ sudo cmake --install build-release
 
 ### Abhängigkeiten
 
-- Qt 6 — Core, Gui, Widgets, Svg
-- KDE Frameworks 6 — KIO, Solid, IconThemes, ConfigWidgets, XmlGui, WidgetsAddons, WindowSystem, Archive, Service, I18n
+- Qt 6 — Core, Gui, Widgets, Svg, Concurrent
+- KDE Frameworks 6 — KIO, Solid, IconThemes, ConfigWidgets, XmlGui, WidgetsAddons, WindowSystem, Archive, Service, I18n, Baloo
 - CMake ≥ 3.18, Ninja, GCC/Clang mit C++20
 
 ### Hinweis
@@ -157,6 +161,6 @@ Dieses Projekt wurde mit Unterstützung von KI (Claude von Anthropic) entwickelt
 
 GPL-3.0 — siehe [LICENSE](LICENSE)
 
-**Haftungsausschluss:** Diese Software wird „wie besehen“ zur Verfügung gestellt, ohne jegliche Gewährleistung. Die Nutzung erfolgt auf eigene Gefahr. Die Autoren haften nicht für Datenverlust oder Schäden.
+**Haftungsausschluss:** Diese Software wird „wie besehen" zur Verfügung gestellt, ohne jegliche Gewährleistung. Die Nutzung erfolgt auf eigene Gefahr. Die Autoren haften nicht für Datenverlust oder Schäden.
 
 </details>

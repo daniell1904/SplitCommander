@@ -66,7 +66,6 @@ public:
     QString ssColInactive() const;
     QString ssColDrives()   const;
     QString ssMenu()        const;
-    QString ssScrollBar()   const;
     QString ssListWidget()  const;
     QString ssDialog()      const;
     QString ssSidebar()     const;

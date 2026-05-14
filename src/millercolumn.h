@@ -45,7 +45,6 @@ public:
     QString activePath() const;
     QList<QUrl> selectedUrls() const;
     void setFocused(bool f);
-    void redistributeWidths();
     const QList<MillerColumn*>& cols() const { return m_cols; }
 signals:
     void pathChanged(const QString &path);

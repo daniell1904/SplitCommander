@@ -13,40 +13,7 @@
 #include <QPushButton>
 #include <QMenu>
 
-// --- GroupDragHandle --- (Hilfsklasse für das Umordnen von Gruppen per Drag & Drop)
-class GroupDragHandle : public QWidget {
-    Q_OBJECT
-public:
-    explicit GroupDragHandle(QWidget *outerBox, QWidget *parent = nullptr);
-    bool eventFilter(QObject *obj, QEvent *ev) override;
-
-private:
-    void         showIndicator(int index);
-    void         hideIndicator();
-    QVBoxLayout *parentLayout() const;
-    int          layoutIndex() const;
-
-    QWidget *m_outerBox     = nullptr;
-    QWidget *m_indicator    = nullptr;
-    bool     m_dragging     = false;
-    int      m_startY       = 0;
-    int      m_dragIndex    = 0;
-    int      m_currentIndex = 0;
-};
-
-// --- DriveDelegate --- (Zeichnet Laufwerke und Netzwerkordner (inklusive Speicherplatz-Balken))
-class DriveDelegate : public QStyledItemDelegate {
-    Q_OBJECT
-public:
-    explicit DriveDelegate(bool showBars = true, QObject *parent = nullptr)
-        : QStyledItemDelegate(parent), m_showBars(showBars) {}
-
-    void  paint(QPainter *p, const QStyleOptionViewItem &opt, const QModelIndex &idx) const override;
-    QSize sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &idx) const override;
-
-private:
-    bool m_showBars;
-};
+#include "drivedelegate.h"
 
 // --- Sidebar --- (Linke Navigationsleiste (Laufwerke, Gruppen, Tags))
 class Sidebar : public QWidget {
@@ -59,13 +26,11 @@ public slots:
     void updateDrives();
     void renameNetworkPlace(const QString &path, const QString &newName);
     const QStringList& gdriveAccounts() const { return m_gdriveAccounts; }
-    void setupPlaces();
     void addPlace(const QString &path);
     void addToGroup(const QString &groupName, QListWidget *list, const QString &path);
     QStringList groupNames() const;
     void addPathToGroup(const QString &groupName, const QString &path);
     void addNetworkPlace(const QString &path, const QString &name);
-    void setupRemotes();
     void setupTags();
 
 signals:
@@ -93,11 +58,11 @@ private:
     void buildGroupsSection(QVBoxLayout *parent);
     void buildTagsSection(QVBoxLayout *parent);
     void buildNewGroupFixedSection(QVBoxLayout *parent);
+    void showDriveContextMenu(QListWidgetItem *item, const QPoint &pos);
     void buildFooter(QVBoxLayout *parent);
 
     // --- Laufwerke ---
     void setupDriveContextMenu();
-    void loadGDriveAccountsAsync();
     void loadUserPlaces();
     void connectDriveList();
 
@@ -110,7 +75,6 @@ private:
     // --- Orte / Kontextmenü ---
     void showPlaceContextMenu(QListWidgetItem *item, QListWidget *list,
                                const QPoint &pos, const QString &groupName = {});
-    void savePlaces(QListWidget **list);
 
     // --- Tags ---
     void addTagItem(const QString &name, const QString &color, const QString &fontFamily = {});

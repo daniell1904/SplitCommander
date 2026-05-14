@@ -1,5 +1,4 @@
 #include "panewidget.h"
-#include "mainwindow.h"
 #include "config.h"
 #include "dialogutils.h"
 #include "thememanager.h"
@@ -13,6 +12,8 @@
 #include <KIO/JobUiDelegateFactory>
 #include <KIO/MkdirJob>
 #include <KIO/EmptyTrashJob>
+#include <KIO/StoredTransferJob>
+#include <KFileWidget>
 #include <KPropertiesDialog>
 #include <KTerminalLauncherJob>
 #include <KDialogJobUiDelegate>
@@ -29,7 +30,6 @@
 #include <QClipboard>
 #include <QDir>
 #include <QDirIterator>
-#include <QFileDialog>
 #include <QFileInfo>
 #include <QFutureWatcher>
 #include <QGuiApplication>
@@ -54,7 +54,15 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   rootLay->setContentsMargins(0, 0, 0, 0);
   rootLay->setSpacing(0);
 
-  // --- Tab-Leiste mit Breadcrumb ---
+  initTabBar(rootLay);
+  initSearchPanel(rootLay);
+  initSplitter(rootLay);
+  initConnections();
+  buildFooter(rootLay);
+}
+
+// --- PaneWidget::initTabBar ---
+void PaneWidget::initTabBar(QVBoxLayout *rootLay) {
   auto *tabBar = new QWidget();
   tabBar->setFixedHeight(46);
   tabBar->setStyleSheet(
@@ -63,9 +71,9 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   tabLay->setContentsMargins(4, 0, 4, 0);
   tabLay->setSpacing(2);
 
-  auto *pathStack = new QStackedWidget();
-  pathStack->setFixedHeight(26);
-  pathStack->setStyleSheet(
+  m_pathStack = new QStackedWidget();
+  m_pathStack->setFixedHeight(26);
+  m_pathStack->setStyleSheet(
       QString("background-color:%1; border:1px solid %2; border-radius:0px;")
           .arg(TM().colors().bgBox, TM().colors().borderAlt));
 
@@ -81,28 +89,28 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
               "font-size:15px; font-weight:300; padding:2px 10px; "
               "border-radius:0px; }")
           .arg(TM().colors().textAccent));
-  pathStack->addWidget(breadcrumbBtn);
-  pathStack->addWidget(m_pathEdit);
-  pathStack->setCurrentIndex(0);
+  m_pathStack->addWidget(breadcrumbBtn);
+  m_pathStack->addWidget(m_pathEdit);
+  m_pathStack->setCurrentIndex(0);
 
-  connect(breadcrumbBtn, &QPushButton::clicked, this, [pathStack, this]() {
+  connect(breadcrumbBtn, &QPushButton::clicked, this, [this]() {
     m_pathEdit->setText(currentPath());
     m_pathEdit->selectAll();
-    pathStack->setCurrentIndex(1);
+    m_pathStack->setCurrentIndex(1);
     m_pathEdit->setFocus();
   });
 
-  auto commitPath = [pathStack, breadcrumbBtn, this]() {
+  auto commitPath = [breadcrumbBtn, this]() {
     const QString p = m_pathEdit->text().trimmed();
     if (!p.isEmpty() && QFileInfo::exists(p))
       navigateTo(p);
     breadcrumbBtn->setText(currentPath());
-    pathStack->setCurrentIndex(0);
+    m_pathStack->setCurrentIndex(0);
   };
   connect(m_pathEdit, &QLineEdit::returnPressed, this, commitPath);
   connect(m_pathEdit, &QLineEdit::editingFinished, this,
-          [pathStack, commitPath]() {
-            if (pathStack->currentIndex() == 1)
+          [this, commitPath]() {
+            if (m_pathStack->currentIndex() == 1)
               commitPath();
           });
   connect(this, &PaneWidget::pathUpdated, this,
@@ -127,13 +135,13 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   m_millerToggle->setToolTip(tr("Miller-Columns ein-/ausklappen"));
   m_millerToggle->setStyleSheet(TM().ssToolBtn());
 
-  auto *searchBtn = new QToolButton();
-  searchBtn->setFixedSize(30, 30);
-  searchBtn->setIcon(QIcon::fromTheme("system-search"));
-  searchBtn->setIconSize(QSize(18, 18));
-  searchBtn->setToolTip(tr("Suchen"));
-  searchBtn->setCheckable(true);
-  searchBtn->setStyleSheet(TM().ssToolBtn());
+  m_searchBtn = new QToolButton();
+  m_searchBtn->setFixedSize(30, 30);
+  m_searchBtn->setIcon(QIcon::fromTheme("system-search"));
+  m_searchBtn->setIconSize(QSize(18, 18));
+  m_searchBtn->setToolTip(tr("Suchen"));
+  m_searchBtn->setCheckable(true);
+  m_searchBtn->setStyleSheet(TM().ssToolBtn());
 
   auto *layoutBtn = new QToolButton();
   layoutBtn->setFixedSize(30, 30);
@@ -151,6 +159,19 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
                               " QToolButton::menu-indicator { image: none; }");
   hamburgerBtn->setPopupMode(QToolButton::InstantPopup);
 
+  initHamburgerMenu(hamburgerBtn, layoutBtn);
+
+  tabLay->addWidget(m_millerToggle);
+  tabLay->addWidget(m_pathStack, 1);
+  tabLay->addWidget(m_searchBtn);
+  tabLay->addWidget(layoutBtn);
+  tabLay->addWidget(hamburgerBtn);
+  rootLay->addWidget(tabBar);
+}
+
+
+// --- PaneWidget::initHamburgerMenu ---
+void PaneWidget::initHamburgerMenu(QToolButton *hamburgerBtn, QToolButton *layoutBtn) {
   // --- Hamburger-Menü ---
   auto *hamburgerMenu = new QMenu(hamburgerBtn);
   hamburgerMenu->setStyleSheet(TM().ssMenu());
@@ -179,37 +200,27 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
                                              tr("Versteckte Dateien anzeigen"));
   actHidden->setCheckable(true);
   actHidden->setChecked(Config::showHiddenFiles());
-  connect(actHidden, &QAction::toggled, this, [](bool on) {
+  connect(actHidden, &QAction::toggled, this, [this](bool on) {
     Config::setShowHiddenFiles(on);
-    if (auto *mw = MW()) {
-      emit mw->sidebar()->hiddenFilesChanged(on);
-      mw->leftPane()->filePane()->setShowHiddenFiles(on);
-      mw->rightPane()->filePane()->setShowHiddenFiles(on);
-      mw->leftPane()->miller()->refresh();
-      mw->rightPane()->miller()->refresh();
-    }
+    emit hiddenFilesToggled(on);
   });
 
   auto *actSingleClick = hamburgerMenu->addAction(
       QIcon::fromTheme("input-mouse"), tr("Einfachklick zum Öffnen"));
   actSingleClick->setCheckable(true);
   actSingleClick->setChecked(Config::singleClickOpen());
-  connect(actSingleClick, &QAction::toggled, this, [](bool on) {
+  connect(actSingleClick, &QAction::toggled, this, [this](bool on) {
     Config::setSingleClickOpen(on);
-    if (auto *mw = MW())
-      emit mw->sidebar()->settingsChanged();
+    emit settingsChanged();
   });
 
   auto *actExtensions = hamburgerMenu->addAction(
       QIcon::fromTheme("text-x-generic"), tr("Dateiendungen anzeigen"));
   actExtensions->setCheckable(true);
   actExtensions->setChecked(Config::showFileExtensions());
-  connect(actExtensions, &QAction::toggled, this, [](bool on) {
+  connect(actExtensions, &QAction::toggled, this, [this](bool on) {
     Config::setShowFileExtensions(on);
-    if (auto *mw = MW()) {
-      mw->leftPane()->filePane()->setRootPath(mw->leftPane()->currentPath());
-      mw->rightPane()->filePane()->setRootPath(mw->rightPane()->currentPath());
-    }
+    emit extensionsToggled(on);
   });
 
   auto *menuTerminal = hamburgerMenu->addMenu(
@@ -385,8 +396,8 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
       menuConfigure->addAction(QIcon::fromTheme("configure-shortcuts"),
                                tr("Tastaturkurzbefehle festlegen …"));
   connect(actShortcuts, &QAction::triggered, this, [this]() {
-    if (auto *mw = MW())
-      KShortcutsDialog::showDialog(mw->actionCollection(),
+    if (m_actionCollection)
+      KShortcutsDialog::showDialog(m_actionCollection,
                                    KShortcutsEditor::LetterShortcutsAllowed,
                                    this);
   });
@@ -431,14 +442,6 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     dlg->exec();
   });
 
-  hamburgerBtn->setMenu(hamburgerMenu);
-
-  tabLay->addWidget(m_millerToggle);
-  tabLay->addWidget(pathStack, 1);
-  tabLay->addWidget(searchBtn);
-  tabLay->addWidget(layoutBtn);
-  tabLay->addWidget(hamburgerBtn);
-  rootLay->addWidget(tabBar);
 
   // --- Layout-Button Connect ---
   connect(layoutBtn, &QToolButton::clicked, this, [this, layoutBtn]() {
@@ -495,7 +498,8 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
       auto *lb2 = new QLabel(entry.sub);
       lb2->setAlignment(Qt::AlignCenter);
       lb2->setStyleSheet(
-          "background:transparent;border:none;color:#4c566a;font-size:9px;");
+          QString("background:transparent;border:none;color:%1;font-size:9px;")
+              .arg(TM().colors().textMuted));
       vl->addWidget(ic);
       vl->addWidget(lb1);
       vl->addWidget(lb2);
@@ -522,72 +526,99 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
           [this]() { emit newFolderRequested(); });
 
   connect(actNewText, &QAction::triggered, this, [this]() {
-    auto *mw = qobject_cast<MainWindow *>(window());
-    if (!mw)
-      return;
-    const QString dir = mw->activePane()->currentPath();
+    const QString dir = currentPath();
     bool ok;
     QString name = DialogUtils::getText(this, tr("Neue Textdatei"), tr("Name:"),
                                         tr("Neue Datei.txt"), &ok);
-    if (ok && !name.isEmpty()) {
-      QFile f(dir + "/" + name);
-      (void)f.open(QIODevice::WriteOnly);
-    }
+    if (!ok || name.isEmpty()) return;
+    const QUrl dest = QUrl::fromUserInput(dir + "/" + name);
+    auto *job = KIO::storedPut(QByteArray(), dest, -1, KIO::Overwrite);
+    job->setUiDelegate(KIO::createDefaultJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
+    job->start();
   });
 
   connect(actNewHtml, &QAction::triggered, this, [this]() {
-    auto *mw = qobject_cast<MainWindow *>(window());
-    if (!mw)
-      return;
-    const QString dir = mw->activePane()->currentPath();
+    const QString dir = currentPath();
     bool ok;
     QString name = DialogUtils::getText(this, tr("Neue HTML-Datei"),
                                         tr("Name:"), tr("index.html"), &ok);
-    if (!ok || name.isEmpty())
-      return;
-    QFile f(dir + "/" + name);
-    if (f.open(QIODevice::WriteOnly | QIODevice::Text))
-      f.write("<!DOCTYPE html>\n<html>\n<head><meta "
-              "charset=\"utf-8\"><title></title></head>\n<body>\n\n</body>\n</"
-              "html>\n");
+    if (!ok || name.isEmpty()) return;
+    const QUrl dest = QUrl::fromUserInput(dir + "/" + name);
+    const QByteArray html =
+        "<!DOCTYPE html>\n<html>\n<head><meta charset=\"utf-8\">"
+        "<title></title></head>\n<body>\n\n</body>\n</html>\n";
+    auto *job = KIO::storedPut(html, dest, -1, KIO::Overwrite);
+    job->setUiDelegate(KIO::createDefaultJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
+    job->start();
   });
 
   connect(actNewEmpty, &QAction::triggered, this, [this]() {
-    auto *mw = qobject_cast<MainWindow *>(window());
-    if (!mw)
-      return;
-    const QString dir = mw->activePane()->currentPath();
+    const QString dir = currentPath();
     bool ok;
     QString name = DialogUtils::getText(this, tr("Leere Datei"), tr("Name:"),
                                         tr("Neue Datei"), &ok);
-    if (ok && !name.isEmpty()) {
-      QFile f(dir + "/" + name);
-      (void)f.open(QIODevice::WriteOnly);
-    }
+    if (!ok || name.isEmpty()) return;
+    const QUrl dest = QUrl::fromUserInput(dir + "/" + name);
+    auto *job = KIO::storedPut(QByteArray(), dest, -1, KIO::Overwrite);
+    job->setUiDelegate(KIO::createDefaultJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
+    job->start();
   });
 
   connect(actNewLinkFile, &QAction::triggered, this, [this]() {
-    auto *mw = qobject_cast<MainWindow *>(window());
-    if (!mw)
-      return;
-    const QString dir = mw->activePane()->currentPath();
-    QString target =
-        QFileDialog::getExistingDirectory(this, tr("Ziel waehlen"), dir);
-    if (target.isEmpty())
-      target = QFileDialog::getOpenFileName(this, tr("Ziel waehlen"), dir);
-    if (target.isEmpty())
-      return;
-    bool ok;
-    QString name = DialogUtils::getText(this, tr("Verknuepfungsname"),
-                                        tr("Name:"), tr("Link"), &ok);
-    if (ok && !name.isEmpty()) {
-      auto *job = KIO::symlink(target, QUrl::fromLocalFile(dir + "/" + name), KIO::HideProgressInfo);
-      job->setUiDelegate(KIO::createDefaultJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
-    }
+    const QString dir = currentPath();
+
+    // KIO-fähiger Dateiauswahl-Dialog (unterstützt SFTP, SMB, etc.)
+    auto *dlg = new QDialog(this);
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    dlg->setWindowTitle(tr("Ziel wählen"));
+    dlg->resize(720, 480);
+    auto *lay = new QVBoxLayout(dlg);
+    lay->setContentsMargins(0, 0, 0, 0);
+    lay->setSpacing(0);
+
+    auto *fw = new KFileWidget(QUrl::fromLocalFile(dir), dlg);
+    fw->setOperationMode(KFileWidget::Opening);
+    fw->setMode(KFile::File | KFile::Directory | KFile::ExistingOnly | KFile::LocalOnly);
+    lay->addWidget(fw, 1);
+
+    auto *btnRow = new QWidget(dlg);
+    auto *btnLay = new QHBoxLayout(btnRow);
+    btnLay->setContentsMargins(8, 4, 8, 8);
+    btnLay->addStretch();
+    auto *btnCancel = new QPushButton(tr("Abbrechen"), btnRow);
+    auto *btnOk     = new QPushButton(tr("Auswählen"), btnRow);
+    btnLay->addWidget(btnCancel);
+    btnLay->addWidget(btnOk);
+    lay->addWidget(btnRow);
+
+    connect(btnCancel, &QPushButton::clicked, dlg, &QDialog::reject);
+    connect(btnOk, &QPushButton::clicked, fw, &KFileWidget::slotOk);
+    connect(fw, &KFileWidget::accepted, dlg, &QDialog::accept);
+
+    connect(dlg, &QDialog::accepted, this, [this, fw, dir]() {
+      const QString target = fw->selectedUrl().toLocalFile();
+      if (target.isEmpty()) return;
+      bool ok;
+      QString name = DialogUtils::getText(this, tr("Verknüpfungsname"),
+                                          tr("Name:"), tr("Link"), &ok);
+      if (!ok || name.isEmpty()) return;
+      auto *job = KIO::symlink(target,
+                               QUrl::fromLocalFile(dir + "/" + name),
+                               KIO::HideProgressInfo);
+      job->setUiDelegate(KIO::createDefaultJobUiDelegate(
+          KJobUiDelegate::AutoHandlingEnabled, this));
+    });
+    dlg->open();
   });
 
   // (Connections were already set up above)
 
+  hamburgerBtn->setMenu(hamburgerMenu);
+}
+
+
+// --- PaneWidget::initSearchPanel ---
+void PaneWidget::initSearchPanel(QVBoxLayout *rootLay) {
   // --- Such-Panel ---
   auto *searchPanel = new QWidget();
   searchPanel->setStyleSheet(TM().ssSearchPanel());
@@ -605,14 +636,14 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   spLay->setContentsMargins(6, 4, 6, 4);
   spLay->setSpacing(4);
 
-  auto *searchEdit = new QLineEdit();
-  searchEdit->setPlaceholderText(tr("Suchen ..."));
-  searchEdit->setStyleSheet(
+  m_searchEdit = new QLineEdit();
+  m_searchEdit->setPlaceholderText(tr("Suchen ..."));
+  m_searchEdit->setStyleSheet(
       QString("QLineEdit{background:%1;border:1px solid %2;color:%3;")
           .arg(TM().colors().bgMain, TM().colors().accent,
                TM().colors().textPrimary) +
       "font-size:11px;padding:2px 6px;border-radius:2px;}");
-  searchEdit->setClearButtonEnabled(true);
+  m_searchEdit->setClearButtonEnabled(true);
 
   auto *filterBtn = new QToolButton();
   filterBtn->setText(tr("Filtern"));
@@ -660,11 +691,12 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   searchCloseBtn->setIconSize(QSize(12, 12));
   searchCloseBtn->setFixedSize(20, 20);
   searchCloseBtn->setStyleSheet(
-      "QToolButton{background:transparent;border:none;color:#bf616a;border-"
-      "radius:10px;}"
-      "QToolButton:hover{background:#bf616a;color:#eceff4;}");
+      QString("QToolButton{background:transparent;border:none;color:%1;"
+              "border-radius:10px;}"
+              "QToolButton:hover{background:%1;color:%2;}")
+          .arg(TM().colors().accent, TM().colors().bgMain));
 
-  spLay->addWidget(searchEdit, 1);
+  spLay->addWidget(m_searchEdit, 1);
   spLay->addWidget(filterBtn);
   spLay->addWidget(searchCloseBtn);
   spVLay->addWidget(spTopRow);
@@ -706,19 +738,19 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   rootLay->addWidget(searchPanel);
 
   // --- Suchergebnis-Overlay ---
-  auto *searchOverlay = new QWidget(this);
-  searchOverlay->hide();
-  searchOverlay->setStyleSheet(
+  m_searchOverlay = new QWidget(this);
+  m_searchOverlay->hide();
+  m_searchOverlay->setStyleSheet(
       QString("background:%1;border:1px solid %2;border-top:none;")
           .arg(TM().colors().bgBox, TM().colors().separator));
-  auto *ovLay = new QVBoxLayout(searchOverlay);
+  auto *ovLay = new QVBoxLayout(m_searchOverlay);
   ovLay->setContentsMargins(1, 1, 1, 1);
   ovLay->setSpacing(0);
 
-  auto *searchResults = new QTreeWidget(searchOverlay);
-  searchResults->setHeaderLabels({tr("Name"), tr("Pfad"), tr("Geändert")});
-  searchResults->setRootIsDecorated(false);
-  searchResults->setStyleSheet(
+  m_searchResults = new QTreeWidget(m_searchOverlay);
+  m_searchResults->setHeaderLabels({tr("Name"), tr("Pfad"), tr("Geändert")});
+  m_searchResults->setRootIsDecorated(false);
+  m_searchResults->setStyleSheet(
       QString(
           "QTreeWidget{background:%1;border:none;color:%2;font-size:11px;"
           "outline:none;}"
@@ -750,53 +782,53 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
                TM().colors().separator, TM().colors().bgSelect,
                TM().colors().textLight, TM().colors().bgHover,
                TM().colors().bgPanel, TM().colors().textMuted));
-  searchResults->header()->setStretchLastSection(false);
-  searchResults->header()->setSectionResizeMode(0, QHeaderView::Stretch);
-  searchResults->header()->setSectionResizeMode(1,
+  m_searchResults->header()->setStretchLastSection(false);
+  m_searchResults->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+  m_searchResults->header()->setSectionResizeMode(1,
                                                 QHeaderView::ResizeToContents);
-  searchResults->header()->setSectionResizeMode(2,
+  m_searchResults->header()->setSectionResizeMode(2,
                                                 QHeaderView::ResizeToContents);
-  ovLay->addWidget(searchResults, 1);
+  ovLay->addWidget(m_searchResults, 1);
 
   // Suchpanel-Verbindungen
-  connect(searchBtn, &QToolButton::toggled, this,
-          [searchPanel, searchEdit, spTabRow, searchOverlay, this](bool on) {
+  connect(m_searchBtn, &QToolButton::toggled, this,
+          [searchPanel, spTabRow, this](bool on) {
             searchPanel->setVisible(on);
             if (on) {
-              searchEdit->clear();
-              searchEdit->setFocus();
+              m_searchEdit->clear();
+              m_searchEdit->setFocus();
             } else {
-              searchEdit->clear();
+              m_searchEdit->clear();
               m_filePane->setNameFilter(QString());
               spTabRow->hide();
-              searchOverlay->hide();
+              m_searchOverlay->hide();
             }
           });
-  connect(searchCloseBtn, &QToolButton::clicked, this, [searchBtn, this]() {
-    searchBtn->setChecked(false);
+  connect(searchCloseBtn, &QToolButton::clicked, this, [this]() {
+    m_searchBtn->setChecked(false);
     m_filePane->setNameFilter(QString());
   });
-  connect(searchEdit, &QLineEdit::textChanged, this,
+  connect(m_searchEdit, &QLineEdit::textChanged, this,
           [this, searchByName](const QString &text) {
             if (!*searchByName)
               return;
             m_filePane->setNameFilter(text);
           });
   connect(
-      searchEdit, &QLineEdit::returnPressed, this,
-      [this, searchEdit, searchResults, searchOverlay, spTabRow]() {
-        const QString term = searchEdit->text().trimmed();
+      m_searchEdit, &QLineEdit::returnPressed, this,
+      [this, spTabRow]() {
+        const QString term = m_searchEdit->text().trimmed();
         if (term.isEmpty())
           return;
-        searchResults->clear();
-        auto *loading = new QTreeWidgetItem(searchResults);
+        m_searchResults->clear();
+        auto *loading = new QTreeWidgetItem(m_searchResults);
         loading->setText(0, tr("Suche läuft..."));
 
         const QPoint topLeft = m_vSplit->mapTo(this, QPoint(0, 0));
-        searchOverlay->setGeometry(topLeft.x(), topLeft.y(), m_vSplit->width(),
+        m_searchOverlay->setGeometry(topLeft.x(), topLeft.y(), m_vSplit->width(),
                                    qMin(300, m_vSplit->height()));
-        searchOverlay->show();
-        searchOverlay->raise();
+        m_searchOverlay->show();
+        m_searchOverlay->raise();
         spTabRow->show();
 
         if (m_searchWatcher) {
@@ -812,7 +844,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
         auto *watcher = new QFutureWatcher<QStringList>(this);
         m_searchWatcher = watcher;
         connect(watcher, &QFutureWatcher<QStringList>::finished, this,
-                [this, watcher, searchResults]() {
+                [this, watcher]() {
                   if (watcher != m_searchWatcher) {
                     watcher->deleteLater();
                     return;
@@ -820,16 +852,16 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
                   m_searchWatcher = nullptr;
                   const QStringList paths = watcher->result();
                   watcher->deleteLater();
-                  searchResults->clear();
+                  m_searchResults->clear();
                   if (paths.isEmpty()) {
-                    auto *empty = new QTreeWidgetItem(searchResults);
+                    auto *empty = new QTreeWidgetItem(m_searchResults);
                     empty->setText(0, tr("Keine Ergebnisse"));
                     return;
                   }
                   for (const QString &path : paths) {
                     const QFileInfo fi(path);
                     const QUrl url = QUrl::fromLocalFile(path);
-                    auto *it = new QTreeWidgetItem(searchResults);
+                    auto *it = new QTreeWidgetItem(m_searchResults);
                     it->setIcon(0, QIcon::fromTheme(KIO::iconNameForUrl(url)));
                     it->setText(0, fi.fileName());
                     it->setText(1, QString("~/%1").arg(
@@ -837,8 +869,8 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
                     it->setText(2, fi.lastModified().toString("dd.MM.yy"));
                     it->setData(0, Qt::UserRole, path);
                   }
-                  if (searchResults->topLevelItemCount() == 0) {
-                    auto *empty = new QTreeWidgetItem(searchResults);
+                  if (m_searchResults->topLevelItemCount() == 0) {
+                    auto *empty = new QTreeWidgetItem(m_searchResults);
                     empty->setText(0, tr("Keine Ergebnisse"));
                   }
                 });
@@ -851,19 +883,24 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
         }));
       });
   connect(
-      searchResults, &QTreeWidget::itemClicked, this,
-      [this, searchBtn, searchOverlay, searchEdit](QTreeWidgetItem *it, int) {
+      m_searchResults, &QTreeWidget::itemClicked, this,
+      [this](QTreeWidgetItem *it, int) {
         const QString path = it->data(0, Qt::UserRole).toString();
         if (path.isEmpty())
           return;
-        searchEdit->clear();
+        m_searchEdit->clear();
         m_filePane->setNameFilter(QString());
         navigateTo(QFileInfo(path).isDir() ? path
                                            : QFileInfo(path).absolutePath());
-        searchOverlay->hide();
-        searchBtn->setChecked(false);
+        m_searchOverlay->hide();
+        m_searchBtn->setChecked(false);
       });
 
+}
+
+
+// --- PaneWidget::initSplitter ---
+void PaneWidget::initSplitter(QVBoxLayout *rootLay) {
   // --- Vertikaler Splitter ---
   m_vSplit = new QSplitter(Qt::Vertical);
   m_vSplit->setChildrenCollapsible(true);
@@ -976,6 +1013,11 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     }
   }
 
+}
+
+
+// --- PaneWidget::initConnections ---
+void PaneWidget::initConnections() {
   // Verbindungen
   connect(m_miller, &MillerArea::pathChanged, this,
           [this](const QString &path) { navigateTo(path, true, false); });
@@ -995,7 +1037,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   connect(m_miller, &MillerArea::focusRequested, this,
           &PaneWidget::focusRequested);
   connect(m_miller, &MillerArea::headerClicked, this,
-          [pathStack, this](const QString &path) {
+          [this](const QString &path) {
             emit focusRequested();
             if (path == "__drives__") {
               m_miller->navigateTo("__drives__");
@@ -1004,7 +1046,7 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
             } else {
               m_pathEdit->setText(currentPath());
               m_pathEdit->selectAll();
-              pathStack->setCurrentIndex(1);
+              m_pathStack->setCurrentIndex(1);
               m_pathEdit->setFocus();
             }
           });
@@ -1030,19 +1072,8 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
           });
 
   // Toolbar-Verbindungen
-  connect(m_toolbar, &PaneToolbar::newFolderClicked, this, [this]() {
-    bool ok;
-    QString name = DialogUtils::getText(
-        this, tr("Neuer Ordner"), tr("Ordnername:"), tr("Neuer Ordner"), &ok);
-    if (!ok || name.isEmpty())
-      return;
-    auto *job = KIO::mkdir(QUrl::fromLocalFile(currentPath() + "/" + name));
-    job->setUiDelegate(KIO::createDefaultJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
-    connect(job, &KJob::result, this, [this, job]() {
-      if (job->error())
-        DialogUtils::message(this, tr("Fehler"), tr("Ordner konnte nicht erstellt werden."));
-    });
-  });
+  connect(m_toolbar, &PaneToolbar::newFolderClicked, this,
+          [this]() { emit newFolderRequested(); });
   connect(m_toolbar, &PaneToolbar::deleteClicked, this, [this]() {
     emit filePane()->deleteRequested();
   });
@@ -1057,22 +1088,8 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     if (job->uiDelegate())
       job->uiDelegate()->setAutoErrorHandlingEnabled(true);
   });
-  connect(m_toolbar, &PaneToolbar::copyClicked, this, [this]() {
-    auto *mw = qobject_cast<MainWindow *>(window());
-    if (!mw)
-      return;
-    auto *src = mw->activePane()->filePane();
-    auto *dest =
-        (mw->activePane() == mw->leftPane()) ? mw->rightPane() : mw->leftPane();
-    const QList<QUrl> urls = src->selectedUrls();
-    if (urls.isEmpty() || dest->currentPath().isEmpty())
-      return;
-    auto *job = KIO::copy(urls, QUrl::fromLocalFile(dest->currentPath()),
-                          KIO::DefaultFlags);
-    job->uiDelegate()->setAutoErrorHandlingEnabled(true);
-    if (mw)
-      mw->registerJob(job, tr("Kopiere Dateien..."));
-  });
+  connect(m_toolbar, &PaneToolbar::copyClicked, this,
+          [this]() { emit copyToOtherPaneRequested(); });
 
   connect(m_toolbar, &PaneToolbar::sortClicked, this, [this]() {
     auto *hdr = m_filePane->view()->header();
@@ -1130,7 +1147,6 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   m_pathEdit->setText(home);
   m_toolbar->setPath(home);
   m_miller->init();
-  buildFooter(rootLay);
 }
 
 void PaneWidget::setFocused(bool f) {
@@ -1249,162 +1265,115 @@ void PaneWidget::positionFooterPanel() {
   m_footerBar->raise();
 }
 
-void PaneWidget::refreshFooter(const QString &path, int selectedCount) {
-  if (!m_footerCount)
-    return;
-  const QUrl url(path);
-  const bool isLocal = url.isLocalFile() || url.scheme().isEmpty();
-
-  m_lastPreviewPath = path;
-
-  // 1. Wenn der Pfad dem aktuellen Verzeichnis des Panes entspricht:
-  // Model-Daten nutzen
-  if (path == currentPath()) {
-    const int count =
-        m_filePane->view()->model()->rowCount(m_filePane->view()->rootIndex());
-    m_footerCount->setText(tr("%1 Elemente").arg(count));
-    m_footerSize->setText(QString());
-    if (m_footerSelected) {
-      if (selectedCount > 0) {
-        m_footerSelected->setText(tr("%1 ausgewählt").arg(selectedCount));
-        m_footerSelected->show();
-      } else {
-        m_footerSelected->hide();
-      }
-    }
-  } else if (isLocal) {
-    // 2. Metadaten für einzelne Datei/Ordner (Selection)
-    const QFileInfo fi(url.isLocalFile() ? url.toLocalFile() : path);
-    if (!fi.exists())
-      return;
-
-    if (fi.isDir()) {
-      m_footerCount->setText(tr("Ordner"));
-      m_footerSize->setText(tr("…"));
-      if (m_footerSelected)
-        m_footerSelected->hide();
-
-      auto *watcher = new QFutureWatcher<quint64>(this);
-      connect(
-          watcher, &QFutureWatcher<quint64>::finished, this, [this, watcher]() {
-            const quint64 sz = watcher->result();
-            watcher->deleteLater();
-            if (!m_footerSize)
-              return;
-            if (sz < 1024)
-              m_footerSize->setText(QString("%1 B").arg(sz));
-            else if (sz < 1024 * 1024)
-              m_footerSize->setText(QString("%1 KB").arg(sz / 1024));
-            else
-              m_footerSize->setText(QString("%1 MB").arg(sz / (1024 * 1024)));
-          });
-      watcher->setFuture(QtConcurrent::run([path]() -> quint64 {
-        quint64 total = 0;
-        QDirIterator it(path, QDir::Files, QDirIterator::Subdirectories);
-        while (it.hasNext()) {
-          it.next();
-          total += it.fileInfo().size();
-        }
-        return total;
-      }));
+void PaneWidget::refreshFooterForDirectory(int selectedCount) {
+  const int count = m_filePane->view()->model()->rowCount(m_filePane->view()->rootIndex());
+  m_footerCount->setText(tr("%1 Elemente").arg(count));
+  m_footerSize->setText(QString());
+  if (m_footerSelected) {
+    if (selectedCount > 0) {
+      m_footerSelected->setText(tr("%1 ausgewählt").arg(selectedCount));
+      m_footerSelected->show();
     } else {
-      m_footerCount->setText(fi.fileName());
-      m_footerSize->setText(QString(" | %1").arg(mw_fmtSize(fi.size())));
-      if (m_footerSelected) {
-        m_footerSelected->setText(tr("%1 ausgewählt").arg(qMax(1, selectedCount)));
-        m_footerSelected->show();
-      }
+      m_footerSelected->hide();
     }
+  }
+}
+
+void PaneWidget::refreshFooterForLocalPath(const QString &path) {
+  const QUrl url = QUrl::fromLocalFile(path);
+  const QFileInfo fi(path);
+  if (!fi.exists()) return;
+
+  if (fi.isDir()) {
+    m_footerCount->setText(tr("Ordner"));
+    m_footerSize->setText(tr("…"));
+    if (m_footerSelected) m_footerSelected->hide();
+
+    auto *watcher = new QFutureWatcher<quint64>(this);
+    connect(watcher, &QFutureWatcher<quint64>::finished, this, [this, watcher]() {
+      const quint64 sz = watcher->result();
+      watcher->deleteLater();
+      if (!m_footerSize) return;
+      m_footerSize->setText(QString(" | %1").arg(KFormat().formatByteSize(sz)));
+    });
+    watcher->setFuture(QtConcurrent::run([path]() -> quint64 {
+      quint64 total = 0;
+      QDirIterator it(path, QDir::Files, QDirIterator::Subdirectories);
+      while (it.hasNext()) { it.next(); total += it.fileInfo().size(); }
+      return total;
+    }));
   } else {
-    // KIO-Pfad: Basis-Informationen anzeigen
-    m_footerCount->setText(url.fileName().isEmpty() ? path : url.fileName());
-    m_footerSize->setText(QString());
+    m_footerCount->setText(fi.fileName());
+    m_footerSize->setText(QString(" | %1").arg(KFormat().formatByteSize(fi.size())));
+    if (m_footerSelected) {
+      m_footerSelected->show();
+    }
   }
 
-  // --- Vorschau-Bereich ---
-  if (!m_previewIcon || !m_previewInfo)
-    return;
-
+  if (!m_previewIcon || !m_previewInfo) return;
   const int footerH = m_footerBar ? m_footerBar->height() : 120;
   const int iconSize = qBound(32, footerH - 40, 300);
   m_previewIcon->setFixedSize(iconSize, iconSize);
 
-  if (isLocal) {
-    const QFileInfo fi(url.isLocalFile() ? url.toLocalFile() : path);
-    if (!fi.exists())
-      return;
-
-    static const QStringList IMG_EXT = {"jpg", "jpeg", "png",  "gif",
-                                        "bmp", "webp", "tiff", "tif",
-                                        "ico", "ppm",  "pgm"};
-    const QString ext = fi.suffix().toLower();
-    if (!fi.isDir() && IMG_EXT.contains(ext)) {
-      QPixmap px(path);
-      if (!px.isNull()) {
-        m_previewIcon->setPixmap(px.scaled(
-            iconSize, iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-      } else {
-        m_previewIcon->setPixmap(
-            QIcon::fromTheme(KIO::iconNameForUrl(url.isLocalFile() ? url : QUrl::fromLocalFile(path))).pixmap(iconSize, iconSize));
-      }
+  static const QStringList IMG_EXT = {"jpg","jpeg","png","gif","bmp","webp","tiff","tif","ico","ppm","pgm"};
+  const QString ext = fi.suffix().toLower();
+  if (!fi.isDir() && IMG_EXT.contains(ext)) {
+    QPixmap px(path);
+    if (!px.isNull()) {
+      m_previewIcon->setPixmap(px.scaled(iconSize, iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     } else {
-      m_previewIcon->setPixmap(
-          QIcon::fromTheme(KIO::iconNameForUrl(url.isLocalFile() ? url : QUrl::fromLocalFile(path))).pixmap(iconSize, iconSize));
+      m_previewIcon->setPixmap(QIcon::fromTheme(KIO::iconNameForUrl(url)).pixmap(iconSize, iconSize));
     }
-
-    QString info = QString("<table cellpadding='1' cellspacing='0' "
-                           "style='color:%1;font-size:11px;'>")
-                       .arg(TM().colors().textPrimary);
-    auto addRow = [&info](const QString &label, const QString &val) {
-      info +=
-          QString(
-              "<tr><td style='padding-right:20px;white-space:nowrap;'>%1</td>"
-              "<td style='white-space:nowrap;'>%2</td></tr>")
-              .arg(label, val);
-    };
-
-    addRow(tr("Name"), fi.fileName().toHtmlEscaped());
-    addRow(tr("Typ"), fi.isDir() ? tr("Ordner")
-                  : fi.suffix().isEmpty()
-                      ? tr("Datei")
-                      : fi.suffix().toUpper() + tr("-Datei"));
-    addRow(tr("Erstellt"), fi.birthTime().toString("yyyy-MM-dd  hh:mm"));
-    addRow(tr("Geändert"), fi.lastModified().toString("yyyy-MM-dd  hh:mm"));
-
-    const qint64 days = fi.lastModified().daysTo(QDateTime::currentDateTime());
-    addRow(tr("Alter"), days == 0    ? tr("Heute")
-                    : days == 1  ? tr("Gestern")
-                    : days < 30  ? tr("%1 t").arg(days)
-                    : days < 365 ? tr("%1 m").arg(days / 30)
-                                 : tr("%1 j").arg(days / 365));
-
-    if (!fi.isDir()) {
-      addRow(tr("Größe:"), mw_fmtSize(fi.size()));
-    }
-
-    const QFile::Permissions p = fi.permissions();
-    QString perm;
-    perm += fi.isDir() ? "d" : "-";
-    perm += (p & QFile::ReadOwner) ? "r" : "-";
-    perm += (p & QFile::WriteOwner) ? "w" : "-";
-    perm += (p & QFile::ExeOwner) ? "x" : "-";
-    perm += (p & QFile::ReadGroup) ? "r" : "-";
-    perm += (p & QFile::WriteGroup) ? "w" : "-";
-    perm += (p & QFile::ExeGroup) ? "x" : "-";
-    perm += (p & QFile::ReadOther) ? "r" : "-";
-    perm += (p & QFile::WriteOther) ? "w" : "-";
-    perm += (p & QFile::ExeOther) ? "x" : "-";
-    addRow(tr("Attribute"), perm);
-
-    info += "</table>";
-    m_previewInfo->setText(info);
   } else {
-    // KIO-Vorschau: Nur Icon und Basis-Info
-    m_previewIcon->setPixmap(
-        QIcon::fromTheme(KFileItem(url).isDir() ? "folder" : "text-x-generic")
-            .pixmap(iconSize, iconSize));
-    m_previewInfo->setText(
-        QString("<b>%1</b><br>%2").arg(url.fileName(), url.scheme()));
+    m_previewIcon->setPixmap(QIcon::fromTheme(KIO::iconNameForUrl(url)).pixmap(iconSize, iconSize));
+  }
+
+  QString info = QString("<table cellpadding='1' cellspacing='0' style='color:%1;font-size:11px;'>").arg(TM().colors().textPrimary);
+  auto addRow = [&info](const QString &label, const QString &val) {
+    info += QString("<tr><td style='padding-right:20px;white-space:nowrap;'>%1</td><td style='white-space:nowrap;'>%2</td></tr>").arg(label, val);
+  };
+  addRow(tr("Name"), fi.fileName().toHtmlEscaped());
+  addRow(tr("Typ"), fi.isDir() ? tr("Ordner") : fi.suffix().isEmpty() ? tr("Datei") : fi.suffix().toUpper() + tr("-Datei"));
+  addRow(tr("Erstellt"), fi.birthTime().toString("yyyy-MM-dd  hh:mm"));
+  addRow(tr("Geändert"), fi.lastModified().toString("yyyy-MM-dd  hh:mm"));
+  const qint64 days = fi.lastModified().daysTo(QDateTime::currentDateTime());
+  addRow(tr("Alter"), days == 0 ? tr("Heute") : days == 1 ? tr("Gestern") : days < 30 ? tr("%1 t").arg(days) : days < 365 ? tr("%1 m").arg(days/30) : tr("%1 j").arg(days/365));
+  if (!fi.isDir()) addRow(tr("Größe:"), KFormat().formatByteSize(fi.size()));
+
+  const QFile::Permissions p = fi.permissions();
+  QString perm;
+  perm += fi.isDir() ? "d" : "-";
+  perm += (p & QFile::ReadOwner)  ? "r" : "-"; perm += (p & QFile::WriteOwner) ? "w" : "-"; perm += (p & QFile::ExeOwner) ? "x" : "-";
+  perm += (p & QFile::ReadGroup)  ? "r" : "-"; perm += (p & QFile::WriteGroup) ? "w" : "-"; perm += (p & QFile::ExeGroup) ? "x" : "-";
+  perm += (p & QFile::ReadOther)  ? "r" : "-"; perm += (p & QFile::WriteOther) ? "w" : "-"; perm += (p & QFile::ExeOther) ? "x" : "-";
+  addRow(tr("Attribute"), perm);
+  info += "</table>";
+  m_previewInfo->setText(info);
+}
+
+void PaneWidget::refreshFooterForRemotePath(const QString &path, const QUrl &url) {
+  m_footerCount->setText(url.fileName().isEmpty() ? path : url.fileName());
+  m_footerSize->setText(QString());
+  if (!m_previewIcon || !m_previewInfo) return;
+  const int footerH = m_footerBar ? m_footerBar->height() : 120;
+  const int iconSize = qBound(32, footerH - 40, 300);
+  m_previewIcon->setFixedSize(iconSize, iconSize);
+  m_previewIcon->setPixmap(QIcon::fromTheme(KFileItem(url).isDir() ? "folder" : "text-x-generic").pixmap(iconSize, iconSize));
+  m_previewInfo->setText(QString("<b>%1</b><br>%2").arg(url.fileName(), url.scheme()));
+}
+
+void PaneWidget::refreshFooter(const QString &path, int selectedCount) {
+  if (!m_footerCount) return;
+  const QUrl url(path);
+  const bool isLocal = url.isLocalFile() || url.scheme().isEmpty();
+  m_lastPreviewPath = path;
+
+  if (path == currentPath()) {
+    refreshFooterForDirectory(selectedCount);
+  } else if (isLocal) {
+    refreshFooterForLocalPath(path);
+  } else {
+    refreshFooterForRemotePath(path, url);
   }
 }
 
@@ -1414,6 +1383,33 @@ bool PaneWidget::eventFilter(QObject *obj, QEvent *ev) {
 
 QList<QUrl> PaneWidget::selectedUrls() const {
   return m_filePane->selectedUrls();
+}
+
+void PaneWidget::setActionCollection(KActionCollection *ac) {
+  m_actionCollection = ac;
+  if (m_filePane)
+    m_filePane->setActionCollection(ac);
+}
+
+void PaneWidget::setMillerVisible(bool visible) {
+  if (m_millerToggle)
+    m_millerToggle->setChecked(visible);
+}
+
+void PaneWidget::setViewMode(int mode) {
+  m_toolbar->setViewMode(mode);
+  m_filePane->setViewMode(mode);
+}
+
+void PaneWidget::saveState() const {
+  if (m_settingsKey.isEmpty() || !m_vSplit)
+    return;
+  auto s = Config::group("UI");
+  if (!m_millerCollapsed)
+    s.writeEntry(m_settingsKey + "/vSplitState", m_vSplit->saveState());
+  s.writeEntry(m_settingsKey + "/millerCollapsed", m_millerCollapsed);
+  s.writeEntry(m_settingsKey + "/currentPath", currentPath());
+  s.config()->sync();
 }
 
 void PaneWidget::resizeEvent(QResizeEvent *e) {

@@ -13,12 +13,12 @@
 #include <KFileItem>
 #include <KIO/FileSystemFreeSpaceJob>
 #include <KIO/Global>
+#include <KIO/OpenUrlJob>
+#include <KIO/JobUiDelegateFactory>
 #include <KTerminalLauncherJob>
 #include <KDialogJobUiDelegate>
 #include <QDir>
 #include <QFileInfo>
-#include <QGuiApplication>
-#include <QMenu>
 #include <QPointer>
 #include <QStorageInfo>
 #include <Solid/Device>
@@ -67,6 +67,7 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
                                    QIcon::fromTheme(QStringLiteral("folder"))),
                   item.name(), item.isDir());
               it->setData(Qt::UserRole, item.url().toString());
+              it->setData(Qt::UserRole + 3, item.isDir());
               m_list->addItem(it);
             }
           });
@@ -315,15 +316,12 @@ void MillerColumn::populateDrives() {
   m_header->setText(tr("Dieser PC"));
   m_header->setIcon(QIcon::fromTheme("computer"));
 
-  // Cache Speicherdaten vor dem Leeren
   QHash<QString, QPair<double,double>> freeSpaceCache;
   for (int i = 0; i < m_list->count(); ++i) {
     QListWidgetItem *it = m_list->item(i);
     const double total = it->data(Qt::UserRole + 10).toDouble();
-    if (total > 0) {
-      freeSpaceCache.insert(it->data(Qt::UserRole).toString(),
-                            {total, it->data(Qt::UserRole + 11).toDouble()});
-    }
+    if (total > 0)
+      freeSpaceCache.insert(it->data(Qt::UserRole).toString(), {total, it->data(Qt::UserRole + 11).toDouble()});
   }
 
   m_list->clear();
@@ -333,9 +331,10 @@ void MillerColumn::populateDrives() {
   m_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   m_list->verticalScrollBar()->hide();
 
-  // --- Eingehängte Laufwerke ---
   QSet<QString> shownUdis;
   QSet<QString> shownPaths;
+
+  // --- Eingehängte Laufwerke ---
   for (const Solid::Device &dev :
        Solid::Device::listFromType(Solid::DeviceInterface::StorageAccess)) {
     const auto *acc = dev.as<Solid::StorageAccess>();
@@ -401,6 +400,7 @@ void MillerColumn::populateDrives() {
     it->setData(Qt::UserRole, mounted ? p : QString("solid:") + dev.udi());
     it->setData(Qt::UserRole + 1, dev.udi());
     it->setSizeHint(QSize(0, SC_MILLER_DRIVE_ROW_H));
+    it->setData(Qt::UserRole + 3, true); // Laufwerke sind immer navigierbar
 
     if (mounted && !p.isEmpty()) {
       QStorageInfo info(p);
@@ -414,6 +414,7 @@ void MillerColumn::populateDrives() {
       it->setForeground(QColor(TM().colors().textMuted));
     }
   }
+
 
   // --- Nicht gemountete Block-Geräte ---
   const auto vdevices = Solid::Device::listFromType(Solid::DeviceInterface::StorageVolume);
@@ -454,6 +455,7 @@ void MillerColumn::populateDrives() {
     it->setData(Qt::UserRole, QString(QStringLiteral("solid:") + device.udi()));
     it->setData(Qt::UserRole + 1, device.udi());
     it->setSizeHint(QSize(0, SC_MILLER_DRIVE_ROW_H));
+    it->setData(Qt::UserRole + 3, true); // Laufwerke sind immer navigierbar
     it->setForeground(QColor(TM().colors().textMuted));
   }
 
@@ -487,6 +489,7 @@ void MillerColumn::populateDrives() {
     it->setData(Qt::UserRole, path);
     it->setData(Qt::UserRole + 1, fs);
     it->setSizeHint(QSize(0, SC_MILLER_DRIVE_ROW_H));
+    it->setData(Qt::UserRole + 3, true); // Laufwerke sind immer navigierbar
   }
 
   // --- Gespeicherte Netzwerkplätze (NetworkPlaces) ---
@@ -526,6 +529,7 @@ void MillerColumn::populateDrives() {
       it->setData(Qt::UserRole, url);
       it->setData(Qt::UserRole + 1, scheme);
       it->setSizeHint(QSize(0, SC_MILLER_DRIVE_ROW_H));
+    it->setData(Qt::UserRole + 3, true); // Laufwerke sind immer navigierbar
 
       // Cache wiederverwenden oder neuen Job starten
       if (freeSpaceCache.contains(url)) {
@@ -556,6 +560,7 @@ void MillerColumn::populateDrives() {
     }
   }
 }
+
 void MillerColumn::populateDir(const QString &path) {
   m_path = path;
   QUrl url(path);
@@ -719,20 +724,40 @@ void MillerArea::init() {
   m_activeCol = col;
 
   connect(col, &MillerColumn::entryClicked, this,
-          [this](const QString &path, MillerColumn *src) {
+          [this, col](const QString &path, MillerColumn *src) {
             emit focusRequested();
             trimAfter(src);
             for (auto *c : m_cols)
               c->setActive(false);
             src->setActive(true);
             m_activeCol = src;
-            // Bei Laufwerken immer als Ordner behandeln
             QString p = path;
             if ((p.startsWith("gdrive:") || p.startsWith("mtp:")) &&
                 !p.endsWith("/"))
               p += "/";
-            appendColumn(p);
-            emit pathChanged(p);
+
+            // isDir aus dem Item lesen (gespeichert in UserRole+3)
+            bool itemIsDir = false;
+            for (int i = 0; i < col->list()->count(); ++i) {
+              if (col->list()->item(i)->data(Qt::UserRole).toString() == path) {
+                itemIsDir = col->list()->item(i)->data(Qt::UserRole + 3).toBool();
+                break;
+              }
+            }
+            const QUrl u = QUrl::fromUserInput(p);
+            const QString sch = u.scheme();
+            const bool isKioDir = (sch == "gdrive" || sch == "mtp" ||
+                sch == "smb" || sch == "sftp" || sch == "ftp" || sch == "remote");
+
+            if (isKioDir || itemIsDir) {
+              appendColumn(p);
+              emit pathChanged(p);
+            } else {
+              auto *job = new KIO::OpenUrlJob(u);
+              job->setUiDelegate(KIO::createDefaultJobUiDelegate(
+                  KJobUiDelegate::AutoHandlingEnabled, nullptr));
+              job->start();
+            }
           });
   connect(col, &MillerColumn::activated, this, [this](MillerColumn *src) {
     emit focusRequested();
@@ -786,29 +811,41 @@ void MillerArea::appendColumn(const QString &path) {
   m_cols.append(col);
 
   connect(col, &MillerColumn::entryClicked, this,
-          [this](const QString &p2, MillerColumn *src) {
+          [this, col](const QString &p2, MillerColumn *src) {
             emit focusRequested();
             trimAfter(src);
             for (auto *c : m_cols)
               c->setActive(false);
             src->setActive(true);
             m_activeCol = src;
-            // Wenn es ein Ordner ist: neue Spalte öffnen. Wenn Datei: nur
-            // signalisieren.
-            QUrl u2(p2);
-            if (u2.scheme().isEmpty())
-              u2 = QUrl::fromUserInput(p2);
+
+            QUrl u2 = QUrl::fromUserInput(p2);
             const QString sch2 = u2.scheme();
             const bool isKioDir =
                 (sch2 == "gdrive" || sch2 == "mtp" || sch2 == "smb" ||
                  sch2 == "sftp" || sch2 == "ftp" || sch2 == "remote");
-            if (isKioDir || KFileItem(u2).isDir()) {
+
+            // isDir aus UserRole+3 lesen
+            bool itemIsDir = false;
+            for (int i = 0; i < col->list()->count(); ++i) {
+              if (col->list()->item(i)->data(Qt::UserRole).toString() == p2) {
+                itemIsDir = col->list()->item(i)->data(Qt::UserRole + 3).toBool();
+                break;
+              }
+            }
+
+            if (isKioDir || itemIsDir) {
               QString nav = p2;
               if (isKioDir && !nav.endsWith("/"))
                 nav += "/";
               appendColumn(nav);
+              emit pathChanged(p2);
+            } else {
+              auto *job = new KIO::OpenUrlJob(u2);
+              job->setUiDelegate(KIO::createDefaultJobUiDelegate(
+                  KJobUiDelegate::AutoHandlingEnabled, nullptr));
+              job->start();
             }
-            emit pathChanged(p2);
           });
   connect(col, &MillerColumn::activated, this, [this](MillerColumn *src) {
     emit focusRequested();
@@ -848,7 +885,6 @@ void MillerArea::trimAfter(MillerColumn *col) {
   updateVisibleColumns();
 }
 
-void MillerArea::redistributeWidths() {}
 void MillerArea::resizeEvent(QResizeEvent *e) { QWidget::resizeEvent(e); }
 
 QString MillerArea::activePath() const {

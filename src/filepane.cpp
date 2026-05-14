@@ -1,16 +1,15 @@
 #include "filepane.h"
 #include <QApplication>
 #include <KActionCollection>
+#include <KFormat>
 #include <QPointer>
 #include "config.h"
-#include "mainwindow.h"
 #include "tagmanager.h"
 #include "thememanager.h"
 #include <KJob>
 
 #include <QAction>
 #include <QColor>
-#include <QGraphicsDropShadowEffect>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -32,7 +31,6 @@
 #include <QTimer>
 
 #include <QClipboard>
-#include <QDebug>
 #include <KIO/OpenUrlJob>
 #include <KDesktopFile>
 #include <QFile>
@@ -78,20 +76,44 @@ class SCRemoveAction : public QAction
 public:
   enum class ShiftState { Unknown, Pressed, Released };
 
-  SCRemoveAction(KActionCollection *collection, QObject *parent)
-    : QAction(parent), m_collection(collection)
-  {
-    update();
+  SCRemoveAction(KActionCollection *collection, QMenu *menu)
+      : QAction(menu), m_collection(collection), m_menu(menu) {
     connect(this, &QAction::triggered, this, [this]() {
-      if (m_action) m_action->trigger();
+      if (m_action)
+        m_action->trigger();
     });
+    if (m_menu)
+      m_menu->installEventFilter(this);
+    if (auto *app = QGuiApplication::instance())
+      app->installEventFilter(this);
+    m_shiftPressed = QGuiApplication::queryKeyboardModifiers() & Qt::ShiftModifier;
+    update(m_shiftPressed ? ShiftState::Pressed : ShiftState::Released);
+  }
+
+  ~SCRemoveAction() override {
+    if (m_menu)
+      m_menu->removeEventFilter(this);
+    if (auto *app = QGuiApplication::instance())
+      app->removeEventFilter(this);
+  }
+
+  bool eventFilter(QObject *obj, QEvent *event) override {
+    if (event->type() == QEvent::KeyPress ||
+        event->type() == QEvent::KeyRelease) {
+      auto *ke = static_cast<QKeyEvent *>(event);
+      if (ke->key() == Qt::Key_Shift && !ke->isAutoRepeat()) {
+        m_shiftPressed = (event->type() == QEvent::KeyPress);
+        update(m_shiftPressed ? ShiftState::Pressed : ShiftState::Released);
+      }
+    }
+    return QObject::eventFilter(obj, event);
   }
 
   void update(ShiftState state = ShiftState::Unknown) {
-    if (!m_collection) return;
+    if (!m_collection)
+      return;
     if (state == ShiftState::Unknown) {
-      state = (QGuiApplication::keyboardModifiers() & Qt::ShiftModifier)
-          ? ShiftState::Pressed : ShiftState::Released;
+      state = m_shiftPressed ? ShiftState::Pressed : ShiftState::Released;
     }
     if (state == ShiftState::Pressed) {
       m_action = m_collection->action(QStringLiteral("file_delete"));
@@ -102,17 +124,19 @@ public:
       setText(m_action->text());
       setIcon(m_action->icon());
       setEnabled(m_action->isEnabled());
-      // Shortcut anzeigen wie Dolphin
-      if (state == ShiftState::Pressed)
-        setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Delete));
-      else
-        setShortcut(QKeySequence(Qt::Key_Delete));
+      setShortcut(state == ShiftState::Pressed
+                      ? QKeySequence(Qt::SHIFT | Qt::Key_Delete)
+                      : QKeySequence(Qt::Key_Delete));
+      if (m_menu)
+        m_menu->update();
     }
   }
 
 private:
   QPointer<KActionCollection> m_collection;
   QPointer<QAction> m_action;
+  QPointer<QMenu> m_menu;
+  bool m_shiftPressed = false;
 };
 
 // Hilfsfunktion: FPColumnsProxy-Index -> KFileItem
@@ -203,42 +227,6 @@ protected:
 
 private:
   bool m_dragAllowed = false;
-};
-
-// --- ShiftMenuFilter: Aktualisiert Lösch-Aktion bei Shift-Tastendruck ---
-class ShiftMenuFilter : public QObject {
-public:
-  ShiftMenuFilter(QAction *act, QObject *parent)
-      : QObject(parent), m_action(act) {}
-
-  bool eventFilter(QObject *obj, QEvent *event) override {
-    if (event->type() == QEvent::KeyPress ||
-        event->type() == QEvent::KeyRelease) {
-      auto *ke = static_cast<QKeyEvent *>(event);
-      if (ke->key() == Qt::Key_Shift) {
-        updateAction();
-      }
-    }
-    return QObject::eventFilter(obj, event);
-  }
-
-  void updateAction() {
-    if (!m_action)
-      return;
-    bool shift = QGuiApplication::queryKeyboardModifiers() & Qt::ShiftModifier;
-    if (shift) {
-      m_action->setText(QObject::tr("Löschen"));
-      m_action->setIcon(QIcon::fromTheme(QStringLiteral("edit-delete")));
-      m_action->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Delete));
-    } else {
-      m_action->setText(QObject::tr("In den Papierkorb verschieben"));
-      m_action->setIcon(QIcon::fromTheme(QStringLiteral("user-trash")));
-      m_action->setShortcut(QKeySequence(Qt::Key_Delete));
-    }
-  }
-
-private:
-  QAction *m_action;
 };
 
 #include "scglobal.h"
@@ -620,7 +608,7 @@ QVariant FPColumnsProxy::data(const QModelIndex &index, int role) const {
                 .count());
       return {};
     }
-    return mw_fmtSize(item.size());
+    return KFormat().formatByteSize(item.size());
   }
   if (col == FP_GROESSE && role == Qt::UserRole)
     return (qint64)item.size();
@@ -660,192 +648,6 @@ QVariant FPColumnsProxy::headerData(int section, Qt::Orientation orientation,
 
 // --- Delegate ---
 
-FilePaneDelegate::FilePaneDelegate(QObject *par) : QStyledItemDelegate(par) {}
-
-// Delegate für Kompakt/Symbole — holt Icon direkt in der gewünschten Größe
-class ScaledIconDelegate : public QStyledItemDelegate {
-public:
-  explicit ScaledIconDelegate(QObject *p = nullptr) : QStyledItemDelegate(p) {}
-  void initStyleOption(QStyleOptionViewItem *opt,
-                       const QModelIndex &idx) const override {
-    QStyledItemDelegate::initStyleOption(opt, idx);
-    QIcon ico = qvariant_cast<QIcon>(idx.data(Qt::DecorationRole));
-    if (!ico.isNull()) {
-      int sz = opt->decorationSize.width();
-      // Direkt in der Zielgröße holen — kein Skalieren
-      QPixmap pm = ico.pixmap(QSize(sz, sz));
-      if (!pm.isNull())
-        opt->icon = QIcon(pm);
-    }
-  }
-};
-
-QString FilePaneDelegate::formatAge(qint64 s) {
-  if (s < 0)
-    return {};
-  if (s < 60)
-    return QString("%1s").arg(s);
-  if (s < 3600)
-    return QString("%1m").arg(s / 60);
-  if (s < 86400)
-    return QString("%1h").arg(s / 3600);
-  if (s < 86400 * 30)
-    return QString("%1t").arg(s / 86400);
-  if (s < 86400 * 365)
-    return QString("%1M").arg(s / 86400 / 30);
-  return QString("%1J").arg(s / 86400 / 365);
-}
-
-QColor FilePaneDelegate::ageColor(qint64 s) {
-  if (s < 3600)
-    return Config::ageBadgeColor(0);
-  if (s < 86400)
-    return Config::ageBadgeColor(1);
-  if (s < 86400 * 7)
-    return Config::ageBadgeColor(2);
-  if (s < 86400 * 30)
-    return Config::ageBadgeColor(3);
-  if (s < 86400 * 365)
-    return Config::ageBadgeColor(4);
-  return Config::ageBadgeColor(5);
-}
-
-void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
-                             const QModelIndex &idx) const {
-  QStyleOptionViewItem o = opt;
-  initStyleOption(&o, idx);
-
-  bool sel = o.state & QStyle::State_Selected;
-  bool hov = o.state & QStyle::State_MouseOver;
-
-  QColor bg, bgAlt;
-  if (focused) {
-    bg = QColor(TM().colors().bgList);
-    bgAlt = QColor(TM().colors().bgAlternate);
-  } else {
-    bg = QColor(TM().colors().bgDeep);
-    bgAlt = QColor(TM().colors().bgBox);
-  }
-
-  QColor bgFinal = sel   ? QColor(TM().colors().bgSelect)
-                   : hov ? QColor(TM().colors().bgHover)
-                         : (idx.row() % 2 ? bgAlt : bg);
-  p->fillRect(o.rect, bgFinal);
-
-  int col = idx.data(Qt::UserRole + 99).toInt();
-  QRect r = o.rect.adjusted(4, 0, -4, 0);
-  QFont f = o.font;
-  f.setPointSize(fontSize);
-  p->setFont(f);
-
-  QColor tc = (sel || hov) ? QColor(TM().colors().textLight)
-                           : QColor(TM().colors().textPrimary);
-  QColor dc = (sel || hov) ? QColor(TM().colors().textLight)
-                           : QColor(TM().colors().textMuted);
-
-  if (col == FP_NAME) {
-    // New-File-Indicator
-    if (Config::showNewIndicator()) {
-
-      qint64 ageSecs = idx.data(Qt::UserRole + 2).toLongLong();
-      if (ageSecs > 0 && ageSecs < 86400 * 2) {
-        QRect strip(o.rect.left(), o.rect.top(), 3, o.rect.height());
-        p->fillRect(strip, ageColor(ageSecs));
-      }
-    }
-    QIcon icon = qvariant_cast<QIcon>(idx.data(Qt::DecorationRole));
-    const int ic = qBound(12, rowHeight - 6, 48);
-    if (!icon.isNull()) {
-      QPixmap pm = icon.pixmap(QSize(32, 32));
-      if (pm.isNull())
-        pm = icon.pixmap(QSize(16, 16));
-      if (!pm.isNull())
-        p->drawPixmap(
-            r.left(), r.top() + (r.height() - ic) / 2,
-            pm.scaled(ic, ic, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    }
-    r.setLeft(r.left() + ic + 4);
-    p->setPen(tc);
-    p->drawText(r, Qt::AlignVCenter | Qt::AlignLeft,
-                o.fontMetrics.elidedText(idx.data().toString(), Qt::ElideRight,
-                                         r.width()));
-
-  } else if (col == FP_ALTER) {
-    qint64 secs = idx.data(Qt::UserRole).toLongLong();
-    if (secs < 0)
-      return;
-    QString age = formatAge(secs);
-    QColor bc = ageColor(secs);
-
-    const int BW = 44, BH = 14;
-    QRect br(r.left() + (r.width() - BW) / 2, r.top() + (r.height() - BH) / 2,
-             BW, BH);
-
-    p->setRenderHint(QPainter::Antialiasing, false);
-    p->setRenderHint(QPainter::TextAntialiasing, true);
-    p->setBrush(bc);
-    p->setPen(Qt::NoPen);
-    p->drawRect(br);
-
-    QColor textCol =
-        (bc.lightness() > 140) ? QColor(0, 0, 0) : QColor(255, 255, 255);
-    p->setPen(textCol);
-    QFont fb = f;
-    fb.setBold(false);
-    fb.setPointSizeF(7.5);
-    fb.setHintingPreference(QFont::PreferFullHinting);
-    p->setFont(fb);
-    p->drawText(br, Qt::AlignCenter, age);
-    p->setFont(f);
-
-  } else if (col == FP_TAGS) {
-    QString tagName = idx.data().toString();
-    if (!tagName.isEmpty()) {
-      QString colorStr = TagManager::instance().tagColor(tagName);
-      QColor tagCol =
-          colorStr.isEmpty() ? QColor(TM().colors().accent) : QColor(colorStr);
-      int textW = o.fontMetrics.horizontalAdvance(tagName);
-      int BW = qMin(textW + 12, r.width()), BH = 16;
-      QRect br(r.left() + (r.width() - BW) / 2, r.top() + (r.height() - BH) / 2,
-               BW, BH);
-
-      p->setRenderHint(QPainter::Antialiasing, false);
-      p->setBrush(tagCol.darker(180));
-      p->setPen(QPen(tagCol, 1));
-      p->drawRect(br);
-
-      QFont fb = f;
-      fb.setBold(false);
-      fb.setPointSizeF(7.5);
-      fb.setHintingPreference(QFont::PreferFullHinting);
-      p->setFont(fb);
-      p->setPen(QColor(255, 255, 255));
-      p->drawText(br, Qt::AlignCenter,
-                  o.fontMetrics.elidedText(tagName, Qt::ElideRight, BW - 6));
-      p->setFont(f);
-    }
-  } else {
-    p->setPen(col == FP_GROESSE ? tc : dc);
-    if (col == FP_RECHTE) {
-      QFont fm = f;
-      fm.setFamily(QStringLiteral("monospace"));
-      fm.setPointSize(9);
-      p->setFont(fm);
-    }
-    p->drawText(r, Qt::AlignVCenter | Qt::AlignHCenter,
-                o.fontMetrics.elidedText(idx.data().toString(), Qt::ElideRight,
-                                         r.width()));
-    p->setFont(f);
-  }
-
-  p->setPen(QColor(TM().colors().bgHover));
-  p->drawLine(o.rect.bottomLeft(), o.rect.bottomRight());
-}
-
-QSize FilePaneDelegate::sizeHint(const QStyleOptionViewItem &,
-                                 const QModelIndex &) const {
-  return QSize(0, rowHeight);
-}
 
 // --- FilePane::setupColumns ---
 void FilePane::setupColumns() {
@@ -872,15 +674,22 @@ void FilePane::setupColumns() {
 // --- FilePane Konstruktor ---
 FilePane::FilePane(QWidget *parent, const QString &settingsKey)
     : QWidget(parent) {
-  m_settingsKey =
-      QStringLiteral("FilePane/") + settingsKey + QStringLiteral("/");
+  m_settingsKey = QStringLiteral("FilePane/") + settingsKey + QStringLiteral("/");
   auto *lay = new QVBoxLayout(this);
   lay->setContentsMargins(0, 0, 0, 0);
 
   m_stack = new QStackedWidget(this);
   lay->addWidget(m_stack);
 
-  // --- KDE Model Stack ---
+  setupModel();
+  setupView();
+  setupConnections();
+  setRootPath(QDir::homePath());
+}
+
+
+// --- FilePane::setupModel ---
+void FilePane::setupModel() {
   m_lister = new KDirLister(this);
   m_lister->setAutoUpdate(true);
   m_lister->setMainWindow(window());
@@ -909,7 +718,11 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey)
   connect(m_proxy, &QAbstractItemModel::layoutChanged, this,
           &FilePane::modelUpdated);
 
-  // --- TreeView ---
+}
+
+
+// --- FilePane::setupView ---
+void FilePane::setupView() {
   m_view = new SCTreeView(this);
   m_view->setRootIsDecorated(false);
   m_view->setItemsExpandable(false);
@@ -988,10 +801,10 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey)
           "QScrollBar:vertical{background:transparent;width:0px;margin:0px;"
           "border:none;}"
           "QTreeView "
-          "QScrollBar::handle:vertical{background:rgba(136,192,208,40);border-"
+          "QScrollBar::handle:vertical{background:%8;border-"
           "radius:5px;min-height:20px;margin:2px;}"
           "QTreeView "
-          "QScrollBar::handle:vertical:hover{background:rgba(136,192,208,100);}"
+          "QScrollBar::handle:vertical:hover{background:%9;}"
           "QTreeView QScrollBar::add-line:vertical,QTreeView "
           "QScrollBar::sub-line:vertical{height:0px;}"
           "QTreeView QScrollBar::add-page:vertical,QTreeView "
@@ -1002,21 +815,20 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey)
           .arg(TM().colors().bgList, TM().colors().textPrimary,
                TM().colors().bgHover, TM().colors().bgSelect,
                TM().colors().textLight, TM().colors().bgBox,
-               TM().colors().textAccent));
+               TM().colors().textAccent,
+               TM().colors().separator, TM().colors().accent));
   m_view->viewport()->setStyleSheet("background:transparent;");
   m_view->viewport()->setAttribute(Qt::WA_TranslucentBackground);
 
   // --- Overlay Scrollbars ---
   m_overlayBar = new QScrollBar(Qt::Vertical, this);
   m_overlayBar->setStyleSheet(
-      "QScrollBar:vertical{background:transparent;width:8px;margin:0px;border:"
-      "none;}"
-      "QScrollBar::handle:vertical{background:rgba(136,192,208,60);border-"
-      "radius:4px;min-height:20px;margin:1px;}"
-      "QScrollBar::handle:vertical:hover{background:rgba(136,192,208,140);}"
-      "QScrollBar::add-line:vertical,QScrollBar::sub-line:vertical{height:0px;}"
-      "QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical{background:"
-      "transparent;}");
+      QString("QScrollBar:vertical{background:transparent;width:8px;margin:0px;border:none;}"
+              "QScrollBar::handle:vertical{background:%1;border-radius:4px;min-height:20px;margin:1px;}"
+              "QScrollBar::handle:vertical:hover{background:%2;}"
+              "QScrollBar::add-line:vertical,QScrollBar::sub-line:vertical{height:0px;}"
+              "QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical{background:transparent;}")
+          .arg(TM().colors().separator, TM().colors().accent));
   m_overlayBar->hide();
   m_overlayBar->raise();
   auto *native = m_view->verticalScrollBar();
@@ -1031,15 +843,12 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey)
 
   m_overlayHBar = new QScrollBar(Qt::Horizontal, this);
   m_overlayHBar->setStyleSheet(
-      "QScrollBar:horizontal{background:transparent;height:6px;margin:0px;"
-      "border:none;}"
-      "QScrollBar::handle:horizontal{background:rgba(136,192,208,80);border-"
-      "radius:3px;min-width:20px;margin:1px;}"
-      "QScrollBar::handle:horizontal:hover{background:rgba(136,192,208,160);}"
-      "QScrollBar::add-line:horizontal,QScrollBar::sub-line:horizontal{width:"
-      "0px;}"
-      "QScrollBar::add-page:horizontal,QScrollBar::sub-page:horizontal{"
-      "background:transparent;}");
+      QString("QScrollBar:horizontal{background:transparent;height:6px;margin:0px;border:none;}"
+              "QScrollBar::handle:horizontal{background:%1;border-radius:3px;min-width:20px;margin:1px;}"
+              "QScrollBar::handle:horizontal:hover{background:%2;}"
+              "QScrollBar::add-line:horizontal,QScrollBar::sub-line:horizontal{width:0px;}"
+              "QScrollBar::add-page:horizontal,QScrollBar::sub-page:horizontal{background:transparent;}")
+          .arg(TM().colors().separator, TM().colors().accent));
   m_overlayHBar->hide();
   m_overlayHBar->raise();
   auto *nativeH = m_view->horizontalScrollBar();
@@ -1086,6 +895,11 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey)
   m_stack->addWidget(m_iconView);
   m_stack->setCurrentWidget(m_view);
 
+}
+
+
+// --- FilePane::setupConnections ---
+void FilePane::setupConnections() {
   // --- Signale ---
   m_view->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(m_view, &QTreeView::customContextMenuRequested, this,
@@ -1179,7 +993,6 @@ FilePane::FilePane(QWidget *parent, const QString &settingsKey)
   connect(m_newFileMenu, &KNewFileMenu::fileCreated, this,
           &FilePane::onNewFileCreated);
 
-  setRootPath(QDir::homePath());
 }
 
 // --- Navigation ---
@@ -1203,6 +1016,7 @@ void FilePane::setRootPath(const QString &path) {
       m_kioMode = false;
       m_currentUrl = QUrl();
       m_currentPath = url.toLocalFile();
+      m_lister->stop();
       m_lister->openUrl(url);
       connect(
           m_lister, &KDirLister::completed, this,
@@ -1248,9 +1062,10 @@ void FilePane::setRootPath(const QString &path) {
   m_kioMode = false;
   m_currentUrl = QUrl();
   m_currentPath = path;
-  m_proxy->setTagFilter(QString()); // Tag-Filter zurücksetzen bei Navigation
+  m_proxy->setTagFilter(QString());
 
   QUrl url = QUrl::fromLocalFile(path);
+  m_lister->stop();
   m_lister->openUrl(url);
   // Root-Index setzen sobald Lister fertig ist
   connect(
@@ -1271,6 +1086,7 @@ void FilePane::setRootUrl(const QUrl &url) {
   m_kioMode = true;
   m_currentUrl = url;
   m_currentPath = url.toString();
+  m_lister->stop();
   m_lister->openUrl(url);
 
   connect(
@@ -1297,7 +1113,6 @@ void FilePane::setShowHiddenFiles(bool show) {
 
 const QString &FilePane::currentPath() const { return m_currentPath; }
 
-bool FilePane::hasFocus() const { return m_view->hasFocus(); }
 
 qint64 FilePane::currentTotalSize() const {
   qint64 size = 0;
@@ -1323,7 +1138,6 @@ void FilePane::reload() {
 }
 
 void FilePane::setNameFilter(const QString &pattern) {
-  m_filter = pattern;
   m_lister->setNameFilter(pattern);
   reload();
 }
@@ -1491,11 +1305,24 @@ void FilePane::onItemActivated(const QModelIndex &index) {
     }
   }
 
-  // UDS_NAME für remote:/ Einträge auflösen
+  // Priorität 1: UDS_TARGET_URL — kio-gdrive setzt das direkt auf gdrive:/
+  const QUrl targetUrl = item.targetUrl();
+  if (targetUrl.isValid() && targetUrl != item.url()) {
+    emit fileActivated(targetUrl.toString());
+    return;
+  }
+
+  // Priorität 2: remoteViewMap über UDS_NAME
   const QString udsName = item.text();
   if (remoteViewMap.contains(udsName)) {
-    const QString mapped = remoteViewMap.value(udsName);
-    emit fileActivated(mapped);
+    emit fileActivated(remoteViewMap.value(udsName));
+    return;
+  }
+
+  // Priorität 3: baseName aus URL (z.B. "gdrive-network" → "gdrive")
+  const QString urlBaseName = item.url().path().section('/', -1).section('-', 0, 0);
+  if (remoteViewMap.contains(urlBaseName)) {
+    emit fileActivated(remoteViewMap.value(urlBaseName));
     return;
   }
 
@@ -1537,20 +1364,12 @@ bool FilePane::eventFilter(QObject *obj, QEvent *e) {
 
 void FilePane::onNewFileCreated(const QUrl &) { reload(); }
 
-// --- openWithApp ---
-void FilePane::openWithApp(const QString &entry, const QString &path) {
-  auto svc = KService::serviceByDesktopName(entry);
-  if (!svc)
-    return;
-  QString exec = svc->exec();
-  exec.replace("%f", "\"" + path + "\"");
-  exec.replace("%F", "\"" + path + "\"");
-  exec.replace("%u", QUrl::fromLocalFile(path).toString());
-  exec.replace("%U", QUrl::fromLocalFile(path).toString());
-  exec.replace("%i", "");
-  exec.replace("%c", svc->name());
-  exec = exec.trimmed();
-  QProcess::startDetached("sh", {"-c", exec});
+void FilePane::setActionCollection(KActionCollection *ac) {
+  m_actionCollection = ac;
+}
+
+void FilePane::stopLister() {
+  m_lister->stop();
 }
 
 // --- showHeaderMenu ---
@@ -1582,33 +1401,30 @@ void FilePane::showHeaderMenu(const QPoint &pos) {
 }
 
 // --- showContextMenu — volles Menü mit KFileItemActions + KNewFileMenu ---
-void FilePane::showContextMenu(const QPoint &pos) {
-  emit focusRequested();
-  auto *view = qobject_cast<QAbstractItemView *>(sender());
-  if (!view)
-    view = m_view;
 
-  const QModelIndex proxyIndex = view->indexAt(pos);
-  bool hasItem = proxyIndex.isValid();
+FilePane::ContextMenuState FilePane::buildContextMenuState(const QPoint &pos) {
+  ContextMenuState ctx;
+  ctx.view = qobject_cast<QAbstractItemView *>(sender());
+  if (!ctx.view)
+    ctx.view = m_view;
 
-  if (hasItem) {
-    // Dolphin-Verhalten: Nur wenn das Element NICHT ausgewählt ist, Auswahl ändern
-    if (!view->selectionModel()->isSelected(proxyIndex)) {
-      view->selectionModel()->select(proxyIndex,
-                                     QItemSelectionModel::ClearAndSelect |
-                                         QItemSelectionModel::Rows);
+  const QModelIndex proxyIndex = ctx.view->indexAt(pos);
+  ctx.hasItem = proxyIndex.isValid();
+
+  if (ctx.hasItem) {
+    if (!ctx.view->selectionModel()->isSelected(proxyIndex)) {
+      ctx.view->selectionModel()->select(proxyIndex,
+                                         QItemSelectionModel::ClearAndSelect |
+                                             QItemSelectionModel::Rows);
     }
-    // NoUpdate: Current setzen ohne die Mehrfachauswahl zu zerstören
-    view->selectionModel()->setCurrentIndex(proxyIndex, QItemSelectionModel::NoUpdate);
+    ctx.view->selectionModel()->setCurrentIndex(proxyIndex, QItemSelectionModel::NoUpdate);
   } else {
-    view->selectionModel()->clearSelection();
+    ctx.view->selectionModel()->clearSelection();
   }
 
-  // selectedItems mit korrektem rootIndex-Parent mappen
-  KFileItemList selectedItems;
   {
-    const QModelIndex rootProxy = view->rootIndex();
-    const QModelIndexList sel = view->selectionModel()->selectedIndexes();
+    const QModelIndex rootProxy = ctx.view->rootIndex();
+    const QModelIndexList sel = ctx.view->selectionModel()->selectedIndexes();
     QSet<int> seenRows;
     for (const auto &idx : sel) {
       if (idx.column() != 0) continue;
@@ -1616,65 +1432,101 @@ void FilePane::showContextMenu(const QPoint &pos) {
       seenRows.insert(idx.row());
       KFileItem it = fp_fileItemFromProxyIndex(idx, rootProxy, m_sortProxy, m_dirModel);
       if (!it.isNull())
-        selectedItems << it;
+        ctx.selectedItems << it;
     }
   }
 
-  KFileItem item;
-  emit focusRequested();
-  QString path;
-  QUrl itemUrl;
-
-  if (hasItem) {
-    item = fp_fileItemFromProxyIndex(proxyIndex, view->rootIndex(), m_sortProxy, m_dirModel);
-    if (item.isNull()) {
-      hasItem = false;
+  if (ctx.hasItem) {
+    ctx.item = fp_fileItemFromProxyIndex(proxyIndex, ctx.view->rootIndex(), m_sortProxy, m_dirModel);
+    if (ctx.item.isNull()) {
+      ctx.hasItem = false;
     } else {
-      path =
-          item.localPath().isEmpty() ? item.url().toString() : item.localPath();
-      itemUrl = item.url();
+      ctx.path = ctx.item.localPath().isEmpty() ? ctx.item.url().toString() : ctx.item.localPath();
+      ctx.itemUrl = ctx.item.url();
     }
   }
 
-  const bool isKioPath =
-      m_kioMode || (!m_currentPath.startsWith("/") &&
-                    m_currentPath.contains(QStringLiteral(":/")));
-  const QUrl dirUrl =
-      isKioPath ? QUrl(m_currentPath)
-                : QUrl::fromLocalFile(m_currentPath.isEmpty()
-                                          ? QFileInfo(path).absolutePath()
-                                          : m_currentPath);
+  ctx.isKioPath = m_kioMode || (!m_currentPath.startsWith("/") &&
+                                 m_currentPath.contains(QStringLiteral(":/")));
+  ctx.dirUrl = ctx.isKioPath
+      ? QUrl(m_currentPath)
+      : QUrl::fromLocalFile(m_currentPath.isEmpty()
+                                ? QFileInfo(ctx.path).absolutePath()
+                                : m_currentPath);
+  ctx.isTrash = ctx.dirUrl.scheme() == QStringLiteral("trash");
 
-  // CWD Fix für Service-Menüs (Ark etc.)
+  ctx.items = ctx.hasItem ? ctx.selectedItems : KFileItemList{KFileItem(ctx.dirUrl)};
+  if (ctx.hasItem && ctx.items.isEmpty()) ctx.items << ctx.item;
+
+  return ctx;
+}
+
+void FilePane::applyMenuStyling(QMenu &menu) {
+  auto applyStyle = [](QMenu *m, auto &self) -> void {
+    if (!m) return;
+    m->setStyleSheet(menuStyle());
+    fp_applyMenuShadow(m);
+    auto styleChildren = [m, &self]() {
+      for (auto *sub : m->findChildren<QMenu *>())
+        self(sub, self);
+      for (auto *act : m->actions()) {
+        if (auto *sub = act->menu())
+          self(sub, self);
+      }
+    };
+    QObject::connect(m, &QMenu::aboutToShow, m, styleChildren);
+    styleChildren();
+  };
+  applyStyle(&menu, applyStyle);
+}
+
+void FilePane::showContextMenu(const QPoint &pos) {
+  emit focusRequested();
+
+  ContextMenuState ctx = buildContextMenuState(pos);
+
   QString oldCwd = QDir::currentPath();
-  if (!isKioPath && !m_currentPath.isEmpty()) {
+  if (!ctx.isKioPath && !m_currentPath.isEmpty())
     QDir::setCurrent(m_currentPath);
-  }
 
   QMenu menu(this);
   fp_applyMenuShadow(&menu);
   menu.setStyleSheet(menuStyle());
 
-  // --- 1. KIO-Aktionen (Öffnen, Dienste, Bearbeiten, Löschen, Papierkorb,
-  // Eigenschaften) ---
-  // Wie Dolphin: selectedItems bereits oben gesammelt, hier nur zuweisen
-  KFileItemList items;
-  if (hasItem) {
-    items = selectedItems;
-    if (items.isEmpty())
-      items << item;
-  } else {
-    items << KFileItem(dirUrl);
-  }
-
   KFileItemActions actions(&menu);
-  KFileItemListProperties props(items);
+  KFileItemListProperties props(ctx.items);
   actions.setItemListProperties(props);
   actions.setParentWidget(this);
 
-  const bool isTrash = dirUrl.scheme() == QStringLiteral("trash");
+  if (ctx.isTrash)
+    populateTrashMenu(menu, ctx, actions, props);
+  else if (ctx.hasItem)
+    populateItemMenu(menu, ctx, actions, props);
+  else
+    populateBackgroundMenu(menu, ctx, actions, props);
 
-  if (isTrash) {
+  const QUrl propsUrl = ctx.hasItem ? ctx.itemUrl : ctx.dirUrl;
+  menu.addSeparator();
+  menu.addAction(QIcon::fromTheme(QStringLiteral("document-properties")),
+                 tr("Eigenschaften"), this, [propsUrl]() {
+                   auto *dlg = new KPropertiesDialog(propsUrl, nullptr);
+                   dlg->setAttribute(Qt::WA_DeleteOnClose);
+                   dlg->show();
+                 });
+
+  applyMenuStyling(menu);
+
+  menu.exec(ctx.view->viewport()->mapToGlobal(pos));
+  QDir::setCurrent(oldCwd);
+}
+
+
+void FilePane::populateTrashMenu(QMenu &menu, const ContextMenuState &ctx,
+                                 KFileItemActions &actions, KFileItemListProperties &props) {
+  Q_UNUSED(actions); Q_UNUSED(props);
+  const bool hasItem        = ctx.hasItem;
+  const KFileItemList &items = ctx.items;
+  QAbstractItemView *view   = ctx.view;
     if (hasItem) {
       // --- PAPIERKORB ITEM (Bild 1) ---
       menu.addAction(QIcon::fromTheme(QStringLiteral("edit-reset")),
@@ -1691,19 +1543,16 @@ void FilePane::showContextMenu(const QPoint &pos) {
                      });
       menu.addSeparator();
 
-      if (auto *mw = MW()) {
-        if (auto *a =
-                mw->actionCollection()->action(QStringLiteral("file_move")))
+      if (m_actionCollection) {
+        if (auto *a = m_actionCollection->action(QStringLiteral("file_move")))
           menu.addAction(a);
-        if (auto *a =
-                mw->actionCollection()->action(QStringLiteral("file_copy")))
+        if (auto *a = m_actionCollection->action(QStringLiteral("file_copy")))
           menu.addAction(a);
       }
       menu.addSeparator();
 
-      if (auto *mw = MW()) {
-        if (auto *a =
-                mw->actionCollection()->action(QStringLiteral("file_delete"))) {
+      if (m_actionCollection) {
+        if (auto *a = m_actionCollection->action(QStringLiteral("file_delete"))) {
           a->setText(tr("Löschen"));
           a->setIcon(QIcon::fromTheme(QStringLiteral("edit-delete")));
           a->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Delete));
@@ -1748,380 +1597,14 @@ void FilePane::showContextMenu(const QPoint &pos) {
                        job->uiDelegate()->setAutoErrorHandlingEnabled(true);
                      });
     }
-  } else if (hasItem) {
-    KFileItem contextItem = items.first();
+}
 
-    // --- 1. ÖFFNEN-BLOCK ---
-    menu.addAction(QIcon::fromTheme(QStringLiteral("document-open")),
-                   tr("Öffnen"), this, [this, contextItem]() {
-                     if (contextItem.isDir())
-                       setRootPath(contextItem.localPath().isEmpty()
-                                       ? contextItem.url().toString()
-                                       : contextItem.localPath());
-                     else {
-                       auto *job = new KIO::OpenUrlJob(contextItem.url());
-                       job->setUiDelegate(KIO::createDefaultJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
-                       job->start();
-                     }
-                   });
-    actions.insertOpenWithActionsTo(
-        nullptr, &menu, QStringList{QCoreApplication::applicationName()});
-    menu.addSeparator();
-
-    // --- 2. NEU ERSTELLEN (Nur Ordner) ---
-    if (props.isDirectory() && m_newFileMenu) {
-      m_newFileMenu->setWorkingDirectory(itemUrl);
-      m_newFileMenu->checkUpToDate();
-      auto *newMenu = new QMenu(tr("Neu erstellen"), &menu);
-      newMenu->setIcon(QIcon::fromTheme(QStringLiteral("list-add")));
-      for (QAction *act : m_newFileMenu->menu()->actions())
-        newMenu->addAction(act);
-      menu.addMenu(newMenu);
-      menu.addSeparator();
-    }
-
-    // --- 3. BEARBEITEN-BLOCK ---
-    if (auto *mw = MW()) {
-      if (auto *a = mw->actionCollection()->action(QStringLiteral("file_move")))
-        menu.addAction(a);
-      if (auto *a = mw->actionCollection()->action(QStringLiteral("file_copy")))
-        menu.addAction(a);
-    }
-    menu.addAction(QIcon::fromTheme(QStringLiteral("edit-copy-path")),
-                   tr("Adresse kopieren"), this, [itemUrl]() {
-                     QGuiApplication::clipboard()->setText(
-                         itemUrl.isLocalFile() ? itemUrl.toLocalFile()
-                                               : itemUrl.toString());
-                   });
-    if (props.isDirectory()) {
-      if (auto *mw = MW())
-        if (auto *a =
-                mw->actionCollection()->action(QStringLiteral("file_paste")))
-          menu.addAction(a);
-    }
-    menu.addAction(QIcon::fromTheme(QStringLiteral("edit-copy")),
-                   tr("Hier duplizieren"), this, [this]() {
-                     const QList<QUrl> urls = selectedUrls();
-                     if (urls.isEmpty())
-                       return;
-                     for (const QUrl &u : urls) {
-                       QUrl dest = u;
-                       QString p = u.path();
-                       if (p.endsWith("/"))
-                         p.chop(1);
-                       dest.setPath(p + "_copy");
-                       auto *job = KIO::copy(u, dest);
-                       if (auto *mw = MW())
-                         mw->registerJob(job, tr("Dupliziere Datei..."));
-                     }
-                   });
-    if (auto *mw = MW())
-      if (auto *a =
-              mw->actionCollection()->action(QStringLiteral("file_rename")))
-        menu.addAction(a);
-
-    // Hinzufügen zu (Immer verfügbar)
-    if (!isTrash) {
-      auto *mw = MW();
-      if (mw && mw->sidebar()) {
-        QStringList groups = mw->sidebar()->groupNames();
-        if (groups.isEmpty())
-          groups << tr("Favoriten");
-        auto *addToMenu = new QMenu(tr("Hinzufügen zu"), &menu);
-        addToMenu->setIcon(QIcon::fromTheme(QStringLiteral("bookmark-new")));
-        const QString scheme = itemUrl.scheme().toLower();
-        if (!itemUrl.isLocalFile() && (scheme == "smb" || scheme == "sftp" ||
-                                       scheme == "mtp" || scheme == "gdrive")) {
-          QAction *a = addToMenu->addAction(QIcon::fromTheme("network-server"),
-                                            tr("Laufwerke"));
-          connect(a, &QAction::triggered, this, [mw, path, contextItem]() {
-            mw->sidebar()->addNetworkPlace(path, contextItem.text());
-          });
-          addToMenu->addSeparator();
-        }
-        for (const QString &grp : groups) {
-          QAction *a = addToMenu->addAction(QIcon::fromTheme("folder"), grp);
-          connect(a, &QAction::triggered, this, [mw, grp, path]() {
-            mw->sidebar()->addPathToGroup(grp, path);
-          });
-        }
-        menu.addMenu(addToMenu);
-      }
-    }
-    menu.addSeparator();
-
-    // --- 4. PAPIERKORB-BLOCK --- (exakt wie Dolphin: DolphinRemoveAction)
-    if (auto *mw = MW()) {
-      auto *removeAct = new SCRemoveAction(mw->actionCollection(), &menu);
-      menu.addAction(removeAct);
-
-      // Wie Dolphin: KeyEvent-Filter auf dem Menü
-      // Shift-Press/Release schaltet die Action live um
-      struct ShiftFilter : public QObject {
-        SCRemoveAction *act;
-        explicit ShiftFilter(SCRemoveAction *a, QObject *parent)
-            : QObject(parent), act(a) {}
-        bool eventFilter(QObject *, QEvent *e) override {
-          if (e->type() == QEvent::KeyPress || e->type() == QEvent::KeyRelease) {
-            auto *ke = static_cast<QKeyEvent *>(e);
-            if (ke->key() == Qt::Key_Shift) {
-              act->update(e->type() == QEvent::KeyPress
-                              ? SCRemoveAction::ShiftState::Pressed
-                              : SCRemoveAction::ShiftState::Released);
-            }
-          }
-          return false;
-        }
-      };
-      menu.installEventFilter(new ShiftFilter(removeAct, &menu));
-    }
-    menu.addSeparator();
-
-    // --- 5. AKTIONEN & SYSTEM (Dienste & Extras) ---
-    if (!isTrash) {
-      QList<QAction *> additionalActions;
-      if (props.isLocal() && props.isDirectory()) {
-        auto *termAct =
-            new QAction(QIcon::fromTheme(QStringLiteral("utilities-terminal")),
-                        tr("Terminal hier öffnen"), &menu);
-        termAct->setShortcut(QKeySequence(Qt::ALT | Qt::SHIFT | Qt::Key_F4));
-        connect(termAct, &QAction::triggered, this,
-                [this, path]() {
-                    auto *job = new KTerminalLauncherJob(QString());
-                    job->setWorkingDirectory(path);
-                    job->setUiDelegate(new KDialogJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
-                    job->start();
-                });
-        additionalActions << termAct;
-      }
-      if (props.isDirectory()) {
-        auto *slideAct =
-            new QAction(QIcon::fromTheme(QStringLiteral("view-presentation")),
-                        tr("Diaschau starten"), &menu);
-        connect(slideAct, &QAction::triggered, this, [itemUrl]() {
-          QProcess::startDetached(
-              QStringLiteral("gwenview"),
-              {QStringLiteral("--slideshow"), itemUrl.toLocalFile()});
-        });
-        additionalActions << slideAct;
-      }
-
-      actions.addActionsTo(&menu, KFileItemActions::MenuActionSource::All,
-                           additionalActions);
-
-      // Unser eigenes Tag-Menü (Vorbereiten zum Verschieben)
-      auto *customTagMenu = new QMenu(tr("Tag"), &menu);
-      customTagMenu->setIcon(QIcon::fromTheme(QStringLiteral("tag")));
-      QString curTag = TagManager::instance().fileTag(path);
-      for (const auto &t : TagManager::instance().tags()) {
-        QPixmap dot(14, 14);
-        dot.fill(Qt::transparent);
-        QPainter dp(&dot);
-        dp.setRenderHint(QPainter::Antialiasing);
-        dp.setBrush(QColor(t.second));
-        dp.setPen(Qt::NoPen);
-        dp.drawEllipse(1, 1, 12, 12);
-        QAction *act = customTagMenu->addAction(QIcon(dot), t.first);
-        act->setCheckable(true);
-        act->setChecked(t.first == curTag);
-        connect(act, &QAction::triggered, this, [path, t](bool) {
-          TagManager::instance().setFileTag(path, t.first);
-        });
-      }
-      if (!curTag.isEmpty()) {
-        customTagMenu->addSeparator();
-        customTagMenu->addAction(
-            QIcon::fromTheme(QStringLiteral("edit-clear")), tr("Tag entfernen"),
-            this, [path]() { TagManager::instance().clearFileTag(path); });
-      }
-
-      // --- Filter-Logik für Aktionen-Untermenü ---
-      auto isFolderColor = [](QAction *a) {
-        if (!a)
-          return false;
-        QString t = a->text().toLower();
-        QString tt = a->toolTip().toLower();
-        QString in = a->icon().name().toLower();
-        QString className = QString::fromLatin1(a->metaObject()->className());
-
-        // Keywords für foldercolor Plugin
-        static const QStringList kws = {
-            "ordnersymbol", "farbe",   "symbol", "weitere", "standard",
-            "color",        "emblem",  "rot",    "gelb",    "grün",
-            "blau",         "violett", "braun",  "grau",    "schwarz",
-            "weiß",         "orange",  "red",    "yellow",  "green",
-            "blue",         "purple",  "brown",  "grey",    "black",
-            "white"};
-
-        if (className.contains("WidgetAction"))
-          return true;
-        for (const QString &kw : kws) {
-          if (t.contains(kw) || tt.contains(kw) || in.contains(kw))
-            return true;
-        }
-        if (t.isEmpty() && (!a->icon().isNull() || in.contains("folder")))
-          return true;
-
-        if (a->menu()) {
-          for (QAction *sa : a->menu()->actions()) {
-            QString st = sa->text().toLower();
-            for (const QString &kw : kws) {
-              if (st.contains(kw))
-                return true;
-            }
-          }
-        }
-        return false;
-      };
-
-      QMenu *actionsSubMenu = nullptr;
-      for (QAction *a : menu.actions()) {
-        QString mt = a->text().remove('&');
-        if (a->menu() &&
-            (mt.contains(tr("Aktionen")) || mt.contains("Actions"))) {
-          actionsSubMenu = a->menu();
-          break;
-        }
-      }
-      if (!actionsSubMenu) {
-        actionsSubMenu = new QMenu(tr("Aktionen"), &menu);
-        actionsSubMenu->setIcon(QIcon::fromTheme(QStringLiteral("system-run")));
-      }
-
-      QStringList seen;
-      QList<QAction *> toMain;
-      for (QAction *a : menu.actions()) {
-        if (a->isSeparator() || a->menu() == actionsSubMenu)
-          continue;
-        QString txt = a->text().toLower();
-
-        // A) Ordnersymbole / Farbauswahl / Dubletten weg
-        if (isFolderColor(a)) {
-          menu.removeAction(a);
-          continue;
-        }
-
-        // B) Dubletten von "Tag" oder "Stichwörter" entfernen (außer unser
-        // EIGENES Menü)
-        if ((txt.contains("tag") || txt.contains("stichwört") ||
-             txt.contains("assign tags")) &&
-            a != customTagMenu->menuAction()) {
-          menu.removeAction(a);
-          continue;
-        }
-
-        // C) Aktivitäten und unser eigenes Tag-Menü im Hauptmenü lassen
-        if (txt.contains("aktivität") || a == customTagMenu->menuAction()) {
-          toMain << a;
-          continue;
-        }
-
-        bool isService =
-            (txt.contains("verschlüssel") || txt.contains("signier") ||
-             txt.contains("packen") || txt.contains("entpacken") ||
-             txt.contains("teilen") || txt.contains("diaschau"));
-        if (isService) {
-          menu.removeAction(a);
-          QString key = txt.simplified();
-          if (!seen.contains(key)) {
-            actionsSubMenu->addAction(a);
-            seen << key;
-          }
-        }
-      }
-
-      // Finale Bereinigung des Untermenüs
-      if (actionsSubMenu) {
-        QList<QAction *> toDel;
-        for (QAction *a : actionsSubMenu->actions()) {
-          if (isFolderColor(a) || a->text().toLower().contains("stichwört") ||
-              (a->text().toLower().contains("tag") &&
-               a != customTagMenu->menuAction()))
-            toDel << a;
-        }
-        for (QAction *a : toDel)
-          actionsSubMenu->removeAction(a);
-      }
-      // "In neuen Ordner verschieben"
-      if (props.supportsMoving()) {
-        auto *moveAct =
-            new QAction(QIcon::fromTheme(QStringLiteral("folder-new")),
-                        tr("In neuen Ordner verschieben ..."), actionsSubMenu);
-        connect(moveAct, &QAction::triggered, this, [this, items, dirUrl]() {
-          bool ok;
-          QString name = QInputDialog::getText(
-              this, tr("In neuen Ordner verschieben"), tr("Ordnername:"),
-              QLineEdit::Normal, tr("Neuer Ordner"), &ok);
-          if (ok && !name.isEmpty()) {
-            QUrl destDir = dirUrl;
-            destDir.setPath(destDir.path() +
-                            (destDir.path().endsWith('/') ? "" : "/") + name);
-            KIO::Job *mkdirJob = KIO::mkdir(destDir);
-            connect(
-                mkdirJob, &KIO::Job::result, this, [items, destDir](KJob *job) {
-                  if (job->error() == 0) {
-                    KIO::CopyJob *moveJob = KIO::move(items.urlList(), destDir);
-                    KIO::FileUndoManager::self()->recordCopyJob(moveJob);
-                  }
-                });
-          }
-        });
-        actionsSubMenu->addAction(moveAct);
-      }
-
-      // Alles wieder ins Hauptmenü sortieren
-      QAction *propPos = nullptr;
-      for (QAction *ma : menu.actions())
-        if (ma->text().contains(tr("Eigenschaften"))) {
-          propPos = ma;
-          break;
-        }
-      if (actionsSubMenu && !actionsSubMenu->actions().isEmpty())
-        menu.insertMenu(propPos, actionsSubMenu);
-      for (QAction *a : toMain)
-        menu.insertAction(propPos, a);
-    }
-
-    // --- 6. SPLITCOMMANDER-EXTRAS ---
-    menu.addSeparator();
-    // --- 7. SPLITCOMMANDER-EXTRAS ---
-    if (auto *mw = MW()) {
-      if (auto *a = mw->actionCollection()->action(
-              QStringLiteral("file_copy_to_other")))
-        menu.addAction(a);
-      if (auto *a = mw->actionCollection()->action(
-              QStringLiteral("file_move_to_other")))
-        menu.addAction(a);
-    }
-
-    // --- 8. TAGS ---
-    if (!isKioPath) {
-      auto *tagMenu =
-          menu.addMenu(QIcon::fromTheme(QStringLiteral("tag")), tr("Tag"));
-      QString currentTag = TagManager::instance().fileTag(path);
-      for (const auto &t : TagManager::instance().tags()) {
-        QPixmap dot(14, 14);
-        dot.fill(Qt::transparent);
-        QPainter dp(&dot);
-        dp.setRenderHint(QPainter::Antialiasing);
-        dp.setBrush(QColor(t.second));
-        dp.setPen(Qt::NoPen);
-        dp.drawEllipse(1, 1, 12, 12);
-        QAction *act = tagMenu->addAction(QIcon(dot), t.first);
-        act->setCheckable(true);
-        act->setChecked(t.first == currentTag);
-        connect(act, &QAction::triggered, this, [path, t](bool) {
-          TagManager::instance().setFileTag(path, t.first);
-        });
-      }
-      if (!currentTag.isEmpty()) {
-        tagMenu->addSeparator();
-        tagMenu->addAction(
-            QIcon::fromTheme(QStringLiteral("edit-clear")), tr("Tag entfernen"),
-            this, [path]() { TagManager::instance().clearFileTag(path); });
-      }
-    }
-  } else {
+void FilePane::populateItemMenu(QMenu &menu, const ContextMenuState &ctx,
+                                KFileItemActions &actions, KFileItemListProperties &props) {
+  Q_UNUSED(props);
+  const QUrl &dirUrl         = ctx.dirUrl;
+  const bool isKioPath       = ctx.isKioPath;
+  QAbstractItemView *view    = ctx.view;
     // --- 1. NEU / ÖFFNEN-BLOCK (Viewport) ---
     if (m_newFileMenu && dirUrl.scheme() != "trash") {
       m_newFileMenu->setWorkingDirectory(dirUrl);
@@ -2136,20 +1619,53 @@ void FilePane::showContextMenu(const QPoint &pos) {
     menu.addSeparator();
 
     // --- 2. BEARBEITEN / EINFÜGEN ---
-    if (auto *mw = MW()) {
-      if (auto *a =
-              mw->actionCollection()->action(QStringLiteral("file_paste")))
+    if (m_actionCollection) {
+      if (auto *a = m_actionCollection->action(QStringLiteral("file_move")))
         menu.addAction(a);
+      if (auto *a = m_actionCollection->action(QStringLiteral("file_copy")))
+        menu.addAction(a);
+      if (auto *a = m_actionCollection->action(QStringLiteral("file_paste")))
+        menu.addAction(a);
+      menu.addSeparator();
+      if (auto *a = m_actionCollection->action(QStringLiteral("file_rename")))
+        menu.addAction(a);
+
+      auto *trashDeleteAction = new SCRemoveAction(m_actionCollection, &menu);
+      menu.addAction(trashDeleteAction);
     }
     // Zu Laufwerken hinzufügen (Dolphin: add_to_places)
     if (isKioPath) {
+      // Immer m_currentUrl verwenden wenn KIO-Modus — enthält User/Auth-Info
+      // z.B. smb://root@192.168.0.152/Daten statt smb://192.168.0.152/Daten
+      QUrl resolvedUrl = (ctx.hasItem && ctx.itemUrl.isValid())
+                             ? ctx.itemUrl
+                             : (m_kioMode && m_currentUrl.isValid()
+                                    ? m_currentUrl
+                                    : QUrl::fromUserInput(m_currentPath));
+
+      // Sicherstellen dass User-Info erhalten bleibt
+      if (!m_currentUrl.userInfo().isEmpty() && resolvedUrl.userInfo().isEmpty()
+          && resolvedUrl.host() == m_currentUrl.host()) {
+        resolvedUrl.setUserInfo(m_currentUrl.userInfo());
+      }
+
+      const QString placeUrl = resolvedUrl.toString();
+      const QUrl placeQUrl(placeUrl);
       auto netCheck = Config::group("NetworkPlaces");
-      if (!netCheck.readEntry("places", QStringList())
-               .contains(m_currentPath)) {
+      if (!netCheck.readEntry("places", QStringList()).contains(placeUrl)) {
         menu.addAction(QIcon::fromTheme(QStringLiteral("bookmark-new")),
-                       tr("Zu Laufwerken hinzufügen"), this, [this, dirUrl]() {
-                         emit addToPlacesRequested(m_currentPath,
-                                                   dirUrl.host());
+                       tr("Zu Laufwerken hinzufügen"), this, [this, placeUrl, placeQUrl]() {
+                         const QString scheme = placeQUrl.scheme().toLower();
+                         QString name;
+                         if (scheme == QStringLiteral("gdrive"))
+                           name = placeQUrl.path().section('/', 1, 1); // "google18"
+                         if (name.isEmpty() && !placeQUrl.fileName().isEmpty())
+                           name = placeQUrl.fileName(); // "Daten" für smb://.../Daten
+                         if (name.isEmpty() && !placeQUrl.host().isEmpty())
+                           name = placeQUrl.host();
+                         if (name.isEmpty())
+                           name = placeUrl;
+                         emit addToPlacesRequested(placeUrl, name);
                        });
       }
     }
@@ -2231,6 +1747,13 @@ void FilePane::showContextMenu(const QPoint &pos) {
     QMenu tempMenu;
     actions.addActionsTo(&tempMenu, KFileItemActions::MenuActionSource::All, {});
 
+    // Bereits vorhandene Einträge nach Text sammeln, um Duplikate zu vermeiden
+    QSet<QString> existingActionTexts;
+    for (QAction *act : menu.actions()) {
+      if (!act->isSeparator() && !act->text().isEmpty())
+        existingActionTexts.insert(act->text().trimmed());
+    }
+
     // Submenüs nach Titel aus tempMenu holen
     auto findSubMenu = [&](const QString &title) -> QAction* {
         for (QAction *act : tempMenu.actions()) {
@@ -2256,17 +1779,21 @@ void FilePane::showContextMenu(const QPoint &pos) {
     });
     actMenu->addAction(termAct);
 
-    // Restliche KIO-Aktionen die nicht Stichwörter/Komprimieren/Aktivitäten sind
+    // Restliche KIO-Aktionen die nicht manuell im Menü hinzugefügt werden sollen
     static const QStringList skipTitles = {
-        tr("Stichwörter zuweisen"), tr("Komprimieren"), tr("Aktivitäten")
+        tr("Stichwörter zuweisen"), tr("Komprimieren"), tr("Aktivitäten"),
+        tr("In den Papierkorb verschieben"), tr("Löschen"), tr("Umbenennen"),
+        tr("Kopieren"), tr("Ausschneiden"), tr("Einfügen")
     };
     for (QAction *act : tempMenu.actions()) {
         if (act->isSeparator()) continue;
         // Farbige Ordner-Widget-Aktionen (haben kein Text oder sind Widgets) überspringen
-        if (act->text().isEmpty()) continue;
+        const QString actText = act->text().trimmed();
+        if (actText.isEmpty()) continue;
+        if (existingActionTexts.contains(actText)) continue;
         bool skip = false;
         for (const QString &t : skipTitles)
-            if (act->text().contains(t, Qt::CaseInsensitive)) { skip = true; break; }
+            if (actText.contains(t, Qt::CaseInsensitive)) { skip = true; break; }
         if (!skip) actMenu->addAction(act);
     }
 
@@ -2276,47 +1803,177 @@ void FilePane::showContextMenu(const QPoint &pos) {
     if (auto *a = findSubMenu(tr("Komprimieren")))          menu.addAction(a);
     if (auto *a = findSubMenu(tr("Aktivitäten")))           menu.addAction(a);
 
+    // --- 5. EIGENE TAGS ---
+    if (!TagManager::instance().tags().isEmpty()) {
+      auto *tagMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("tag")), tr("Tag setzen"));
+      for (const auto &tag : TagManager::instance().tags()) {
+        const QString &tagName = tag.first;
+        const QString &tagColor = tag.second;
+        QPixmap pix(12, 12);
+        pix.fill(Qt::transparent);
+        QPainter p(&pix);
+        p.setRenderHint(QPainter::Antialiasing);
+        p.setBrush(QColor(tagColor));
+        p.setPen(Qt::NoPen);
+        p.drawEllipse(0, 0, 12, 12);
+        QAction *a = tagMenu->addAction(QIcon(pix), tagName);
+        connect(a, &QAction::triggered, this, [this, ctx, tagName]() {
+          for (const KFileItem &item : ctx.selectedItems) {
+            QString path = item.localPath();
+            if (path.isEmpty()) continue;
+            TagManager::instance().setFileTag(path, tagName);
+          }
+        });
+      }
+      tagMenu->addSeparator();
+      QAction *clearAct = tagMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-clear")), tr("Tag entfernen"));
+      connect(clearAct, &QAction::triggered, this, [this, ctx]() {
+        for (const KFileItem &item : ctx.selectedItems) {
+          QString path = item.localPath();
+          if (path.isEmpty()) continue;
+          TagManager::instance().clearFileTag(path);
+        }
+      });
+    }
+
     menu.addSeparator();
   }
 
-  // --- 5. EIGENSCHAFTEN (Immer ganz unten) ---
+
+void FilePane::populateBackgroundMenu(QMenu &menu, const ContextMenuState &ctx,
+                                       KFileItemActions &actions,
+                                       KFileItemListProperties &props) {
+  const QUrl &dirUrl      = ctx.dirUrl;
+  QAbstractItemView *view = ctx.view;
+  Q_UNUSED(props);
+
+  // --- 1. NEU ERSTELLEN ---
+  if (m_newFileMenu && dirUrl.scheme() != "trash") {
+    m_newFileMenu->setWorkingDirectory(dirUrl);
+    m_newFileMenu->checkUpToDate();
+    auto *newMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("document-new")),
+                                 tr("Neu erstellen"));
+    for (QAction *act : m_newFileMenu->menu()->actions())
+      newMenu->addAction(act);
+  }
+
+  // --- 2. ORDNER ÖFFNEN MIT ---
+  actions.insertOpenWithActionsTo(nullptr, &menu,
+                                  QStringList{QCoreApplication::applicationName()});
   menu.addSeparator();
-  const QUrl propsUrl = hasItem ? itemUrl : dirUrl;
-  menu.addAction(QIcon::fromTheme(QStringLiteral("document-properties")),
-                 tr("Eigenschaften"), this, [propsUrl]() {
-                   auto *dlg = new KPropertiesDialog(propsUrl, nullptr);
-                   dlg->setAttribute(Qt::WA_DeleteOnClose);
-                   dlg->show();
-                 });
 
-  // --- 8. FINALES STYLING FÜR ALLE UNTERMENÜS (Robust & Rekursiv) ---
-  auto applyStyle = [](QMenu *m, auto &self) -> void {
-    if (!m)
-      return;
-    m->setStyleSheet(menuStyle());
-    fp_applyMenuShadow(m);
+  // --- 3. EINFÜGEN ---
+  if (m_actionCollection) {
+    if (auto *a = m_actionCollection->action(QStringLiteral("file_paste")))
+      menu.addAction(a);
+  }
+  menu.addSeparator();
 
-    auto styleChildren = [m, &self]() {
-      // 1. Suche über findChildren (für bereits existierende Widgets)
-      for (auto *sub : m->findChildren<QMenu *>()) {
-        self(sub, self);
-      }
-      // 2. Suche über Aktionen (für KActionMenus / KFileItemActions)
-      for (auto *a : m->actions()) {
-        if (a->menu())
-          self(a->menu(), self);
-      }
-    };
+  // --- 4. ANSICHT ---
+  auto *sortMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("view-sort-ascending")),
+                                tr("Sortieren nach"));
+  auto *tree = qobject_cast<QTreeView *>(view);
+  if (tree) {
+    auto *hdr = tree->header();
+    for (int i = 0; i < hdr->count(); ++i) {
+      if (hdr->isSectionHidden(i))
+        continue;
+      QString label = tree->model()->headerData(i, Qt::Horizontal).toString();
+      QAction *a = sortMenu->addAction(label);
+      a->setCheckable(true);
+      a->setChecked(hdr->sortIndicatorSection() == i);
+      connect(a, &QAction::triggered, this,
+              [i, tree]() { tree->sortByColumn(i, Qt::AscendingOrder); });
+    }
+  }
+  sortMenu->addSeparator();
+  auto *azAct = sortMenu->addAction(tr("A-Z"));
+  azAct->setCheckable(true);
+  auto *zaAct = sortMenu->addAction(tr("Z-A"));
+  zaAct->setCheckable(true);
+  if (tree) {
+    azAct->setChecked(tree->header()->sortIndicatorOrder() == Qt::AscendingOrder);
+    zaAct->setChecked(tree->header()->sortIndicatorOrder() == Qt::DescendingOrder);
+  }
+  connect(azAct, &QAction::triggered, this, [tree]() {
+    if (tree) tree->sortByColumn(tree->header()->sortIndicatorSection(), Qt::AscendingOrder);
+  });
+  connect(zaAct, &QAction::triggered, this, [tree]() {
+    if (tree) tree->sortByColumn(tree->header()->sortIndicatorSection(), Qt::DescendingOrder);
+  });
+  sortMenu->addSeparator();
+  auto *folderFirstAct = sortMenu->addAction(tr("Ordner zuerst"));
+  folderFirstAct->setCheckable(true);
+  folderFirstAct->setChecked(m_foldersFirst);
+  connect(folderFirstAct, &QAction::triggered, this, [this](bool checked) {
+    setFoldersFirst(checked);
+  });
 
-    styleChildren();
-    QObject::connect(m, &QMenu::aboutToShow, styleChildren);
+  auto *modeMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("view-list-details")),
+                                tr("Ansichtsmodus ändern"));
+  auto addMode = [&](const QString &label, const QString &icon, int m) {
+    QAction *a = modeMenu->addAction(QIcon::fromTheme(icon), label);
+    a->setCheckable(true);
+    a->setChecked(m_viewMode == m);
+    connect(a, &QAction::triggered, this, [this, m]() { setViewMode(m); });
+  };
+  addMode(tr("Details"), "view-list-details", 0);
+  addMode(tr("Symbole"), "view-list-icons", 1);
+  menu.addSeparator();
+
+  // --- 5. KIO-AKTIONEN ---
+  QMenu tempMenu;
+  actions.addActionsTo(&tempMenu, KFileItemActions::MenuActionSource::All, {});
+
+  auto findAction = [&](const QString &text) -> QAction* {
+    for (QAction *act : tempMenu.actions()) {
+      if (act->isSeparator())
+        continue;
+      if (act->text().contains(text, Qt::CaseInsensitive))
+        return act;
+    }
+    return nullptr;
   };
 
-  applyStyle(&menu, applyStyle);
+  auto *actMenu = new QMenu(tr("Aktionen"), &menu);
+  actMenu->setIcon(QIcon::fromTheme(QStringLiteral("system-run")));
+  auto *termAct = new QAction(QIcon::fromTheme(QStringLiteral("utilities-terminal")),
+                              tr("Terminal hier öffnen"), actMenu);
+  termAct->setShortcut(QKeySequence(Qt::ALT | Qt::SHIFT | Qt::Key_F4));
+  connect(termAct, &QAction::triggered, this, [this, dirUrl]() {
+    auto *job = new KTerminalLauncherJob(QString());
+    job->setWorkingDirectory(dirUrl.toLocalFile());
+    job->setUiDelegate(new KDialogJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
+    job->start();
+  });
+  actMenu->addAction(termAct);
 
-  menu.exec(view->mapToGlobal(pos));
-
-  if (!isKioPath) {
-    QDir::setCurrent(oldCwd);
+  static const QStringList skipTitles = {
+    tr("Stichwörter zuweisen"), tr("Komprimieren"), tr("Aktivitäten")
+  };
+  for (QAction *act : tempMenu.actions()) {
+    if (act->isSeparator())
+      continue;
+    const QString actText = act->text().trimmed();
+    if (actText.isEmpty())
+      continue;
+    bool skip = false;
+    for (const QString &skipText : skipTitles) {
+      if (actText.contains(skipText, Qt::CaseInsensitive)) {
+        skip = true;
+        break;
+      }
+    }
+    if (!skip)
+      actMenu->addAction(act);
   }
+
+  menu.addMenu(actMenu);
+  if (auto *action = findAction(tr("Stichwörter zuweisen")))
+    menu.addAction(action);
+  if (auto *action = findAction(tr("Komprimieren")))
+    menu.addAction(action);
+  if (auto *action = findAction(tr("Aktivitäten")))
+    menu.addAction(action);
+  menu.addSeparator();
 }

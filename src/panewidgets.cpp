@@ -3,6 +3,7 @@
 #include "panewidgets.h"
 #include "thememanager.h"
 #include "config.h"
+#include "scglobal.h"
 
 
 #include <QCache>
@@ -506,7 +507,7 @@ void MillerItemDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
         const int    textX = r.left() + 32;
         const int    textW = r.width() - 40;
         const int    lineH = r.height() / 2;
-        const int    barY  = r.top() + lineH + (r.height() - lineH) / 2 - 2;
+        const int    barY  = r.top() + lineH + (r.height() - lineH) / 2 - 1;
 
         p->save();
 
@@ -524,12 +525,12 @@ void MillerItemDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
         p->setFont(QFont("sans-serif", 9));
         QFontMetrics fm(p->font());
         const QString name    = idx.data(Qt::DisplayRole).toString();
-        const QString usedStr = QString("%1").arg((int)used);
-        const QString restStr = QString(" / %1 GB").arg((int)total);
+        const QString usedStr = sc_fmtStorage(used);
+        const QString restStr = QString(" / %1").arg(sc_fmtStorage(total));
         const int usedW = fm.horizontalAdvance(usedStr);
         const int restW = fm.horizontalAdvance(restStr);
         const int nameW = textW - usedW - restW - 6;
-        const int sizeX = r.right() - usedW - restW - 8;
+        const int sizeX = r.right() - usedW - restW - 6;
 
         p->setPen(QColor(TM().colors().textPrimary));
         p->drawText(textX, r.top(), nameW, lineH, Qt::AlignLeft | Qt::AlignVCenter,
@@ -540,9 +541,12 @@ void MillerItemDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
         p->drawText(sizeX + usedW, r.top(), restW, lineH, Qt::AlignLeft | Qt::AlignVCenter, restStr);
 
         // Separator
-        p->setPen(QColor(TM().colors().bgHover));
+        p->setPen(QPen(QColor(TM().colors().border), 1));
         p->drawLine(r.left(), r.bottom(), r.right(), r.bottom());
+
+        // Balken
         p->setBrush(QColor(TM().colors().splitter));
+        p->setPen(Qt::NoPen);
         p->drawRoundedRect(textX, barY, textW, 3, 1, 1);
         p->setBrush(QColor(TM().colors().accentHover));
         p->drawRoundedRect(textX, barY, (int)(textW * pct), 3, 1, 1);
@@ -556,8 +560,15 @@ void MillerItemDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
     // --- Age-Badge ---
     if (!Config::showNewIndicator()) return;
 
-    const QString path = idx.data(Qt::UserRole).toString();
-    if (path.isEmpty()) return;
+    const QString rawPath = idx.data(Qt::UserRole).toString();
+    if (rawPath.isEmpty()) return;
+
+    // URL → lokaler Pfad (file:///home/... → /home/...)
+    const QString path = rawPath.startsWith(QStringLiteral("file://"))
+                             ? QUrl(rawPath).toLocalFile()
+                             : rawPath;
+    if (path.isEmpty() || path.startsWith(QStringLiteral("solid:"))
+        || path.contains(QStringLiteral("://"))) return;
 
     static QCache<QString, qint64> s_dirAgeCache(200);
     qint64 ageSecs = -1;

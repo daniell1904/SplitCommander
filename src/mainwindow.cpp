@@ -3,6 +3,7 @@
 #include "mainwindow.h"
 #include "agebadgedialog.h"
 #include "config.h"
+#include <QMessageBox>
 #include "filepane.h"
 #include "joboverlay.h"
 #include "panewidgets.h"
@@ -86,9 +87,25 @@
 MainWindow::~MainWindow() {}
 
 void MainWindow::registerJob(KJob *job, const QString &title) {
-  if (m_jobOverlay) {
+  if (m_jobOverlay)
     m_jobOverlay->addJob(job, title);
+}
+
+void MainWindow::refreshAllDrives() {
+  m_leftPane->miller()->refreshDrives();
+  m_rightPane->miller()->refreshDrives();
+  m_sidebar->updateDrives();
+}
+
+void MainWindow::scheduleDriveRefresh() {
+  if (!m_driveRefreshTimer) {
+    m_driveRefreshTimer = new QTimer(this);
+    m_driveRefreshTimer->setSingleShot(true);
+    m_driveRefreshTimer->setInterval(400);
+    connect(m_driveRefreshTimer, &QTimer::timeout,
+            this, &MainWindow::refreshAllDrives);
   }
+  m_driveRefreshTimer->start(); // Neustart wenn bereits läuft
 }
 
 PaneWidget *MainWindow::activePane() const {
@@ -118,6 +135,12 @@ void MainWindow::doDelete(PaneWidget *pane, bool permanent) {
 }
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
+  initUI();
+  initConnections();
+  initTimers();
+}
+
+void MainWindow::initUI() {
   setWindowTitle("SplitCommander");
   {
     auto s = Config::group("UI");
@@ -167,6 +190,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   m_panesSplitter->addWidget(m_rightPane);
   rootLay->addWidget(m_panesSplitter, 1);
 
+}
+
+void MainWindow::initConnections() {
   connect(m_leftPane, &PaneWidget::focusRequested, this, [this]() {
     m_leftPane->setFocused(true);
     m_rightPane->setFocused(false);
@@ -176,7 +202,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     m_leftPane->setFocused(false);
   });
 
-  auto connectHamburger = [this](PaneWidget *pane) {
+  auto connectPane = [this](PaneWidget *pane, PaneWidget *other) {
     connect(pane, &PaneWidget::newFolderRequested, this, [this, pane]() {
       bool ok;
       QString name = DialogUtils::getText(
@@ -202,9 +228,21 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
       m_leftPane->filePane()->setRootPath(m_leftPane->currentPath());
       m_rightPane->filePane()->setRootPath(m_rightPane->currentPath());
     });
+    connect(pane, &PaneWidget::settingsChanged, this, [this]() {
+      emit m_sidebar->settingsChanged();
+    });
+    connect(pane, &PaneWidget::copyToOtherPaneRequested, this, [this, pane, other]() {
+      const QList<QUrl> urls = pane->filePane()->selectedUrls();
+      if (urls.isEmpty() || other->currentPath().isEmpty())
+        return;
+      auto *job = KIO::copy(urls, QUrl::fromLocalFile(other->currentPath()),
+                            KIO::DefaultFlags);
+      job->uiDelegate()->setAutoErrorHandlingEnabled(true);
+      registerJob(job, tr("Kopiere Dateien..."));
+    });
   };
-  connectHamburger(m_leftPane);
-  connectHamburger(m_rightPane);
+  connectPane(m_leftPane,  m_rightPane);
+  connectPane(m_rightPane, m_leftPane);
 
   auto mountAndNavigate = [this](const QString &path, bool leftPane) {
     auto navigate = [this, leftPane](const QString &p) {
@@ -237,17 +275,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
       if (!acc)
         return;
       if (acc->isAccessible()) {
-        m_leftPane->miller()->refreshDrives();
-        m_rightPane->miller()->refreshDrives();
-        m_sidebar->updateDrives();
+        refreshAllDrives();
       } else {
         connect(
             acc, &Solid::StorageAccess::setupDone, this,
             [this, acc](Solid::ErrorType, QVariant, const QString &) {
               if (acc->isAccessible()) {
-                m_leftPane->miller()->refreshDrives();
-                m_rightPane->miller()->refreshDrives();
-                m_sidebar->updateDrives();
+                refreshAllDrives();
               }
             },
             Qt::SingleShotConnection);
@@ -324,9 +358,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         }
       }
     }
-    m_sidebar->updateDrives();
-    m_leftPane->miller()->refreshDrives();
-    m_rightPane->miller()->refreshDrives();
+    refreshAllDrives();
     emit m_sidebar->drivesChanged();
   };
   connect(m_leftPane->miller(), &MillerArea::removeFromPlacesRequested, this,
@@ -385,7 +417,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     const QString mountPoint = acc->filePath();
     const QString normPath = mw_normalizePath(mountPoint);
 
-    // Pfade VOR dem Aushängen erfassen
     const bool leftPaneOnMount = !normPath.isEmpty() && (
         mw_normalizePath(m_leftPane->currentPath()) == normPath ||
         mw_normalizePath(m_leftPane->currentPath()).startsWith(normPath + "/"));
@@ -399,23 +430,54 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         mw_normalizePath(m_rightPane->miller()->activePath()) == normPath ||
         mw_normalizePath(m_rightPane->miller()->activePath()).startsWith(normPath + "/"));
 
+    // Lister stoppen bevor navigiert wird — verhindert dass KDirLister
+    // einen aktiven Job auf dem Mountpoint hält wenn teardown() läuft
+    m_leftPane->filePane()->stopLister();
+    m_rightPane->filePane()->stopLister();
+
+    // Panes vor dem Aushängen wegnavigieren
+    if (leftPaneOnMount)  m_leftPane->navigateTo(QDir::homePath());
+    if (rightPaneOnMount) m_rightPane->navigateTo(QDir::homePath());
+    if (leftMillerOnMount)
+      m_leftPane->miller()->navigateTo(QStringLiteral("__drives__"));
+    if (rightMillerOnMount)
+      m_rightPane->miller()->navigateTo(QStringLiteral("__drives__"));
+
+    // teardownDone-Signal abonnieren bevor teardown() gerufen wird
     connect(
         acc, &Solid::StorageAccess::teardownDone, this,
-        [this, leftPaneOnMount, rightPaneOnMount,
-         leftMillerOnMount, rightMillerOnMount](Solid::ErrorType, QVariant, const QString &) {
-          if (leftPaneOnMount)  m_leftPane->navigateTo(QDir::homePath());
-          if (rightPaneOnMount) m_rightPane->navigateTo(QDir::homePath());
-          if (leftMillerOnMount)
-            m_leftPane->miller()->navigateTo(QStringLiteral("__drives__"));
-          else
-            m_leftPane->miller()->refreshDrives();
-          if (rightMillerOnMount)
-            m_rightPane->miller()->navigateTo(QStringLiteral("__drives__"));
-          else
-            m_rightPane->miller()->refreshDrives();
+        [this, leftMillerOnMount, rightMillerOnMount]
+        (Solid::ErrorType err, QVariant errData, const QString &) {
+          if (err != Solid::NoError) {
+            QMessageBox::warning(this, tr("Aushängen fehlgeschlagen"),
+                tr("Das Laufwerk konnte nicht ausgehängt werden:\n%1")
+                    .arg(errData.toString()));
+          }
+          if (!leftMillerOnMount)  m_leftPane->miller()->refreshDrives();
+          if (!rightMillerOnMount) m_rightPane->miller()->refreshDrives();
           m_sidebar->updateDrives();
         },
         Qt::SingleShotConnection);
+
+    // Timeout-Wächter: wenn teardownDone nach 8s nicht kommt → umount
+    auto *timer = new QTimer(this);
+    timer->setSingleShot(true);
+    timer->setInterval(8000);
+    connect(timer, &QTimer::timeout, this, [this, mountPoint, timer]() {
+      timer->deleteLater();
+      auto *proc = new QProcess(this);
+      connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+              this, [this, proc](int, QProcess::ExitStatus) {
+                refreshAllDrives();
+                proc->deleteLater();
+              });
+      proc->start(QStringLiteral("umount"), {mountPoint});
+    });
+    // Timer stoppen wenn teardownDone feuert
+    connect(acc, &Solid::StorageAccess::teardownDone, timer, &QTimer::stop,
+            Qt::SingleShotConnection);
+    timer->start();
+
     acc->teardown();
   };
   connect(m_leftPane->miller(), &MillerArea::teardownRequested, this,
@@ -475,15 +537,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   // Hot-Plug
   connect(Solid::DeviceNotifier::instance(),
           &Solid::DeviceNotifier::deviceAdded, this, [this](const QString &) {
-            m_leftPane->miller()->refreshDrives();
-            m_rightPane->miller()->refreshDrives();
-            m_sidebar->updateDrives();
+            scheduleDriveRefresh();
           });
   connect(Solid::DeviceNotifier::instance(),
           &Solid::DeviceNotifier::deviceRemoved, this, [this](const QString &) {
-            m_leftPane->miller()->refreshDrives();
-            m_rightPane->miller()->refreshDrives();
-            m_sidebar->updateDrives();
+            scheduleDriveRefresh();
           });
 
   // KDirWatch für Mount-Punkte (zusätzlich zu Solid)
@@ -500,29 +558,24 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     m_fsWatcher->addDir("/media", KDirWatch::WatchSubDirs);
   }
   connect(m_fsWatcher, &KDirWatch::dirty, this, [this](const QString &) {
-    m_leftPane->miller()->refreshDrives();
-    m_rightPane->miller()->refreshDrives();
-    m_sidebar->updateDrives();
+    scheduleDriveRefresh();
   });
   connect(m_fsWatcher, &KDirWatch::created, this, [this](const QString &) {
-    m_leftPane->miller()->refreshDrives();
-    m_rightPane->miller()->refreshDrives();
-    m_sidebar->updateDrives();
+    scheduleDriveRefresh();
   });
   connect(m_fsWatcher, &KDirWatch::deleted, this, [this](const QString &) {
-    m_leftPane->miller()->refreshDrives();
-    m_rightPane->miller()->refreshDrives();
-    m_sidebar->updateDrives();
+    scheduleDriveRefresh();
   });
 
   // Fallback: Timer für regelmäßige Aktualisierung
+}
+
+void MainWindow::initTimers() {
   QTimer *driveTimer = new QTimer(this);
   connect(driveTimer, &QTimer::timeout, this, [this]() {
-    m_leftPane->miller()->refreshDrives();
-    m_rightPane->miller()->refreshDrives();
-    m_sidebar->updateDrives();
+    refreshAllDrives();
   });
-  driveTimer->start(SC_DRIVE_REFRESH_MS); // Alle 5 Sekunden
+  driveTimer->start(30000); // 30s Fallback — Hot-Plug kommt über Solid-Events
 
   connect(m_leftPane->filePane(), &FilePane::columnsChanged, this,
           [this](int colId, bool visible) {
@@ -551,9 +604,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
       s.config()->sync();
     }
 
-    m_sidebar->updateDrives();
-    m_leftPane->miller()->refreshDrives();
-    m_rightPane->miller()->refreshDrives();
+    refreshAllDrives();
     emit m_sidebar->drivesChanged();
   };
   connect(m_leftPane->filePane(), &FilePane::addToPlacesRequested, this,
@@ -613,7 +664,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 }
 
 void MainWindow::registerShortcuts() {
-  // Beim ersten Aufruf: KActionCollection anlegen
   if (!m_actionCollection) {
     m_actionCollection =
         new KActionCollection(this, QStringLiteral("splitcommander"));
@@ -815,35 +865,15 @@ void MainWindow::registerShortcuts() {
     // Alle Aktionen dem MainWindow zuweisen, damit sie feuern
     for (QAction *a : m_actionCollection->actions())
       addAction(a);
+
+    // ActionCollection an Panes weitergeben — damit FilePane/PaneWidget
+    // keine globalen MW()-Zugriffe mehr brauchen
+    m_leftPane->setActionCollection(m_actionCollection);
+    m_rightPane->setActionCollection(m_actionCollection);
   } else {
-    // Bereits initialisiert: nur Settings neu einlesen (z.B. nach
-    // KShortcutsDialog)
+    // Bereits initialisiert: nur Settings neu einlesen (z.B. nach KShortcutsDialog)
     m_actionCollection->readSettings();
   }
-}
-
-void PaneWidget::setMillerVisible(bool visible) {
-  if (m_millerToggle) {
-    m_millerToggle->setChecked(visible);
-  }
-}
-
-void PaneWidget::setViewMode(int mode) {
-  m_toolbar->setViewMode(mode);
-  m_filePane->setViewMode(mode);
-}
-
-
-void PaneWidget::saveState() const {
-  if (m_settingsKey.isEmpty() || !m_vSplit)
-    return;
-  auto s = Config::group("UI");
-  // Größe speichern — aber nur wenn nicht gerade eingeklappt
-  if (!m_millerCollapsed)
-    s.writeEntry(m_settingsKey + "/vSplitState", m_vSplit->saveState());
-  s.writeEntry(m_settingsKey + "/millerCollapsed", m_millerCollapsed);
-  s.writeEntry(m_settingsKey + "/currentPath", currentPath());
-  s.config()->sync();
 }
 
 void MainWindow::saveWindowState() {
@@ -920,4 +950,3 @@ void MainWindow::applyLayout(int mode) {
       m_panesSplitter->restoreState(paneState);
   }
 }
-// EOF - Force IDE Refresh

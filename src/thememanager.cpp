@@ -13,7 +13,6 @@
 #include <QJsonObject>
 #include <QFile>
 #include <QElapsedTimer>
-#include <QDebug>
 
 // --- Singleton ---
 // --- Konstruktor ---
