@@ -525,8 +525,16 @@ MillerItemDelegate::MillerItemDelegate(QObject *parent)
 void MillerItemDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
                                const QModelIndex &idx) const {
   const QRect r = opt.rect;
+  const QString rawPath = idx.data(Qt::UserRole).toString();
+  const QString path = rawPath.startsWith(QStringLiteral("file://"))
+                           ? QUrl(rawPath).toLocalFile()
+                           : rawPath;
   const double total = idx.data(Qt::UserRole + 10).toDouble();
   const bool hasBar = (total > 0);
+  const bool isKioPath = path.contains(QStringLiteral(":/"))
+                         && !path.startsWith(QStringLiteral("/"))
+                         && !path.startsWith(QStringLiteral("solid:"))
+                         && !path.startsWith(QStringLiteral("file:"));
 
   p->save();
   p->setRenderHint(QPainter::Antialiasing, true);
@@ -583,6 +591,18 @@ void MillerItemDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
     p->drawRoundedRect(textX, barY, textW - 4, 3, 1, 1);
     p->setBrush(QColor(TM().colors().accentHover));
     p->drawRoundedRect(textX, barY, (int)((textW - 4) * pct), 3, 1, 1);
+
+    // Host/IP unter dem Balken (wie Sidebar)
+    if (isKioPath) {
+      QUrl u(path); u.setUserInfo(QString());
+      const QString hostStr = u.host();
+      if (!hostStr.isEmpty()) {
+        p->setFont(QFont("sans-serif", 7));
+        p->setPen(QColor(TM().colors().textAccent));
+        p->drawText(textX, barY + 9, textW, r.bottom() - (barY + 9),
+                    Qt::AlignLeft | Qt::AlignTop, hostStr);
+      }
+    }
   } else {
     // Ordner-Layout (34px Höhe)
     p->drawText(
@@ -599,14 +619,10 @@ void MillerItemDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
   // 6. Age-Badge
   if (!Config::showNewIndicator())
     return;
-  const QString rawPath = idx.data(Qt::UserRole).toString();
   if (rawPath.isEmpty())
     return;
 
-  // URL → lokaler Pfad (file:///home/... → /home/...)
-  const QString path = rawPath.startsWith(QStringLiteral("file://"))
-                           ? QUrl(rawPath).toLocalFile()
-                           : rawPath;
+  // Pfad-Check für Age-Badge (nutzt bereits normiertes 'path')
   if (path.isEmpty() || path.startsWith(QStringLiteral("solid:")) ||
       path.contains(QStringLiteral("://")))
     return;
