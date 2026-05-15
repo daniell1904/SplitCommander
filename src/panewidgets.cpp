@@ -603,6 +603,19 @@ void MillerItemDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
                     Qt::AlignLeft | Qt::AlignTop, hostStr);
       }
     }
+  } else if (isKioPath) {
+    // KIO-Pfad ohne Balken: Name oben, URL/Host unten klein
+    QFontMetrics fm(p->font());
+    const int lineH = r.height() / 2;
+    p->setPen(QColor(TM().colors().textPrimary));
+    p->drawText(textX, r.top(), textW, lineH, Qt::AlignLeft | Qt::AlignVCenter,
+                fm.elidedText(name, Qt::ElideRight, textW));
+    QUrl u(path); u.setUserInfo(QString());
+    const QString subtitle = u.host() + (u.path().isEmpty() || u.path() == "/" ? "" : u.path());
+    p->setFont(QFont("sans-serif", 8));
+    p->setPen(QColor(TM().colors().textAccent));
+    p->drawText(textX, r.top() + lineH, textW, lineH, Qt::AlignLeft | Qt::AlignVCenter,
+                QFontMetrics(p->font()).elidedText(subtitle, Qt::ElideRight, textW));
   } else {
     // Ordner-Layout (34px Höhe)
     p->drawText(

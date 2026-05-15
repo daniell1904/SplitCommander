@@ -547,6 +547,14 @@ void MillerColumn::populateDrives() {
     it->setData(Qt::UserRole + 3, true); // Laufwerke sind immer navigierbar
     it->setData(Qt::UserRole + 12, true); // Drive-Root-Item Flag
 
+      // Gespeicherten Cache auslesen
+      const double cachedTotal = netSettings.readEntry("total_" + savedKey, 0.0);
+      const double cachedFree  = netSettings.readEntry("free_" + savedKey, 0.0);
+      if (cachedTotal > 0) {
+        it->setData(Qt::UserRole + 10, cachedTotal);
+        it->setData(Qt::UserRole + 11, cachedFree);
+      }
+
       // Cache wiederverwenden oder neuen Job starten
       if (freeSpaceCache.contains(url)) {
         const auto &fs = freeSpaceCache.value(url);
@@ -558,11 +566,16 @@ void MillerColumn::populateDrives() {
         const QString itemUrl = url;
         QPointer<QListWidget> listPtr = m_list;
         connect(freeJob, &KIO::FileSystemFreeSpaceJob::result, m_list,
-                [listPtr, itemUrl, freeJob](KJob *) {
+                [listPtr, itemUrl, savedKey, freeJob](KJob *) {
                   if (freeJob->error() || !listPtr) return;
                   const double total = freeJob->size()          / 1073741824.0;
                   const double free  = freeJob->availableSize() / 1073741824.0;
                   if (total <= 0) return;
+
+                  auto s = Config::group("NetworkPlaces");
+                  s.writeEntry("total_" + savedKey, total);
+                  s.writeEntry("free_" + savedKey, free);
+
                   for (int i = 0; i < listPtr->count(); ++i) {
                     QListWidgetItem *it = listPtr->item(i);
                     if (it && it->data(Qt::UserRole).toString() == itemUrl) {

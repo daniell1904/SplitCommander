@@ -34,13 +34,7 @@ void ThumbnailManager::requestThumbnail(const QString &path, int size) {
   KFileItemList items;
   items << item;
 
-  QStringList plugins;
-  plugins << QStringLiteral("imagethumbnail") << QStringLiteral("jpegthumbnail")
-          << QStringLiteral("ffmpegthumbs")
-          << QStringLiteral("directorythumbnail")
-          << QStringLiteral("windowsexethumbnail")
-          << QStringLiteral("fontthumbnail");
-
+  QStringList plugins = KIO::PreviewJob::availablePlugins();
   auto *job = KIO::filePreview(items, QSize(size, size), &plugins);
   job->setIgnoreMaximumSize(true);
 

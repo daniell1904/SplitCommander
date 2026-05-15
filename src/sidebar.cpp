@@ -1159,6 +1159,15 @@ void Sidebar::updateDrives()
             it->setData(Qt::UserRole, url);
             it->setData(Qt::UserRole + 1, url);
             it->setSizeHint(QSize(0, SC_SIDEBAR_DRIVE_ROW_H));
+
+            // Gespeicherten Cache auslesen
+            const double cachedTotal = netSettings.readEntry("total_" + savedKey, 0.0);
+            const double cachedFree  = netSettings.readEntry("free_" + savedKey, 0.0);
+            if (cachedTotal > 0) {
+                it->setData(Qt::UserRole + 10, cachedTotal);
+                it->setData(Qt::UserRole + 11, cachedFree);
+            }
+
             if (netFreeCache.contains(url)) {
                 const auto &fs = netFreeCache.value(url);
                 it->setData(Qt::UserRole + 10, fs.first);
@@ -1183,11 +1192,16 @@ void Sidebar::updateDrives()
                 auto *freeJob = KIO::fileSystemFreeSpace(freeSpaceUrl);
                 freeJob->setAutoDelete(true);
                 connect(freeJob, &KIO::FileSystemFreeSpaceJob::result, m_netList,
-                        [listPtr, itemUrl, freeJob](KJob *) {
+                        [listPtr, itemUrl, savedKey, freeJob](KJob *) {
                             if (freeJob->error() || !listPtr) return;
                             const double total = freeJob->size()          / 1073741824.0;
                             const double free  = freeJob->availableSize() / 1073741824.0;
                             if (total <= 0) return;
+
+                            auto s = Config::group("NetworkPlaces");
+                            s.writeEntry("total_" + savedKey, total);
+                            s.writeEntry("free_" + savedKey, free);
+
                             QUrl jobUrl(itemUrl); jobUrl.setUserInfo(QString());
                             for (int i = 0; i < listPtr->count(); ++i) {
                                 QListWidgetItem *it = listPtr->item(i);
