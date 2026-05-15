@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
-project(splitcommander VERSION 0.3.0 LANGUAGES CXX)
+project(splitcommander VERSION 0.5.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -12,7 +12,7 @@ set(CMAKE_AUTOUIC ON)
 find_package(ECM REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Svg Concurrent)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Svg Concurrent DBus)
 find_package(KF6 REQUIRED COMPONENTS
     I18n IconThemes ConfigWidgets XmlGui KIO
     WidgetsAddons WindowSystem Solid Archive Service CoreAddons Baloo
@@ -31,6 +31,7 @@ add_executable(splitcommander
     src/joboverlay.cpp
     src/previewpanel.cpp
     src/drophandler.cpp
+    src/filemanager1.cpp
     src/sidebar.cpp
     src/addnetworkdialog.cpp
     src/sidebargroups.cpp
@@ -41,10 +42,11 @@ add_executable(splitcommander
     src/agebadgedialog.cpp
     src/thememanager.cpp
     src/dialogutils.cpp
+    src/thumbnailmanager.cpp
 )
 
 target_link_libraries(splitcommander
-    Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Svg Qt6::Concurrent
+    Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Svg Qt6::Concurrent Qt6::DBus
     KF6::I18n KF6::IconThemes KF6::IconWidgets KF6::ConfigWidgets KF6::XmlGui
     KF6::KIOCore KF6::KIOWidgets KF6::KIOFileWidgets KF6::WidgetsAddons
     KF6::WindowSystem KF6::Solid KF6::Archive KF6::Service KF6::CoreAddons KF6::Baloo

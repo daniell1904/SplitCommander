@@ -5,6 +5,8 @@
 #include "tagmanager.h"
 #include <QPainter>
 #include <QIcon>
+#include <KFileItem>
+#include "thumbnailmanager.h"
 
 FilePaneDelegate::FilePaneDelegate(QObject *par) : QStyledItemDelegate(par) {}
 
@@ -83,16 +85,37 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
         p->fillRect(strip, ageColor(ageSecs));
       }
     }
-    QIcon icon = qvariant_cast<QIcon>(idx.data(Qt::DecorationRole));
+    QPixmap pm;
+    QString path;
+    const KFileItem item = idx.data(Qt::UserRole + 1).value<KFileItem>(); // We will add this role
+    if (!item.isNull()) path = item.localPath();
+
+    bool hasThumb = false;
     const int ic = qBound(12, rowHeight - 6, 48);
-    if (!icon.isNull()) {
-      QPixmap pm = icon.pixmap(QSize(32, 32));
-      if (pm.isNull())
-        pm = icon.pixmap(QSize(16, 16));
-      if (!pm.isNull())
+    
+    if (!path.isEmpty()) {
+        pm = ThumbnailManager::instance().thumbnail(path, ic * 2);
+        if (pm.isNull()) {
+            ThumbnailManager::instance().requestThumbnail(path, ic * 2);
+        } else {
+            hasThumb = true;
+        }
+    }
+
+    if (hasThumb) {
         p->drawPixmap(
             r.left(), r.top() + (r.height() - ic) / 2,
             pm.scaled(ic, ic, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    } else {
+        QIcon icon = qvariant_cast<QIcon>(idx.data(Qt::DecorationRole));
+        if (!icon.isNull()) {
+            QPixmap icpm = icon.pixmap(QSize(32, 32));
+            if (icpm.isNull()) icpm = icon.pixmap(QSize(16, 16));
+            if (!icpm.isNull())
+                p->drawPixmap(
+                    r.left(), r.top() + (r.height() - ic) / 2,
+                    icpm.scaled(ic, ic, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        }
     }
     r.setLeft(r.left() + ic + 4);
     p->setPen(tc);
@@ -175,4 +198,29 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
 QSize FilePaneDelegate::sizeHint(const QStyleOptionViewItem &,
                                  const QModelIndex &) const {
   return QSize(0, rowHeight);
+}
+
+void ScaledIconDelegate::initStyleOption(QStyleOptionViewItem *opt, const QModelIndex &idx) const {
+    QStyledItemDelegate::initStyleOption(opt, idx);
+    
+    const KFileItem item = idx.data(Qt::UserRole + 1).value<KFileItem>();
+    if (!item.isNull()) {
+        QString path = item.localPath();
+        int sz = opt->decorationSize.width();
+        QPixmap pm = ThumbnailManager::instance().thumbnail(path, sz * 2);
+        if (pm.isNull()) {
+            ThumbnailManager::instance().requestThumbnail(path, sz * 2);
+        } else {
+            opt->icon = QIcon(pm);
+            return;
+        }
+    }
+
+    QIcon ico = qvariant_cast<QIcon>(idx.data(Qt::DecorationRole));
+    if (!ico.isNull()) {
+        int sz = opt->decorationSize.width();
+        QPixmap pm = ico.pixmap(QSize(sz, sz));
+        if (!pm.isNull())
+            opt->icon = QIcon(pm);
+    }
 }

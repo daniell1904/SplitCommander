@@ -1,4 +1,5 @@
 #include "batchrenamer.h"
+#include "thememanager.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -9,7 +10,8 @@ BatchRenamer::BatchRenamer(const QStringList &files, QWidget *parent)
 {
     setWindowTitle(tr("Batch Rename - %1 Dateien").arg(files.size()));
     resize(600, 450);
-    setStyleSheet("background-color: #1e2330; color: #ccd4e8;");
+    setStyleSheet(QString("background-color: %1; color: %2;")
+        .arg(TM().colors().bgBox, TM().colors().textPrimary));
 
     auto *layout = new QVBoxLayout(this);
 
@@ -26,7 +28,8 @@ BatchRenamer::BatchRenamer(const QStringList &files, QWidget *parent)
     m_suffixEdit = new QLineEdit();
     m_suffixEdit->setPlaceholderText("Suffix hinzufügen...");
 
-    QString editStyle = "QLineEdit { background: #2e3440; border: 1px solid #4c566a; padding: 5px; color: #88c0d0; }";
+    QString editStyle = QString("QLineEdit { background: %1; border: 1px solid %2; padding: 5px; color: %3; }")
+        .arg(TM().colors().bgList, TM().colors().borderAlt, TM().colors().textAccent);
     m_searchEdit->setStyleSheet(editStyle);
     m_replaceEdit->setStyleSheet(editStyle);
     m_prefixEdit->setStyleSheet(editStyle);
@@ -46,15 +49,16 @@ BatchRenamer::BatchRenamer(const QStringList &files, QWidget *parent)
     // Vorschau
     layout->addWidget(new QLabel("VORSCHAU:"));
     m_previewList = new QListWidget();
-    m_previewList->setStyleSheet("background: #23283a; border: none; font-family: monospace;");
+    m_previewList->setStyleSheet(QString("background: %1; border: none; font-family: monospace;")
+        .arg(TM().colors().bgInput));
     layout->addWidget(m_previewList);
 
     // Buttons
     auto *btnLayout = new QHBoxLayout();
     auto *okBtn = new QPushButton("Umbenennen");
     auto *cancelBtn = new QPushButton("Abbrechen");
-    okBtn->setStyleSheet("background: #5e81ac; padding: 8px; font-weight: bold;");
-    cancelBtn->setStyleSheet("background: #4c566a; padding: 8px;");
+    okBtn->setStyleSheet(QString("background: %1; padding: 8px; font-weight: bold;").arg(TM().colors().accent));
+    cancelBtn->setStyleSheet(QString("background: %1; padding: 8px;").arg(TM().colors().borderAlt));
     
     btnLayout->addStretch();
     btnLayout->addWidget(cancelBtn);

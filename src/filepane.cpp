@@ -1,10 +1,14 @@
 #include "filepane.h"
+
 #include <QApplication>
 #include <KActionCollection>
 #include <KFormat>
 #include <QPointer>
+#include <QtConcurrent>
+#include <QFutureWatcher>
 #include "config.h"
 #include "tagmanager.h"
+#include "thumbnailmanager.h"
 #include "thememanager.h"
 #include <KJob>
 
@@ -139,29 +143,7 @@ private:
   bool m_shiftPressed = false;
 };
 
-// Hilfsfunktion: FPColumnsProxy-Index -> KFileItem
-// Berücksichtigt den rootIndex-Parent korrekt
-static KFileItem fp_fileItemFromProxyIndex(
-    const QModelIndex &proxyIdx,
-    const QModelIndex &rootProxyIdx,
-    KDirSortFilterProxyModel *sortProxy,
-    KDirModel *dirModel)
-{
-  if (!proxyIdx.isValid()) return KFileItem();
-  // rootIndex in sortProxy mappen
-  QModelIndex rootSortIdx;
-  if (rootProxyIdx.isValid()) {
-    // rootProxyIdx ist ein FPColumnsProxy-Index ohne Parent
-    // mapToSource: FPColumnsProxy -> sortProxy (row 1:1)
-    rootSortIdx = sortProxy->index(rootProxyIdx.row(), 0);
-  }
-  // proxyIdx.row() ist relativ zum rootIndex-Parent
-  QModelIndex sortIdx = sortProxy->index(proxyIdx.row(), 0, rootSortIdx);
-  if (!sortIdx.isValid()) return KFileItem();
-  QModelIndex dirIdx = sortProxy->mapToSource(sortIdx);
-  if (!dirIdx.isValid()) return KFileItem();
-  return dirModel->itemForIndex(dirIdx);
-}
+
 
 
 // --- Hilfsfunktionen ---
@@ -229,7 +211,7 @@ private:
   bool m_dragAllowed = false;
 };
 
-#include "scglobal.h"
+
 
 static QString fmtRwx(QFileDevice::Permissions p) {
   QString s;
@@ -508,13 +490,17 @@ QVariant FPColumnsProxy::extraData(const KFileItem &item, FPCol col,
   const qint64 now = QDateTime::currentSecsSinceEpoch();
   switch (col) {
   case FP_TYP: {
-    if (role != Qt::DisplayRole)
+    if (item.isDir()) {
+      if (role == Qt::DisplayRole) return QStringLiteral("[DIR]");
+      if (role == Qt::UserRole)    return QStringLiteral("");  // Ordner immer zuerst
       return {};
-    if (item.isDir())
-      return QStringLiteral("[DIR]");
-    QString ext = QFileInfo(item.text()).suffix().toUpper().left(4);
-    return ext.isEmpty() ? QStringLiteral("[???]")
-                         : QStringLiteral("[") + ext + QStringLiteral("]");
+    }
+    const QString ext = QFileInfo(item.text()).suffix().toUpper().left(4);
+    const QString display = ext.isEmpty() ? QStringLiteral("[???]")
+                                           : QStringLiteral("[") + ext + QStringLiteral("]");
+    if (role == Qt::DisplayRole) return display;
+    if (role == Qt::UserRole)    return ext; // Sortierung nach reiner Erweiterung
+    return {};
   }
   case FP_ALTER: {
     qint64 mtime = item.time(KFileItem::ModificationTime).toSecsSinceEpoch();
@@ -565,6 +551,8 @@ QVariant FPColumnsProxy::data(const QModelIndex &index, int role) const {
     return col;
 
   KFileItem item = fileItem(index);
+  if (role == Qt::UserRole + 1)
+    return QVariant::fromValue(item);
 
   if (role == Qt::UserRole + 2 && col == FP_NAME) {
     if (!item.isNull()) {
@@ -600,13 +588,39 @@ QVariant FPColumnsProxy::data(const QModelIndex &index, int role) const {
   }
   if (col == FP_GROESSE && role == Qt::DisplayRole) {
     if (item.isDir()) {
-      QString lp = item.localPath();
-      if (!lp.isEmpty())
-        return QString("%1 El.").arg(
-            QDir(lp)
-                .entryList(QDir::AllEntries | QDir::NoDotAndDotDot)
-                .count());
-      return {};
+      const QString lp = item.localPath();
+      if (lp.isEmpty()) return {};
+
+      // Cache prüfen
+      if (m_dirSizeCache.contains(lp))
+        return KFormat().formatByteSize(m_dirSizeCache.value(lp));
+
+      // Noch nicht berechnet: async starten
+      if (!m_dirSizePending.contains(lp)) {
+        m_dirSizePending.insert(lp);
+        auto *watcher = new QFutureWatcher<qint64>(const_cast<FPColumnsProxy*>(this));
+        QObject::connect(watcher, &QFutureWatcher<qint64>::finished,
+                         const_cast<FPColumnsProxy*>(this),
+                         [this, lp, watcher]() {
+                           m_dirSizeCache.insert(lp, watcher->result());
+                           m_dirSizePending.remove(lp);
+                           watcher->deleteLater();
+                           emit const_cast<FPColumnsProxy*>(this)->layoutChanged();
+                         });
+        watcher->setFuture(QtConcurrent::run([lp]() -> qint64 {
+          qint64 total = 0;
+          QDirIterator it(lp, QDir::Files | QDir::NoDotAndDotDot,
+                          QDirIterator::Subdirectories);
+          int count = 0;
+          while (it.hasNext() && count < 50000) {
+            it.next();
+            total += it.fileInfo().size();
+            ++count;
+          }
+          return total;
+        }));
+      }
+      return QStringLiteral("…");
     }
     return KFormat().formatByteSize(item.size());
   }
@@ -778,13 +792,46 @@ void FilePane::setupView() {
   hdr->setSortIndicatorShown(true);
   hdr->setSortIndicator(0, Qt::AscendingOrder);
   m_sortProxy->sort(KDirModel::Name, Qt::AscendingOrder);
+  // Sort-Indicator auch nach dem ersten Laden setzen
+  connect(m_lister, &KDirLister::completed, this, [hdr]() {
+    if (hdr->sortIndicatorSection() == 0)
+      hdr->setSortIndicator(0, hdr->sortIndicatorOrder());
+  }, Qt::SingleShotConnection);
   hdr->setStretchLastSection(false);
   hdr->setDefaultAlignment(Qt::AlignLeft | Qt::AlignVCenter);
   hdr->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(hdr, &QHeaderView::customContextMenuRequested, this,
           &FilePane::showHeaderMenu);
+  // Gespeicherte Breiten laden (nicht Name = Stretch)
+  {
+    auto s = Config::group("General");
+    for (int i = 0; i < visCols.size(); ++i) {
+      if (visCols.at(i) == FP_NAME) continue;
+      const int saved = s.readEntry(m_settingsKey + "colW_" + QString::number(visCols.at(i)), 0);
+      if (saved > 0) hdr->resizeSection(i, saved);
+    }
+  }
+  connect(hdr, &QHeaderView::sectionResized, this,
+          [this](int idx, int, int newSize) {
+            const QList<FPCol> &vc = m_proxy->visibleCols();
+            if (idx < 0 || idx >= vc.size() || vc.at(idx) == FP_NAME) return;
+            auto s = Config::group("General");
+            s.writeEntry(m_settingsKey + "colW_" + QString::number(vc.at(idx)), newSize);
+            s.config()->sync();
+          });
   connect(hdr, &QHeaderView::sectionDoubleClicked, this,
-          [this](int col) { m_view->resizeColumnToContents(col); });
+          [this, hdr](int col) {
+            if (m_proxy->visibleCols().value(col) == FP_NAME) return;
+            QFontMetrics fm(m_view->font());
+            int maxW = hdr->sectionSizeHint(col);
+            const int rows = m_proxy->rowCount(m_view->rootIndex());
+            for (int r = 0; r < qMin(rows, 500); ++r) {
+              const QString t = m_proxy->index(r, col, m_view->rootIndex())
+                                    .data(Qt::DisplayRole).toString();
+              if (!t.isEmpty()) maxW = qMax(maxW, fm.horizontalAdvance(t) + 32);
+            }
+            hdr->resizeSection(col, qMax(maxW, 40));
+          });
 
   m_view->setStyleSheet(
       QString(
@@ -881,7 +928,7 @@ void FilePane::setupView() {
   m_iconView->setStyleSheet(
       QString(
           "QListView{background:%1;border:none;color:%2;outline:none;font-size:"
-          "11px;}"
+          "12px;}"
           "QListView::item{padding:4px;border-radius:4px;}"
           "QListView::item:hover{background:%3;}"
           "QListView::item:selected{background:%4;color:%5;}"
@@ -894,7 +941,6 @@ void FilePane::setupView() {
   m_stack->addWidget(m_view);
   m_stack->addWidget(m_iconView);
   m_stack->setCurrentWidget(m_view);
-
 }
 
 
@@ -957,8 +1003,7 @@ void FilePane::setupConnections() {
             const auto selectedIdx =
                 m_view->selectionModel()->selectedIndexes();
             const QModelIndex cur = m_view->selectionModel()->currentIndex();
-            KFileItem item = fp_fileItemFromProxyIndex(
-                cur, m_view->rootIndex(), m_sortProxy, m_dirModel);
+            KFileItem item = m_proxy->fileItem(cur);
             QString path = item.isNull() ? QString()
                                          : (item.localPath().isEmpty()
                                                 ? item.url().toString()
@@ -974,6 +1019,10 @@ void FilePane::setupConnections() {
   // aber Tags-Spalte muss manuell angestoßen werden)
   connect(&TagManager::instance(), &TagManager::fileTagChanged, this,
           [this](const QString &) {
+            if (!m_currentTagFilter.isEmpty()) {
+              showTaggedFiles(m_currentTagFilter);
+              return;
+            }
             // Alle sichtbaren Indizes der Tags-Spalte neu zeichnen
             const QList<FPCol> &visCols = m_proxy->visibleCols();
             int tagColIdx = -1;
@@ -986,7 +1035,16 @@ void FilePane::setupConnections() {
               emit m_proxy->dataChanged(
                   m_proxy->index(0, tagColIdx),
                   m_proxy->index(m_proxy->rowCount() - 1, tagColIdx));
+            emit m_proxy->layoutChanged();
           });
+
+  connect(&ThumbnailManager::instance(), &ThumbnailManager::thumbnailReady, this, [this](const QString &path) {
+      Q_UNUSED(path)
+      if (!m_proxy) return;
+      // Wir könnten hier gezielt den Index suchen, aber ein layoutChanged ist sicherer 
+      // und Qt-modelle cachen das Zeichnen sowieso.
+      m_proxy->layoutChanged();
+  });
 
   // KNewFileMenu
   m_newFileMenu = new KNewFileMenu(this);
@@ -998,6 +1056,7 @@ void FilePane::setupConnections() {
 // --- Navigation ---
 
 void FilePane::setRootPath(const QString &path) {
+  m_proxy->clearDirSizeCache();
   if (path.isEmpty())
     return;
 
@@ -1083,15 +1142,45 @@ void FilePane::setRootPath(const QString &path) {
 }
 
 void FilePane::setRootUrl(const QUrl &url) {
+  QUrl safeUrl = url;
+  if (safeUrl.path().isEmpty())
+    safeUrl.setPath(QStringLiteral("/"));
+
   m_kioMode = true;
-  m_currentUrl = url;
-  m_currentPath = url.toString();
+  m_currentUrl = safeUrl;
+  m_currentPath = safeUrl.toString();
   m_lister->stop();
-  m_lister->openUrl(url);
+  m_lister->openUrl(safeUrl);
 
   connect(
       m_lister, &KDirLister::completed, this,
       [this, url]() {
+        // Nach Auth: m_currentUrl mit evtl. vorhandenen Credentials aktualisieren
+        const QUrl listerUrl = m_lister->url();
+        if (!listerUrl.userInfo().isEmpty() && m_currentUrl.userInfo().isEmpty()) {
+          m_currentUrl = listerUrl;
+          m_currentPath = listerUrl.toString();
+          // Gespeicherte NetworkPlace URL aktualisieren
+          auto s = Config::group("NetworkPlaces");
+          QStringList saved = s.readEntry("places", QStringList());
+          const QString oldUrl = url.toString();
+          const QString newUrl = listerUrl.toString();
+          if (saved.contains(oldUrl)) {
+            saved.replaceInStrings(oldUrl, newUrl);
+            s.writeEntry("places", saved);
+            // Keys umbenennen
+            const QString oldKey = QString(oldUrl).replace("/","_").replace(":","_");
+            const QString newKey = QString(newUrl).replace("/","_").replace(":","_");
+            const QString name = s.readEntry("name_" + oldKey, QString());
+            const QString icon = s.readEntry("icon_" + oldKey, QString());
+            if (!name.isEmpty()) s.writeEntry("name_" + newKey, name);
+            if (!icon.isEmpty()) s.writeEntry("icon_" + newKey, icon);
+            s.deleteEntry("name_" + oldKey);
+            s.deleteEntry("icon_" + oldKey);
+            s.config()->sync();
+          }
+        }
+
         QModelIndex dirIdx = m_dirModel->indexForUrl(url);
         if (dirIdx.isValid()) {
           QModelIndex sortIdx = m_sortProxy->mapFromSource(dirIdx);
@@ -1179,14 +1268,14 @@ void FilePane::showTaggedFiles(const QString &tagName) {
 
 QList<QUrl> FilePane::selectedUrls() const {
   QList<QUrl> urls;
-  const QModelIndex rootProxy = m_view->rootIndex();
+
   const auto indexes = m_view->selectionModel()->selectedIndexes();
   QSet<int> seenRows;
   for (const auto &idx : indexes) {
     if (idx.column() != 0) continue;
     if (seenRows.contains(idx.row())) continue;
     seenRows.insert(idx.row());
-    KFileItem item = fp_fileItemFromProxyIndex(idx, rootProxy, m_sortProxy, m_dirModel);
+    KFileItem item = m_proxy->fileItem(idx);
     if (!item.isNull())
       urls << item.url();
   }
@@ -1258,9 +1347,9 @@ void FilePane::setViewMode(int mode) {
     m_iconView->setFlow(QListView::LeftToRight);
     m_iconView->setWrapping(true);
     m_iconView->setResizeMode(QListView::Adjust);
-    m_iconView->setIconSize(QSize(48, 48));
-    m_iconView->setGridSize(QSize(96, 80));
-    m_iconView->setSpacing(8);
+    m_iconView->setIconSize(QSize(100, 100));
+    m_iconView->setGridSize(QSize(130, 130));
+    m_iconView->setSpacing(12);
     m_iconView->setUniformItemSizes(true);
     m_iconView->setWordWrap(true);
     m_iconView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -1356,6 +1445,8 @@ void FilePane::resizeEvent(QResizeEvent *e) {
                                m_view->width() - rsvd, h);
     m_overlayHBar->raise();
   }
+  // Spaltenbreiten anpassen, damit das Pane ausgefüllt bleibt
+  onSectionResized(-1, 0, 0);
 }
 
 bool FilePane::eventFilter(QObject *obj, QEvent *e) {
@@ -1423,21 +1514,21 @@ FilePane::ContextMenuState FilePane::buildContextMenuState(const QPoint &pos) {
   }
 
   {
-    const QModelIndex rootProxy = ctx.view->rootIndex();
+
     const QModelIndexList sel = ctx.view->selectionModel()->selectedIndexes();
     QSet<int> seenRows;
     for (const auto &idx : sel) {
       if (idx.column() != 0) continue;
       if (seenRows.contains(idx.row())) continue;
       seenRows.insert(idx.row());
-      KFileItem it = fp_fileItemFromProxyIndex(idx, rootProxy, m_sortProxy, m_dirModel);
+      KFileItem it = m_proxy->fileItem(idx);
       if (!it.isNull())
         ctx.selectedItems << it;
     }
   }
 
   if (ctx.hasItem) {
-    ctx.item = fp_fileItemFromProxyIndex(proxyIndex, ctx.view->rootIndex(), m_sortProxy, m_dirModel);
+    ctx.item = m_proxy->fileItem(proxyIndex);
     if (ctx.item.isNull()) {
       ctx.hasItem = false;
     } else {
@@ -1449,7 +1540,7 @@ FilePane::ContextMenuState FilePane::buildContextMenuState(const QPoint &pos) {
   ctx.isKioPath = m_kioMode || (!m_currentPath.startsWith("/") &&
                                  m_currentPath.contains(QStringLiteral(":/")));
   ctx.dirUrl = ctx.isKioPath
-      ? QUrl(m_currentPath)
+      ? (m_currentUrl.isValid() ? m_currentUrl : QUrl(m_currentPath))
       : QUrl::fromLocalFile(m_currentPath.isEmpty()
                                 ? QFileInfo(ctx.path).absolutePath()
                                 : m_currentPath);
@@ -1818,20 +1909,28 @@ void FilePane::populateItemMenu(QMenu &menu, const ContextMenuState &ctx,
         p.drawEllipse(0, 0, 12, 12);
         QAction *a = tagMenu->addAction(QIcon(pix), tagName);
         connect(a, &QAction::triggered, this, [this, ctx, tagName]() {
+          if (!m_proxy) return;
+          QStringList paths;
           for (const KFileItem &item : ctx.selectedItems) {
             QString path = item.localPath();
-            if (path.isEmpty()) continue;
-            TagManager::instance().setFileTag(path, tagName);
+            if (!path.isEmpty()) paths << path;
+          }
+          if (!paths.isEmpty()) {
+            TagManager::instance().setFileTags(paths, tagName);
           }
         });
       }
       tagMenu->addSeparator();
       QAction *clearAct = tagMenu->addAction(QIcon::fromTheme(QStringLiteral("edit-clear")), tr("Tag entfernen"));
       connect(clearAct, &QAction::triggered, this, [this, ctx]() {
+        if (!m_proxy) return;
+        QStringList paths;
         for (const KFileItem &item : ctx.selectedItems) {
           QString path = item.localPath();
-          if (path.isEmpty()) continue;
-          TagManager::instance().clearFileTag(path);
+          if (!path.isEmpty()) paths << path;
+        }
+        if (!paths.isEmpty()) {
+          TagManager::instance().clearFileTags(paths);
         }
       });
     }
@@ -1976,4 +2075,47 @@ void FilePane::populateBackgroundMenu(QMenu &menu, const ContextMenuState &ctx,
   if (auto *action = findAction(tr("Aktivitäten")))
     menu.addAction(action);
   menu.addSeparator();
+}
+void FilePane::onSectionResized(int /*index*/, int, int) {
+  if (m_inSectionResized || !m_view || !m_view->header())
+    return;
+
+  m_inSectionResized = true;
+  QHeaderView *hdr = m_view->header();
+  const int viewW = m_view->viewport()->width();
+
+  // Wir nehmen die Name-Spalte (Index 0) als "elastische" Spalte.
+  // Wenn eine andere Spalte geändert wird, passt sich der Name an.
+  // Wenn das ganze Fenster (index -1) resized wird, passt sich der Name ebenfalls an.
+
+  int otherWidths = 0;
+  int nameIdx = -1;
+
+  for (int i = 0; i < hdr->count(); ++i) {
+    if (hdr->isSectionHidden(i))
+      continue;
+    
+    // Wir suchen den Index der Name-Spalte (FP_NAME)
+    // Da der User Spalten verschieben kann, prüfen wir die logische ID
+    int logicalIdx = hdr->logicalIndex(i);
+    FPCol colId = m_proxy->visibleCols().at(logicalIdx);
+    
+    if (colId == FP_NAME) {
+      nameIdx = logicalIdx;
+    } else {
+      otherWidths += hdr->sectionSize(logicalIdx);
+    }
+  }
+
+  if (nameIdx != -1) {
+    int newNameW = viewW - otherWidths;
+    if (newNameW < 100)
+      newNameW = 100; // Mindestbreite für den Namen
+    
+    if (hdr->sectionSize(nameIdx) != newNameW) {
+      hdr->resizeSection(nameIdx, newNameW);
+    }
+  }
+
+  m_inSectionResized = false;
 }

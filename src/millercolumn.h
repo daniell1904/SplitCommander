@@ -5,6 +5,7 @@
 #include <QHBoxLayout>
 #include <KDirLister>
 
+
 // --- MillerColumn ---
 class MillerColumn : public QWidget {
     Q_OBJECT
@@ -31,6 +32,7 @@ private:
     QPushButton  *m_header = nullptr;
     QString       m_path;
     KDirLister   *m_lister = nullptr;
+
 };
 
 // --- MillerArea ---

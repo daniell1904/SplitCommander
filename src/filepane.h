@@ -1,5 +1,12 @@
 #pragma once
 
+#include <KDirModel>
+#include <KDirLister>
+#include <KDirSortFilterProxyModel>
+#include <KFileItem>
+#include <KNewFileMenu>
+
+
 #include <QUrl>
 #include <QWidget>
 #include <QTreeView>
@@ -18,12 +25,6 @@
 #include <QScrollBar>
 #include <KFileItemActions>
 #include <KFileItemListProperties>
-
-#include <KDirModel>
-#include <KDirLister>
-#include <KDirSortFilterProxyModel>
-#include <KFileItem>
-#include <KNewFileMenu>
 
 // --- FPCol --- (Definition der Spalten-IDs (Name, Größe, Datum, etc.))
 enum FPCol {
@@ -80,6 +81,7 @@ public:
 
     void setVisibleCols(const QList<FPCol> &cols);
     const QList<FPCol>& visibleCols() const { return m_visCols; }
+    void clearDirSizeCache() { m_dirSizeCache.clear(); m_dirSizePending.clear(); }
     void setTagFilter(const QString &tag);
 
     void setSourceModel(QAbstractItemModel *model) override;
@@ -113,6 +115,8 @@ private:
     bool                      m_globalTagMode = false;
     QList<KFileItem>          m_tagItems;
     KDirSortFilterProxyModel *m_sortProxy = nullptr;
+    mutable QHash<QString, qint64> m_dirSizeCache;
+    mutable QSet<QString>          m_dirSizePending;
     KDirModel                *m_kdirModel = nullptr;
 };
 
@@ -164,6 +168,7 @@ private slots:
     void showHeaderMenu(const QPoint &pos);
     void reload();
     void onNewFileCreated(const QUrl &url);
+    void onSectionResized(int index, int oldSize, int newSize);
 
 protected:
     void resizeEvent(QResizeEvent *e) override;
@@ -216,9 +221,11 @@ private:
     QString  m_currentPath;
     QString  m_settingsKey;
     QUrl     m_currentUrl;
-    bool     m_kioMode      = false;
+    bool     m_kioMode          = false;
+    bool     m_autoColumnResize = true;
     int      m_viewMode     = 0;
     bool     m_foldersFirst = true;
     QString  m_currentTagFilter;
     QList<bool> m_colVisible;
+    bool     m_inSectionResized = false;
 };

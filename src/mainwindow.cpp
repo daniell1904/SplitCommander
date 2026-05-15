@@ -1,6 +1,7 @@
 // --- mainwindow.cpp — SplitCommander Hauptfenster ---
 
 #include "mainwindow.h"
+#include "filemanager1.h"
 #include "agebadgedialog.h"
 #include "config.h"
 #include <QMessageBox>
@@ -121,10 +122,16 @@ void MainWindow::doDelete(PaneWidget *pane, bool permanent) {
   if (urls.isEmpty())
     return;
 
-  // Exakt wie Dolphin: DefaultConfirmation + AutoWarningHandlingEnabled
+  // Für KIO-Pfade (gdrive, smb etc.) immer direkt löschen — kein lokaler Trash
+  const bool hasKioUrl = std::any_of(urls.begin(), urls.end(), [](const QUrl &u) {
+    const QString s = u.scheme();
+    return s != QStringLiteral("file") && s != QStringLiteral("trash") && !s.isEmpty();
+  });
+  const bool useDelete = permanent || hasKioUrl;
+
   auto *job = new KIO::DeleteOrTrashJob(
       urls,
-      permanent ? KIO::AskUserActionInterface::Delete
+      useDelete ? KIO::AskUserActionInterface::Delete
                 : KIO::AskUserActionInterface::Trash,
       KIO::AskUserActionInterface::DefaultConfirmation,
       this);
@@ -193,6 +200,21 @@ void MainWindow::initUI() {
 }
 
 void MainWindow::initConnections() {
+  m_fileManager1 = new FileManager1(this);
+  connect(m_fileManager1, &FileManager1::showFoldersRequested,
+          this, [this](const QStringList &uriList) {
+            if (uriList.isEmpty()) return;
+            raise(); activateWindow();
+            const QString path = QUrl(uriList.first()).toLocalFile();
+            if (!path.isEmpty()) activePane()->navigateTo(path);
+          });
+  connect(m_fileManager1, &FileManager1::showItemsRequested,
+          this, [this](const QStringList &uriList) {
+            if (uriList.isEmpty()) return;
+            raise(); activateWindow();
+            const QString path = QUrl(uriList.first()).toLocalFile();
+            if (!path.isEmpty()) activePane()->navigateTo(QFileInfo(path).absolutePath());
+          });
   connect(m_leftPane, &PaneWidget::focusRequested, this, [this]() {
     m_leftPane->setFocused(true);
     m_rightPane->setFocused(false);

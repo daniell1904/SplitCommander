@@ -10,7 +10,7 @@
 AddNetworkDialog::AddNetworkDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("Netzlaufwerk hinzufügen"));
+    setWindowTitle(tr("SMB Laufwerke verbinden"));
     setMinimumWidth(420);
     setStyleSheet(TM().ssDialog());
 
@@ -138,7 +138,14 @@ AddNetworkDialog::AddNetworkDialog(QWidget *parent)
 }
 
 QString AddNetworkDialog::url() const {
-    return m_urlEdit->text().trimmed();
+    QString raw = m_urlEdit->text().trimmed();
+    if (raw.isEmpty()) return raw;
+    if (!raw.contains(QStringLiteral("://")))
+        raw = QStringLiteral("smb://") + raw;
+    QUrl u(raw);
+    if (u.path().isEmpty())
+        u.setPath(QStringLiteral("/"));
+    return u.toString();
 }
 
 QString AddNetworkDialog::name() const {

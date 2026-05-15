@@ -25,7 +25,9 @@ public:
 
     // Tag einer Datei setzen/lesen
     void    setFileTag(const QString &path, const QString &tag);
+    void    setFileTags(const QStringList &paths, const QString &tag);
     void    clearFileTag(const QString &path);
+    void    clearFileTags(const QStringList &paths);
     QString fileTag(const QString &path) const;
     QString tagColor(const QString &tagName) const;
 

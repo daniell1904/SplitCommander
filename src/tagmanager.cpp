@@ -96,24 +96,42 @@ void TagManager::removeTag(const QString &name)
     emit tagsChanged();
 }
 
-void TagManager::setFileTag(const QString &path, const QString &tag)
-{
-    {
-        QMutexLocker lock(&m_mutex);
-        m_fileTags[path] = tag;
-    }
-    save();
-    emit fileTagChanged(path);
-}
-
 void TagManager::clearFileTag(const QString &path)
 {
+    clearFileTags({path});
+}
+
+void TagManager::setFileTag(const QString &path, const QString &tag)
+{
+    setFileTags({path}, tag);
+}
+
+void TagManager::setFileTags(const QStringList &paths, const QString &tag)
+{
     {
         QMutexLocker lock(&m_mutex);
-        m_fileTags.remove(path);
+        for (const QString &path : paths) {
+            m_fileTags[path] = tag;
+        }
     }
     save();
-    emit fileTagChanged(path);
+    for (const QString &path : paths) {
+        emit fileTagChanged(path);
+    }
+}
+
+void TagManager::clearFileTags(const QStringList &paths)
+{
+    {
+        QMutexLocker lock(&m_mutex);
+        for (const QString &path : paths) {
+            m_fileTags.remove(path);
+        }
+    }
+    save();
+    for (const QString &path : paths) {
+        emit fileTagChanged(path);
+    }
 }
 
 QString TagManager::fileTag(const QString &path) const

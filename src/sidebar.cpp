@@ -4,6 +4,7 @@
 #include "sidebar.h"
 #include "addnetworkdialog.h"
 #include "scglobal.h"
+#include <KDirWatch>
 
 // 1. Qt Core / UI
 #include <QApplication>
@@ -70,7 +71,7 @@
 #include "config.h"
 #include <KTerminalLauncherJob>
 #include <KDialogJobUiDelegate>
-#include "tagmanager.h"
+
 
 
 
@@ -346,7 +347,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     const QString driveBoxLabel = driveBoxSettings.readEntry("driveBoxLabel", tr("LAUFWERKE"));
     auto *lbl = new QLabel(driveBoxLabel);
 
-    lbl->setStyleSheet(QString("font-size:12px;font-weight:normal;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
+    lbl->setStyleSheet(QString("font-size:13px;font-weight:bold;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
     hLay->addWidget(lbl, 1);
 
     auto *menuBtn = new QPushButton();
@@ -355,9 +356,9 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     menuBtn->setFixedSize(26, 22);
     menuBtn->setCursor(Qt::PointingHandCursor);
     menuBtn->setStyleSheet(
-        "QPushButton { background: transparent; border: none; padding: 2px; }"
-        "QPushButton:hover { background: #3b4252; border-radius: 4px; }"
-    );
+        QString("QPushButton { background: transparent; border: none; padding: 2px; }"
+                "QPushButton:hover { background: %1; border-radius: 4px; }")
+        .arg(TM().colors().bgHover));
     hLay->addWidget(menuBtn);
     vbox->addWidget(header);
     auto *listCont = new QWidget();
@@ -370,6 +371,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     m_driveList->setFrameShape(QFrame::NoFrame);
     m_driveList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_driveList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_driveList->setIconSize(QSize(22, 22));
     m_driveList->setStyleSheet(TM().ssListWidget());
     m_driveList->setItemDelegate(new DriveDelegate(true, this));
     listLay->addWidget(m_driveList);
@@ -385,6 +387,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     m_netList->setFrameShape(QFrame::NoFrame);
     m_netList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_netList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_netList->setIconSize(QSize(22, 22));
     m_netList->setStyleSheet(TM().ssListWidget());
     m_netList->setItemDelegate(new DriveDelegate(true, this));
     netWLay->addWidget(m_netList);
@@ -482,6 +485,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
                             s.writeEntry("places", saved);
                             s.writeEntry("name_" + QString(npath).replace("/","_").replace(":","_"), name);
                             s.config()->sync();
+                            saveToUserPlaces(npath, name);
                         }
                         updateDrives();
                         emit drivesChanged();
@@ -490,7 +494,9 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
         }
 
         // Netzwerklaufwerk trennen (gemountet) oder aus Liste entfernen (KIO)
-        const bool isKioPlace = !path.startsWith("/") && path.contains(QStringLiteral(":/"));
+        const bool isKioPlace = !path.startsWith("/")
+                                && !path.startsWith("solid:")
+                                && path.contains(":/");
         if (isKioPlace) {
             menu.addAction(QIcon::fromTheme(QStringLiteral("list-remove")), tr("Aus Laufwerken entfernen"), this,
                 [this, path]() {
@@ -502,9 +508,39 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
                     if (otherVersion != "/") saved.removeAll(otherVersion);
 
                     s.writeEntry("places", saved);
-                    s.deleteEntry("name_" + QString(npath).replace("/","_").replace(":","_"));
-                    s.deleteEntry("name_" + QString(otherVersion).replace("/","_").replace(":","_"));
+                    const QString key1 = QString(npath).replace("/","_").replace(":","_");
+                    const QString key2 = QString(otherVersion).replace("/","_").replace(":","_");
+                    s.deleteEntry("name_" + key1);
+                    s.deleteEntry("name_" + key2);
+                    s.deleteEntry("icon_" + key1);
+                    s.deleteEntry("icon_" + key2);
                     s.config()->sync();
+
+                    // Auch aus XBEL entfernen damit es nach Neustart nicht wiederkommt
+                    const QString xbelPath = QStandardPaths::writableLocation(
+                        QStandardPaths::GenericDataLocation) + "/user-places.xbel";
+                    QFile f(xbelPath);
+                    if (f.open(QIODevice::ReadOnly)) {
+                        QByteArray data = f.readAll();
+                        f.close();
+                        // URL ohne UserInfo für Vergleich
+                        QUrl checkUrl(npath); checkUrl.setUserInfo(QString());
+                        QUrl checkUrl2(otherVersion); checkUrl2.setUserInfo(QString());
+                        // Alle Varianten der URL aus XBEL entfernen
+                        for (const QUrl &u : {QUrl(npath), QUrl(otherVersion), checkUrl, checkUrl2}) {
+                            const QString tag = QString("href=\"%1\"").arg(u.toString());
+                            // Bookmark-Block entfernen
+                            int start = data.indexOf(tag.toUtf8());
+                            if (start < 0) continue;
+                            int bStart = data.lastIndexOf("<bookmark", start);
+                            int bEnd = data.indexOf("</bookmark>", start);
+                            if (bStart >= 0 && bEnd >= 0)
+                                data.remove(bStart, bEnd - bStart + 11);
+                        }
+                        if (f.open(QIODevice::WriteOnly | QIODevice::Truncate))
+                            f.write(data);
+                    }
+
                     updateDrives();
                     emit drivesChanged();
                     emit removeFromPlacesRequested(path);
@@ -545,7 +581,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
         m->addSeparator();
         m->addAction(QIcon::fromTheme(QStringLiteral("network-connect")), tr("Netzwerklaufwerk verbinden"),
                      this, [this]() { emit driveClicked("remote:/"); });
-        m->addAction(QIcon::fromTheme(QStringLiteral("bookmark-new")), tr("Netzlaufwerk hinzufügen ..."),
+        m->addAction(QIcon::fromTheme(QStringLiteral("bookmark-new")), tr("SMB Laufwerke verbinden"),
                      this, [this]() {
                          auto *dlg = new AddNetworkDialog(this);
                          dlg->setAttribute(Qt::WA_DeleteOnClose);
@@ -563,6 +599,8 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
                                  s.writeEntry("name_" + key, name);
                                  s.writeEntry("icon_" + key, icon);
                                  s.config()->sync();
+                                 // Auch in KDE-Places schreiben
+                                 saveToUserPlaces(url, name);
                              }
                              updateDrives();
                              emit drivesChanged();
@@ -672,7 +710,7 @@ void Sidebar::buildTagsSection(QVBoxLayout *parent)
     hLay->setContentsMargins(12, 10, 8, 6);
     hLay->setSpacing(4);
     auto *lbl = new QLabel(tr("TAGS"));
-    lbl->setStyleSheet(QString("font-size:12px;font-weight:normal;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
+    lbl->setStyleSheet(QString("font-size:13px;font-weight:bold;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
     hLay->addWidget(lbl, 1);
     auto *addBtn = new QPushButton();
     addBtn->setIcon(QIcon::fromTheme(QStringLiteral("list-add"))); // KDE Standard für "+"
@@ -695,6 +733,7 @@ void Sidebar::buildTagsSection(QVBoxLayout *parent)
     m_tagList->setFrameShape(QFrame::NoFrame);
     m_tagList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_tagList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_tagList->setIconSize(QSize(22, 22));
     m_tagList->setStyleSheet(TM().ssListWidget());
     listLay->addWidget(m_tagList);
     vbox->addWidget(listCont);
@@ -809,6 +848,17 @@ void Sidebar::loadUserPlaces()
         QStandardPaths::GenericDataLocation, "user-places.xbel");
     if (xbelPath.isEmpty()) return;
 
+    // KDirWatch: XBEL live überwachen — neu laden wenn Dolphin etc. Orte ändert
+    static KDirWatch *s_placesWatcher = nullptr;
+    if (!s_placesWatcher) {
+        s_placesWatcher = new KDirWatch(this);
+        s_placesWatcher->addFile(xbelPath);
+        connect(s_placesWatcher, &KDirWatch::dirty, this, [this]() {
+            loadUserPlaces();
+            updateDrives();
+        });
+    }
+
     QFile f(xbelPath);
     if (!f.open(QIODevice::ReadOnly)) return;
 
@@ -837,11 +887,23 @@ void Sidebar::loadUserPlaces()
             if (netSchemes.contains(scheme)) {
                 auto s = Config::group("NetworkPlaces");
                 QStringList saved = s.readEntry("places", QStringList());
-                if (!saved.contains(href)) {
+
+                // Prüfen ob URL bereits vorhanden (mit oder ohne UserInfo)
+                QUrl checkUrl(href);
+                checkUrl.setUserInfo(QString());
+                bool alreadyIn = false;
+                for (const QString &p : saved) {
+                    QUrl pu(p);
+                    pu.setUserInfo(QString());
+                    if (pu == checkUrl) { alreadyIn = true; break; }
+                }
+
+                if (!alreadyIn) {
                     saved << href;
                     s.writeEntry("places", saved);
+                    const QString key = QString(href).replace("/","_").replace(":","_");
                     const QString n = title.isEmpty() ? url.host() : title;
-                    s.writeEntry("name_" + QString(href).replace("/","_"), n);
+                    s.writeEntry("name_" + key, n);
                     s.config()->sync();
                 }
             }
@@ -1126,9 +1188,13 @@ void Sidebar::updateDrives()
                             const double total = freeJob->size()          / 1073741824.0;
                             const double free  = freeJob->availableSize() / 1073741824.0;
                             if (total <= 0) return;
+                            QUrl jobUrl(itemUrl); jobUrl.setUserInfo(QString());
                             for (int i = 0; i < listPtr->count(); ++i) {
                                 QListWidgetItem *it = listPtr->item(i);
-                                if (it && it->data(Qt::UserRole).toString() == itemUrl) {
+                                if (!it) continue;
+                                QUrl itUrl(it->data(Qt::UserRole).toString());
+                                itUrl.setUserInfo(QString());
+                                if (itUrl == jobUrl || it->data(Qt::UserRole).toString() == itemUrl) {
                                     it->setData(Qt::UserRole + 10, total);
                                     it->setData(Qt::UserRole + 11, free);
                                     break;
@@ -1479,4 +1545,49 @@ void Sidebar::onTrashChanged() {
             }
         }
     }
+}
+
+// --- Sidebar::saveToUserPlaces ---
+// Schreibt einen neuen Eintrag in user-places.xbel (KDE-Places)
+// damit er auch in Dolphin, Gwenview etc. erscheint
+void Sidebar::saveToUserPlaces(const QString &url, const QString &name)
+{
+    const QString xbelPath = QStandardPaths::writableLocation(
+        QStandardPaths::GenericDataLocation) + QStringLiteral("/user-places.xbel");
+
+    // XBEL lesen
+    QFile f(xbelPath);
+    QByteArray existing;
+    if (f.open(QIODevice::ReadOnly)) {
+        existing = f.readAll();
+        f.close();
+    }
+
+    // Bereits vorhanden?
+    if (existing.contains(url.toUtf8())) return;
+
+    // Neuen Bookmark-Eintrag einfügen vor </xbel>
+    const QString entry = QStringLiteral(
+        "  <bookmark href=\"%1\">\n"
+        "    <title>%2</title>\n"
+        "  </bookmark>\n")
+        .arg(url, name);
+
+    if (existing.contains("</xbel>")) {
+        existing.replace("</xbel>", (entry + QStringLiteral("</xbel>")).toUtf8());
+    } else if (existing.isEmpty()) {
+        const QString tmpl = QString(
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            "<!DOCTYPE xbel>\n"
+            "<xbel xmlns:bookmark=\"http://www.freedesktop.org/standards/desktop-bookmarks\""
+            " xmlns:kdepriv=\"http://www.kde.org/kdepriv\" version=\"1.0\">\n"
+            "%1"
+            "</xbel>\n").arg(entry);
+        existing = tmpl.toUtf8();
+    } else {
+        return; // Ungültiges Format — nicht anfassen
+    }
+
+    if (f.open(QIODevice::WriteOnly | QIODevice::Truncate))
+        f.write(existing);
 }

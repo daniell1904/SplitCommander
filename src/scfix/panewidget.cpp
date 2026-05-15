@@ -1055,7 +1055,7 @@ void PaneWidget::initConnections() {
     if (path == m_lastPreviewPath) {
       m_lastPreviewPixmap = pix;
       const int h = m_footerBar->height();
-      const int iconSize = qBound(120, h - 40, 1024);
+      const int iconSize = qBound(32, h - 40, 1024);
       m_previewIcon->setPixmap(pix.scaled(iconSize, iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
   });
@@ -1289,8 +1289,9 @@ void PaneWidget::refreshFooterForDirectory(int selectedCount) {
       m_footerSelected->hide();
     }
   }
+  // Icon/Thumbnail mitwachsen lassen ohne neu zu laden
   if (m_previewIcon && m_footerBar) {
-    const int iconSize = qBound(120, m_footerBar->height() - 40, 1024);
+    const int iconSize = qBound(32, m_footerBar->height() - 40, 1024);
     m_previewIcon->setFixedSize(iconSize, iconSize);
     if (!m_lastPreviewPixmap.isNull())
       m_previewIcon->setPixmap(m_lastPreviewPixmap.scaled(iconSize, iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
@@ -1340,7 +1341,7 @@ void PaneWidget::refreshFooterForLocalPath(const QString &path) {
   if (!m_previewIcon || !m_previewInfo)
     return;
   const int footerH = m_footerBar->height();
-  int iconSize = qBound(120, footerH - 40, 1024);
+  int iconSize = qBound(32, footerH - 40, 1024);
   m_previewIcon->setFixedSize(iconSize, iconSize);
 
   QPixmap thumb = ThumbnailManager::instance().thumbnail(path, 512);
@@ -1348,8 +1349,9 @@ void PaneWidget::refreshFooterForLocalPath(const QString &path) {
     m_lastPreviewPixmap = thumb;
     m_previewIcon->setPixmap(thumb.scaled(iconSize, iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
   } else {
-    m_lastPreviewPixmap = QIcon::fromTheme(KIO::iconNameForUrl(url)).pixmap(512, 512);
-    m_previewIcon->setPixmap(m_lastPreviewPixmap.scaled(iconSize, iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    const QPixmap icon = QIcon::fromTheme(KIO::iconNameForUrl(url)).pixmap(iconSize, iconSize);
+    m_lastPreviewPixmap = icon;
+    m_previewIcon->setPixmap(icon);
     ThumbnailManager::instance().requestThumbnail(path, 512);
   }
  
@@ -1403,11 +1405,13 @@ void PaneWidget::refreshFooterForRemotePath(const QString &path,
   if (!m_previewIcon || !m_previewInfo)
     return;
   const int footerH = m_footerBar->height();
-  int iconSize = qBound(120, footerH - 40, 1024);
-  m_previewIcon->setFixedSize(iconSize, iconSize);
-  m_previewIcon->setPixmap(
+  int iconSize = qBound(32, footerH - 40, 1024);
+  const QPixmap remotePix =
       QIcon::fromTheme(KFileItem(url).isDir() ? "folder" : "text-x-generic")
-          .pixmap(iconSize, iconSize));
+          .pixmap(512, 512);
+  m_lastPreviewPixmap = remotePix;
+  m_previewIcon->setFixedSize(iconSize, iconSize);
+  m_previewIcon->setPixmap(remotePix.scaled(iconSize, iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
   m_previewInfo->setText(
       QString("<b>%1</b><br>%2").arg(url.fileName(), url.scheme()));
 }

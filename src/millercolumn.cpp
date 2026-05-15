@@ -1,5 +1,7 @@
 #include "millercolumn.h"
-#include "mainwindow.h"
+
+#include <QPropertyAnimation>
+#include <QEasingCurve>
 #include "config.h"
 #include "dialogutils.h"
 #include "drophandler.h"
@@ -25,6 +27,7 @@
 #include <Solid/StorageAccess>
 #include <Solid/StorageDrive>
 #include <Solid/StorageVolume>
+#include <QScrollBar>
 
 // --- MillerWidgetItem für Ordner-Sortierung ---
 class MillerWidgetItem : public QListWidgetItem {
@@ -134,6 +137,7 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
       new DropHandler(m_list, resolver, m_list));
 
   lay->addWidget(m_list);
+
 
   connect(m_list, &QListWidget::itemClicked, this, [this](QListWidgetItem *it) {
     emit activated(this);
@@ -326,6 +330,7 @@ void MillerColumn::populateDrives() {
 
   m_list->clear();
   m_list->setStyleSheet(TM().ssColDrives());
+  m_list->setIconSize(QSize(22, 22));
   m_list->setItemDelegate(new MillerItemDelegate(m_list));
   m_list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   m_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -399,8 +404,9 @@ void MillerColumn::populateDrives() {
     it->setData(Qt::DecorationRole, QIcon::fromTheme(iconName));
     it->setData(Qt::UserRole, mounted ? p : QString("solid:") + dev.udi());
     it->setData(Qt::UserRole + 1, dev.udi());
-    it->setSizeHint(QSize(0, SC_MILLER_DRIVE_ROW_H));
+    it->setSizeHint(QSize(0, 50));
     it->setData(Qt::UserRole + 3, true); // Laufwerke sind immer navigierbar
+    it->setData(Qt::UserRole + 12, true); // Drive-Root-Item Flag
 
     if (mounted && !p.isEmpty()) {
       QStorageInfo info(p);
@@ -456,6 +462,7 @@ void MillerColumn::populateDrives() {
     it->setData(Qt::UserRole + 1, device.udi());
     it->setSizeHint(QSize(0, SC_MILLER_DRIVE_ROW_H));
     it->setData(Qt::UserRole + 3, true); // Laufwerke sind immer navigierbar
+    it->setData(Qt::UserRole + 12, true); // Drive-Root-Item Flag
     it->setForeground(QColor(TM().colors().textMuted));
   }
 
@@ -490,6 +497,7 @@ void MillerColumn::populateDrives() {
     it->setData(Qt::UserRole + 1, fs);
     it->setSizeHint(QSize(0, SC_MILLER_DRIVE_ROW_H));
     it->setData(Qt::UserRole + 3, true); // Laufwerke sind immer navigierbar
+    it->setData(Qt::UserRole + 12, true); // Drive-Root-Item Flag
   }
 
   // --- Gespeicherte Netzwerkplätze (NetworkPlaces) ---
@@ -513,12 +521,19 @@ void MillerColumn::populateDrives() {
       if (savedName.isEmpty())
         continue;
 
-      QString iconName = scheme == "gdrive"      ? "folder-gdrive"
-                         : scheme == "smb"       ? "network-workgroup"
-                         : scheme == "sftp"      ? "network-connect"
-                         : scheme == "mtp"       ? "multimedia-player"
-                         : scheme == "bluetooth" ? "bluetooth"
-                                                 : "network-server";
+      const QString savedKey = QString(p).replace("/", "_").replace(":", "_");
+      QString iconName = netSettings.readEntry("icon_" + savedKey, QString());
+      if (iconName.isEmpty()) {
+        iconName = scheme == "gdrive"      ? "folder-gdrive"
+                 : scheme == "smb"        ? "folder-remote-smb"
+                 : scheme == "sftp"       ? "network-connect"
+                 : scheme == "mtp"        ? "multimedia-player"
+                 : scheme == "bluetooth"  ? "bluetooth"
+                                          : "network-server";
+        // Einmalig speichern
+        netSettings.writeEntry("icon_" + savedKey, iconName);
+        netSettings.config()->sync();
+      }
       auto *it = new QListWidgetItem(m_list);
       it->setData(Qt::DisplayRole, savedName);
       it->setData(Qt::DecorationRole, QIcon::fromTheme(iconName));
@@ -530,6 +545,7 @@ void MillerColumn::populateDrives() {
       it->setData(Qt::UserRole + 1, scheme);
       it->setSizeHint(QSize(0, SC_MILLER_DRIVE_ROW_H));
     it->setData(Qt::UserRole + 3, true); // Laufwerke sind immer navigierbar
+    it->setData(Qt::UserRole + 12, true); // Drive-Root-Item Flag
 
       // Cache wiederverwenden oder neuen Job starten
       if (freeSpaceCache.contains(url)) {
@@ -589,6 +605,7 @@ void MillerColumn::populateDir(const QString &path) {
 
   m_list->clear();
   m_list->setStyleSheet(TM().ssColInactive());
+  m_list->setIconSize(QSize(22, 22));
   m_list->setItemDelegate(new MillerItemDelegate(m_list));
 
   if (path != "__drives__") {
@@ -862,6 +879,18 @@ void MillerArea::appendColumn(const QString &path) {
   connect(col, &MillerColumn::propertiesRequested, this,
           &MillerArea::propertiesRequested);
   updateVisibleColumns();
+
+  // Slide-in Animation für die neue Spalte
+  col->setMaximumWidth(0);
+  auto *anim = new QPropertyAnimation(col, "maximumWidth");
+  anim->setDuration(400);
+  anim->setStartValue(0);
+  anim->setEndValue(2000); // Erlaubt dem Layout, die Spalte normal zu füllen
+  anim->setEasingCurve(QEasingCurve::OutQuad);
+  connect(anim, &QPropertyAnimation::finished, col, [col]() {
+      col->setMaximumWidth(16777215); // Zurück auf Standard (QWIDGETSIZE_MAX)
+  });
+  anim->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void MillerArea::trimAfter(MillerColumn *col) {

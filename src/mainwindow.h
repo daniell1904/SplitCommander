@@ -8,6 +8,7 @@
 #include <KJob>
 #include "sidebar.h"
 #include "panewidget.h"
+#include "filemanager1.h"
 
 class JobOverlay;
 class Sidebar;
@@ -51,6 +52,7 @@ private:
     int         m_currentMode      = 1;
     bool        m_panesSplitterRestored = false;
     KActionCollection *m_actionCollection = nullptr;
+    FileManager1 *m_fileManager1 = nullptr;
     KDirWatch  *m_fsWatcher        = nullptr;
     QTimer     *m_driveRefreshTimer = nullptr;
 };

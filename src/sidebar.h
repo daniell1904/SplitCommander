@@ -64,6 +64,7 @@ private:
     // --- Laufwerke ---
     void setupDriveContextMenu();
     void loadUserPlaces();
+    void saveToUserPlaces(const QString &url, const QString &name);
     void connectDriveList();
 
     // --- Gruppen ---

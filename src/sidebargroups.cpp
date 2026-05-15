@@ -1,7 +1,7 @@
 // --- sidebargroups.cpp — Gruppen- und Tag-Logik der Sidebar ---
 #include "sidebar.h"
 #include "config.h"
-#include "dialogutils.h"
+
 #include "thememanager.h"
 #include "tagmanager.h"
 #include "scglobal.h"
@@ -159,7 +159,7 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     hLay->setSpacing(4);
 
     auto *lbl = new QLabel(name.toUpper());
-    lbl->setStyleSheet(QString("font-size:12px;font-weight:normal;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
+    lbl->setStyleSheet(QString("font-size:13px;font-weight:bold;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
     hLay->addWidget(lbl, 1);
 
     // Menü-Button (KDE Style)
@@ -169,9 +169,9 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     menuBtn->setFixedSize(26, 22);
     menuBtn->setCursor(Qt::PointingHandCursor);
     menuBtn->setStyleSheet(
-        "QPushButton { background: transparent; border: none; padding: 2px; }"
-        "QPushButton:hover { background: #3b4252; border-radius: 4px; }"
-    );
+        QString("QPushButton { background: transparent; border: none; padding: 2px; }"
+                "QPushButton:hover { background: %1; border-radius: 4px; }")
+        .arg(TM().colors().bgHover));
     hLay->addWidget(menuBtn);
 
     // Plus-Button (KDE Style)
@@ -204,6 +204,7 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     list->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     list->setSpacing(0);
+    list->setIconSize(QSize(22, 22));
     list->setStyleSheet(TM().ssListWidget());
     list->setItemDelegate(new DriveDelegate(false, this));
     list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -536,12 +537,12 @@ void Sidebar::addPathToGroup(const QString &groupName, const QString &path)
 }
 void Sidebar::addTagItem(const QString &name, const QString &color, const QString &fontFamily)
 {
-    QPixmap pix(10, 10);
+    QPixmap pix(14, 14);
     pix.fill(Qt::transparent);
     QPainter p(&pix);
     p.setRenderHint(QPainter::Antialiasing);
     p.setBrush(QColor(color)); p.setPen(Qt::NoPen);
-    p.drawEllipse(0, 0, 10, 10);
+    p.drawEllipse(0, 0, 14, 14);
 
     auto *it = new QListWidgetItem(QIcon(pix), name, m_tagList);
     it->setData(Qt::UserRole,     color);
@@ -589,9 +590,9 @@ void Sidebar::setupTags()
                 QColor col = dlg.currentColor();
                 if (!col.isValid()) return;
                 item->setData(Qt::UserRole, col.name());
-                QPixmap pix(10, 10); pix.fill(Qt::transparent);
+                QPixmap pix(14, 14); pix.fill(Qt::transparent);
                 QPainter p(&pix); p.setRenderHint(QPainter::Antialiasing);
-                p.setBrush(col); p.setPen(Qt::NoPen); p.drawEllipse(0, 0, 10, 10);
+                p.setBrush(col); p.setPen(Qt::NoPen); p.drawEllipse(0, 0, 14, 14);
                 item->setIcon(QIcon(pix));
                 saveTags();
             });

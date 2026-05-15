@@ -61,19 +61,19 @@ ThemeColors ThemeManager::catppuccinTheme()
 {
     ThemeColors c;
     c.name        = "Catppuccin Mocha";
-    c.bgMain      = "#1e1e2e";
-    c.bgAlternate = "#1e1e2e";
-    c.bgDeep      = "#11111b";
-    c.bgBox       = "#313244";
-    c.bgList      = "#181825";
-    c.bgHover     = "#313244";
-    c.bgSelect    = "#45475a";
-    c.bgPanel     = "#11111b";
-    c.bgTab       = "#11111b";
-    c.bgInput     = "#181825";
+    c.bgMain      = "#11111b";  // dunkelst — Sidebar
+    c.bgDeep      = "#11111b";  // App-Hintergrund (wie bgPanel)
+    c.bgPanel     = "#11111b";  // Panel
+    c.bgTab       = "#11111b";  // Tab
+    c.bgInput     = "#181825";  // Input
+    c.bgBox       = "#1e1e2e";  // Karten/Gruppen
+    c.bgList      = "#313244";  // Dateilisten — heller als bgBox
+    c.bgAlternate = "#313244";  // Alternierend
+    c.bgHover     = "#45475a";  // Hover
+    c.bgSelect    = "#585b70";  // Selektion
     c.border      = "#313244";
     c.borderAlt   = "#45475a";
-    c.separator   = "#313244";
+    c.separator   = "#1e1e2e";
     c.textPrimary = "#cdd6f4";
     c.textAccent  = "#cba6f7";
     c.textLight   = "#cdd6f4";
@@ -90,19 +90,19 @@ ThemeColors ThemeManager::gruvboxTheme()
 {
     ThemeColors c;
     c.name        = "Gruvbox Dark";
-    c.bgMain      = "#282828";
-    c.bgAlternate = "#3c3836";
-    c.bgDeep      = "#1d2021";
-    c.bgBox       = "#3c3836";
-    c.bgList      = "#32302f";
-    c.bgHover     = "#3c3836";
-    c.bgSelect    = "#504945";
-    c.bgPanel     = "#1d2021";
-    c.bgTab       = "#1d2021";
-    c.bgInput     = "#1d2021";
+    c.bgMain      = "#1d2021";  // dunkelst — Sidebar
+    c.bgDeep      = "#1d2021";  // App-Hintergrund
+    c.bgPanel     = "#1d2021";  // Panel
+    c.bgTab       = "#1d2021";  // Tab
+    c.bgInput     = "#282828";  // Input
+    c.bgBox       = "#282828";  // Karten/Gruppen
+    c.bgList      = "#32302f";  // Dateilisten
+    c.bgAlternate = "#3c3836";  // Alternierend
+    c.bgHover     = "#3c3836";  // Hover
+    c.bgSelect    = "#504945";  // Selektion
     c.border      = "#3c3836";
     c.borderAlt   = "#504945";
-    c.separator   = "#3c3836";
+    c.separator   = "#1d2021";
     c.textPrimary = "#ebdbb2";
     c.textAccent  = "#d79921";
     c.textLight   = "#fbf1c7";
@@ -118,45 +118,87 @@ ThemeColors ThemeManager::gruvboxTheme()
 ThemeColors ThemeManager::draculaTheme()
 {
     ThemeColors c;
-    c.name = "Dracula";
-    c.bgMain = "#282a36"; c.bgDeep = "#1e1f29"; c.bgBox = "#44475a";
-    c.bgList = "#282a36"; c.bgAlternate = "#343746"; c.bgHover = "#44475a";
-    c.bgSelect = "#6272a4"; c.bgPanel = "#1e1f29"; c.bgTab = "#1e1f29";
-    c.bgInput = "#282a36"; c.border = "#44475a"; c.borderAlt = "#6272a4";
-    c.separator = "#44475a"; c.textPrimary = "#f8f8f2"; c.textAccent = "#bd93f9";
-    c.textLight = "#ffffff"; c.textMuted = "#6272a4"; c.textInactive = "#44475a";
-    c.accent = "#bd93f9"; c.accentHover = "#ff79c6"; c.splitter = "#191a21";
-    c.colActive = "#bd93f9";
+    c.name        = "Dracula";
+    c.bgMain      = "#191a21";  // dunkelst — Sidebar
+    c.bgDeep      = "#1e1f29";  // App-Hintergrund
+    c.bgPanel     = "#1e1f29";
+    c.bgTab       = "#1e1f29";
+    c.bgInput     = "#282a36";
+    c.bgBox       = "#282a36";  // Karten
+    c.bgList      = "#343746";  // Dateilisten — heller
+    c.bgAlternate = "#343746";
+    c.bgHover     = "#44475a";
+    c.bgSelect    = "#6272a4";
+    c.border      = "#44475a";
+    c.borderAlt   = "#6272a4";
+    c.separator   = "#44475a";
+    c.textPrimary = "#f8f8f2";
+    c.textAccent  = "#bd93f9";
+    c.textLight   = "#ffffff";
+    c.textMuted   = "#6272a4";
+    c.textInactive= "#44475a";
+    c.accent      = "#bd93f9";
+    c.accentHover = "#ff79c6";
+    c.splitter    = "#191a21";
+    c.colActive   = "#bd93f9";
     return c;
 }
 
 ThemeColors ThemeManager::oneDarkTheme()
 {
     ThemeColors c;
-    c.name = "One Dark";
-    c.bgMain = "#21252b"; c.bgDeep = "#181a1f"; c.bgBox = "#2c313a";
-    c.bgList = "#282c34"; c.bgAlternate = "#2c313a"; c.bgHover = "#3e4451";
-    c.bgSelect = "#528bff"; c.bgPanel = "#181a1f"; c.bgTab = "#181a1f";
-    c.bgInput = "#21252b"; c.border = "#3e4451"; c.borderAlt = "#528bff";
-    c.separator = "#181a1f"; c.textPrimary = "#abb2bf"; c.textAccent = "#61afef";
-    c.textLight = "#ffffff"; c.textMuted = "#5c6370"; c.textInactive = "#3e4451";
-    c.accent = "#61afef"; c.accentHover = "#98c379"; c.splitter = "#181a1f";
-    c.colActive = "#61afef";
+    c.name        = "One Dark";
+    c.bgMain      = "#181a1f";  // dunkelst — Sidebar
+    c.bgDeep      = "#181a1f";  // App-Hintergrund
+    c.bgPanel     = "#181a1f";
+    c.bgTab       = "#181a1f";
+    c.bgInput     = "#21252b";
+    c.bgBox       = "#21252b";  // Karten
+    c.bgList      = "#282c34";  // Dateilisten
+    c.bgAlternate = "#2c313a";
+    c.bgHover     = "#3e4451";
+    c.bgSelect    = "#528bff";
+    c.border      = "#3e4451";
+    c.borderAlt   = "#528bff";
+    c.separator   = "#181a1f";
+    c.textPrimary = "#abb2bf";
+    c.textAccent  = "#61afef";
+    c.textLight   = "#ffffff";
+    c.textMuted   = "#5c6370";
+    c.textInactive= "#3e4451";
+    c.accent      = "#61afef";
+    c.accentHover = "#98c379";
+    c.splitter    = "#181a1f";
+    c.colActive   = "#61afef";
     return c;
 }
 
 ThemeColors ThemeManager::solarizedDarkTheme()
 {
     ThemeColors c;
-    c.name = "Solarized Dark";
-    c.bgMain = "#002b36"; c.bgDeep = "#00212b"; c.bgBox = "#002b36";
-    c.bgList = "#002b36"; c.bgAlternate = "#073642"; c.bgHover = "#073642";
-    c.bgSelect = "#268bd2"; c.bgPanel = "#001e26"; c.bgTab = "#001e26";
-    c.bgInput = "#002b36"; c.border = "#073642"; c.borderAlt = "#268bd2";
-    c.separator = "#001e26"; c.textPrimary = "#839496"; c.textAccent = "#268bd2";
-    c.textLight = "#93a1a1"; c.textMuted = "#586e75"; c.textInactive = "#073642";
-    c.accent = "#268bd2"; c.accentHover = "#2aa198"; c.splitter = "#001e26";
-    c.colActive = "#268bd2";
+    c.name        = "Solarized Dark";
+    c.bgMain      = "#001e26";  // dunkelst — Sidebar
+    c.bgDeep      = "#001e26";  // App-Hintergrund
+    c.bgPanel     = "#001e26";
+    c.bgTab       = "#001e26";
+    c.bgInput     = "#002b36";
+    c.bgBox       = "#002b36";  // Karten
+    c.bgList      = "#073642";  // Dateilisten
+    c.bgAlternate = "#073642";
+    c.bgHover     = "#094554";
+    c.bgSelect    = "#268bd2";
+    c.border      = "#073642";
+    c.borderAlt   = "#268bd2";
+    c.separator   = "#001e26";
+    c.textPrimary = "#839496";
+    c.textAccent  = "#268bd2";
+    c.textLight   = "#93a1a1";
+    c.textMuted   = "#586e75";
+    c.textInactive= "#073642";
+    c.accent      = "#268bd2";
+    c.accentHover = "#2aa198";
+    c.splitter    = "#001e26";
+    c.colActive   = "#268bd2";
     return c;
 }
 
@@ -262,9 +304,7 @@ void ThemeManager::exportDefaultThemes(const QString &destDir)
     auto exportTheme = [&](const ThemeColors &c) {
         QString fileName = c.name.toLower().replace(" ", "_") + ".json";
         QFile file(destDir + "/" + fileName);
-        if (file.exists()) return; // Nicht überschreiben, falls der Nutzer sie schon angepasst hat
-
-        if (file.open(QIODevice::WriteOnly)) {
+        if (file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
             QJsonObject obj;
             obj["name"]         = c.name;
             obj["bgMain"]       = c.bgMain;

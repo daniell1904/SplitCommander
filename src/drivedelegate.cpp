@@ -3,6 +3,7 @@
 #include "scglobal.h"
 #include <QPainter>
 #include <QIcon>
+#include <QUrl>
 
 void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QModelIndex &idx) const
 {
@@ -18,19 +19,27 @@ void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QM
     const QIcon    icon    = idx.data(Qt::DecorationRole).value<QIcon>();
     const QString  name    = idx.data(Qt::DisplayRole).toString();
     const QString  path    = idx.data(Qt::UserRole).toString();
-    const int      iconSz  = 16;
+    const int      iconSz  = 22;
     const int      iconX   = r.left() + 8;
     const int      iconY   = r.top() + (r.height() - iconSz) / 2;
-    const int      textX   = r.left() + 32;
-    const int      textW   = r.width() - 40;
+    const int      textX   = r.left() + 40;
+    const int      textW   = r.width() - 50;
 
-    icon.paint(p, iconX, iconY, iconSz, iconSz);
-    p->setFont(QFont("sans-serif", 9));
+    if (!icon.isNull()) {
+        QPixmap pix = icon.pixmap(48, 48, QIcon::Normal, QIcon::On);
+        if (!pix.isNull()) {
+            p->drawPixmap(iconX, iconY, pix.scaled(iconSz, iconSz, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+        }
+    }
+    p->setFont(QFont("sans-serif", 10));
 
-    if (m_showBars && (path.startsWith("/") || idx.data(Qt::UserRole + 10).toDouble() > 0)) {
-        const double total = idx.data(Qt::UserRole + 10).toDouble();
-        const double free  = idx.data(Qt::UserRole + 11).toDouble();
-
+    const bool isKioPath = path.contains(QStringLiteral(":/"))
+                           && !path.startsWith(QStringLiteral("/"))
+                           && !path.startsWith(QStringLiteral("solid:"))
+                           && !path.startsWith(QStringLiteral("file:"));
+    const double total = idx.data(Qt::UserRole + 10).toDouble();
+    const double free  = idx.data(Qt::UserRole + 11).toDouble();
+    if (m_showBars && (path.startsWith("/") || (isKioPath && total > 0))) {
         if (total > 0) {
             const double used  = total - free;
             const double pct   = used / total;
@@ -43,8 +52,8 @@ void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QM
             const int     sizeW    = usedW + restW;
             const int     nameW    = textW - sizeW - 6;
             const int     sizeX    = r.right() - sizeW - 6;
-            const int     lineH    = r.height() / 2;
-            const int     barY     = r.top() + lineH + (r.height() - lineH) / 2 - 1;
+            const int     lineH    = 24;
+            const int     barY     = r.top() + 24;
 
             p->setPen(QColor(TM().colors().textPrimary));
             p->drawText(textX, r.top(), nameW, lineH, Qt::AlignLeft | Qt::AlignVCenter,
@@ -59,12 +68,34 @@ void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QM
             p->drawRoundedRect(textX, barY, textW, 3, 1, 1);
             p->setBrush(QColor(TM().colors().accentHover));
             p->drawRoundedRect(textX, barY, (int)(textW * pct), 3, 1, 1);
-        } else {
-            p->setPen(QColor(TM().colors().textPrimary));
-            p->drawText(textX, r.top(), textW, r.height(), Qt::AlignLeft | Qt::AlignVCenter, name);
+
+            // Host/IP unter dem Balken (nur für Netzwerk)
+            if (isKioPath) {
+                QUrl u(path); u.setUserInfo(QString());
+                const QString hostStr = u.host();
+                if (!hostStr.isEmpty()) {
+                    p->setFont(QFont("sans-serif", 7));
+                    p->setPen(QColor(TM().colors().textAccent));
+                    p->drawText(textX, barY + 9, textW, r.bottom() - (barY + 9), 
+                                Qt::AlignLeft | Qt::AlignTop, hostStr);
+                }
+            }
         }
+    } else if (isKioPath) {
+        // KIO-Pfad ohne Balken: Name oben, URL/Host unten klein
+        QFontMetrics fm(p->font());
+        const int lineH = r.height() / 2;
+        p->setPen(QColor(TM().colors().textPrimary));
+        p->drawText(textX, r.top(), textW, lineH, Qt::AlignLeft | Qt::AlignVCenter,
+                    fm.elidedText(name, Qt::ElideRight, textW));
+        QUrl u(path); u.setUserInfo(QString());
+        const QString subtitle = u.host() + (u.path().isEmpty() || u.path() == "/" ? "" : u.path());
+        p->setFont(QFont("sans-serif", 8));
+        p->setPen(QColor(TM().colors().textAccent));
+        p->drawText(textX, r.top() + lineH, textW, lineH, Qt::AlignLeft | Qt::AlignVCenter,
+                    QFontMetrics(p->font()).elidedText(subtitle, Qt::ElideRight, textW));
     } else {
-        // Nicht eingehängt: Name gedämpft + Eject-Symbol rechts
+        // Nicht eingehängt oder lokal: Name gedämpft + Eject-Symbol rechts
         const bool unmounted = path.startsWith("solid:");
         p->setPen(QColor(unmounted ? TM().colors().textMuted : TM().colors().textPrimary));
         if (unmounted) {

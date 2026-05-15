@@ -54,6 +54,9 @@ static void scMessageHandler(QtMsgType type, const QMessageLogContext &, const Q
 
 int main(int argc, char *argv[])
 {
+    // Qt-interne Portal-Warnungen unterdrücken (harmlos außerhalb KDE-Session)
+    qputenv("QT_LOGGING_RULES", "qt.qpa.services=false");
+
     qInstallMessageHandler(scMessageHandler);
     QApplication app(argc, argv);
     app.setApplicationName("SplitCommander");
