@@ -1,6 +1,6 @@
 #pragma once
 #include "filepane.h"
-#include "millercolumn.h"
+#include "millerarea.h"
 #include "panetoolbar.h"
 #include <KActionCollection>
 #include <QFutureWatcher>

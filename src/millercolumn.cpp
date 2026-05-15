@@ -1,4 +1,6 @@
 #include "millercolumn.h"
+#include "drivemanager.h"
+#include "hoverfader.h"
 
 #include <QPropertyAnimation>
 #include <QEasingCurve>
@@ -136,6 +138,10 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
   m_list->viewport()->installEventFilter(
       new DropHandler(m_list, resolver, m_list));
 
+  auto* millerDel = new MillerItemDelegate(m_list);
+  millerDel->setHoverFader(new HoverFader(m_list, millerDel));
+  m_list->setItemDelegate(millerDel);
+
   lay->addWidget(m_list);
 
 
@@ -218,7 +224,7 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
                         QString(itemPath).replace("/", "_").replace(":", "_"),
                     newName.trimmed());
                 s.config()->sync();
-                populateDrives(); // Neuladen der Spalte
+                DriveManager::instance()->refreshAll(); // Neuladen der Spalte
               });
           menu.addAction(
               QIcon::fromTheme("list-remove"), tr("Aus Laufwerken entfernen"),
@@ -320,273 +326,47 @@ void MillerColumn::populateDrives() {
   m_header->setText(tr("Dieser PC"));
   m_header->setIcon(QIcon::fromTheme("computer"));
 
-  QHash<QString, QPair<double,double>> freeSpaceCache;
-  for (int i = 0; i < m_list->count(); ++i) {
-    QListWidgetItem *it = m_list->item(i);
-    const double total = it->data(Qt::UserRole + 10).toDouble();
-    if (total > 0)
-      freeSpaceCache.insert(it->data(Qt::UserRole).toString(), {total, it->data(Qt::UserRole + 11).toDouble()});
-  }
-
   m_list->clear();
   m_list->setStyleSheet(TM().ssColDrives());
   m_list->setIconSize(QSize(22, 22));
-  m_list->setItemDelegate(new MillerItemDelegate(m_list));
   m_list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   m_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   m_list->verticalScrollBar()->hide();
 
-  QSet<QString> shownUdis;
-  QSet<QString> shownPaths;
+  auto* dm = DriveManager::instance();
 
-  // --- Eingehängte Laufwerke ---
-  for (const Solid::Device &dev :
-       Solid::Device::listFromType(Solid::DeviceInterface::StorageAccess)) {
-    const auto *acc = dev.as<Solid::StorageAccess>();
-    if (!acc)
-      continue;
-
-    // Bereits gezeigtes UDI überspringen
-    if (shownUdis.contains(dev.udi()))
-      continue;
-
-    const bool mounted = acc->isAccessible();
-    const QString p = acc->filePath();
-
-    // Systempartitionen überspringen
-    if (mounted) {
-      if (p.isEmpty())
-        continue;
-      if (p.startsWith("/boot") || p.startsWith("/efi") ||
-          p.startsWith("/snap"))
-        continue;
-    }
-
-    // Nicht-gemountete Geräte: nur anzeigen wenn echtes Filesystem-Volume
-    if (!mounted) {
-      const auto *vol = dev.as<Solid::StorageVolume>();
-      if (!vol)
-        continue;
-      if (vol->usage() != Solid::StorageVolume::FileSystem &&
-          vol->usage() != Solid::StorageVolume::Other)
-        continue;
-      const QString lbl = vol->label().toUpper();
-      const QString fs = vol->fsType().toLower();
-      if (lbl == "BOOT" || lbl == "EFI" || lbl == "EFI SYSTEM PARTITION" ||
-          lbl == "ESP")
-        continue;
-      if (fs == "iso9660" || fs == "udf")
-        continue;
-    }
-
-    shownUdis.insert(dev.udi());
-    if (mounted)
-      shownPaths.insert(mw_normalizePath(p));
-
-    QString driveName =
-        mounted && (p == "/") ? sc_rootVolumeName() : dev.description();
-    if (driveName.isEmpty())
-      driveName = mounted ? QDir(p).dirName() : dev.udi().section('/', -1);
-    if (driveName.isEmpty())
-      continue;
-
-    QString iconName = dev.icon().isEmpty() ? "drive-harddisk" : dev.icon();
-    if (const auto *drv = dev.as<Solid::StorageDrive>()) {
-      if (drv->driveType() == Solid::StorageDrive::CdromDrive)
-        iconName = "drive-optical";
-      else if (drv->isRemovable() || drv->isHotpluggable() ||
-               (mounted && p.startsWith("/run/media/")))
-        iconName = dev.icon().isEmpty() ? "drive-removable-media" : dev.icon();
-    }
-
-    auto *it = new QListWidgetItem(m_list);
-    it->setData(Qt::DisplayRole, driveName);
-    it->setData(Qt::DecorationRole, QIcon::fromTheme(iconName));
-    it->setData(Qt::UserRole, mounted ? p : QString("solid:") + dev.udi());
-    it->setData(Qt::UserRole + 1, dev.udi());
-    it->setSizeHint(QSize(0, 50));
-    it->setData(Qt::UserRole + 3, true); // Laufwerke sind immer navigierbar
-    it->setData(Qt::UserRole + 12, true); // Drive-Root-Item Flag
-
-    if (mounted && !p.isEmpty()) {
-      QStorageInfo info(p);
-      if (info.isValid()) {
-        it->setData(Qt::UserRole + 10, info.bytesTotal() / 1073741824.0);
-        it->setData(Qt::UserRole + 11, info.bytesFree()  / 1073741824.0);
-      }
-    }
-
-    if (!mounted) {
-      it->setForeground(QColor(TM().colors().textMuted));
-    }
-  }
-
-
-  // --- Nicht gemountete Block-Geräte ---
-  const auto vdevices = Solid::Device::listFromType(Solid::DeviceInterface::StorageVolume);
-  for (const Solid::Device &device : vdevices) {
-    // Bereits in Schleife 1 gezeigt — überspringen
-    if (shownUdis.contains(device.udi())) continue;
-
-    const auto *vol = device.as<Solid::StorageVolume>();
-    if (!vol) continue;
-    if (vol->usage() != Solid::StorageVolume::FileSystem
-        && vol->usage() != Solid::StorageVolume::Other) continue;
-
-    const QString label  = vol->label();
-    const QString lbl    = label.toUpper();
-    const QString fsType = vol->fsType().toLower();
-    // Entfernt: if (label.isEmpty()) continue;
-    if (lbl == "BOOT" || lbl == "EFI" || lbl == "EFI SYSTEM PARTITION" || lbl == "ESP") continue;
-    if (fsType == "iso9660" || fsType == "udf") continue;
-
-    const auto *access = device.as<Solid::StorageAccess>();
-    if (access && access->isAccessible()) continue;
-
-    QString name = label;
-    if (name.isEmpty()) name = device.udi().section('/', -1);
-    if (name.isEmpty()) continue;  // Fallback, falls UDI leer
-
-    QString iconName = "drive-harddisk";
-    if (const auto *drv = device.as<Solid::StorageDrive>()) {
-      if (drv->driveType() == Solid::StorageDrive::CdromDrive) iconName = "drive-optical";
-      else if (drv->isRemovable() || drv->isHotpluggable())    iconName = "drive-removable-media";
-    } else if (!device.icon().isEmpty()) {
-      iconName = device.icon();
-    }
-
-    auto *it = new QListWidgetItem(m_list);
-    it->setData(Qt::DisplayRole, name);
-    it->setData(Qt::DecorationRole, QIcon::fromTheme(iconName));
-    it->setData(Qt::UserRole, QString(QStringLiteral("solid:") + device.udi()));
-    it->setData(Qt::UserRole + 1, device.udi());
-    it->setSizeHint(QSize(0, SC_MILLER_DRIVE_ROW_H));
-    it->setData(Qt::UserRole + 3, true); // Laufwerke sind immer navigierbar
-    it->setData(Qt::UserRole + 12, true); // Drive-Root-Item Flag
-    it->setForeground(QColor(TM().colors().textMuted));
-  }
-
-  // --- Netzwerklaufwerke (FUSE-gemountet) ---
-  for (const QStorageInfo &storage : QStorageInfo::mountedVolumes()) {
-    if (!storage.isValid() || !storage.isReady())
-      continue;
-    const QString fs = storage.fileSystemType();
-    if (fs != "cifs" && fs != "smb3" && fs != "nfs" && fs != "nfs4" &&
-        fs != "sshfs" && fs != "fuse.sshfs" && fs != "davfs" &&
-        fs != "fuse.davfs2" && !fs.startsWith("fuse."))
-      continue;
-    if (fs == "fuse.portal" || fs == "fusectl")
-      continue;
-    const QString path = storage.rootPath();
-    const QString normalizedPath = mw_normalizePath(path);
-    if (shownPaths.contains(normalizedPath))
-      continue;
-    shownPaths.insert(normalizedPath);
-    QString name = storage.name().isEmpty()
-                       ? QUrl::fromLocalFile(path).fileName()
-                       : storage.name();
-    if (name.isEmpty())
-      name = path;
-    QString icon = (fs == "cifs" || fs == "smb3")          ? "network-workgroup"
-                   : (fs == "sshfs" || fs == "fuse.sshfs") ? "network-connect"
-                                                           : "network-server";
-    auto *it = new QListWidgetItem(m_list);
-    it->setData(Qt::DisplayRole, name);
-    it->setData(Qt::DecorationRole, QIcon::fromTheme(icon));
-    it->setData(Qt::UserRole, path);
-    it->setData(Qt::UserRole + 1, fs);
-    it->setSizeHint(QSize(0, SC_MILLER_DRIVE_ROW_H));
-    it->setData(Qt::UserRole + 3, true); // Laufwerke sind immer navigierbar
-    it->setData(Qt::UserRole + 12, true); // Drive-Root-Item Flag
-  }
-
-  // --- Gespeicherte Netzwerkplätze (NetworkPlaces) ---
-  {
-    auto netSettings = Config::group("NetworkPlaces");
-    const QStringList savedPlaces =
-        netSettings.readEntry("places", QStringList());
-    for (const QString &p : savedPlaces) {
-      if (p.isEmpty())
-        continue;
-      const QString normalizedP = mw_normalizePath(p);
-      if (shownPaths.contains(normalizedP))
-        continue;
-      shownPaths.insert(normalizedP);
-      const QUrl pUrl(p);
-      const QString scheme = pUrl.scheme().toLower();
-      const QString savedName = netSettings.readEntry(
-          "name_" + QString(p).replace("/", "_").replace(":", "_"),
-          scheme == "gdrive" ? "Google Drive" : pUrl.fileName());
-
-      if (savedName.isEmpty())
-        continue;
-
-      const QString savedKey = QString(p).replace("/", "_").replace(":", "_");
-      QString iconName = netSettings.readEntry("icon_" + savedKey, QString());
-      if (iconName.isEmpty()) {
-        iconName = scheme == "gdrive"      ? "folder-gdrive"
-                 : scheme == "smb"        ? "folder-remote-smb"
-                 : scheme == "sftp"       ? "network-connect"
-                 : scheme == "mtp"        ? "multimedia-player"
-                 : scheme == "bluetooth"  ? "bluetooth"
-                                          : "network-server";
-        // Einmalig speichern
-        netSettings.writeEntry("icon_" + savedKey, iconName);
-        netSettings.config()->sync();
-      }
+  // Local Drives
+  for (const auto &info : dm->localDrives()) {
       auto *it = new QListWidgetItem(m_list);
-      it->setData(Qt::DisplayRole, savedName);
-      it->setData(Qt::DecorationRole, QIcon::fromTheme(iconName));
-      QString url = pUrl.toString();
-      if ((url.startsWith("gdrive:") || url.startsWith("mtp:")) &&
-          !url.endsWith("/"))
-        url += "/";
-      it->setData(Qt::UserRole, url);
-      it->setData(Qt::UserRole + 1, scheme);
+      it->setData(Qt::DisplayRole, info.name);
+      it->setData(Qt::DecorationRole, QIcon::fromTheme(info.iconName));
+      it->setData(Qt::UserRole, info.path);
+      it->setData(Qt::UserRole + 1, info.udi);
+      it->setSizeHint(QSize(0, info.isMounted ? 50 : SC_MILLER_DRIVE_ROW_H));
+      it->setData(Qt::UserRole + 3, true); 
+      it->setData(Qt::UserRole + 12, true); 
+
+      it->setData(Qt::UserRole + 10, info.total);
+      it->setData(Qt::UserRole + 11, info.free);
+
+      if (!info.isMounted) {
+          it->setForeground(QColor(TM().colors().textMuted));
+      }
+  }
+
+  // Network Drives
+  for (const auto &info : dm->networkDrives()) {
+      auto *it = new QListWidgetItem(m_list);
+      it->setData(Qt::DisplayRole, info.name);
+      it->setData(Qt::DecorationRole, QIcon::fromTheme(info.iconName));
+      it->setData(Qt::UserRole, info.path);
+      it->setData(Qt::UserRole + 1, info.scheme);
       it->setSizeHint(QSize(0, SC_MILLER_DRIVE_ROW_H));
-    it->setData(Qt::UserRole + 3, true); // Laufwerke sind immer navigierbar
-    it->setData(Qt::UserRole + 12, true); // Drive-Root-Item Flag
+      it->setData(Qt::UserRole + 3, true);
+      it->setData(Qt::UserRole + 12, true);
 
-      // Gespeicherten Cache auslesen
-      const double cachedTotal = netSettings.readEntry("total_" + savedKey, 0.0);
-      const double cachedFree  = netSettings.readEntry("free_" + savedKey, 0.0);
-      if (cachedTotal > 0) {
-        it->setData(Qt::UserRole + 10, cachedTotal);
-        it->setData(Qt::UserRole + 11, cachedFree);
-      }
-
-      // Cache wiederverwenden oder neuen Job starten
-      if (freeSpaceCache.contains(url)) {
-        const auto &fs = freeSpaceCache.value(url);
-        it->setData(Qt::UserRole + 10, fs.first);
-        it->setData(Qt::UserRole + 11, fs.second);
-      } else {
-        auto *freeJob = KIO::fileSystemFreeSpace(QUrl(url));
-        freeJob->setAutoDelete(true);
-        const QString itemUrl = url;
-        QPointer<QListWidget> listPtr = m_list;
-        connect(freeJob, &KIO::FileSystemFreeSpaceJob::result, m_list,
-                [listPtr, itemUrl, savedKey, freeJob](KJob *) {
-                  if (freeJob->error() || !listPtr) return;
-                  const double total = freeJob->size()          / 1073741824.0;
-                  const double free  = freeJob->availableSize() / 1073741824.0;
-                  if (total <= 0) return;
-
-                  auto s = Config::group("NetworkPlaces");
-                  s.writeEntry("total_" + savedKey, total);
-                  s.writeEntry("free_" + savedKey, free);
-
-                  for (int i = 0; i < listPtr->count(); ++i) {
-                    QListWidgetItem *it = listPtr->item(i);
-                    if (it && it->data(Qt::UserRole).toString() == itemUrl) {
-                      it->setData(Qt::UserRole + 10, total);
-                      it->setData(Qt::UserRole + 11, free);
-                      break;
-                    }
-                  }
-                });
-      }
-    }
+      it->setData(Qt::UserRole + 10, info.total);
+      it->setData(Qt::UserRole + 11, info.free);
   }
 }
 
@@ -602,6 +382,8 @@ void MillerColumn::populateDir(const QString &path) {
     name = tr("Dieser PC");
   else if (local == "/" || (url.path() == "/" && url.scheme().isEmpty()))
     name = sc_rootVolumeName();
+  else if (url.scheme() == "gdrive" && url.fileName().isEmpty())
+    name = tr("Google Drive");
   else
     name = url.fileName().isEmpty() ? (local.isEmpty() ? path : local)
                                     : url.fileName();
@@ -636,415 +418,5 @@ void MillerColumn::setActive(bool active) {
       m_path == "__drives__"
           ? TM().ssColDrives()
           : (active ? TM().ssColActive() : TM().ssColInactive()));
-}
-
-// --- MillerArea ---
-static constexpr int FULL_COLS = 3;
-
-MillerArea::MillerArea(QWidget *parent) : QWidget(parent) {
-  setStyleSheet(TM().ssPane() + "border-top:none;");
-  auto *outerLay = new QVBoxLayout(this);
-  outerLay->setContentsMargins(0, 0, 0, 0);
-  outerLay->setSpacing(0);
-
-  m_rowWidget = new QWidget();
-  m_rowWidget->setStyleSheet(TM().ssPane());
-  m_rowLayout = new QHBoxLayout(m_rowWidget);
-  m_rowLayout->setContentsMargins(0, 0, 0, 0);
-  m_rowLayout->setSpacing(0);
-
-  m_stripDivider = new QFrame();
-  m_stripDivider->setFrameShape(QFrame::VLine);
-  m_stripDivider->setStyleSheet(
-      QString("background:%1;color:%1;").arg(TM().colors().colActive));
-  m_stripDivider->setFixedWidth(2);
-  m_stripDivider->setFrameShadow(QFrame::Sunken);
-  m_stripDivider->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
-  m_stripDivider->setVisible(false);
-  m_rowLayout->addWidget(m_stripDivider);
-
-  m_colContainer = new QWidget();
-  m_colContainer->setStyleSheet(TM().ssPane());
-  m_colLayout = new QHBoxLayout(m_colContainer);
-  m_colLayout->setContentsMargins(0, 0, 0, 0);
-  m_colLayout->setSpacing(0);
-  m_rowLayout->addWidget(m_colContainer, 1);
-
-  outerLay->addWidget(m_rowWidget, 1);
-}
-
-void MillerArea::updateVisibleColumns() {
-  const int n = m_cols.size();
-  const int stripCount = qMax(0, n - FULL_COLS);
-
-  // 1. Alte Strips bereinigen
-  for (auto *s : m_strips) {
-    s->hide();
-    m_rowLayout->removeWidget(s);
-    s->deleteLater();
-  }
-  m_strips.clear();
-
-  // 2. Neue Strips für ausgeblendete Spalten
-  for (int i = 0; i < stripCount; ++i) {
-    QUrl u(m_cols[i]->path());
-    QString label = (i == 0) ? QStringLiteral("This PC") : u.fileName();
-    if (label.isEmpty())
-      label = u.path();
-    if (label.isEmpty())
-      label = m_cols[i]->path();
-
-    auto *strip = new MillerStrip(label, m_rowWidget);
-    m_rowLayout->insertWidget(i, strip);
-    m_strips.append(strip);
-
-    connect(strip, &MillerStrip::clicked, this, [this, i]() {
-      emit focusRequested();
-      QString targetPath = m_cols[i]->path();
-      while (m_cols.size() > i + 1) {
-        trimAfter(m_cols[i]);
-      }
-      updateVisibleColumns();
-      emit headerClicked(targetPath);
-    });
-  }
-
-  // Alte Trenner entfernen und neu aufbauen
-  for (auto *sep : m_colSeparators) {
-    sep->hide();
-    m_colLayout->removeWidget(sep);
-    sep->deleteLater();
-  }
-  m_colSeparators.clear();
-
-  m_stripDivider->setVisible(stripCount > 0);
-
-  // Spalten ein-/ausblenden und Trenner neu aufbauen
-  for (int i = 0; i < n; ++i) {
-    const bool vis = (i >= n - FULL_COLS);
-    m_cols[i]->setVisible(vis);
-    m_colLayout->setStretchFactor(m_cols[i], vis ? 1 : 0);
-
-    if (vis && i > stripCount) {
-      QFrame *sep = new QFrame(m_colContainer);
-      sep->setFixedWidth(1);
-      sep->setStyleSheet(
-          QString("background:%1;border:none;").arg(TM().colors().separator));
-
-      int layoutIdx = m_colLayout->indexOf(m_cols[i]);
-      m_colLayout->insertWidget(layoutIdx, sep);
-      m_colSeparators.append(sep);
-    }
-  }
-}
-
-void MillerArea::refreshDrives() {
-  if (m_cols.isEmpty())
-    return;
-  // Nur den Inhalt der ersten Spalte aktualisieren, ohne die Navigation zu
-  // unterbrechen
-  m_cols[0]->populateDrives();
-}
-
-void MillerArea::init() {
-  auto *col = new MillerColumn();
-  col->populateDrives();
-  m_colLayout->addWidget(col, 1);
-  m_cols.append(col);
-  m_activeCol = col;
-
-  connect(col, &MillerColumn::entryClicked, this,
-          [this, col](const QString &path, MillerColumn *src) {
-            emit focusRequested();
-            trimAfter(src);
-            for (auto *c : m_cols)
-              c->setActive(false);
-            src->setActive(true);
-            m_activeCol = src;
-            QString p = path;
-            if ((p.startsWith("gdrive:") || p.startsWith("mtp:")) &&
-                !p.endsWith("/"))
-              p += "/";
-
-            // isDir aus dem Item lesen (gespeichert in UserRole+3)
-            bool itemIsDir = false;
-            for (int i = 0; i < col->list()->count(); ++i) {
-              if (col->list()->item(i)->data(Qt::UserRole).toString() == path) {
-                itemIsDir = col->list()->item(i)->data(Qt::UserRole + 3).toBool();
-                break;
-              }
-            }
-            const QUrl u = QUrl::fromUserInput(p);
-            const QString sch = u.scheme();
-            const bool isKioDir = (sch == "gdrive" || sch == "mtp" ||
-                sch == "smb" || sch == "sftp" || sch == "ftp" || sch == "remote");
-
-            if (isKioDir || itemIsDir) {
-              appendColumn(p);
-              emit pathChanged(p);
-            } else {
-              auto *job = new KIO::OpenUrlJob(u);
-              job->setUiDelegate(KIO::createDefaultJobUiDelegate(
-                  KJobUiDelegate::AutoHandlingEnabled, nullptr));
-              job->start();
-            }
-          });
-  connect(col, &MillerColumn::activated, this, [this](MillerColumn *src) {
-    emit focusRequested();
-    for (auto *c : m_cols)
-      c->setActive(false);
-    src->setActive(true);
-    m_activeCol = src;
-  });
-  connect(col, &MillerColumn::headerClicked, this, &MillerArea::headerClicked);
-
-  connect(col, &MillerColumn::teardownRequested, this,
-          &MillerArea::teardownRequested);
-  connect(col, &MillerColumn::setupRequested, this, [this](const QString &udi) {
-    Solid::Device dev(udi);
-    auto *acc = dev.as<Solid::StorageAccess>();
-    if (!acc)
-      return;
-    connect(
-        acc, &Solid::StorageAccess::setupDone, this,
-        [this](Solid::ErrorType, QVariant, const QString &) {
-          refreshDrives();
-          emit drivesChanged(); // Sidebar aktualisieren
-        },
-        Qt::SingleShotConnection);
-    acc->setup();
-  });
-  connect(col, &MillerColumn::removeFromPlacesRequested, this,
-          &MillerArea::removeFromPlacesRequested);
-  connect(col, &MillerColumn::openInLeft, this,
-          [this](const QString &p) { emit openInLeft(p); });
-  connect(col, &MillerColumn::openInRight, this,
-          [this](const QString &p) { emit openInRight(p); });
-  connect(col, &MillerColumn::propertiesRequested, this,
-          &MillerArea::propertiesRequested);
-}
-
-void MillerArea::refresh() {
-  for (auto *col : m_cols) {
-    if (col->path() == "__drives__")
-      col->populateDrives();
-    else
-      col->populateDir(col->path());
-  }
-}
-
-void MillerArea::appendColumn(const QString &path) {
-  auto *col = new MillerColumn();
-  col->populateDir(path);
-  col->setActive(true);
-  m_colLayout->addWidget(col, 1);
-  m_cols.append(col);
-
-  connect(col, &MillerColumn::entryClicked, this,
-          [this, col](const QString &p2, MillerColumn *src) {
-            emit focusRequested();
-            trimAfter(src);
-            for (auto *c : m_cols)
-              c->setActive(false);
-            src->setActive(true);
-            m_activeCol = src;
-
-            QUrl u2 = QUrl::fromUserInput(p2);
-            const QString sch2 = u2.scheme();
-            const bool isKioDir =
-                (sch2 == "gdrive" || sch2 == "mtp" || sch2 == "smb" ||
-                 sch2 == "sftp" || sch2 == "ftp" || sch2 == "remote");
-
-            // isDir aus UserRole+3 lesen
-            bool itemIsDir = false;
-            for (int i = 0; i < col->list()->count(); ++i) {
-              if (col->list()->item(i)->data(Qt::UserRole).toString() == p2) {
-                itemIsDir = col->list()->item(i)->data(Qt::UserRole + 3).toBool();
-                break;
-              }
-            }
-
-            if (isKioDir || itemIsDir) {
-              QString nav = p2;
-              if (isKioDir && !nav.endsWith("/"))
-                nav += "/";
-              appendColumn(nav);
-              emit pathChanged(p2);
-            } else {
-              auto *job = new KIO::OpenUrlJob(u2);
-              job->setUiDelegate(KIO::createDefaultJobUiDelegate(
-                  KJobUiDelegate::AutoHandlingEnabled, nullptr));
-              job->start();
-            }
-          });
-  connect(col, &MillerColumn::activated, this, [this](MillerColumn *src) {
-    emit focusRequested();
-    for (auto *c : m_cols)
-      c->setActive(false);
-    src->setActive(true);
-    m_activeCol = src;
-  });
-  connect(col, &MillerColumn::headerClicked, this, &MillerArea::headerClicked);
-  connect(col, &MillerColumn::openInLeft, this,
-          [this](const QString &p) { emit openInLeft(p); });
-  connect(col, &MillerColumn::openInRight, this,
-          [this](const QString &p) { emit openInRight(p); });
-  connect(col, &MillerColumn::propertiesRequested, this,
-          &MillerArea::propertiesRequested);
-  updateVisibleColumns();
-
-  // Slide-in Animation für die neue Spalte
-  col->setMaximumWidth(0);
-  auto *anim = new QPropertyAnimation(col, "maximumWidth");
-  anim->setDuration(400);
-  anim->setStartValue(0);
-  anim->setEndValue(2000); // Erlaubt dem Layout, die Spalte normal zu füllen
-  anim->setEasingCurve(QEasingCurve::OutQuad);
-  connect(anim, &QPropertyAnimation::finished, col, [col]() {
-      col->setMaximumWidth(16777215); // Zurück auf Standard (QWIDGETSIZE_MAX)
-  });
-  anim->start(QAbstractAnimation::DeleteWhenStopped);
-}
-
-void MillerArea::trimAfter(MillerColumn *col) {
-  const int idx = m_cols.indexOf(col);
-  if (idx < 0)
-    return;
-  while (m_cols.size() > idx + 1) {
-    auto *last = m_cols.takeLast();
-    last->hide();
-    m_colLayout->removeWidget(last);
-    last->deleteLater();
-
-    // Zugehörigen Trenner ebenfalls entfernen
-    if (!m_colSeparators.isEmpty()) {
-      auto *sep = m_colSeparators.takeLast();
-      sep->hide();
-      m_colLayout->removeWidget(sep);
-      sep->deleteLater();
-    }
-  }
-  updateVisibleColumns();
-}
-
-void MillerArea::resizeEvent(QResizeEvent *e) { QWidget::resizeEvent(e); }
-
-QString MillerArea::activePath() const {
-  return m_activeCol ? m_activeCol->path() : QString();
-}
-
-QList<QUrl> MillerArea::selectedUrls() const {
-  return {}; // Löschen in Miller-Spalten deaktiviert
-}
-
-void MillerArea::navigateTo(const QString &path, bool clearForward) {
-  (void)clearForward;
-  if (path.isEmpty())
-    return;
-
-  if (path == "__drives__") {
-    if (!m_cols.isEmpty()) {
-      trimAfter(m_cols[0]);
-      m_cols[0]->populateDrives();
-      m_cols[0]->list()->clearSelection();
-      m_cols[0]->setActive(true);
-      m_activeCol = m_cols[0];
-    }
-    return;
-  }
-
-  QUrl startUrl(path);
-  if (startUrl.scheme().isEmpty() && !path.isEmpty())
-    startUrl = QUrl::fromUserInput(path);
-  if (startUrl.isLocalFile() && !QFileInfo::exists(startUrl.toLocalFile()))
-    return;
-
-  QString drivePath;
-  if (!m_cols.isEmpty()) {
-    QListWidget *driveList = m_cols[0]->list();
-    const QString normPath =
-        startUrl.isLocalFile() ? startUrl.toLocalFile() : startUrl.toString();
-    const QString targetNorm = mw_normalizePath(normPath);
-    for (int i = 0; i < driveList->count(); ++i) {
-      QString dp = driveList->item(i)->data(Qt::UserRole).toString();
-      QString normDp = dp;
-      if (normDp.startsWith("file://"))
-        normDp = QUrl(normDp).toLocalFile();
-      const QString dpNorm = mw_normalizePath(normDp);
-
-      if (!dpNorm.isEmpty() &&
-          (targetNorm == dpNorm || targetNorm.startsWith(dpNorm + "/"))) {
-        if (dpNorm.length() >= mw_normalizePath(drivePath).length()) {
-          drivePath = dp;
-          driveList->setCurrentRow(i);
-          m_cols[0]->setActive(true);
-        }
-      }
-    }
-    // Fallback für KIO-Protokolle falls Discovery noch nicht fertig
-    if (drivePath.isEmpty()) {
-      if (startUrl.scheme() == "gdrive")
-        drivePath = "gdrive:/";
-      else if (startUrl.scheme() == "mtp")
-        drivePath = "mtp:/";
-      else if (startUrl.scheme() == "remote")
-        drivePath = "remote:/";
-    }
-    trimAfter(m_cols[0]);
-  }
-
-  QStringList segments;
-  QUrl cur = startUrl;
-  while (cur.isValid()) {
-    const QString curStr = cur.toString();
-    segments.prepend(curStr);
-    if (!drivePath.isEmpty() &&
-        mw_normalizePath(curStr) == mw_normalizePath(drivePath))
-      break; // Stop bei Laufwerks-Wurzel
-
-    QUrl up = cur.adjusted(QUrl::RemoveFilename | QUrl::StripTrailingSlash);
-    if (up == cur ||
-        (up.path().isEmpty() && up.host().isEmpty() && up.scheme() != "file"))
-      break;
-    cur = up;
-  }
-
-  const QString targetDir = startUrl.toString();
-
-  // Segmente überspringen die VOR dem drivePath liegen
-  int startIdx = 0;
-  if (!drivePath.isEmpty()) {
-    for (int i = 0; i < segments.size(); ++i) {
-      if (mw_normalizePath(segments[i]) == mw_normalizePath(drivePath)) {
-        startIdx = i;
-        break;
-      }
-    }
-  }
-
-  for (int i = startIdx + 1; i < segments.size(); ++i) {
-    const QString seg = segments[i - 1];
-    appendColumn(seg);
-    if (!m_cols.isEmpty()) {
-      MillerColumn *col = m_cols.last();
-      const QString next = segments[i];
-      for (int r = 0; r < col->list()->count(); ++r) {
-        if (col->list()->item(r)->data(Qt::UserRole).toString() == next) {
-          col->list()->setCurrentRow(r);
-          break;
-        }
-      }
-    }
-  }
-
-  if (m_cols.isEmpty() || m_cols.last()->path() != targetDir)
-    appendColumn(targetDir);
-
-  updateVisibleColumns();
-}
-
-void MillerArea::setFocused(bool f) {
-  m_focused = f;
-  setStyleSheet(TM().ssPane());
 }
 

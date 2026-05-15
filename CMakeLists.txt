@@ -24,6 +24,7 @@ add_executable(splitcommander
     src/mainwindow.cpp
     src/panetoolbar.cpp
     src/millercolumn.cpp
+    src/millerarea.cpp
     src/panewidget.cpp
     src/filepane.cpp
     src/filepanedelegate.cpp
@@ -32,6 +33,7 @@ add_executable(splitcommander
     src/previewpanel.cpp
     src/drophandler.cpp
     src/filemanager1.cpp
+    src/drivemanager.cpp
     src/sidebar.cpp
     src/addnetworkdialog.cpp
     src/sidebargroups.cpp
@@ -43,6 +45,7 @@ add_executable(splitcommander
     src/thememanager.cpp
     src/dialogutils.cpp
     src/thumbnailmanager.cpp
+    src/hoverfader.cpp
 )
 
 target_link_libraries(splitcommander

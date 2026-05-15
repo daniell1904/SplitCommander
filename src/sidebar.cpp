@@ -2,7 +2,9 @@
 // --- sidebar.cpp — SplitCommander Sidebar ---
 
 #include "sidebar.h"
+#include "drivemanager.h"
 #include "addnetworkdialog.h"
+#include "hoverfader.h"
 #include "scglobal.h"
 #include <KDirWatch>
 
@@ -259,13 +261,11 @@ Sidebar::Sidebar(QWidget *parent) : QWidget(parent)
 
     setupTags();
     loadUserPlaces();
-    updateDrives();
+    DriveManager::instance()->refreshAll();
     connectDriveList();
     setupDriveContextMenu();
-    connect(Solid::DeviceNotifier::instance(), &Solid::DeviceNotifier::deviceAdded,
-            this, [this](const QString &) { updateDrives(); emit drivesChanged(); });
-    connect(Solid::DeviceNotifier::instance(), &Solid::DeviceNotifier::deviceRemoved,
-            this, [this](const QString &) { updateDrives(); emit drivesChanged(); });
+    connect(DriveManager::instance(), &DriveManager::drivesUpdated,
+            this, [this]() { updateDrives(); emit drivesChanged(); });
 
     m_trashLister = new KDirLister(this);
     connect(m_trashLister, &KDirLister::completed, this, &Sidebar::onTrashChanged);
@@ -373,7 +373,9 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     m_driveList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_driveList->setIconSize(QSize(22, 22));
     m_driveList->setStyleSheet(TM().ssListWidget());
-    m_driveList->setItemDelegate(new DriveDelegate(true, this));
+    auto* driveDel = new DriveDelegate(true, this);
+    driveDel->setHoverFader(new HoverFader(m_driveList, driveDel));
+    m_driveList->setItemDelegate(driveDel);
     listLay->addWidget(m_driveList);
     m_netBox = new QWidget();
     m_netBox->setVisible(false);
@@ -389,7 +391,9 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     m_netList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_netList->setIconSize(QSize(22, 22));
     m_netList->setStyleSheet(TM().ssListWidget());
-    m_netList->setItemDelegate(new DriveDelegate(true, this));
+    auto* netDel = new DriveDelegate(true, this);
+    netDel->setHoverFader(new HoverFader(m_netList, netDel));
+    m_netList->setItemDelegate(netDel);
     netWLay->addWidget(m_netList);
 
     // Netzwerk-Box in vbox einfügen (nach listCont, vor Toggle)
@@ -487,7 +491,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
                             s.config()->sync();
                             saveToUserPlaces(npath, name);
                         }
-                        updateDrives();
+                        DriveManager::instance()->refreshAll();
                         emit drivesChanged();
                     });
             }
@@ -541,7 +545,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
                             f.write(data);
                     }
 
-                    updateDrives();
+                    DriveManager::instance()->refreshAll();
                     emit drivesChanged();
                     emit removeFromPlacesRequested(path);
                 });
@@ -577,7 +581,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
         });
         m->addSeparator();
         m->addAction(QIcon::fromTheme(QStringLiteral("view-refresh")), tr("Alles aktualisieren"),
-                     this, [this]() { updateDrives(); })->setShortcut(Qt::Key_F5);
+                     this, []() { DriveManager::instance()->refreshAll(); })->setShortcut(Qt::Key_F5);
         m->addSeparator();
         m->addAction(QIcon::fromTheme(QStringLiteral("network-connect")), tr("Netzwerklaufwerk verbinden"),
                      this, [this]() { emit driveClicked("remote:/"); });
@@ -602,7 +606,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
                                  // Auch in KDE-Places schreiben
                                  saveToUserPlaces(url, name);
                              }
-                             updateDrives();
+                             DriveManager::instance()->refreshAll();
                              emit drivesChanged();
                          });
                          dlg->open();
@@ -686,7 +690,7 @@ void Sidebar::buildNewGroupFixedSection(QVBoxLayout *parent)
     // Wichtig: In das Hauptlayout der Sidebar (fest stehend)
     parent->addWidget(ngWrapper);
 
-    connect(ngBtn, &QPushButton::clicked, this, [this]() { onNewGroupDialog(); });
+    connect(ngBtn, &QPushButton::clicked, this, &Sidebar::onNewGroupDialog);
 }
 // --- Sidebar::buildTagsSection ---
 void Sidebar::buildTagsSection(QVBoxLayout *parent)
@@ -855,7 +859,7 @@ void Sidebar::loadUserPlaces()
         s_placesWatcher->addFile(xbelPath);
         connect(s_placesWatcher, &KDirWatch::dirty, this, [this]() {
             loadUserPlaces();
-            updateDrives();
+            DriveManager::instance()->refreshAll();
         });
     }
 
@@ -966,289 +970,54 @@ void Sidebar::renameNetworkPlace(const QString &path, const QString &newName)
     for (QListWidget *list : findChildren<QListWidget*>())
         updateList(list);
 
-    updateDrives();
+    DriveManager::instance()->refreshAll();
     emit drivesChanged();
 }
 
 void Sidebar::updateDrives()
 {
-    // Reentrancy-Guard
     static bool s_updating = false;
     if (s_updating) return;
     s_updating = true;
 
     m_driveList->clear();
-    QSet<QString> shownPaths;
-    QSet<QString> shownUdis;
-    QHash<QString, QPair<double,double>> netFreeCache;
-
-    // --- Gemountete Volumes via Solid ---
-    const auto devices = Solid::Device::listFromType(Solid::DeviceInterface::StorageAccess);
-    for (const Solid::Device &device : devices) {
-        const auto *access = device.as<Solid::StorageAccess>();
-        if (!access) continue;
-
-        const bool mounted = access->isAccessible();
-        const QString path = mounted ? access->filePath() : QString();
-
-        if (mounted) {
-            if (path.isEmpty() || shownPaths.contains(path)) continue;
-            if (path.startsWith("/boot") || path.startsWith("/efi")
-                || path.startsWith("/snap") || path == "/home") continue;
-        }
-
-        const auto *vol = device.as<Solid::StorageVolume>();
-        if (vol) {
-            const QString lbl    = vol->label().toUpper();
-            const QString fsType = vol->fsType().toLower();
-            if (lbl == "BOOT" || lbl == "EFI" || lbl == "EFI SYSTEM PARTITION" || lbl == "ESP") continue;
-            if (fsType == "iso9660" || fsType == "udf") continue;
-        }
-
-        if (mounted) shownPaths.insert(path);
-        shownUdis.insert(device.udi());
-
-        QString name = (mounted && path == "/") ? sc_rootVolumeName() : device.description();
-        if (name.isEmpty() && vol) name = vol->label();
-        if (name.isEmpty()) name = device.udi().section('/', -1);
-
-        QString iconName;
-        if (const auto *drv = device.as<Solid::StorageDrive>()) {
-            if (drv->driveType() == Solid::StorageDrive::CdromDrive)
-                iconName = "drive-optical";
-            else if (drv->isRemovable() || drv->isHotpluggable()
-                     || (mounted && path.startsWith("/run/media/")))
-                iconName = "drive-removable-media";
-            else
-                iconName = "drive-harddisk";
-        } else {
-            iconName = device.icon().isEmpty()
-                ? ((mounted && path.startsWith("/run/media/")) ? "drive-removable-media" : "drive-harddisk")
-                : device.icon();
-        }
-
-        QString freeStr;
-        double totalG = 0;
-        double freeG  = 0;
-        if (mounted) {
-            QStorageInfo info(path);
-            if (info.isValid()) {
-                totalG = info.bytesTotal() / 1073741824.0;
-                freeG  = info.bytesFree()  / 1073741824.0;
-                freeStr = QString("%1 frei / %2")
-                    .arg(sc_fmtStorage(freeG))
-                    .arg(sc_fmtStorage(totalG));
-            }
-        }
-
-        auto *it = new QListWidgetItem(QIcon::fromTheme(iconName), name, m_driveList);
-        it->setData(Qt::UserRole,      mounted ? path : QString("solid:%1").arg(device.udi()));
-        it->setData(Qt::UserRole + 1,  freeStr);
-        it->setData(Qt::UserRole + 2,  device.udi());
-        it->setData(Qt::UserRole + 10, totalG);
-        it->setData(Qt::UserRole + 11, freeG);
-        if (!mounted) it->setForeground(QColor(TM().colors().textMuted));
-    }
-    const auto vdevices = Solid::Device::listFromType(Solid::DeviceInterface::StorageVolume);
-    for (const Solid::Device &device : vdevices) {
-        if (shownUdis.contains(device.udi())) continue;
-        const auto *vol = device.as<Solid::StorageVolume>();
-        if (!vol) continue;
-        if (vol->usage() != Solid::StorageVolume::FileSystem) continue;
-        const QString fsType = vol->fsType().toLower();
-        if (fsType == "iso9660" || fsType == "udf" || fsType == "swap" ||
-            fsType == "vfat" || fsType == "fat32") continue;
-        const QString lbl = vol->label().toUpper();
-        if (lbl.isEmpty() || lbl == "EFI" || lbl == "BOOT" ||
-            lbl == "EFI SYSTEM PARTITION" || lbl == "ESP" ||
-            lbl.startsWith("RECOVERY")) continue;
-        const auto *acc = device.as<Solid::StorageAccess>();
-        if (acc && acc->isAccessible()) continue;
-        shownUdis.insert(device.udi());
-        const auto *drv = device.as<Solid::StorageDrive>();
-        QString iconName = "drive-harddisk";
-        if (drv) {
-            if (drv->driveType() == Solid::StorageDrive::CdromDrive)
-                iconName = "drive-optical";
-            else if (drv->isRemovable() || drv->isHotpluggable())
-                iconName = "drive-removable-media";
-        }
-        const QString name = vol->label();
-        auto *it = new QListWidgetItem(QIcon::fromTheme(iconName), name, m_driveList);
-        it->setData(Qt::UserRole, QString("solid:%1").arg(device.udi()));
-        it->setData(Qt::UserRole + 2, device.udi());
-        it->setForeground(QColor(TM().colors().textMuted));
-        it->setSizeHint(QSize(0, SC_SIDEBAR_DRIVE_ROW_H));
-        m_driveList->setItemDelegate(new DriveDelegate(false, m_driveList));
-    }
-    if (m_netList) {
-        for (int i = 0; i < m_netList->count(); ++i) {
-            QListWidgetItem *it = m_netList->item(i);
-            const double total = it->data(Qt::UserRole + 10).toDouble();
-            if (total > 0)
-                netFreeCache.insert(it->data(Qt::UserRole).toString(), {total, it->data(Qt::UserRole + 11).toDouble()});
-        }
-
-        // Nur leeren wenn sich die gespeicherten Plätze geändert haben
-        // → verhindert Flackern bei laufenden async Freespace-Jobs
-        auto netSettings2 = Config::group("NetworkPlaces");
-        const QStringList currentPlaces = netSettings2.readEntry("places", QStringList());
-        QStringList existingUrls;
-        for (int i = 0; i < m_netList->count(); ++i)
-            existingUrls << m_netList->item(i)->data(Qt::UserRole).toString();
-        const bool placesChanged = (existingUrls != currentPlaces);
-        if (placesChanged)
-            m_netList->clear();
-    }
+    if (m_netList) m_netList->clear();
     bool hasNet = false;
 
-    // Gespeicherte Netzwerkplätze (persistent)
-    auto netSettings = Config::group("NetworkPlaces");
-    QStringList savedPlaces = netSettings.readEntry("places", QStringList());
+    auto* dm = DriveManager::instance();
 
-    // Wenn sich die Plätze nicht geändert haben: nur Freespace aus Cache aktualisieren
-    if (m_netList) {
-        QStringList existingCheck;
-        for (int i = 0; i < m_netList->count(); ++i)
-            existingCheck << m_netList->item(i)->data(Qt::UserRole).toString();
-        if (existingCheck == savedPlaces) {
-            // Freespace-Cache zurückschreiben (aktualisierte Werte von letztem Job)
-            for (int i = 0; i < m_netList->count(); ++i) {
-                QListWidgetItem *it = m_netList->item(i);
-                const QString url = it->data(Qt::UserRole).toString();
-                if (netFreeCache.contains(url)) {
-                    it->setData(Qt::UserRole + 10, netFreeCache[url].first);
-                    it->setData(Qt::UserRole + 11, netFreeCache[url].second);
-                }
-            }
-            // Weiter mit Solid-Geräten und aktiv gemounteten Volumes — netList überspringen
-            goto skip_netlist_rebuild;
+    for (const auto &info : dm->localDrives()) {
+        QString freeStr;
+        if (info.isMounted && info.total > 0) {
+            freeStr = QString("%1 frei / %2")
+                .arg(sc_fmtStorage(info.free))
+                .arg(sc_fmtStorage(info.total));
         }
-    }
 
-    for (const QString &p : savedPlaces) {
-        if (shownPaths.contains(p)) continue;
-        shownPaths.insert(p);
-        hasNet = true;
-        const QString scheme = QUrl::fromUserInput(p).scheme().toLower();
-        const QString savedName = netSettings.readEntry("name_" + QString(p).replace("/","_").replace(":","_"),
-            scheme == "gdrive" ? "Google Drive" : QDir(p).dirName());
-
-        // Gespeichertes Icon hat Vorrang (explizit vom User gewählt)
-        // Protokoll-Icon als Fallback und einmalig in Settings schreiben
-        const QString savedKey = QString(p).replace("/","_").replace(":","_");
-        QString iconName = netSettings.readEntry("icon_" + savedKey, QString());
-        if (iconName.isEmpty()) {
-            if      (scheme == "smb")                      iconName = "folder-remote-smb";
-            else if (scheme == "gdrive")                   iconName = "folder-gdrive";
-            else if (scheme == "sftp" || scheme == "ssh")  iconName = "network-connect";
-            else if (scheme == "mtp")                      iconName = "multimedia-player";
-            else if (scheme == "bluetooth")                iconName = "bluetooth";
-            else if (scheme == "afc")                      iconName = "phone";
-            else                                           iconName = "network-server";
-            // Einmalig speichern damit spätere Änderungen per Dialog erhalten bleiben
-            netSettings.writeEntry("icon_" + savedKey, iconName);
-            netSettings.config()->sync();
-        }
-        QString url = p;
-        if ((scheme == "gdrive" || scheme == "mtp") && !url.endsWith("/"))
-            url += "/";
-
-        if (m_netList) {
-            auto *it = new QListWidgetItem(QIcon::fromTheme(iconName), savedName, m_netList);
-            it->setData(Qt::UserRole, url);
-            it->setData(Qt::UserRole + 1, url);
+        auto *it = new QListWidgetItem(QIcon::fromTheme(info.iconName), info.name, m_driveList);
+        it->setData(Qt::UserRole, info.path);
+        it->setData(Qt::UserRole + 1, freeStr);
+        it->setData(Qt::UserRole + 2, info.udi);
+        it->setData(Qt::UserRole + 10, info.total);
+        it->setData(Qt::UserRole + 11, info.free);
+        if (!info.isMounted) {
+            it->setForeground(QColor(TM().colors().textMuted));
             it->setSizeHint(QSize(0, SC_SIDEBAR_DRIVE_ROW_H));
-
-            // Gespeicherten Cache auslesen
-            const double cachedTotal = netSettings.readEntry("total_" + savedKey, 0.0);
-            const double cachedFree  = netSettings.readEntry("free_" + savedKey, 0.0);
-            if (cachedTotal > 0) {
-                it->setData(Qt::UserRole + 10, cachedTotal);
-                it->setData(Qt::UserRole + 11, cachedFree);
-            }
-
-            if (netFreeCache.contains(url)) {
-                const auto &fs = netFreeCache.value(url);
-                it->setData(Qt::UserRole + 10, fs.first);
-                it->setData(Qt::UserRole + 11, fs.second);
-            } else {
-                const QString itemUrl = url;
-                QPointer<QListWidget> listPtr = m_netList;
-
-                // kio-gdrive implementiert fileSystemFreeSpace im Worker korrekt,
-                // aber nur auf Account-Pfaden (gdrive:/accountname/), nicht auf gdrive:/
-                // Für andere KIO-Protokolle: direkt die gespeicherte URL verwenden
-                const QUrl freeSpaceUrl = [&]() -> QUrl {
-                    const QUrl u(url);
-                    if (u.scheme() == QStringLiteral("gdrive") && u.path() == QStringLiteral("/")) {
-                        // gdrive:/ → ersten Account-Pfad via KIO::listDir nicht verfügbar hier
-                        // Direkt mit gdrive:/ versuchen — neuere kio-gdrive Versionen unterstützen das
-                        return u;
-                    }
-                    return u;
-                }();
-
-                auto *freeJob = KIO::fileSystemFreeSpace(freeSpaceUrl);
-                freeJob->setAutoDelete(true);
-                connect(freeJob, &KIO::FileSystemFreeSpaceJob::result, m_netList,
-                        [listPtr, itemUrl, savedKey, freeJob](KJob *) {
-                            if (freeJob->error() || !listPtr) return;
-                            const double total = freeJob->size()          / 1073741824.0;
-                            const double free  = freeJob->availableSize() / 1073741824.0;
-                            if (total <= 0) return;
-
-                            auto s = Config::group("NetworkPlaces");
-                            s.writeEntry("total_" + savedKey, total);
-                            s.writeEntry("free_" + savedKey, free);
-
-                            QUrl jobUrl(itemUrl); jobUrl.setUserInfo(QString());
-                            for (int i = 0; i < listPtr->count(); ++i) {
-                                QListWidgetItem *it = listPtr->item(i);
-                                if (!it) continue;
-                                QUrl itUrl(it->data(Qt::UserRole).toString());
-                                itUrl.setUserInfo(QString());
-                                if (itUrl == jobUrl || it->data(Qt::UserRole).toString() == itemUrl) {
-                                    it->setData(Qt::UserRole + 10, total);
-                                    it->setData(Qt::UserRole + 11, free);
-                                    break;
-                                }
-                            }
-                        });
-            }
         }
     }
 
-    // Aktiv gemountete Netzwerklaufwerke
-    skip_netlist_rebuild:
-    for (const QStorageInfo &storage : QStorageInfo::mountedVolumes()) {
-        if (!storage.isValid() || !storage.isReady()) continue;
-        const QString fs = storage.fileSystemType();
-        if (fs != "cifs" && fs != "smb3" && fs != "nfs" && fs != "nfs4"
-            && fs != "sshfs" && fs != "fuse.sshfs" && fs != "davfs"
-            && fs != "fuse.davfs2" && !fs.startsWith("fuse.")) continue;
-
-        const QString path = storage.rootPath();
-        if (shownPaths.contains(path)) continue;
-        shownPaths.insert(path);
-        hasNet = true;
-
-        QString name = storage.name().isEmpty() ? QUrl::fromLocalFile(path).fileName() : storage.name();
-        if (name.isEmpty()) name = path;
-
-        QString icon = (fs == "cifs" || fs == "smb3") ? "folder-remote-smb"
-                     : (fs == "sshfs" || fs == "fuse.sshfs") ? "network-connect"
-                     : "network-server";
-
-        if (m_netList) {
-            auto *it = new QListWidgetItem(QIcon::fromTheme(icon), name, m_netList);
-            it->setData(Qt::UserRole,     path);
-            it->setData(Qt::UserRole + 1, QString(fs + " – " + path));
-            it->setSizeHint(QSize(0, SC_SIDEBAR_NET_ROW_H - 8));
+    if (m_netList) {
+        for (const auto &info : dm->networkDrives()) {
+            hasNet = true;
+            auto *it = new QListWidgetItem(QIcon::fromTheme(info.iconName), info.name, m_netList);
+            it->setData(Qt::UserRole, info.path);
+            it->setData(Qt::UserRole + 1, info.subtitle.isEmpty() ? info.path : info.subtitle);
+            it->setSizeHint(QSize(0, info.subtitle.isEmpty() ? SC_SIDEBAR_DRIVE_ROW_H : SC_SIDEBAR_NET_ROW_H - 8));
+            it->setData(Qt::UserRole + 10, info.total);
+            it->setData(Qt::UserRole + 11, info.free);
         }
     }
 
-    // Netzwerk-Sektion ein-/ausblenden
     if (m_netBox) {
         m_netBox->setVisible(hasNet);
         if (hasNet && m_netList) {
@@ -1263,7 +1032,7 @@ void Sidebar::updateDrives()
             }
         }
     }
-    // --- Höhe anpassen ---
+
     int totalH = 0;
     for (int i = 0; i < m_driveList->count(); ++i)
         totalH += m_driveList->sizeHintForRow(i);
@@ -1326,19 +1095,19 @@ void Sidebar::showDriveContextMenu(QListWidgetItem *item, const QPoint &pos)
                     }
                 }
                 if (foundUdi.isEmpty()) {
-                    updateDrives(); emit drivesChanged();
+                    DriveManager::instance()->refreshAll(); emit drivesChanged();
                     return;
                 }
                 auto *device = new Solid::Device(foundUdi);
                 auto *acc = device->as<Solid::StorageAccess>();
                 if (!acc) {
                     delete device;
-                    updateDrives(); emit drivesChanged();
+                    DriveManager::instance()->refreshAll(); emit drivesChanged();
                     return;
                 }
                 connect(acc, &Solid::StorageAccess::teardownDone, this,
                         [this, device](Solid::ErrorType, QVariant, const QString &) {
-                            updateDrives(); emit drivesChanged();
+                            DriveManager::instance()->refreshAll(); emit drivesChanged();
                             delete device;
                         }, Qt::SingleShotConnection);
                 acc->teardown();
@@ -1362,7 +1131,7 @@ void Sidebar::showDriveContextMenu(QListWidgetItem *item, const QPoint &pos)
                     if (!acc) return;
                     connect(acc, &Solid::StorageAccess::setupDone, this,
                             [this](Solid::ErrorType, QVariant, const QString &) {
-                                updateDrives();
+                                DriveManager::instance()->refreshAll();
                                 emit drivesChanged();
                             }, Qt::SingleShotConnection);
                     acc->setup();
@@ -1407,7 +1176,7 @@ void Sidebar::showDriveContextMenu(QListWidgetItem *item, const QPoint &pos)
                         s.deleteEntry("name_" + QString(npath).replace("/","_").replace(":","_"));
                         s.deleteEntry("name_" + QString(otherVersion).replace("/","_").replace(":","_"));
                         s.config()->sync();
-                        updateDrives();
+                        DriveManager::instance()->refreshAll();
                         emit drivesChanged();
                     });
                 menu.addSeparator();
@@ -1461,7 +1230,7 @@ void Sidebar::addNetworkPlace(const QString &path, const QString &name)
         s.writeEntry("name_" + QString(npath).replace("/","_").replace(":","_"), name);
         s.config()->sync();
     }
-    updateDrives();
+    DriveManager::instance()->refreshAll();
     emit drivesChanged();
 }
 

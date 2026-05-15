@@ -10,10 +10,21 @@ void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QM
     p->save();
     p->setRenderHint(QPainter::Antialiasing, false);
 
-    if (opt.state & QStyle::State_Selected)
+    if (opt.state & QStyle::State_Selected) {
         p->fillRect(opt.rect, QColor(TM().colors().bgSelect));
-    else if (opt.state & QStyle::State_MouseOver)
-        p->fillRect(opt.rect, QColor(TM().colors().bgHover));
+    } else {
+        p->fillRect(opt.rect, QColor(TM().colors().bgList)); // Grundhintergrund
+        if (m_fader) {
+            double hov = m_fader->opacity(idx.row());
+            if (hov > 0.0) {
+                QColor hC = QColor(TM().colors().bgHover);
+                hC.setAlphaF(hC.alphaF() * hov);
+                p->fillRect(opt.rect, hC);
+            }
+        } else if (opt.state & QStyle::State_MouseOver) {
+            p->fillRect(opt.rect, QColor(TM().colors().bgHover));
+        }
+    }
 
     const QRect    r       = opt.rect;
     const QIcon    icon    = idx.data(Qt::DecorationRole).value<QIcon>();
@@ -67,7 +78,7 @@ void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QM
             p->setBrush(QColor(TM().colors().splitter)); p->setPen(Qt::NoPen);
             p->drawRoundedRect(textX, barY, textW, 3, 1, 1);
             p->setBrush(QColor(TM().colors().accentHover));
-            p->drawRoundedRect(textX, barY, (int)(textW * pct), 3, 1, 1);
+            p->drawRoundedRect(textX, barY, (int)(textW * pct * m_animProgress), 3, 1, 1);
 
             // Host/IP unter dem Balken (nur für Netzwerk)
             if (isKioPath) {

@@ -15,6 +15,7 @@
 #include <QStyledItemDelegate>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QVariantAnimation>
 #include <functional>
 
 // --- MillerStrip --- schmaler Streifen für zurückliegende Miller-Spalten ---
@@ -126,10 +127,19 @@ private:
 
 // --- MillerItemDelegate — Age-Badge Indikator in Miller-Spalten ---
 class MillerItemDelegate : public QStyledItemDelegate {
+  Q_OBJECT
 public:
   explicit MillerItemDelegate(QObject *parent = nullptr);
   void paint(QPainter *p, const QStyleOptionViewItem &opt,
              const QModelIndex &idx) const override;
   QSize sizeHint(const QStyleOptionViewItem &opt,
                  const QModelIndex &idx) const override;
+  void setHoverFader(class HoverFader *fader) { m_fader = fader; }
+  void restartAnimation() {
+      if (m_anim) m_anim->start(QAbstractAnimation::KeepWhenStopped);
+  }
+private:
+  double m_animProgress = 0.0;
+  class HoverFader *m_fader = nullptr;
+  QVariantAnimation *m_anim = nullptr;
 };

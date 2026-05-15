@@ -2,7 +2,7 @@
 
 #include "mainwindow.h"
 #include "filemanager1.h"
-#include "agebadgedialog.h"
+// Removed agebadgedialog.h
 #include "config.h"
 #include <QMessageBox>
 #include "filepane.h"
@@ -15,7 +15,7 @@
 #include <KShortcutsDialog>
 #include <KStandardShortcut>
 
-#include "drophandler.h"
+// Removed drophandler.h
 #include <KFileItem>
 #include <KFormat>
 #include <KIO/CopyJob>
@@ -78,9 +78,10 @@
 #include <functional>
 
 
-#include "panetoolbar.h"
+// Removed panetoolbar.h
 #include "millercolumn.h"
 #include "scglobal.h"
+#include "drivemanager.h"
 
 #include "panewidget.h"
 
@@ -298,12 +299,14 @@ void MainWindow::initConnections() {
         return;
       if (acc->isAccessible()) {
         refreshAllDrives();
+        navigate(acc->filePath());
       } else {
         connect(
             acc, &Solid::StorageAccess::setupDone, this,
-            [this, acc](Solid::ErrorType, QVariant, const QString &) {
+            [acc, navigate](Solid::ErrorType, QVariant, const QString &) {
               if (acc->isAccessible()) {
-                refreshAllDrives();
+                DriveManager::instance()->refreshAll();
+                navigate(acc->filePath());
               }
             },
             Qt::SingleShotConnection);

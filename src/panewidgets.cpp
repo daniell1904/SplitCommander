@@ -12,8 +12,13 @@
 #include <QFontMetrics>
 #include <QGuiApplication>
 #include <QHBoxLayout>
+#include "hoverfader.h"
 #include <QIcon>
 #include <QMouseEvent>
+#include <QEasingCurve>
+#include <QAbstractAnimation>
+#include <QPropertyAnimation>
+#include <QVariantAnimation>
 #include <QPainter>
 #include <QScrollBar>
 #include <QStorageInfo>
@@ -520,7 +525,20 @@ bool FooterWidget::eventFilter(QObject *obj, QEvent *ev) {
 
 // --- MillerItemDelegate ---
 MillerItemDelegate::MillerItemDelegate(QObject *parent)
-    : QStyledItemDelegate(parent) {}
+    : QStyledItemDelegate(parent) {
+    m_anim = new QVariantAnimation(this);
+    m_anim->setStartValue(0.0);
+    m_anim->setEndValue(1.0);
+    m_anim->setDuration(600);
+    m_anim->setEasingCurve(QEasingCurve::OutCubic);
+    connect(m_anim, &QVariantAnimation::valueChanged, this, [this, parent](const QVariant& value) {
+        m_animProgress = value.toDouble();
+        if (auto* w = qobject_cast<QWidget*>(parent)) {
+            w->update();
+        }
+    });
+    m_anim->start(QAbstractAnimation::KeepWhenStopped);
+}
 
 void MillerItemDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
                                const QModelIndex &idx) const {
@@ -542,10 +560,18 @@ void MillerItemDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
   // 1. Hintergrund
   if (opt.state & QStyle::State_Selected) {
     p->fillRect(r, QColor(TM().colors().bgSelect));
-  } else if (opt.state & QStyle::State_MouseOver) {
-    p->fillRect(r, QColor(TM().colors().bgHover));
   } else {
-    p->fillRect(r, QColor(TM().colors().bgList));
+    p->fillRect(r, QColor(TM().colors().bgList)); // Grundhintergrund
+    if (m_fader) {
+      double hov = m_fader->opacity(idx.row());
+      if (hov > 0.0) {
+        QColor hC = QColor(TM().colors().bgHover);
+        hC.setAlphaF(hC.alphaF() * hov);
+        p->fillRect(r, hC);
+      }
+    } else if (opt.state & QStyle::State_MouseOver) {
+      p->fillRect(r, QColor(TM().colors().bgHover));
+    }
   }
 
   // 2. Maße (Exakt wie Sidebar)
@@ -555,24 +581,32 @@ void MillerItemDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
   const int textX = r.left() + 40;
   const int textW = r.width() - 48;
 
-  // 3. Icon zeichnen (Erzwingt das farbige Pixmap aus dem SVG durch
-  // Downscaling)
+  const bool unmounted = path.startsWith(QStringLiteral("solid:"));
+  
+  // 3. Icon zeichnen (Erzwingt das farbige Pixmap aus dem SVG durch Downscaling)
   const QIcon icon = idx.data(Qt::DecorationRole).value<QIcon>();
   if (!icon.isNull()) {
-    QPixmap pix = icon.pixmap(48, 48, QIcon::Normal, QIcon::On);
+    QPixmap pix = icon.pixmap(48, 48, unmounted ? QIcon::Disabled : QIcon::Normal, QIcon::On);
     if (!pix.isNull()) {
+      p->save();
+      if (unmounted) p->setOpacity(0.5);
       p->drawPixmap(iconX, iconY,
                     pix.scaled(iconSz, iconSz, Qt::IgnoreAspectRatio,
                                Qt::SmoothTransformation));
+      p->restore();
     }
   }
 
   // 4. Text & Balken
   const QString name = idx.data(Qt::DisplayRole).toString();
   p->setFont(QFont("sans-serif", 10));
+  
+  QColor textColor = TM().colors().textPrimary;
+  if (unmounted) textColor = TM().colors().textMuted;
+  
   p->setPen(QColor((opt.state & QStyle::State_Selected)
                        ? TM().colors().textLight
-                       : TM().colors().textPrimary));
+                       : textColor));
 
   if (hasBar) {
     // Laufwerk-Layout (50px Höhe)
@@ -590,7 +624,7 @@ void MillerItemDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
     p->setPen(Qt::NoPen);
     p->drawRoundedRect(textX, barY, textW - 4, 3, 1, 1);
     p->setBrush(QColor(TM().colors().accentHover));
-    p->drawRoundedRect(textX, barY, (int)((textW - 4) * pct), 3, 1, 1);
+    p->drawRoundedRect(textX, barY, (int)((textW - 4) * pct * m_animProgress), 3, 1, 1);
 
     // Host/IP unter dem Balken (wie Sidebar)
     if (isKioPath) {
@@ -603,21 +637,8 @@ void MillerItemDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
                     Qt::AlignLeft | Qt::AlignTop, hostStr);
       }
     }
-  } else if (isKioPath) {
-    // KIO-Pfad ohne Balken: Name oben, URL/Host unten klein
-    QFontMetrics fm(p->font());
-    const int lineH = r.height() / 2;
-    p->setPen(QColor(TM().colors().textPrimary));
-    p->drawText(textX, r.top(), textW, lineH, Qt::AlignLeft | Qt::AlignVCenter,
-                fm.elidedText(name, Qt::ElideRight, textW));
-    QUrl u(path); u.setUserInfo(QString());
-    const QString subtitle = u.host() + (u.path().isEmpty() || u.path() == "/" ? "" : u.path());
-    p->setFont(QFont("sans-serif", 8));
-    p->setPen(QColor(TM().colors().textAccent));
-    p->drawText(textX, r.top() + lineH, textW, lineH, Qt::AlignLeft | Qt::AlignVCenter,
-                QFontMetrics(p->font()).elidedText(subtitle, Qt::ElideRight, textW));
   } else {
-    // Ordner-Layout (34px Höhe)
+    // Ordner/Datei-Layout (34px Höhe) — kein Host/IP
     p->drawText(
         textX, r.top(), textW, r.height(), Qt::AlignLeft | Qt::AlignVCenter,
         QFontMetrics(p->font()).elidedText(name, Qt::ElideRight, textW));
