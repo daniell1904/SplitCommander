@@ -107,11 +107,25 @@ void GitManagerDialog::buildUI() {
   addActionButton(tr("Hochladen (Push)"), tr("Sendet deine Änderungen an GitHub, damit sie dort gespeichert sind."), gitPrimBtnSS, [this]() {
       QString msg = m_gitCommitMsg->text().trimmed();
       if(msg.isEmpty()) msg = "Automatisches Speichern";
+      
       runGitCommand({"add", "."});
       runGitCommand({"commit", "-m", msg});
       runGitCommand({"push"});
-      if (m_pushTagsOpt->isChecked()) runGitCommand({"push", "--tags"});
+      
+      if (m_pushTagsOpt->isChecked()) {
+          runGitCommand({"push", "--tags"});
+      }
+      
+      if (m_createReleaseOpt->isChecked()) {
+          bool ok;
+          QString tag = QInputDialog::getText(this, tr("GitHub Release"), tr("Tag Name für das Release:"), QLineEdit::Normal, "", &ok);
+          if (ok && !tag.isEmpty()) {
+              createGitHubRelease(tag);
+          }
+      }
+      
       m_gitCommitMsg->clear();
+      QMessageBox::information(this, tr("Fertig"), tr("Deine Änderungen wurden erfolgreich hochgeladen!"));
   });
 
   addActionButton(tr("Aktualisieren (Pull)"), tr("Holt die neuesten Änderungen von GitHub auf deinen Computer."), gitNormBtnSS, [this]() {
@@ -284,6 +298,10 @@ void GitManagerDialog::runGitCommand(const QStringList &args) {
     QString err = QString::fromUtf8(proc.readAllStandardError());
     if(!out.isEmpty()) m_gitLog->append(out);
     if(!err.isEmpty()) m_gitLog->append("<span style='color:#ff6b6b;'>" + err + "</span>");
+    
+    // Auto-scroll to bottom
+    m_gitLog->ensureCursorVisible();
+    
     refreshGitStatus();
 }
 
