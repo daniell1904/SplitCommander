@@ -4,6 +4,8 @@
 #include "filemanager1.h"
 // Removed agebadgedialog.h
 #include "config.h"
+#include "settingsdialog.h"
+#include "gitmanagerdialog.h"
 #include <QMessageBox>
 #include "filepane.h"
 #include "joboverlay.h"
@@ -146,6 +148,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   initUI();
   initConnections();
   initTimers();
+  QTimer::singleShot(50, this, &MainWindow::restoreSession);
 }
 
 void MainWindow::initUI() {
@@ -534,14 +537,13 @@ void MainWindow::initConnections() {
       col->populateDir(col->path());
   });
   connect(m_sidebar, &Sidebar::settingsChanged, this, [this]() {
-    // ThemeManager neu anwenden — setzt qApp->setStyleSheet und emittiert
-    // themeChanged
-    TM().apply();
-    // Shortcuts neu registrieren falls geändert
-    registerShortcuts();
+    m_sidebar->applyIconSizes();
+    for (auto *col : m_leftPane->miller()->cols())
+      col->refreshStyle();
+    for (auto *col : m_rightPane->miller()->cols())
+      col->refreshStyle();
   });
   connect(&TM(), &ThemeManager::themeChanged, this, [this]() {
-    // Miller-Spalten neu stylen
     for (auto *col : m_leftPane->miller()->cols())
       col->refreshStyle();
     for (auto *col : m_rightPane->miller()->cols())
@@ -558,8 +560,6 @@ void MainWindow::initConnections() {
       w->update();
     }
   });
-
-  // Hot-Plug
   connect(Solid::DeviceNotifier::instance(),
           &Solid::DeviceNotifier::deviceAdded, this, [this](const QString &) {
             scheduleDriveRefresh();
@@ -636,36 +636,36 @@ void MainWindow::initTimers() {
           doAddToPlaces);
   connect(m_rightPane->filePane(), &FilePane::addToPlacesRequested, this,
           doAddToPlaces);
+}
 
-  auto s = Config::group("UI");
-  const QString mode = s.readEntry("startupPathMode", "last");
-
+void MainWindow::restoreSession() {
   QString leftPath, rightPath;
   const int behavior = Config::startupBehavior();
+  const QString configPath = Config::startupPath();
+  const QString lastLeft = Config::lastLeftPath();
+  const QString lastRight = Config::lastRightPath();
 
-  if (behavior == 1) { // Letzte Sitzung
-    leftPath = Config::lastLeftPath();
-    rightPath = Config::lastRightPath();
-    // Validierung lokaler Pfade
-    if (leftPath.startsWith("/") && !QFileInfo::exists(leftPath))
-      leftPath = QDir::homePath();
-    if (rightPath.startsWith("/") && !QFileInfo::exists(rightPath))
-      rightPath = QDir::homePath();
-  } else if (behavior == 2) { // Dieser PC (Root)
+  if (behavior == 0) { // Letzte Sitzung
+    leftPath = lastLeft;
+    rightPath = lastRight;
+  } else if (behavior == 1) { // Dieser PC
     leftPath = "__drives__";
     rightPath = "__drives__";
-  } else { // Home (0)
-    leftPath = QDir::homePath();
-    rightPath = QDir::homePath();
+  } else if (behavior == 2) { // Fester Pfad
+    leftPath = configPath;
+    rightPath = configPath;
+  }
+  
+  // Validierung lokaler Pfade
+  if (behavior != 2) {
+      if (leftPath.isEmpty() || (leftPath.startsWith("/") && !QFileInfo::exists(leftPath)))
+        leftPath = QDir::homePath();
+      if (rightPath.isEmpty() || (rightPath.startsWith("/") && !QFileInfo::exists(rightPath)))
+        rightPath = QDir::homePath();
   }
 
-  // Sonderwunsch: Miller oben bei Laufwerken, Liste unten bei Home
-  m_leftPane->navigateTo("__drives__");
-  m_rightPane->navigateTo("__drives__");
-
-  // Jetzt die Liste unten auf Home setzen, aber OHNE Miller zu aktualisieren
-  m_leftPane->navigateTo(QDir::homePath(), true, false);
-  m_rightPane->navigateTo(QDir::homePath(), true, false);
+  m_leftPane->navigateTo(leftPath);
+  m_rightPane->navigateTo(rightPath);
 
   auto sUI = Config::group("UI");
   m_currentMode = sUI.readEntry("layoutMode", 1);
@@ -749,6 +749,16 @@ void MainWindow::registerShortcuts() {
           m_rightPane->navigateTo(m_rightPane->currentPath());
         },
         Qt::Key_F5);
+
+    addAct("open_settings", tr("Einstellungen"), "settings-configure",
+           Qt::CTRL | Qt::Key_Comma, [this]() {
+             openSettings();
+           });
+
+    addAct("open_git", tr("GitHub Manager"), "vcs-commit",
+           Qt::CTRL | Qt::Key_G, [this]() {
+             openGitManager();
+           });
 
     // Pane-Fokus
     addAct("pane_focus_left", tr("Linke Pane fokussieren"), "go-first",
@@ -974,4 +984,36 @@ void MainWindow::applyLayout(int mode) {
     if (!paneState.isEmpty())
       m_panesSplitter->restoreState(paneState);
   }
+}
+void MainWindow::openSettings(int page) {
+  auto *dlg = new SettingsDialog(this);
+  dlg->setAttribute(Qt::WA_DeleteOnClose);
+  connect(dlg, &SettingsDialog::settingsChanged, this, [this]() {
+    emit m_sidebar->settingsChanged();
+    
+    const int iconSize = Config::listIconSize();
+    m_leftPane->filePane()->view()->setIconSize(QSize(iconSize, iconSize));
+    m_rightPane->filePane()->view()->setIconSize(QSize(iconSize, iconSize));
+    
+    // Full refresh to apply hidden files, extensions, and behavior changes
+    m_leftPane->navigateTo(m_leftPane->currentPath());
+    m_rightPane->navigateTo(m_rightPane->currentPath());
+    
+    for (auto *col : m_leftPane->miller()->cols()) col->populateDir(col->path());
+    for (auto *col : m_rightPane->miller()->cols()) col->populateDir(col->path());
+    
+    m_leftPane->miller()->refreshDrives();
+    m_rightPane->miller()->refreshDrives();
+
+    m_leftPane->filePane()->view()->viewport()->update();
+    m_rightPane->filePane()->view()->viewport()->update();
+  });
+  if (page >= 0) dlg->showPage(static_cast<SettingsDialog::Page>(page));
+  else dlg->show();
+}
+
+void MainWindow::openGitManager() {
+  auto *dlg = new GitManagerDialog(activePane()->currentPath(), this);
+  dlg->setAttribute(Qt::WA_DeleteOnClose);
+  dlg->show();
 }

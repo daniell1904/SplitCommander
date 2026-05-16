@@ -4,6 +4,7 @@
 #include "sidebar.h"
 #include "drivemanager.h"
 #include "addnetworkdialog.h"
+#include "drivedelegate.h"
 #include "hoverfader.h"
 #include "scglobal.h"
 #include <KDirWatch>
@@ -256,6 +257,7 @@ Sidebar::Sidebar(QWidget *parent) : QWidget(parent)
     buildLogo(outerLay);
     buildDrivesSection(outerLay);
     buildGroupsSection(outerLay);
+    buildGitSection(outerLay);
     buildNewGroupFixedSection(outerLay);
     buildTagsSection(outerLay);
 
@@ -371,7 +373,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     m_driveList->setFrameShape(QFrame::NoFrame);
     m_driveList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_driveList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_driveList->setIconSize(QSize(22, 22));
+    m_driveList->setIconSize(QSize(Config::driveIconSize(), Config::driveIconSize()));
     m_driveList->setStyleSheet(TM().ssListWidget());
     auto* driveDel = new DriveDelegate(true, this);
     driveDel->setHoverFader(new HoverFader(m_driveList, driveDel));
@@ -389,7 +391,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     m_netList->setFrameShape(QFrame::NoFrame);
     m_netList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_netList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_netList->setIconSize(QSize(22, 22));
+    m_netList->setIconSize(QSize(Config::driveIconSize(), Config::driveIconSize()));
     m_netList->setStyleSheet(TM().ssListWidget());
     auto* netDel = new DriveDelegate(true, this);
     netDel->setHoverFader(new HoverFader(m_netList, netDel));
@@ -692,6 +694,90 @@ void Sidebar::buildNewGroupFixedSection(QVBoxLayout *parent)
 
     connect(ngBtn, &QPushButton::clicked, this, &Sidebar::onNewGroupDialog);
 }
+// --- Sidebar::buildGitSection ---
+void Sidebar::buildGitSection(QVBoxLayout *parent)
+{
+    QString gitDir = Config::gitLocalDir();
+    if (gitDir.isEmpty()) {
+        return; // Nur anzeigen, wenn eingestellt!
+    }
+    
+    m_gitWrap = new QWidget(this);
+    m_gitWrap->setStyleSheet(QString("background:%1;").arg(TM().colors().bgMain));
+    auto *wLay = new QVBoxLayout(m_gitWrap);
+    wLay->setContentsMargins(10, 2, 6, 2);
+    wLay->setSpacing(0);
+
+    m_gitBox = new QWidget(m_gitWrap);
+    m_gitBox->setObjectName(QStringLiteral("gitBox"));
+    m_gitBox->setStyleSheet(TM().ssBox());
+    auto *vbox = new QVBoxLayout(m_gitBox);
+    vbox->setContentsMargins(0, 0, 0, 0);
+    vbox->setSpacing(0);
+    vbox->setSizeConstraint(QLayout::SetMinAndMaxSize);
+    
+    auto *header = new QWidget();
+    header->setStyleSheet("background:transparent; border:none;");
+    auto *hLay = new QHBoxLayout(header);
+    hLay->setContentsMargins(12, 10, 8, 6);
+    hLay->setSpacing(4);
+    
+    auto *lbl = new QLabel(tr("GIT REPOSITORIES"));
+    lbl->setStyleSheet(QString("font-size:13px;font-weight:bold;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
+    hLay->addWidget(lbl, 1);
+    
+    vbox->addWidget(header);
+    
+    auto *listCont = new QWidget();
+    listCont->setStyleSheet("background:transparent; border:none;");
+    auto *listLay = new QVBoxLayout(listCont);
+    listLay->setContentsMargins(6, 0, 6, 4);
+    listLay->setSizeConstraint(QLayout::SetMinAndMaxSize);
+    
+    m_gitList = new QListWidget();
+    m_gitList->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_gitList->setFrameShape(QFrame::NoFrame);
+    m_gitList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_gitList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_gitList->setIconSize(QSize(Config::sidebarIconSize(), Config::sidebarIconSize()));
+    m_gitList->setStyleSheet(QString(
+        "QListWidget { background:transparent; outline:none; }"
+        "QListWidget::item { padding: 4px; border-radius:4px; color:%1; font-weight:500; font-size:14px; margin-bottom:2px; }"
+        "QListWidget::item:hover { background:%2; }"
+        "QListWidget::item:selected { background:%3; color:%4; font-weight:bold; }"
+    ).arg(TM().colors().textPrimary, TM().colors().bgHover, TM().colors().bgSelect, TM().colors().textLight));
+    
+    // Populating Git List
+    QDir dir(gitDir);
+    if (dir.exists()) {
+        const auto subdirs = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+        for (const QFileInfo &fi : subdirs) {
+            QDir sub(fi.absoluteFilePath());
+            if (sub.exists(".git")) {
+                auto *item = new QListWidgetItem(QIcon::fromTheme("vcs-git", QIcon::fromTheme("folder-git")), fi.fileName());
+                item->setData(Qt::UserRole, fi.absoluteFilePath());
+                item->setSizeHint(QSize(0, Config::sidebarIconSize() + 16));
+                m_gitList->addItem(item);
+            }
+        }
+    }
+    
+    adjustListHeight(m_gitList);
+    listLay->addWidget(m_gitList);
+    vbox->addWidget(listCont);
+    
+    wLay->addWidget(m_gitBox);
+    parent->addWidget(m_gitWrap);
+    
+    connect(m_gitList, &QListWidget::itemClicked, this, [this](QListWidgetItem *it){
+        if (it) {
+            if (m_driveList) m_driveList->clearSelection();
+            if (m_tagList) m_tagList->clearSelection();
+            emit driveClicked(it->data(Qt::UserRole).toString());
+        }
+    });
+}
+
 // --- Sidebar::buildTagsSection ---
 void Sidebar::buildTagsSection(QVBoxLayout *parent)
 {
@@ -737,7 +823,7 @@ void Sidebar::buildTagsSection(QVBoxLayout *parent)
     m_tagList->setFrameShape(QFrame::NoFrame);
     m_tagList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_tagList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_tagList->setIconSize(QSize(22, 22));
+    m_tagList->setIconSize(QSize(Config::sidebarIconSize(), Config::sidebarIconSize()));
     m_tagList->setStyleSheet(TM().ssListWidget());
     listLay->addWidget(m_tagList);
     vbox->addWidget(listCont);
@@ -972,6 +1058,18 @@ void Sidebar::renameNetworkPlace(const QString &path, const QString &newName)
 
     DriveManager::instance()->refreshAll();
     emit drivesChanged();
+}
+
+void Sidebar::applyIconSizes()
+{
+    if (m_driveList) m_driveList->setIconSize(QSize(Config::driveIconSize(), Config::driveIconSize()));
+    if (m_netList)   m_netList->setIconSize(QSize(Config::driveIconSize(), Config::driveIconSize()));
+    if (m_tagList)   m_tagList->setIconSize(QSize(Config::sidebarIconSize(), Config::sidebarIconSize()));
+    // CustomGroups (Orte, Favoriten etc.) — nur Listen die NICHT drive/net/tag sind
+    for (auto *list : findChildren<QListWidget*>()) {
+        if (list == m_driveList || list == m_netList || list == m_tagList) continue;
+        list->setIconSize(QSize(Config::sidebarIconSize(), Config::sidebarIconSize()));
+    }
 }
 
 void Sidebar::updateDrives()

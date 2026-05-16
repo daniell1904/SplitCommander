@@ -1,6 +1,7 @@
 // --- sidebargroups.cpp — Gruppen- und Tag-Logik der Sidebar ---
 #include "sidebar.h"
 #include "config.h"
+#include "drivedelegate.h"
 
 #include "thememanager.h"
 #include "tagmanager.h"
@@ -204,7 +205,7 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     list->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     list->setSpacing(0);
-    list->setIconSize(QSize(22, 22));
+    list->setIconSize(QSize(Config::sidebarIconSize(), Config::sidebarIconSize()));
     list->setStyleSheet(TM().ssListWidget());
     list->setItemDelegate(new DriveDelegate(false, this));
     list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

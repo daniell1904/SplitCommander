@@ -83,7 +83,7 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
   m_header->setObjectName("MillerHeader");
   m_header->setFlat(true);
   m_header->setFixedHeight(SC_MILLER_HEADER_H);
-  m_header->setIconSize(QSize(22, 22));
+  m_header->setIconSize(QSize(Config::millerIconSize(), Config::millerIconSize()));
   m_header->setStyleSheet(
       QString(
           "QPushButton#MillerHeader { background:%1; border:none; "
@@ -104,7 +104,11 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
   hlay->addStretch(1);
   lay->addLayout(hlay);
   connect(m_header, &QPushButton::clicked, this, [this]() {
-    emit headerClicked(m_path == "__drives__" ? QString() : m_path);
+    if (m_path == "__drives__" || m_path == "/" || m_path.isEmpty()) {
+      emit headerClicked("__drives__");
+    } else {
+      emit headerClicked(m_path);
+    }
   });
 
   m_list = new QListWidget();
@@ -328,7 +332,7 @@ void MillerColumn::populateDrives() {
 
   m_list->clear();
   m_list->setStyleSheet(TM().ssColDrives());
-  m_list->setIconSize(QSize(22, 22));
+  m_list->setIconSize(QSize(Config::millerIconSize(), Config::millerIconSize()));
   m_list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   m_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   m_list->verticalScrollBar()->hide();
@@ -400,7 +404,7 @@ void MillerColumn::populateDir(const QString &path) {
 
   m_list->clear();
   m_list->setStyleSheet(TM().ssColInactive());
-  m_list->setIconSize(QSize(22, 22));
+  m_list->setIconSize(QSize(Config::millerIconSize(), Config::millerIconSize()));
   m_list->setItemDelegate(new MillerItemDelegate(m_list));
 
   if (path != "__drives__") {
@@ -411,6 +415,10 @@ void MillerColumn::populateDir(const QString &path) {
 
 void MillerColumn::refreshStyle() {
   setActive(m_list->styleSheet() != TM().ssColInactive());
+  const int sz = Config::millerIconSize();
+  m_list->setIconSize(QSize(sz, sz));
+  m_header->setIconSize(QSize(sz, sz));
+  m_list->viewport()->update();
 }
 
 void MillerColumn::setActive(bool active) {

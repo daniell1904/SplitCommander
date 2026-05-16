@@ -205,7 +205,18 @@ ThemeColors ThemeManager::solarizedDarkTheme()
 // --- allThemes — Liste aller verfügbaren Designs (Statisch seit Start) ---
 QList<ThemeColors> ThemeManager::allThemes()
 {
-    return m_externalThemes;
+    QList<ThemeColors> list;
+    list << nordTheme() << catppuccinTheme() << gruvboxTheme() 
+         << draculaTheme() << oneDarkTheme() << solarizedDarkTheme();
+
+    for (const auto &ext : m_externalThemes) {
+        bool exists = false;
+        for (const auto &base : list) {
+            if (base.name == ext.name) { exists = true; break; }
+        }
+        if (!exists) list << ext;
+    }
+    return list;
 }
 
 // --- loadExternalThemes — scannt den themes-Ordner ---
@@ -342,27 +353,57 @@ void ThemeManager::exportDefaultThemes(const QString &destDir)
     exportTheme(oneDarkTheme());
     exportTheme(solarizedDarkTheme());
 
-    // Ausführliche Anleitung exportieren
-    QFile guide(destDir + "/00_ANLEITUNG_THEME_ERSTELLEN.json");
-    if (!guide.exists() && guide.open(QIODevice::WriteOnly)) {
+    // Saubere Vorlage exportieren (erzwingen)
+    QFile guide(destDir + "/00_VORLAGE_THEME_ERSTELLEN.json");
+    if (guide.open(QIODevice::WriteOnly)) {
         QJsonObject obj;
-        obj["_HINWEIS_1"]   = QCoreApplication::translate("SplitCommander", "Kopiere diese Datei, um ein eigenes Theme zu erstellen!");
-        obj["_HINWEIS_2"]   = QCoreApplication::translate("SplitCommander", "Ändere den 'name', damit es als neues Theme im Menü erscheint.");
-        obj["name"]         = QCoreApplication::translate("SplitCommander", "Mein neues Design");
-        obj["bgMain"]       = QCoreApplication::translate("SplitCommander", "#1e1e2e (Sidebar & App-Hintergrund)");
-        obj["bgDeep"]       = QCoreApplication::translate("SplitCommander", "#11111b (Hintergrund der Dateilisten)");
-        obj["bgBox"]        = QCoreApplication::translate("SplitCommander", "#313244 (Hintergrund der Karten/Favoriten)");
-        obj["textPrimary"]  = QCoreApplication::translate("SplitCommander", "#cdd6f4 (Haupt-Schriftfarbe)");
-        obj["textAccent"]   = QCoreApplication::translate("SplitCommander", "#cba6f7 (Farbe für Pfade und Highlights)");
-        obj["accent"]       = QCoreApplication::translate("SplitCommander", "#f5c2e7 (Buttons und Markierungen)");
-        obj["border"]       = QCoreApplication::translate("SplitCommander", "#313244 (Rahmenlinien)");
+        obj["name"]         = "Vorlage";
+        obj["bgMain"]       = "#1e1e2e";
+        obj["bgDeep"]       = "#11111b";
+        obj["bgBox"]        = "#313244";
+        obj["bgList"]       = "#1e1e2e";
+        obj["bgAlternate"]  = "#181825";
+        obj["bgHover"]      = "#313244";
+        obj["bgSelect"]     = "#cba6f7";
+        obj["bgPanel"]      = "#1e1e2e";
+        obj["bgTab"]        = "#1e1e2e";
+        obj["bgInput"]      = "#181825";
+        obj["border"]       = "#313244";
+        obj["borderAlt"]    = "#45475a";
+        obj["separator"]    = "#181825";
+        obj["textPrimary"]  = "#cdd6f4";
+        obj["textAccent"]   = "#cba6f7";
+        obj["textLight"]    = "#ffffff";
+        obj["textMuted"]    = "#585b70";
+        obj["textInactive"] = "#45475a";
+        obj["accent"]       = "#cba6f7";
+        obj["accentHover"]  = "#b4befe";
+        obj["splitter"]     = "#11111b";
+        obj["colActive"]    = "#cba6f7";
         
         QJsonDocument doc(obj);
         guide.write(doc.toJson());
+        guide.close();
     }
+    
+    // Alte, fehlerhafte Anleitung ggf. löschen um Verwirrung zu vermeiden
+    QFile::remove(destDir + "/00_ANLEITUNG_THEME_ERSTELLEN.json");
 }
 
-// --- themeFromJson — Parsen einer Theme-Datei ---
+// --- sanitizeColor — Extrahiert Hex-Code falls Kommentare enthalten sind ---
+static QString sanitizeColor(const QString &input, const QString &fallback)
+{
+    if (input.isEmpty()) return fallback;
+    if (QColor::isValidColorName(input)) return input;
+    
+    // Suche nach #RRGGBB
+    static QRegularExpression re("#[0-9a-fA-F]{6}");
+    auto match = re.match(input);
+    if (match.hasMatch()) return match.captured(0);
+    
+    return fallback;
+}
+
 ThemeColors ThemeManager::themeFromJson(const QByteArray &data)
 {
     ThemeColors c;
@@ -370,30 +411,72 @@ ThemeColors ThemeManager::themeFromJson(const QByteArray &data)
     if (doc.isNull() || !doc.isObject()) return c;
 
     QJsonObject obj = doc.object();
-    c.name         = obj.value("name").toString();
-    c.bgMain       = obj.value("bgMain").toString();
-    c.bgDeep       = obj.value("bgDeep").toString();
-    c.bgBox        = obj.value("bgBox").toString();
-    c.bgList       = obj.value("bgList").toString();
-    c.bgAlternate  = obj.value("bgAlternate").toString();
-    c.bgHover      = obj.value("bgHover").toString();
-    c.bgSelect     = obj.value("bgSelect").toString();
-    c.bgPanel      = obj.value("bgPanel").toString();
-    c.bgTab        = obj.value("bgTab").toString();
-    c.bgInput      = obj.value("bgInput").toString();
-    c.border       = obj.value("border").toString();
-    c.borderAlt    = obj.value("borderAlt").toString();
-    c.separator    = obj.value("separator").toString();
-    c.textPrimary  = obj.value("textPrimary").toString();
-    c.textAccent   = obj.value("textAccent").toString();
-    c.textLight    = obj.value("textLight").toString();
-    c.textMuted    = obj.value("textMuted").toString();
-    c.textInactive = obj.value("textInactive").toString();
-    c.accent       = obj.value("accent").toString();
-    c.accentHover  = obj.value("accentHover").toString();
-    c.splitter     = obj.value("splitter").toString();
-    c.colActive    = obj.value("colActive").toString();
+    c.name         = obj.value("name").toString("Unbenannt");
+    c.bgMain       = sanitizeColor(obj.value("bgMain").toString(), "#1e1e2e");
+    c.bgDeep       = sanitizeColor(obj.value("bgDeep").toString(), "#11111b");
+    c.bgBox        = sanitizeColor(obj.value("bgBox").toString(), "#313244");
+    c.bgList       = sanitizeColor(obj.value("bgList").toString(), "#1e1e2e");
+    c.bgAlternate  = sanitizeColor(obj.value("bgAlternate").toString(), "#181825");
+    c.bgHover      = sanitizeColor(obj.value("bgHover").toString(), "#313244");
+    c.bgSelect     = sanitizeColor(obj.value("bgSelect").toString(), "#cba6f7");
+    c.bgPanel      = sanitizeColor(obj.value("bgPanel").toString(), "#1e1e2e");
+    c.bgTab        = sanitizeColor(obj.value("bgTab").toString(), "#1e1e2e");
+    c.bgInput      = sanitizeColor(obj.value("bgInput").toString(), "#181825");
+    c.border       = sanitizeColor(obj.value("border").toString(), "#313244");
+    c.borderAlt    = sanitizeColor(obj.value("borderAlt").toString(), "#45475a");
+    c.separator    = sanitizeColor(obj.value("separator").toString(), "#181825");
+    c.textPrimary  = sanitizeColor(obj.value("textPrimary").toString(), "#cdd6f4");
+    c.textAccent   = sanitizeColor(obj.value("textAccent").toString(), "#cba6f7");
+    c.textLight    = sanitizeColor(obj.value("textLight").toString(), "#ffffff");
+    c.textMuted    = sanitizeColor(obj.value("textMuted").toString(), "#585b70");
+    c.textInactive = sanitizeColor(obj.value("textInactive").toString(), "#45475a");
+    c.accent       = sanitizeColor(obj.value("accent").toString(), "#cba6f7");
+    c.accentHover  = sanitizeColor(obj.value("accentHover").toString(), "#b4befe");
+    c.splitter     = sanitizeColor(obj.value("splitter").toString(), "#11111b");
+    c.colActive    = sanitizeColor(obj.value("colActive").toString(), "#cba6f7");
     return c;
+}
+
+// --- saveTheme — Speichert ein Theme als JSON ---
+bool ThemeManager::saveTheme(const ThemeColors &c)
+{
+    QString fileName = c.name.toLower().trimmed().replace(" ", "_");
+    if (fileName.isEmpty()) return false;
+    
+    const QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/themes/" + fileName + ".json";
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly)) return false;
+    
+    QJsonObject obj;
+    obj["name"]         = c.name;
+    obj["bgMain"]       = c.bgMain;
+    obj["bgDeep"]       = c.bgDeep;
+    obj["bgBox"]        = c.bgBox;
+    obj["bgList"]       = c.bgList;
+    obj["bgAlternate"]  = c.bgAlternate;
+    obj["bgHover"]      = c.bgHover;
+    obj["bgSelect"]     = c.bgSelect;
+    obj["bgPanel"]      = c.bgPanel;
+    obj["bgTab"]        = c.bgTab;
+    obj["bgInput"]      = c.bgInput;
+    obj["border"]       = c.border;
+    obj["borderAlt"]    = c.borderAlt;
+    obj["separator"]    = c.separator;
+    obj["textPrimary"]  = c.textPrimary;
+    obj["textAccent"]   = c.textAccent;
+    obj["textLight"]    = c.textLight;
+    obj["textMuted"]    = c.textMuted;
+    obj["textInactive"] = c.textInactive;
+    obj["accent"]       = c.accent;
+    obj["accentHover"]  = c.accentHover;
+    obj["splitter"]     = c.splitter;
+    obj["colActive"]    = c.colActive;
+
+    QJsonDocument doc(obj);
+    file.write(doc.toJson());
+    
+    loadExternalThemes(); // Liste aktualisieren
+    return true;
 }
 
 // --- buildAppStyleSheet — globales QSS für alle Standard-Qt-Widgets ---
@@ -408,14 +491,18 @@ void ThemeManager::buildAppStyleSheet()
     ss += QString("QToolTip { background:%1; color:%2; border:1px solid %3; padding:4px; }")
               .arg(c.bgBox, c.textLight, c.borderAlt);
 
-    // Scrollbars — global unsichtbar, Overlay-Bars übernehmen
-    ss += QString("QScrollBar:vertical { width:0px; background:transparent; border:none; }"
-                  "QScrollBar::handle:vertical { background:transparent; }"
-                  "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height:0; }"
-                  "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background:transparent; }");
-    ss += QString("QScrollBar:horizontal { height:0px; background:transparent; border:none; }"
-                  "QScrollBar::handle:horizontal { background:transparent; }"
-                  "QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal { width:0; }");
+    // Scrollbars — global unsichtbar
+    ss += "QScrollBar:vertical { width:0px; background:transparent; border:none; }";
+    ss += "QScrollBar::handle:vertical { background:transparent; }";
+    ss += "QScrollBar::add-line:vertical { height:0; }";
+    ss += "QScrollBar::sub-line:vertical { height:0; }";
+    ss += "QScrollBar::add-page:vertical { background:transparent; }";
+    ss += "QScrollBar::sub-page:vertical { background:transparent; }";
+    
+    ss += "QScrollBar:horizontal { height:0px; background:transparent; border:none; }";
+    ss += "QScrollBar::handle:horizontal { background:transparent; }";
+    ss += "QScrollBar::add-line:horizontal { width:0; }";
+    ss += "QScrollBar::sub-line:horizontal { width:0; }";
 
     // Splitter
     ss += QString("QSplitter::handle { background:%1; }").arg(c.splitter);
@@ -428,7 +515,7 @@ void ThemeManager::buildAppStyleSheet()
               .arg(c.bgList, c.textLight, c.borderAlt, c.bgSelect, c.borderAlt);
 
     // Header
-    ss += QString("QHeaderView::section { background-color:%1 !important; color:%2; border:none;"
+    ss += QString("QHeaderView::section { background-color:%1; color:%2; border:none;"
                   "  border-right:1px solid %3; border-bottom:1px solid %3; padding:4px 8px; font-size:11px; }")
               .arg(c.bgPanel, c.textAccent, c.borderAlt);
 
@@ -589,25 +676,20 @@ QString ThemeManager::ssDialog() const {
         "QLabel{color:%2;font-size:11px;background:transparent;}"
         "QLineEdit{background:%3;border:1px solid %4;color:%2;padding:5px;border-radius:4px;font-size:11px;}"
         "QSpinBox{background:%3;border:1px solid %4;color:%2;padding:2px 4px;border-radius:4px;font-size:11px;}"
-        "QSpinBox::up-button,QSpinBox::down-button{background:%5;border:none;width:14px;}"
-        "QSpinBox::up-button:hover,QSpinBox::down-button:hover{background:%6;}"
-        "QPushButton{background:%10;color:%2;border:1px solid %4;padding:7px 14px;border-radius:6px;font-size:11px;}"
+        "QSpinBox::up-button{background:%5;border:none;width:14px;}"
+        "QSpinBox::down-button{background:%5;border:none;width:14px;}"
+        "QSpinBox::up-button:hover{background:%6;}"
+        "QSpinBox::down-button:hover{background:%6;}"
+        "QPushButton{background:%9;color:%2;border:1px solid %4;padding:7px 14px;border-radius:6px;font-size:11px;}"
         "QPushButton:hover{background:%6; border-color:%7;}"
         "QPushButton:checked{background:%6;border:2px solid %7;color:%8;}"
         "QToolButton{background:%5;color:%2;border:1px solid %4;border-radius:4px;padding:3px;}"
         "QToolButton:hover{background:%6;}"
         "QScrollBar:vertical{background:%1;width:8px;border:none;}"
         "QScrollBar::handle:vertical{background:%4;border-radius:4px;min-height:20px;}"
-        "QScrollBar::add-line:vertical,QScrollBar::sub-line:vertical{height:0;}")
-        .replace("%10", c.bgAlternate)
-        .arg(c.bgBox)
-        .arg(c.textPrimary)
-        .arg(c.bgDeep)
-        .arg(c.borderAlt)
-        .arg(c.bgHover)
-        .arg(c.bgSelect)
-        .arg(c.accent)
-        .arg(c.textLight);
+        "QScrollBar::add-line:vertical{height:0;}"
+        "QScrollBar::sub-line:vertical{height:0;}")
+        .arg(c.bgBox, c.textPrimary, c.bgDeep, c.borderAlt, c.bgHover, c.bgSelect, c.accent, c.textLight, c.bgAlternate);
 }
 
 QString ThemeManager::ssSidebar() const {

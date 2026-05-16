@@ -13,8 +13,6 @@
 #include <QPushButton>
 #include <QMenu>
 
-#include "drivedelegate.h"
-
 // --- Sidebar --- (Linke Navigationsleiste (Laufwerke, Gruppen, Tags))
 class Sidebar : public QWidget {
     Q_OBJECT
@@ -24,6 +22,7 @@ public:
 
 public slots:
     void updateDrives();
+    void applyIconSizes();
     void renameNetworkPlace(const QString &path, const QString &newName);
     const QStringList& gdriveAccounts() const { return m_gdriveAccounts; }
     void addPlace(const QString &path);
@@ -56,6 +55,7 @@ private:
     void buildLogo(QVBoxLayout *parent);
     void buildDrivesSection(QVBoxLayout *parent);
     void buildGroupsSection(QVBoxLayout *parent);
+    void buildGitSection(QVBoxLayout *parent);
     void buildTagsSection(QVBoxLayout *parent);
     void buildNewGroupFixedSection(QVBoxLayout *parent);
     void showDriveContextMenu(QListWidgetItem *item, const QPoint &pos);
@@ -100,5 +100,10 @@ private:
     QListWidget *m_tagList       = nullptr;
     QWidget     *m_tagsWrap      = nullptr;
     QWidget     *m_tagsBox       = nullptr;
+    
+    QListWidget *m_gitList       = nullptr;
+    QWidget     *m_gitWrap       = nullptr;
+    QWidget     *m_gitBox        = nullptr;
+    
     class KDirLister *m_trashLister = nullptr;
 };

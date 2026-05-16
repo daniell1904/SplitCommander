@@ -29,6 +29,10 @@ public:
     PaneWidget *rightPane()  const { return m_rightPane; }
     Sidebar    *sidebar()    const { return m_sidebar; }
 
+public:
+    void openSettings(int page = -1);
+    void openGitManager();
+
 protected:
     void closeEvent(QCloseEvent *e) override;
 
@@ -39,6 +43,7 @@ private:
     void saveWindowState();
     void initUI();
     void initConnections();
+    void restoreSession();
     void initTimers();
     void refreshAllDrives();
     void scheduleDriveRefresh();  // debounced refreshAllDrives

@@ -1,4 +1,5 @@
 #include "drivedelegate.h"
+#include "config.h"
 #include "thememanager.h"
 #include "scglobal.h"
 #include <QPainter>
@@ -30,7 +31,7 @@ void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QM
     const QIcon    icon    = idx.data(Qt::DecorationRole).value<QIcon>();
     const QString  name    = idx.data(Qt::DisplayRole).toString();
     const QString  path    = idx.data(Qt::UserRole).toString();
-    const int      iconSz  = 22;
+    const int      iconSz  = m_showBars ? Config::driveIconSize() : Config::sidebarIconSize();
     const int      iconX   = r.left() + 8;
     const int      iconY   = r.top() + (r.height() - iconSz) / 2;
     const int      textX   = r.left() + 40;
@@ -81,7 +82,7 @@ void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QM
             p->drawRoundedRect(textX, barY, (int)(textW * pct * m_animProgress), 3, 1, 1);
 
             // Host/IP unter dem Balken (nur für Netzwerk)
-            if (isKioPath) {
+            if (isKioPath && Config::showDriveIp()) {
                 QUrl u(path); u.setUserInfo(QString());
                 const QString hostStr = u.host();
                 if (!hostStr.isEmpty()) {

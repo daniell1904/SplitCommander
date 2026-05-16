@@ -3,6 +3,7 @@
 #include "panewidgets.h"
 #include "config.h"
 #include "thememanager.h"
+#include "scglobal.h"
 
 #include <QCache>
 #include <QDateTime>
@@ -574,8 +575,9 @@ void MillerItemDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
     }
   }
 
-  // 2. Maße (Exakt wie Sidebar)
-  const int iconSz = 22;
+  // 2. Maße
+  const bool isDriveItem = idx.data(Qt::UserRole + 12).toBool() || idx.data(Qt::UserRole + 10).toDouble() > 0;
+  const int iconSz = isDriveItem ? Config::driveIconSize() : Config::millerIconSize();
   const int iconX = r.left() + 8;
   const int iconY = r.top() + (r.height() - iconSz) / 2;
   const int textX = r.left() + 40;
@@ -611,12 +613,29 @@ void MillerItemDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
   if (hasBar) {
     // Laufwerk-Layout (50px Höhe)
     const double free = idx.data(Qt::UserRole + 11).toDouble();
-    const double pct = qBound(0.0, (total - free) / total, 1.0);
+    const double used = total - free;
+    const double pct = qBound(0.0, used / total, 1.0);
 
-    // Name (oben zentriert in der ersten Hälfte)
+    QFontMetrics fm(p->font());
+    const QString usedStr  = sc_fmtStorage(used);
+    const QString restStr  = QString(" / %1").arg(sc_fmtStorage(total));
+    const int     usedW    = fm.horizontalAdvance(usedStr);
+    const int     restW    = fm.horizontalAdvance(restStr);
+    const int     sizeW    = usedW + restW;
+    const int     nameW    = textW - sizeW - 6;
+    const int     sizeX    = r.right() - sizeW - 6;
+
+    // Name (oben linksbündig)
+    p->setPen(QColor((opt.state & QStyle::State_Selected) ? TM().colors().textLight : textColor));
     p->drawText(
-        textX, r.top(), textW, 24, Qt::AlignLeft | Qt::AlignVCenter,
-        QFontMetrics(p->font()).elidedText(name, Qt::ElideRight, textW));
+        textX, r.top(), nameW, 24, Qt::AlignLeft | Qt::AlignVCenter,
+        fm.elidedText(name, Qt::ElideRight, nameW));
+
+    // Größen (oben rechtsbündig)
+    p->setPen(QColor(TM().colors().textLight));
+    p->drawText(sizeX, r.top(), usedW, 24, Qt::AlignLeft | Qt::AlignVCenter, usedStr);
+    p->setPen(QColor(TM().colors().textAccent));
+    p->drawText(sizeX + usedW, r.top(), restW, 24, Qt::AlignLeft | Qt::AlignVCenter, restStr);
 
     // Balken (auf 24px Tiefe)
     const int barY = r.top() + 24;
@@ -627,7 +646,7 @@ void MillerItemDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
     p->drawRoundedRect(textX, barY, (int)((textW - 4) * pct * m_animProgress), 3, 1, 1);
 
     // Host/IP unter dem Balken (wie Sidebar)
-    if (isKioPath) {
+    if (isKioPath && Config::showMillerIp()) {
       QUrl u(path); u.setUserInfo(QString());
       const QString hostStr = u.host();
       if (!hostStr.isEmpty()) {
@@ -700,6 +719,10 @@ void MillerItemDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
 
 QSize MillerItemDelegate::sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &idx) const {
     Q_UNUSED(opt);
+    const int sz = Config::millerIconSize();
     const bool isDrive = idx.data(Qt::UserRole+12).toBool() || idx.data(Qt::UserRole+10).toDouble() > 0;
-    return QSize(100, isDrive ? 50 : 34);
+    if (isDrive) {
+        return QSize(100, SC_SIDEBAR_DRIVE_ROW_H);
+    }
+    return QSize(100, sz + 12);
 }

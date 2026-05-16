@@ -2,6 +2,8 @@
 #include <KIO/PreviewJob>
 #include <QBuffer>
 #include <QMimeDatabase>
+#include <QFileInfo>
+#include "config.h"
 
 ThumbnailManager &ThumbnailManager::instance() {
   static ThumbnailManager inst;
@@ -20,8 +22,13 @@ QPixmap ThumbnailManager::thumbnail(const QString &path, int size) {
 }
 
 void ThumbnailManager::requestThumbnail(const QString &path, int size) {
-  if (path.isEmpty())
+  if (path.isEmpty() || !Config::useThumbnails())
     return;
+
+  QFileInfo fi(path);
+  if (fi.size() > (qint64)Config::maxThumbnailSize() * 1024 * 1024)
+    return;
+
   QString key = QString::number(size) + path;
   if (m_cache.contains(key))
     return;

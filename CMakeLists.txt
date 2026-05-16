@@ -38,13 +38,14 @@ add_executable(splitcommander
     src/addnetworkdialog.cpp
     src/sidebargroups.cpp
     src/tagmanager.cpp
+    src/settingsdialog.cpp
+    src/gitmanagerdialog.cpp
     src/batchrenamer.cpp
     src/config.cpp
-    src/themedialog.cpp
-    src/agebadgedialog.cpp
     src/thememanager.cpp
     src/dialogutils.cpp
     src/thumbnailmanager.cpp
+    src/themecreatordialog.cpp
     src/hoverfader.cpp
 )
 

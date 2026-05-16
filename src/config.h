@@ -33,11 +33,47 @@ public:
     static void setShowHiddenFiles(bool b);
     static void setShowFileExtensions(bool b);
     static void setStartupBehavior(int i);
+    static void setStartupPath(const QString &p);
     static void setShowNewIndicator(bool b);
     static void setAgeBadgeSaturation(int i);
     static void setAgeBadgeLightness(int i);
     static void setTerminalApp(const QString &t);
     static void setLastPaths(const QString &left, const QString &right);
+
+    static bool useThumbnails();
+    static int  maxThumbnailSize();
+    static void setUseThumbnails(bool b);
+    static void setMaxThumbnailSize(int i);
+
+    static QStringList fileTypeColors();
+    static void setFileTypeColors(const QStringList &list);
+
+    // Erweiterte Einstellungen
+    static bool showDriveIp();
+    static bool showMillerIp();
+    static QStringList driveBlacklist();
+    static int sidebarIconSize();
+    static int driveIconSize();
+    static int millerIconSize();
+    static int listIconSize();
+
+    static void setShowDriveIp(bool b);
+    static void setShowMillerIp(bool b);
+    static void setDriveBlacklist(const QStringList &list);
+    static void setSidebarIconSize(int i);
+    static void setDriveIconSize(int i);
+    static void setMillerIconSize(int i);
+    static void setListIconSize(int i);
+
+    static QString gitLocalDir();
+    static QString gitRemoteUrl();
+    static QString gitUsername();
+    static QString gitToken();
+    
+    static void setGitLocalDir(const QString &s);
+    static void setGitRemoteUrl(const QString &s);
+    static void setGitUsername(const QString &s);
+    static void setGitToken(const QString &s);
 
     static KConfigGroup group(const QString &name);
 

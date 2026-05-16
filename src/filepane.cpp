@@ -769,7 +769,7 @@ void FilePane::setupView() {
   m_delegate->rowHeight = savedHeight;
   m_delegate->fontSize = qBound(9, savedHeight / 3, 16);
   m_view->setIconSize(
-      QSize(qBound(12, savedHeight - 6, 48), qBound(12, savedHeight - 6, 48)));
+      QSize(Config::listIconSize(), Config::listIconSize()));
 
   setupColumns();
 

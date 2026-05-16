@@ -1,5 +1,7 @@
 #include "panewidget.h"
-#include "agebadgedialog.h"
+#include "mainwindow.h"
+#include <QShortcut>
+#include <QKeySequence>
 #include "config.h"
 #include "dialogutils.h"
 #include "panewidgets.h"
@@ -109,6 +111,7 @@ void PaneWidget::initTabBar(QVBoxLayout *rootLay) {
     m_pathStack->setCurrentIndex(0);
   };
   connect(m_pathEdit, &QLineEdit::returnPressed, this, commitPath);
+  
   connect(m_pathEdit, &QLineEdit::editingFinished, this, [this, commitPath]() {
     if (m_pathStack->currentIndex() == 1)
       commitPath();
@@ -176,6 +179,12 @@ void PaneWidget::initHamburgerMenu(QToolButton *hamburgerBtn,
   auto *hamburgerMenu = new QMenu(hamburgerBtn);
   hamburgerMenu->setStyleSheet(TM().ssMenu());
 
+  // GitHub Manager (New prominent entry)
+  hamburgerMenu->addAction(QIcon::fromTheme("vcs-commit"), tr("GitHub"), this, []() {
+      if(auto *mw = MW()) mw->openGitManager();
+  });
+  hamburgerMenu->addSeparator();
+
   // Neu erstellen
   auto *menuNew = hamburgerMenu->addMenu(QIcon::fromTheme("folder-new"),
                                          tr("Neu erstellen"));
@@ -195,34 +204,6 @@ void PaneWidget::initHamburgerMenu(QToolButton *hamburgerBtn,
 
   hamburgerMenu->addSeparator();
 
-  // Toggle-Aktionen (direkt im Hauptmenü lassen, wie bei Dolphin)
-  auto *actHidden = hamburgerMenu->addAction(QIcon::fromTheme("view-hidden"),
-                                             tr("Versteckte Dateien anzeigen"));
-  actHidden->setCheckable(true);
-  actHidden->setChecked(Config::showHiddenFiles());
-  connect(actHidden, &QAction::toggled, this, [this](bool on) {
-    Config::setShowHiddenFiles(on);
-    emit hiddenFilesToggled(on);
-  });
-
-  auto *actSingleClick = hamburgerMenu->addAction(
-      QIcon::fromTheme("input-mouse"), tr("Einfachklick zum Öffnen"));
-  actSingleClick->setCheckable(true);
-  actSingleClick->setChecked(Config::singleClickOpen());
-  connect(actSingleClick, &QAction::toggled, this, [this](bool on) {
-    Config::setSingleClickOpen(on);
-    emit settingsChanged();
-  });
-
-  auto *actExtensions = hamburgerMenu->addAction(
-      QIcon::fromTheme("text-x-generic"), tr("Dateiendungen anzeigen"));
-  actExtensions->setCheckable(true);
-  actExtensions->setChecked(Config::showFileExtensions());
-  connect(actExtensions, &QAction::toggled, this, [this](bool on) {
-    Config::setShowFileExtensions(on);
-    emit extensionsToggled(on);
-  });
-
   auto *menuTerminal = hamburgerMenu->addMenu(
       QIcon::fromTheme("utilities-terminal"), tr("Terminal"));
   menuTerminal->setStyleSheet(TM().ssMenu());
@@ -238,176 +219,9 @@ void PaneWidget::initHamburgerMenu(QToolButton *hamburgerBtn,
                             job->start();
                           });
 
-  hamburgerMenu->addSeparator();
-
-  // --- Einrichten Sub-Menü (Dolphin-Style) ---
-  auto *menuConfigure =
-      hamburgerMenu->addMenu(QIcon::fromTheme("configure"), tr("Einrichten"));
-  menuConfigure->setStyleSheet(TM().ssMenu());
-
-  // 1. Fenster-Farbschema (Theme)
-  auto *menuTheme = menuConfigure->addMenu(
-      QIcon::fromTheme("preferences-desktop-color"), tr("Fenster-Farbschema"));
-  menuTheme->setStyleSheet(TM().ssMenu());
-
-  // Widget-Inhalt des Untermenüs (Themen-Auswahl)
-  auto *themeWidget = new QWidget();
-  themeWidget->setStyleSheet(
-      QString(
-          "QWidget { background:%1; }"
-          "QCheckBox { color:%2; font-size:11px; background:transparent; }"
-          "QCheckBox::indicator { width:14px; height:14px; border:1px solid "
-          "%3; border-radius:2px; background:transparent; }"
-          "QCheckBox::indicator:checked { background:%4; border-color:%4; }"
-          "QLabel#hint { color:%5; font-size:10px; background:transparent; }"
-          "QRadioButton { color:%2; font-size:11px; background:transparent; "
-          "padding:4px 0; }"
-          "QRadioButton::indicator { width:14px; height:14px; }"
-          "QRadioButton:disabled { color:%5; }")
-          .arg(TM().colors().bgPanel, TM().colors().textLight,
-               TM().colors().borderAlt, TM().colors().accent,
-               TM().colors().textMuted));
-
-  auto *twLay = new QVBoxLayout(themeWidget);
-  twLay->setContentsMargins(16, 10, 16, 4);
-  twLay->setSpacing(4);
-
-  auto *twSysCheck =
-      new QCheckBox(tr("KDE Global Theme verwenden"), themeWidget);
-  twSysCheck->setChecked(Config::useSystemTheme());
-  auto *twHint =
-      new QLabel(tr("Übernimmt Farben und Stil des aktiven KDE Global Themes."),
-                 themeWidget);
-  twHint->setObjectName("hint");
-  twHint->setWordWrap(true);
-  twLay->addWidget(twSysCheck);
-  twLay->addWidget(twHint);
-
-  auto *twSep = new QFrame(themeWidget);
-  twSep->setFrameShape(QFrame::HLine);
-  twSep->setStyleSheet(QString("background:%1;").arg(TM().colors().separator));
-  twSep->setFixedHeight(1);
-  twLay->addSpacing(4);
-  twLay->addWidget(twSep);
-  twLay->addSpacing(4);
-
-  auto *twThemeGroup = new QButtonGroup(themeWidget);
-  auto *twThemesContainer = new QWidget(themeWidget);
-  auto *twThemesLay = new QVBoxLayout(twThemesContainer);
-  twThemesLay->setContentsMargins(0, 0, 0, 0);
-  twThemesLay->setSpacing(2);
-  twLay->addWidget(twThemesContainer);
-
-  auto refreshThemeList = [twThemesLay, twThemeGroup, twThemesContainer,
-                           themeWidget]() {
-    QLayoutItem *child;
-    while ((child = twThemesLay->takeAt(0)) != nullptr) {
-      if (child->widget())
-        child->widget()->deleteLater();
-      delete child;
-    }
-    const QString curTheme = Config::selectedTheme();
-    const auto allThemes = TM().allThemes();
-    const auto &colors = TM().colors();
-    themeWidget->setObjectName("themeContainer");
-    themeWidget->setStyleSheet(
-        QString("#themeContainer { background:%1; }"
-                "QWidget { color:%2; font-size:11px; background:transparent; }"
-                "QPushButton { background:%3; border:1px solid %4; "
-                "border-radius:4px; padding:6px; color:%2; }"
-                "QPushButton:hover { background:%5; }")
-            .arg(colors.bgList, colors.textPrimary, colors.bgHover,
-                 colors.borderAlt, colors.bgSelect));
-
-    for (int i = 0; i < allThemes.size(); ++i) {
-      const auto &t = allThemes.at(i);
-      auto *rb = new QRadioButton(t.name, twThemesContainer);
-      rb->setStyleSheet(QString("QRadioButton { color: %1; spacing: 8px; }"
-                                "QRadioButton::indicator { width: 14px; "
-                                "height: 14px; border-radius: 7px; border: 1px "
-                                "solid %2; background: transparent; }"
-                                "QRadioButton::indicator:checked { background: "
-                                "%3; border: 2px solid %3; }"
-                                "QRadioButton:disabled { color: %4; }")
-                            .arg(colors.textPrimary, colors.borderAlt,
-                                 colors.accent, colors.textMuted));
-      rb->setChecked(!Config::useSystemTheme() && t.name == curTheme);
-      rb->setEnabled(!Config::useSystemTheme());
-      twThemeGroup->addButton(rb, i);
-      twThemesLay->addWidget(rb);
-    }
-    themeWidget->adjustSize();
-  };
-  connect(menuTheme, &QMenu::aboutToShow, themeWidget, refreshThemeList);
-  refreshThemeList();
-
-  auto *btnReload = new QPushButton(QIcon::fromTheme("view-refresh"),
-                                    tr("Designs neu laden"), themeWidget);
-  btnReload->setStyleSheet(
-      "QPushButton{margin-top:8px; font-size:10px; padding:4px;}");
-  twLay->addWidget(btnReload);
-  connect(btnReload, &QPushButton::clicked, themeWidget, [refreshThemeList]() {
-    TM().loadExternalThemes();
-    refreshThemeList();
+  hamburgerMenu->addAction(QIcon::fromTheme("configure"), tr("Einrichten ..."), this, []() {
+      if(auto *mw = MW()) mw->openSettings();
   });
-
-  auto *twBtnRow = new QWidget(themeWidget);
-  auto *twBtnLay = new QHBoxLayout(twBtnRow);
-  twBtnLay->setContentsMargins(0, 0, 0, 0);
-  twBtnLay->setSpacing(8);
-  twBtnLay->addStretch();
-  auto *twCancel = new QPushButton(tr("Abbrechen"), twBtnRow);
-  twCancel->setFixedWidth(90);
-  auto *twApply = new QPushButton(tr("Übernehmen"), twBtnRow);
-  twApply->setObjectName("applyBtn");
-  twApply->setFixedWidth(110);
-  twApply->setStyleSheet(QString("QPushButton{background:%1; color:%2; "
-                                 "font-weight:bold; border-color:%1;}")
-                             .arg(TM().colors().accent, TM().colors().bgMain));
-  twBtnLay->addWidget(twCancel);
-  twBtnLay->addWidget(twApply);
-  twLay->addWidget(twBtnRow);
-
-  auto *twAction = new QWidgetAction(menuTheme);
-  twAction->setDefaultWidget(themeWidget);
-  menuTheme->addAction(twAction);
-
-  connect(twCancel, &QPushButton::clicked, menuTheme, &QMenu::close);
-  connect(twApply, &QPushButton::clicked, this,
-          [this, twSysCheck, twThemeGroup, menuTheme, hamburgerMenu]() {
-            Config::setUseSystemTheme(twSysCheck->isChecked());
-            if (!twSysCheck->isChecked()) {
-              int idx = twThemeGroup->checkedId();
-              const auto allThemes = TM().allThemes();
-              if (idx >= 0 && idx < allThemes.size())
-                Config::setSelectedTheme(allThemes.at(idx).name);
-            }
-            menuTheme->close();
-            hamburgerMenu->close();
-
-            DialogUtils::message(
-                this, tr("Neustart erforderlich"),
-                tr("Das Theme wird nach einem Neustart angewendet."));
-            QProcess::startDetached(QApplication::applicationFilePath(),
-                                    QApplication::arguments());
-            QApplication::quit();
-          });
-
-  // 2. Tastaturkurzbefehle festlegen ...
-  auto *actShortcuts =
-      menuConfigure->addAction(QIcon::fromTheme("configure-shortcuts"),
-                               tr("Tastaturkurzbefehle festlegen …"));
-  connect(actShortcuts, &QAction::triggered, this, [this]() {
-    if (m_actionCollection)
-      KShortcutsDialog::showDialog(
-          m_actionCollection, KShortcutsEditor::LetterShortcutsAllowed, this);
-  });
-
-  // 3. Altersbadges
-  auto *actAgeBadge = menuConfigure->addAction(QIcon::fromTheme("chronometer"),
-                                               tr("Altersbadges"));
-  connect(actAgeBadge, &QAction::triggered, this,
-          [this]() { (new AgeBadgeDialog(this))->open(); });
 
   hamburgerMenu->addSeparator();
 
@@ -1151,10 +965,10 @@ void PaneWidget::initConnections() {
   connect(m_pathEdit, &QLineEdit::returnPressed, this,
           [this]() { navigateTo(m_pathEdit->text()); });
 
-  const QString home = QDir::homePath();
-  m_filePane->setRootPath(home);
-  m_pathEdit->setText(home);
-  m_toolbar->setPath(home);
+  const QString startPath = "__drives__";
+  m_filePane->setRootPath(QDir::homePath());
+  m_pathEdit->setText(tr("Dieser PC"));
+  m_toolbar->setPath(startPath);
   m_miller->init();
 }
 
@@ -1233,7 +1047,8 @@ void PaneWidget::navigateTo(const QString &path, bool clearForward,
 
   const QUrl url = QUrl::fromUserInput(path);
   if (path == "__drives__") {
-    m_filePane->setRootPath("remote:/");
+    // Liste nicht auf remote:/ zwingen, falls der User lieber home oder den alten Pfad sieht
+    if (m_filePane->currentPath().isEmpty()) m_filePane->setRootPath(QDir::homePath());
     m_pathEdit->setText(tr("Dieser PC"));
     m_toolbar->setPath(path);
     if (updateMiller)

@@ -72,6 +72,21 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
 
   QColor tc = (sel || hov) ? QColor(TM().colors().textLight)
                            : QColor(TM().colors().textPrimary);
+
+  // Dateityp-Farben (nur wenn nicht selektiert/gehovert)
+  if (!sel && !hov) {
+      const KFileItem item = idx.data(Qt::UserRole + 1).value<KFileItem>();
+      if (!item.isNull()) {
+          QString ext = "." + item.suffix().toLower();
+          for (const QString &s : Config::fileTypeColors()) {
+              if (s.startsWith(ext + ":", Qt::CaseInsensitive)) {
+                  tc = QColor(s.mid(ext.length() + 1).trimmed());
+                  break;
+              }
+          }
+      }
+  }
+
   QColor dc = (sel || hov) ? QColor(TM().colors().textLight)
                            : QColor(TM().colors().textMuted);
 
@@ -91,9 +106,9 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
     if (!item.isNull()) path = item.localPath();
 
     bool hasThumb = false;
-    const int ic = qBound(12, rowHeight - 6, 48);
+    const int ic = Config::listIconSize();
     
-    if (!path.isEmpty()) {
+    if (!path.isEmpty() && Config::useThumbnails()) {
         pm = ThumbnailManager::instance().thumbnail(path, ic * 2);
         if (pm.isNull()) {
             ThumbnailManager::instance().requestThumbnail(path, ic * 2);
@@ -197,7 +212,7 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
 
 QSize FilePaneDelegate::sizeHint(const QStyleOptionViewItem &,
                                  const QModelIndex &) const {
-  return QSize(0, rowHeight);
+  return QSize(0, qMax(rowHeight, Config::listIconSize() + 4));
 }
 
 void ScaledIconDelegate::initStyleOption(QStyleOptionViewItem *opt, const QModelIndex &idx) const {

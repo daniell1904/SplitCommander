@@ -53,6 +53,11 @@ void DriveManager::refreshLocal() {
             if (path.startsWith("/boot") || path.startsWith("/efi") ||
                 path.startsWith("/snap") || path == "/home") continue;
             if (path.startsWith("/var/lib/docker") || path.startsWith("/var/lib/containers")) continue;
+            const QStringList blacklist = Config::driveBlacklist();
+            bool blacklisted = false;
+            for (const QString &bl : blacklist)
+              if (!bl.isEmpty() && path.startsWith(bl)) { blacklisted = true; break; }
+            if (blacklisted) continue;
         }
 
         const auto *vol = device.as<Solid::StorageVolume>();
