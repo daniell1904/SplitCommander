@@ -538,6 +538,7 @@ void MainWindow::initConnections() {
   });
   connect(m_sidebar, &Sidebar::settingsChanged, this, [this]() {
     m_sidebar->applyIconSizes();
+    m_sidebar->refreshGitSection();
     for (auto *col : m_leftPane->miller()->cols())
       col->refreshStyle();
     for (auto *col : m_rightPane->miller()->cols())
@@ -1015,5 +1016,6 @@ void MainWindow::openSettings(int page) {
 void MainWindow::openGitManager() {
   auto *dlg = new GitManagerDialog(activePane()->currentPath(), this);
   dlg->setAttribute(Qt::WA_DeleteOnClose);
+  connect(dlg, &GitManagerDialog::settingsChanged, m_sidebar, &Sidebar::settingsChanged);
   dlg->show();
 }

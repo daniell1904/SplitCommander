@@ -12,7 +12,8 @@ class QLabel;
 class GitManagerDialog : public QDialog {
   Q_OBJECT
 public:
-  explicit GitManagerDialog(const QString &currentPath, QWidget *parent = nullptr);
+  explicit GitManagerDialog(const QString &currentPath,
+                            QWidget *parent = nullptr);
 
 private:
   void buildUI();
@@ -24,7 +25,7 @@ private:
   void createGitHubRelease(const QString &tag);
 
   QString m_gitPath;
-  QLabel    *m_gitBranchLabel = nullptr;
+  QLabel *m_gitBranchLabel = nullptr;
   QTextEdit *m_gitLog = nullptr;
   QLineEdit *m_gitCommitMsg = nullptr;
   QListWidget *m_gitStatusList = nullptr;
@@ -33,7 +34,9 @@ private:
   QLineEdit *m_gitRemoteUrl = nullptr;
   QLineEdit *m_gitUsername = nullptr;
   QLineEdit *m_gitToken = nullptr;
-  
+
   QCheckBox *m_pushTagsOpt = nullptr;
   QCheckBox *m_createReleaseOpt = nullptr;
+signals:
+  void settingsChanged();
 };

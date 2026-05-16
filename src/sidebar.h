@@ -23,6 +23,7 @@ public:
 public slots:
     void updateDrives();
     void applyIconSizes();
+    void refreshGitSection();
     void renameNetworkPlace(const QString &path, const QString &newName);
     const QStringList& gdriveAccounts() const { return m_gdriveAccounts; }
     void addPlace(const QString &path);
