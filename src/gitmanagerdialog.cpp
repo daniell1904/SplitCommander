@@ -234,10 +234,12 @@ void GitManagerDialog::load() {
 }
 
 void GitManagerDialog::save() {
-  Config::setGitLocalDir(m_gitLocalDir->text());
-  Config::setGitRemoteUrl(m_gitRemoteUrl->text());
-  Config::setGitUsername(m_gitUsername->text());
-  Config::setGitToken(m_gitToken->text());
+  QString path = m_gitLocalDir->text().trimmed();
+  Config::setGitLocalDir(path);
+  m_gitPath = path; // WICHTIG: Pfad synchronisieren!
+  Config::setGitRemoteUrl(m_gitRemoteUrl->text().trimmed());
+  Config::setGitUsername(m_gitUsername->text().trimmed());
+  Config::setGitToken(m_gitToken->text().trimmed());
 }
 
 void GitManagerDialog::runGitCommand(const QStringList &args) {
@@ -286,34 +288,58 @@ void GitManagerDialog::runGitCommand(const QStringList &args) {
 }
 
 void GitManagerDialog::refreshGitStatus() {
-    if(m_gitPath.isEmpty()) return;
+    if(m_gitPath.isEmpty()) {
+        m_gitLog->append("<span style='color:#ffaa00;'>Warnung: Kein Projekt-Ordner festgelegt.</span>");
+        return;
+    }
+    
+    // Check branch
     QProcess bProc;
     bProc.setWorkingDirectory(m_gitPath);
     bProc.start("git", {"branch", "--show-current"});
-    bProc.waitForFinished();
-    QString branch = bProc.readAllStandardOutput().trimmed();
-    if(branch.isEmpty()) branch = tr("Kein Repository");
-    m_gitBranchLabel->setText(tr("Branch: %1").arg(branch));
+    if (!bProc.waitForFinished(5000)) {
+        m_gitBranchLabel->setText(tr("Branch: Fehler"));
+    } else {
+        QString branch = bProc.readAllStandardOutput().trimmed();
+        if(branch.isEmpty()) branch = tr("Kein Repository");
+        m_gitBranchLabel->setText(tr("Branch: %1").arg(branch));
+    }
 
+    // Check status
     QProcess proc;
     proc.setWorkingDirectory(m_gitPath);
     proc.start("git", {"status", "--porcelain"});
-    proc.waitForFinished();
-    m_gitStatusList->clear();
-    QString out = proc.readAllStandardOutput().trimmed();
-    if(out.isEmpty()) {
-        m_gitStatusList->addItem(tr("✓ Keine ungespeicherten Änderungen"));
+    if (!proc.waitForFinished(5000)) {
+        m_gitLog->append("<span style='color:#ff6b6b;'>Fehler: 'git status' konnte nicht ausgeführt werden (Timeout).</span>");
         return;
     }
+
+    QString out = proc.readAllStandardOutput().trimmed();
+    QString err = proc.readAllStandardError().trimmed();
+    
+    if (!err.isEmpty()) {
+        m_gitLog->append("<span style='color:#ff6b6b;'>Git Fehler: " + err + "</span>");
+    }
+
+    m_gitStatusList->clear();
+    if(out.isEmpty()) {
+        m_gitStatusList->addItem(tr("✓ Keine ungespeicherten Änderungen"));
+        // Debug info in log
+        m_gitLog->append("<i>Status-Check in: " + m_gitPath + " (Alles aktuell)</i>");
+        return;
+    }
+
     QStringList lines = out.split("\n", Qt::SkipEmptyParts);
     for(const QString &line : lines) {
-        if(line.length() > 3) {
+        if(line.length() >= 3) {
             QString status = line.left(2);
             QString file = line.mid(3);
             auto *item = new QListWidgetItem(QString("[%1] %2").arg(status, file), m_gitStatusList);
-            item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+            item->setFlags(item->flags() | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+            item->setCheckState(Qt::Checked); // Standardmäßig ausgewählt
         }
     }
+    m_gitLog->append("<i>Änderungen in " + m_gitPath + " gefunden.</i>");
 }
 
 void GitManagerDialog::createGitHubRelease(const QString &tag) {
