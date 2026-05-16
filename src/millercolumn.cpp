@@ -82,7 +82,7 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
   m_header = new QPushButton();
   m_header->setObjectName("MillerHeader");
   m_header->setFlat(true);
-  m_header->setFixedHeight(SC_MILLER_HEADER_H);
+  m_header->setFixedHeight(Config::millerHeaderHeight());
   m_header->setIconSize(QSize(Config::millerIconSize(), Config::millerIconSize()));
   m_header->setStyleSheet(
       QString(
@@ -178,7 +178,6 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
     if (m_path == QLatin1String("__drives__")) {
       // --- Laufwerk-Menü ---
       const QString udi = it->data(Qt::UserRole + 1).toString();
-      mw_applyMenuShadow(&menu);
 
       // Öffnen + Öffnen in für alle navigierbaren Einträge
       if (!itemPath.isEmpty() && !itemPath.startsWith("solid:")) {
@@ -289,7 +288,6 @@ MillerColumn::MillerColumn(QWidget *parent) : QWidget(parent) {
           [itemPath]() { QGuiApplication::clipboard()->setText(itemPath); });
     } else {
       // --- Ordner-Menü ---
-      mw_applyMenuShadow(&menu);
       menu.addAction(QIcon::fromTheme("folder-open"), tr("Öffnen"), this,
                      [this, itemPath]() { emit entryClicked(itemPath, this); });
 
@@ -346,7 +344,7 @@ void MillerColumn::populateDrives() {
       it->setData(Qt::DecorationRole, QIcon::fromTheme(info.iconName));
       it->setData(Qt::UserRole, info.path);
       it->setData(Qt::UserRole + 1, info.udi);
-      it->setSizeHint(QSize(0, info.isMounted ? 50 : SC_MILLER_DRIVE_ROW_H));
+      it->setSizeHint(QSize(0, Config::millerDriveRowHeight()));
       it->setData(Qt::UserRole + 3, true); 
       it->setData(Qt::UserRole + 12, true); 
 
@@ -365,7 +363,7 @@ void MillerColumn::populateDrives() {
       it->setData(Qt::DecorationRole, QIcon::fromTheme(info.iconName));
       it->setData(Qt::UserRole, info.path);
       it->setData(Qt::UserRole + 1, info.scheme);
-      it->setSizeHint(QSize(0, SC_MILLER_DRIVE_ROW_H));
+      it->setSizeHint(QSize(0, Config::millerDriveRowHeight()));
       it->setData(Qt::UserRole + 3, true);
       it->setData(Qt::UserRole + 12, true);
 

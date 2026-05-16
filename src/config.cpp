@@ -212,6 +212,20 @@ void Config::setDriveIconSize(int i)         { adminGroup().writeEntry("driveIco
 void Config::setMillerIconSize(int)        { /* Ignored, using driveIconSize */ }
 void Config::setListIconSize(int i)          { adminGroup().writeEntry("listIconSize", i); adminGroup().config()->sync(); }
 
+int Config::sidebarRowHeight()       { return adminGroup().readEntry("sidebarRowHeight", 34); }
+int Config::sidebarDriveRowHeight()  { return adminGroup().readEntry("sidebarDriveRowHeight", 50); }
+int Config::sidebarNetRowHeight()    { return sidebarDriveRowHeight(); }
+int Config::millerDriveRowHeight()   { return sidebarDriveRowHeight(); }
+int Config::millerHeaderHeight()     { return adminGroup().readEntry("millerHeaderHeight", 38); }
+int Config::driveRefreshMs()         { return adminGroup().readEntry("driveRefreshMs", 5000); }
+
+void Config::setSidebarRowHeight(int i)      { adminGroup().writeEntry("sidebarRowHeight", i); adminGroup().config()->sync(); }
+void Config::setSidebarDriveRowHeight(int i) { adminGroup().writeEntry("sidebarDriveRowHeight", i); adminGroup().config()->sync(); }
+void Config::setSidebarNetRowHeight(int)     { /* Alias for sidebarDriveRowHeight */ }
+void Config::setMillerDriveRowHeight(int)    { /* Alias for sidebarDriveRowHeight */ }
+void Config::setMillerHeaderHeight(int i)    { adminGroup().writeEntry("millerHeaderHeight", i); adminGroup().config()->sync(); }
+void Config::setDriveRefreshMs(int i)        { adminGroup().writeEntry("driveRefreshMs", i); adminGroup().config()->sync(); }
+
 QString Config::gitLocalDir()  { return adminGroup().readEntry("gitLocalDir", QString()); }
 QString Config::gitRemoteUrl() { return adminGroup().readEntry("gitRemoteUrl", QString()); }
 QString Config::gitUsername()  { return adminGroup().readEntry("gitUsername", QString()); }

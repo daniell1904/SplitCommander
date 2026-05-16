@@ -6,11 +6,13 @@
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QGridLayout>
 #include <QFormLayout>
 #include <QCheckBox>
 #include <QListWidget>
 #include <QLineEdit>
 #include <QSpinBox>
+#include <QInputDialog>
 #include <QPushButton>
 #include <QLabel>
 #include <QStackedWidget>
@@ -101,9 +103,24 @@ void SettingsDialog::buildUI() {
   // SIDEBAR
   m_sidebar = new QListWidget();
   m_sidebar->setFixedWidth(220);
+  m_sidebar->setSpacing(6);
   m_sidebar->setStyleSheet(QString(
-    "background: %1; border: none; border-right: 1px solid %2; padding: 15px;"
-  ).arg(c.bgPanel, c.borderAlt));
+    "QListWidget { background: %1; border: none; border-right: 1px solid %2; padding: 15px; outline: none; }"
+    "QListWidget::item {"
+    "  background: %3;"
+    "  border: 1px solid %2;"
+    "  border-radius: 6px;"
+    "  padding: 10px 12px;"
+    "  color: %4;"
+    "  font-weight: 500;"
+    "}"
+    "QListWidget::item:hover { background: %5; }"
+    "QListWidget::item:selected {"
+    "  background: %6;"
+    "  color: %7;"
+    "  border: 1px solid %6;"
+    "}"
+  ).arg(c.bgPanel, c.borderAlt, c.bgBox, c.textPrimary, c.bgHover, c.accent, c.textLight));
 
   m_sidebar->addItem(tr("Allgemein"));
   m_sidebar->addItem(tr("Erscheinungsbild"));
@@ -301,35 +318,32 @@ QWidget* SettingsDialog::createAppearancePage() {
   themeInnerLay->setContentsMargins(0, 10, 0, 0);
   m_themeGroup = new QButtonGroup(this);
 
-  auto *themeScroll = new QScrollArea();
-  themeScroll->setWidgetResizable(true);
-  themeScroll->setFixedHeight(200);
-  themeScroll->setFrameShape(QFrame::NoFrame);
-  auto *themeScrollContent = new QWidget();
-  auto *themeScrollLay = new QVBoxLayout(themeScrollContent);
-  
+  auto *themeGrid = new QGridLayout();
+  themeGrid->setSpacing(8);
+
   const auto allThemes = TM().allThemes();
+  const int columns = 2;
   for (int i = 0; i < allThemes.size(); ++i) {
       const auto &t = allThemes.at(i);
       auto *card = new ColorCard(nullptr, t.bgMain, c.borderAlt, 6);
-      card->setFixedHeight(50);
+      card->setFixedHeight(38);
       auto *cardLay = new QHBoxLayout(card);
+      cardLay->setContentsMargins(8, 4, 8, 4);
+      cardLay->setSpacing(6);
       auto *rb = new QRadioButton();
       m_themeGroup->addButton(rb, i);
       cardLay->addWidget(rb);
       cardLay->addWidget(new QLabel(t.name), 1);
-      
+
       const QList<QColor> chipCols = {t.bgMain, t.bgBox, t.accent, t.textPrimary};
       for (int j = 0; j < chipCols.size(); ++j) {
           auto *chip = new ColorCard(nullptr, chipCols[j], c.borderAlt, 3);
-          chip->setFixedSize(20, 20); 
+          chip->setFixedSize(16, 16);
           cardLay->addWidget(chip);
       }
-      themeScrollLay->addWidget(card);
+      themeGrid->addWidget(card, i / columns, i % columns);
   }
-  themeScrollLay->addStretch();
-  themeScroll->setWidget(themeScrollContent);
-  themeInnerLay->addWidget(themeScroll);
+  themeInnerLay->addLayout(themeGrid);
   themesLay->addWidget(m_themeBox);
   lay->addWidget(grpThemes);
 
@@ -417,16 +431,52 @@ QWidget* SettingsDialog::createAppearancePage() {
       }
   });
 
-  // 5. ICON GRÖSSEN
-  auto *grpIcons = new QGroupBox(tr("Icon-Größen"));
+  // 5. ICON GRÖSSEN & ZEILENHÖHEN
+  auto *grpIcons = new QGroupBox(tr("Icon-Größen & Zeilenhöhen"));
   auto *iconForm = new QFormLayout(grpIcons);
   m_sidebarIconSize = new QSpinBox(); m_sidebarIconSize->setRange(16, 64);
   m_driveIconSize = new QSpinBox();   m_driveIconSize->setRange(16, 64);
   m_listIconSize = new QSpinBox();    m_listIconSize->setRange(16, 64);
-  
-  iconForm->addRow(tr("Sidebar:"), m_sidebarIconSize);
-  iconForm->addRow(tr("Laufwerke:"), m_driveIconSize);
-  iconForm->addRow(tr("Dateilisten:"), m_listIconSize);
+  m_sidebarRowHeight = new QSpinBox();      m_sidebarRowHeight->setRange(20, 80);
+  m_sidebarDriveRowHeight = new QSpinBox(); m_sidebarDriveRowHeight->setRange(30, 100);
+  m_millerHeaderHeight = new QSpinBox();    m_millerHeaderHeight->setRange(24, 80);
+
+  // Versteckte Felder — werden per Checkbox + Passwort eingeblendet
+  auto *chkAdvanced = new QCheckBox(tr("Erweiterte Höhen-Optionen anzeigen"));
+
+  iconForm->addRow(tr("Sidebar Icon:"), m_sidebarIconSize);
+  iconForm->addRow(tr("Laufwerke Icon:"), m_driveIconSize);
+  iconForm->addRow(tr("Dateilisten Icon:"), m_listIconSize);
+  iconForm->addRow(chkAdvanced);
+  iconForm->addRow(tr("Sidebar Höhe:"), m_sidebarRowHeight);
+  iconForm->addRow(tr("Laufwerke Höhe:"), m_sidebarDriveRowHeight);
+  iconForm->addRow(tr("Miller Header Höhe:"), m_millerHeaderHeight);
+
+  auto setAdvVisible = [this, iconForm](bool v) {
+    m_sidebarRowHeight->setVisible(v);
+    m_sidebarDriveRowHeight->setVisible(v);
+    m_millerHeaderHeight->setVisible(v);
+    if (auto *l = iconForm->labelForField(m_sidebarRowHeight))      l->setVisible(v);
+    if (auto *l = iconForm->labelForField(m_sidebarDriveRowHeight)) l->setVisible(v);
+    if (auto *l = iconForm->labelForField(m_millerHeaderHeight))    l->setVisible(v);
+  };
+  setAdvVisible(false);
+
+  connect(chkAdvanced, &QCheckBox::toggled, this, [this, chkAdvanced, setAdvVisible](bool checked) {
+    if (!checked) { setAdvVisible(false); return; }
+    bool ok = false;
+    const QString pw = QInputDialog::getText(this, tr("Passwort erforderlich"),
+                                             tr("Passwort für erweiterte Optionen:"),
+                                             QLineEdit::Password, QString(), &ok);
+    if (ok && pw == QStringLiteral("sudo")) {
+      setAdvVisible(true);
+    } else {
+      chkAdvanced->blockSignals(true);
+      chkAdvanced->setChecked(false);
+      chkAdvanced->blockSignals(false);
+    }
+  });
+
   lay->addWidget(grpIcons);
 
   // 6. AGE BADGES
@@ -518,6 +568,9 @@ void SettingsDialog::load() {
   m_sidebarIconSize->setValue(Config::sidebarIconSize());
   m_driveIconSize->setValue(Config::driveIconSize());
   m_listIconSize->setValue(Config::listIconSize());
+  m_sidebarRowHeight->setValue(Config::sidebarRowHeight());
+  m_sidebarDriveRowHeight->setValue(Config::sidebarDriveRowHeight());
+  m_millerHeaderHeight->setValue(Config::millerHeaderHeight());
 
   m_sSlider->setValue(Config::ageBadgeSaturation());
   m_lSlider->setValue(Config::ageBadgeLightness());
@@ -555,6 +608,9 @@ void SettingsDialog::save() {
   Config::setSidebarIconSize(m_sidebarIconSize->value());
   Config::setDriveIconSize(m_driveIconSize->value());
   Config::setListIconSize(m_listIconSize->value());
+  Config::setSidebarRowHeight(m_sidebarRowHeight->value());
+  Config::setSidebarDriveRowHeight(m_sidebarDriveRowHeight->value());
+  Config::setMillerHeaderHeight(m_millerHeaderHeight->value());
 
   Config::setAgeBadgeSaturation(m_sSlider->value());
   Config::setAgeBadgeLightness(m_lSlider->value());

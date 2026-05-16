@@ -50,24 +50,12 @@ void GitManagerDialog::buildUI() {
                                            .arg(TM().colors().accent, TM().colors().textLight, TM().colors().accentHover);
 
 
-  // --- SIMPLIFIED LINEAR LAYOUT ---
-  auto addActionButton = [&](const QString &title, const QString &desc, const QString &style, std::function<void()> onClick) {
-      auto *row = new QHBoxLayout();
-      row->setSpacing(15);
-      
+  // --- COMPACT ACTION GRID ---
+  auto addCompactBtn = [&](const QString &title, const QString &tooltip, const QString &style, std::function<void()> onClick) {
       auto *btn = new QPushButton(title);
       btn->setStyleSheet(style);
-      btn->setFixedWidth(180);
       btn->setMinimumHeight(32);
-      
-      auto *lbl = new QLabel(desc);
-      lbl->setStyleSheet("color: " + TM().colors().textPrimary + "; font-size: 11px;");
-      lbl->setWordWrap(true);
-      
-      row->addWidget(btn);
-      row->addWidget(lbl, 1);
-      
-      root->addLayout(row);
+      btn->setToolTip(tooltip);
       connect(btn, &QPushButton::clicked, this, onClick);
       return btn;
   };
@@ -99,42 +87,62 @@ void GitManagerDialog::buildUI() {
   m_gitCommitMsg->setStyleSheet(inputStyle);
   root->addWidget(m_gitCommitMsg);
 
-  // 3. MAIN ACTIONS
-  auto *actionLbl = new QLabel(tr("<b>3. Was möchtest du tun?</b>"));
+  // 3. ACTIONS
+  auto *actionLbl = new QLabel(tr("<b>3. Aktionen (Tipp: Maus über Button halten für Hilfe)</b>"));
   actionLbl->setStyleSheet(labelStyle);
   root->addWidget(actionLbl);
 
-  addActionButton(tr("Hochladen (Push)"), tr("Sendet deine Änderungen an GitHub, damit sie dort gespeichert sind."), gitPrimBtnSS, [this]() {
+  auto *actionGrid = new QGridLayout();
+  actionGrid->setSpacing(10);
+
+  // Row 0
+  actionGrid->addWidget(addCompactBtn(tr("Hochladen (Push)"), tr("Sendet deine Änderungen an GitHub, damit sie dort gespeichert sind."), gitPrimBtnSS, [this]() {
       QString msg = m_gitCommitMsg->text().trimmed();
       if(msg.isEmpty()) msg = "Automatisches Speichern";
-      
       runGitCommand({"add", "."});
       runGitCommand({"commit", "-m", msg});
       runGitCommand({"push"});
-      
-      if (m_pushTagsOpt->isChecked()) {
-          runGitCommand({"push", "--tags"});
-      }
-      
+      if (m_pushTagsOpt->isChecked()) runGitCommand({"push", "--tags"});
       if (m_createReleaseOpt->isChecked()) {
           bool ok;
           QString tag = QInputDialog::getText(this, tr("GitHub Release"), tr("Tag Name für das Release:"), QLineEdit::Normal, "", &ok);
-          if (ok && !tag.isEmpty()) {
-              createGitHubRelease(tag);
-          }
+          if (ok && !tag.isEmpty()) createGitHubRelease(tag);
       }
-      
       m_gitCommitMsg->clear();
       QMessageBox::information(this, tr("Fertig"), tr("Deine Änderungen wurden erfolgreich hochgeladen!"));
-  });
+  }), 0, 0);
 
-  addActionButton(tr("Aktualisieren (Pull)"), tr("Holt die neuesten Änderungen von GitHub auf deinen Computer."), gitNormBtnSS, [this]() {
+  actionGrid->addWidget(addCompactBtn(tr("Aktualisieren (Pull)"), tr("Holt die neuesten Änderungen von GitHub auf deinen Computer."), gitNormBtnSS, [this]() {
       runGitCommand({"pull"});
-  });
+  }), 0, 1);
 
-  addActionButton(tr("Unterschiede (Diff)"), tr("Zeigt dir genau an, welche Zeilen im Code du geändert hast."), gitNormBtnSS, [this]() {
+  actionGrid->addWidget(addCompactBtn(tr("Unterschiede (Diff)"), tr("Zeigt dir genau an, welche Zeilen im Code du geändert hast."), gitNormBtnSS, [this]() {
       runGitCommand({"diff"});
-  });
+  }), 0, 2);
+
+  // Row 1 (The new ones)
+  actionGrid->addWidget(addCompactBtn(tr("Verlauf (Log)"), tr("Zeigt eine Liste der letzten Änderungen und wer sie gemacht hat."), gitNormBtnSS, [this]() {
+      runGitCommand({"log", "--oneline", "-n", "20"});
+  }), 1, 0);
+
+  actionGrid->addWidget(addCompactBtn(tr("Tag erstellen"), tr("Markiert den aktuellen Stand als eine feste Version (z.B. v1.0)."), gitNormBtnSS, [this]() {
+      bool ok;
+      QString name = QInputDialog::getText(this, tr("Tag erstellen"), tr("Name für den Tag:"), QLineEdit::Normal, "", &ok);
+      if (ok && !name.isEmpty()) runGitCommand({"tag", name});
+  }), 1, 1);
+
+  actionGrid->addWidget(addCompactBtn(tr("Branch wechseln"), tr("Erstellt einen neuen Zweig für Experimente oder wechselt den aktuellen."), gitNormBtnSS, [this]() {
+      bool ok;
+      QString name = QInputDialog::getText(this, tr("Branch wechseln/erstellen"), tr("Name des Branch:"), QLineEdit::Normal, "", &ok);
+      if (ok && !name.isEmpty()) runGitCommand({"checkout", "-b", name});
+  }), 1, 2);
+
+  // Row 2
+  actionGrid->addWidget(addCompactBtn(tr("Stash (Parken)"), tr("Verschiebt deine aktuellen Änderungen in eine Warteschlange, um später daran weiterzuarbeiten."), gitNormBtnSS, [this]() {
+      runGitCommand({"stash"});
+  }), 2, 0);
+
+  root->addLayout(actionGrid);
 
   // Options row
   auto *optRow = new QHBoxLayout();
@@ -158,7 +166,7 @@ void GitManagerDialog::buildUI() {
   advLbl->setStyleSheet(labelStyle);
   root->addWidget(advLbl);
 
-  addActionButton(tr("Alles Verwerfen"), tr("Löscht ALLE deine ungespeicherten Änderungen und setzt alles auf den Stand von GitHub zurück. <b>Vorsicht!</b>"), btnBase + "QPushButton { color:#ff6b6b; border:1px solid #ff6b6b; }", [this]() {
+  addCompactBtn(tr("Alles Verwerfen"), tr("Löscht ALLE deine ungespeicherten Änderungen und setzt alles auf den Stand von GitHub zurück. Vorsicht!"), btnBase + "QPushButton { color:#ff6b6b; border:1px solid #ff6b6b; }", [this]() {
       if (QMessageBox::critical(this, tr("Vorsicht"), tr("Willst du wirklich alle deine Änderungen unwiderruflich löschen?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
           runGitCommand({"reset", "--hard", "HEAD"});
   });

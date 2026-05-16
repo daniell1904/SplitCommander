@@ -239,7 +239,7 @@ void Sidebar::adjustListHeight(QListWidget *list)
         list->setFixedHeight(0);
         list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     } else {
-        list->setFixedHeight(n * SC_SIDEBAR_ROW_H);
+        list->setFixedHeight(n * Config::sidebarRowHeight());
         list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     }
     list->updateGeometry();
@@ -436,7 +436,6 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
         const QString accountId = item->data(Qt::UserRole + 2).toString(); // nur bei gdrive gesetzt
 
         QMenu menu(this);
-        mw_applyMenuShadow(&menu);
         menu.setStyleSheet(TM().ssMenu());
         menu.addAction(QIcon::fromTheme(QStringLiteral("folder-open")), tr("Öffnen"), this,
             [this, path]() { emit driveClicked(path); });
@@ -567,7 +566,6 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent)
     // Drives-Menü
     connect(menuBtn, &QPushButton::clicked, this, [this, menuBtn, lbl]() {
         auto *m = new QMenu(this);
-        mw_applyMenuShadow(m);
         m->setStyleSheet(TM().ssMenu());
         m->addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Box umbenennen …"), this, [this, lbl]() {
             bool ok;
@@ -1100,7 +1098,7 @@ void Sidebar::updateDrives()
         it->setData(Qt::UserRole + 11, info.free);
         if (!info.isMounted) {
             it->setForeground(QColor(TM().colors().textMuted));
-            it->setSizeHint(QSize(0, SC_SIDEBAR_DRIVE_ROW_H));
+            it->setSizeHint(QSize(0, Config::sidebarDriveRowHeight()));
         }
     }
 
@@ -1110,7 +1108,7 @@ void Sidebar::updateDrives()
             auto *it = new QListWidgetItem(QIcon::fromTheme(info.iconName), info.name, m_netList);
             it->setData(Qt::UserRole, info.path);
             it->setData(Qt::UserRole + 1, info.subtitle.isEmpty() ? info.path : info.subtitle);
-            it->setSizeHint(QSize(0, info.subtitle.isEmpty() ? SC_SIDEBAR_DRIVE_ROW_H : SC_SIDEBAR_NET_ROW_H - 8));
+            it->setSizeHint(QSize(0, info.subtitle.isEmpty() ? Config::sidebarDriveRowHeight() : Config::sidebarNetRowHeight() - 8));
             it->setData(Qt::UserRole + 10, info.total);
             it->setData(Qt::UserRole + 11, info.free);
         }
@@ -1163,7 +1161,6 @@ void Sidebar::showDriveContextMenu(QListWidgetItem *item, const QPoint &pos)
         const bool    isMountedSolid = !udi.isEmpty() && !isSolid && !isGdrive;
 
         QMenu menu(this);
-        mw_applyMenuShadow(&menu);
         menu.setStyleSheet(TM().ssMenu());
 
         menu.addAction(QIcon::fromTheme(QStringLiteral("folder-open")), tr("Öffnen"), this, [this, path]() { emit driveClicked(path); });
@@ -1341,7 +1338,6 @@ void Sidebar::showPlaceContextMenu(QListWidgetItem *item, QListWidget *list,
     const QString icon = item->data(Qt::UserRole + 2).toString();
 
     QMenu menu(this);
-    mw_applyMenuShadow(&menu);
     menu.setStyleSheet(TM().ssMenu());
 
     auto *openIn = menu.addMenu(QIcon::fromTheme(QStringLiteral("folder-open")), tr("Öffnen in"));

@@ -67,6 +67,9 @@ private:
   QSpinBox    *m_sidebarIconSize  = nullptr;
   QSpinBox    *m_driveIconSize    = nullptr;
   QSpinBox    *m_listIconSize     = nullptr;
+  QSpinBox    *m_sidebarRowHeight = nullptr;
+  QSpinBox    *m_sidebarDriveRowHeight = nullptr;
+  QSpinBox    *m_millerHeaderHeight = nullptr;
 
   // AgeBadge
   QSlider      *m_sSlider       = nullptr;

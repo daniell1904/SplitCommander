@@ -478,7 +478,6 @@ void PaneWidget::initSearchPanel(QVBoxLayout *rootLay) {
                TM().colors().textPrimary, TM().colors().accent));
 
   auto *filterMenu = new QMenu(filterBtn);
-  mw_applyMenuShadow(filterMenu);
   filterMenu->setStyleSheet(TM().ssMenu());
   auto *actNames = filterMenu->addAction(tr("Dateinamen"));
   auto *actContent = filterMenu->addAction(tr("Dateiinhalt"));

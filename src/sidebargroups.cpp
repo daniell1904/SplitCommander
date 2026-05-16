@@ -290,7 +290,6 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
             [this, menuBtn, lbl, sharedName, outerBox, wrapper]() {
         auto *m = new QMenu(this);
         m->setAttribute(Qt::WA_DeleteOnClose);
-        mw_applyMenuShadow(m);
         m->setStyleSheet(TM().ssMenu());
 
         // Umbenennen
@@ -578,7 +577,6 @@ void Sidebar::setupTags()
         auto *item = m_tagList->itemAt(pos);
         if (!item) return;
         QMenu menu(this);
-        mw_applyMenuShadow(&menu);
         menu.setStyleSheet(TM().ssMenu());
 
         menu.addAction(QIcon::fromTheme(QStringLiteral("color-picker")), tr("Farbe ändern …"), this,

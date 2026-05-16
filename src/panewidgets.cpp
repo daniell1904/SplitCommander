@@ -722,7 +722,7 @@ QSize MillerItemDelegate::sizeHint(const QStyleOptionViewItem &opt, const QModel
     const int sz = Config::millerIconSize();
     const bool isDrive = idx.data(Qt::UserRole+12).toBool() || idx.data(Qt::UserRole+10).toDouble() > 0;
     if (isDrive) {
-        return QSize(100, SC_SIDEBAR_DRIVE_ROW_H);
+        return QSize(100, Config::sidebarDriveRowHeight());
     }
     return QSize(100, sz + 12);
 }

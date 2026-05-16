@@ -57,6 +57,16 @@ public:
     static int millerIconSize();
     static int listIconSize();
 
+    // Zeilenhöhen
+    static int sidebarRowHeight();
+    static int sidebarDriveRowHeight();
+    static int sidebarNetRowHeight();
+    static int millerDriveRowHeight();
+    static int millerHeaderHeight();
+
+    // Drive-Refresh
+    static int driveRefreshMs();
+
     static void setShowDriveIp(bool b);
     static void setShowMillerIp(bool b);
     static void setDriveBlacklist(const QStringList &list);
@@ -64,6 +74,13 @@ public:
     static void setDriveIconSize(int i);
     static void setMillerIconSize(int i);
     static void setListIconSize(int i);
+
+    static void setSidebarRowHeight(int i);
+    static void setSidebarDriveRowHeight(int i);
+    static void setSidebarNetRowHeight(int i);
+    static void setMillerDriveRowHeight(int i);
+    static void setMillerHeaderHeight(int i);
+    static void setDriveRefreshMs(int i);
 
     static QString gitLocalDir();
     static QString gitRemoteUrl();

@@ -135,5 +135,5 @@ QSize DriveDelegate::sizeHint(const QStyleOptionViewItem &, const QModelIndex &i
 {
     const QString path = idx.data(Qt::UserRole).toString();
     // Eingehängt (Pfad) oder ausgehängt (solid:): beide bekommen 44px wenn showBars
-    return QSize(200, m_showBars ? SC_SIDEBAR_DRIVE_ROW_H : SC_SIDEBAR_ROW_H);
+    return QSize(200, m_showBars ? Config::sidebarDriveRowHeight() : Config::sidebarRowHeight());
 }
