@@ -21,6 +21,7 @@ private:
 
   void runGitCommand(const QStringList &args);
   void refreshGitStatus();
+  void createGitHubRelease(const QString &tag);
 
   QString m_gitPath;
   QLabel    *m_gitBranchLabel = nullptr;
@@ -32,4 +33,7 @@ private:
   QLineEdit *m_gitRemoteUrl = nullptr;
   QLineEdit *m_gitUsername = nullptr;
   QLineEdit *m_gitToken = nullptr;
+  
+  QCheckBox *m_pushTagsOpt = nullptr;
+  QCheckBox *m_createReleaseOpt = nullptr;
 };

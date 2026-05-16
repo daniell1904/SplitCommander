@@ -4,6 +4,8 @@
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QScrollArea>
+#include <QGroupBox>
 #include <QFormLayout>
 #include <QCheckBox>
 #include <QListWidget>
@@ -33,8 +35,8 @@ GitManagerDialog::GitManagerDialog(const QString &currentPath, QWidget *parent)
 
 void GitManagerDialog::buildUI() {
   auto *root = new QVBoxLayout(this);
-  root->setContentsMargins(30, 30, 30, 30);
-  root->setSpacing(24);
+  root->setContentsMargins(10, 10, 10, 10);
+  root->setSpacing(4);
 
   // Styles (Professional Desktop - 22px Nano)
   const QString labelStyle = QString("color:%1; font-size:12px; font-weight:bold;").arg(TM().colors().textPrimary);
@@ -47,56 +49,35 @@ void GitManagerDialog::buildUI() {
   const QString gitPrimBtnSS = btnBase + QString("QPushButton { background:%1; color:%2; border:none; } QPushButton:hover { background:%3; }")
                                            .arg(TM().colors().accent, TM().colors().textLight, TM().colors().accentHover);
 
-  auto addSeparator = [&](QVBoxLayout *l) {
-      auto *line = new QFrame();
-      line->setFrameShape(QFrame::HLine);
-      line->setStyleSheet(QString("background: %1; max-height: 1px; margin: 10px 0;").arg(TM().colors().borderAlt));
-      l->addWidget(line);
+
+  // --- SIMPLIFIED LINEAR LAYOUT ---
+  auto addActionButton = [&](const QString &title, const QString &desc, const QString &style, std::function<void()> onClick) {
+      auto *row = new QHBoxLayout();
+      row->setSpacing(15);
+      
+      auto *btn = new QPushButton(title);
+      btn->setStyleSheet(style);
+      btn->setFixedWidth(180);
+      btn->setMinimumHeight(32);
+      
+      auto *lbl = new QLabel(desc);
+      lbl->setStyleSheet("color: " + TM().colors().textPrimary + "; font-size: 11px;");
+      lbl->setWordWrap(true);
+      
+      row->addWidget(btn);
+      row->addWidget(lbl, 1);
+      
+      root->addLayout(row);
+      connect(btn, &QPushButton::clicked, this, onClick);
+      return btn;
   };
 
-  // 1. CONFIGURATION
-  auto *formWrap = new QWidget();
-  auto *form = new QFormLayout(formWrap);
-  form->setContentsMargins(0, 0, 0, 0);
-  form->setSpacing(12);
-  form->setLabelAlignment(Qt::AlignRight);
-
-  m_gitLocalDir = new QLineEdit(); m_gitLocalDir->setStyleSheet(inputStyle);
-  auto *lblPath = new QLabel(tr("Local Path:")); lblPath->setStyleSheet(labelStyle);
-  auto *pathRow = new QHBoxLayout();
-  pathRow->addWidget(m_gitLocalDir, 1);
-  auto *btnBrowse = new QPushButton(tr("Browse..."));
-  btnBrowse->setStyleSheet(gitNormBtnSS);
-  pathRow->addWidget(btnBrowse);
-  form->addRow(lblPath, pathRow);
-
-  m_gitRemoteUrl = new QLineEdit(); m_gitRemoteUrl->setStyleSheet(inputStyle);
-  m_gitRemoteUrl->setPlaceholderText("https://github.com/user/repo.git");
-  auto *lblRemote = new QLabel(tr("Remote URL:")); lblRemote->setStyleSheet(labelStyle);
-  form->addRow(lblRemote, m_gitRemoteUrl);
-
-  m_gitUsername = new QLineEdit(); m_gitUsername->setStyleSheet(inputStyle);
-  auto *lblUser = new QLabel(tr("Username:")); lblUser->setStyleSheet(labelStyle);
-  form->addRow(lblUser, m_gitUsername);
-
-  m_gitToken = new QLineEdit(); m_gitToken->setEchoMode(QLineEdit::Password); m_gitToken->setStyleSheet(inputStyle);
-  auto *lblToken = new QLabel(tr("Git Token (PAT):")); lblToken->setStyleSheet(labelStyle);
-  auto *tokenRow = new QHBoxLayout();
-  tokenRow->addWidget(m_gitToken, 1);
-  auto *btnGenToken = new QPushButton(tr("Token generieren..."));
-  btnGenToken->setStyleSheet(gitNormBtnSS);
-  tokenRow->addWidget(btnGenToken);
-  form->addRow(lblToken, tokenRow);
-
-  root->addWidget(formWrap);
-  addSeparator(root);
-
-  // 2. STATUS & CHANGES
+  // 1. STATUS
   auto *statusHeaderRow = new QHBoxLayout();
-  auto *statusLbl = new QLabel(tr("Status & Änderungen"));
+  auto *statusLbl = new QLabel(tr("<b>1. Was hat sich geändert?</b>"));
   statusLbl->setStyleSheet(labelStyle);
   m_gitBranchLabel = new QLabel(tr("Branch: ..."));
-  m_gitBranchLabel->setStyleSheet("color: " + TM().colors().accent + "; font-size: 13px; font-weight: bold;");
+  m_gitBranchLabel->setStyleSheet("color: " + TM().colors().accent + "; font-size: 12px; font-weight: bold;");
   statusHeaderRow->addWidget(statusLbl);
   statusHeaderRow->addStretch();
   statusHeaderRow->addWidget(m_gitBranchLabel);
@@ -105,63 +86,110 @@ void GitManagerDialog::buildUI() {
   m_gitStatusList = new QListWidget();
   m_gitStatusList->setStyleSheet(QString("background:%1; color:%2; border: 1px solid %3; border-radius: 3px;")
                                   .arg(TM().colors().bgInput, TM().colors().textPrimary, TM().colors().borderAlt));
-  m_gitStatusList->setFixedHeight(200);
+  m_gitStatusList->setMaximumHeight(150);
   root->addWidget(m_gitStatusList);
 
+  // 2. COMMIT MESSAGE
+  auto *msgLbl = new QLabel(tr("<b>2. Kurze Beschreibung deiner Arbeit</b>"));
+  msgLbl->setStyleSheet(labelStyle);
+  root->addWidget(msgLbl);
+
   m_gitCommitMsg = new QLineEdit();
-  m_gitCommitMsg->setPlaceholderText(tr("Commit message..."));
+  m_gitCommitMsg->setPlaceholderText(tr("z.B. Fehler in der Suche behoben..."));
   m_gitCommitMsg->setStyleSheet(inputStyle);
   root->addWidget(m_gitCommitMsg);
 
-  // 3. ACTIONS
-  auto *actionsGrid = new QGridLayout();
-  actionsGrid->setSpacing(10);
-  
-  auto setupGitBtn = [&](const QString &t, bool prim = false, bool danger = false) {
-      auto *b = new QPushButton(t);
-      if (prim) b->setStyleSheet(gitPrimBtnSS);
-      else if (danger) b->setStyleSheet(btnBase + "QPushButton { background:transparent; color:#ff6b6b; border:1px solid #ff6b6b; } QPushButton:hover { background:#ff6b6b; color:white; }");
-      else b->setStyleSheet(gitNormBtnSS);
-      return b;
-  };
+  // 3. MAIN ACTIONS
+  auto *actionLbl = new QLabel(tr("<b>3. Was möchtest du tun?</b>"));
+  actionLbl->setStyleSheet(labelStyle);
+  root->addWidget(actionLbl);
 
-  auto *btnPush   = setupGitBtn(tr("Push"), true);
-  auto *btnPull   = setupGitBtn(tr("Pull"));
-  auto *btnMerge  = setupGitBtn(tr("Merge"));
-  auto *btnLog    = setupGitBtn(tr("Log"));
-  auto *btnDiff   = setupGitBtn(tr("Diff"));
-  auto *btnPushTags = setupGitBtn(tr("Tags pushen"), true);
-  auto *btnBranch = setupGitBtn(tr("Branch"));
-  auto *btnStash  = setupGitBtn(tr("Stash"));
-  auto *btnTag    = setupGitBtn(tr("Tag"));
-  auto *btnDelTag = setupGitBtn(tr("Tag löschen"), false, true);
-  auto *btnReset  = setupGitBtn(tr("Reset"), false, true);
+  addActionButton(tr("Hochladen (Push)"), tr("Sendet deine Änderungen an GitHub, damit sie dort gespeichert sind."), gitPrimBtnSS, [this]() {
+      QString msg = m_gitCommitMsg->text().trimmed();
+      if(msg.isEmpty()) msg = "Automatisches Speichern";
+      runGitCommand({"add", "."});
+      runGitCommand({"commit", "-m", msg});
+      runGitCommand({"push"});
+      if (m_pushTagsOpt->isChecked()) runGitCommand({"push", "--tags"});
+      m_gitCommitMsg->clear();
+  });
 
-  actionsGrid->addWidget(btnPush,   0, 0);
-  actionsGrid->addWidget(btnPull,   0, 1);
-  actionsGrid->addWidget(btnMerge,  0, 2);
-  actionsGrid->addWidget(btnLog,    0, 3);
-  actionsGrid->addWidget(btnDiff,   0, 4);
-  
-  actionsGrid->addWidget(btnBranch, 1, 0);
-  actionsGrid->addWidget(btnStash,  1, 1);
-  actionsGrid->addWidget(btnTag,    1, 2);
-  actionsGrid->addWidget(btnDelTag, 1, 3);
-  actionsGrid->addWidget(btnReset,  1, 4);
-  actionsGrid->addWidget(btnPushTags, 2, 0);
-  root->addLayout(actionsGrid);
+  addActionButton(tr("Aktualisieren (Pull)"), tr("Holt die neuesten Änderungen von GitHub auf deinen Computer."), gitNormBtnSS, [this]() {
+      runGitCommand({"pull"});
+  });
 
-  // 4. LOG
-  auto *logLbl = new QLabel(tr("Prozess-Ausgabe"));
+  addActionButton(tr("Unterschiede (Diff)"), tr("Zeigt dir genau an, welche Zeilen im Code du geändert hast."), gitNormBtnSS, [this]() {
+      runGitCommand({"diff"});
+  });
+
+  // Options row
+  auto *optRow = new QHBoxLayout();
+  m_pushTagsOpt = new QCheckBox(tr("Tags (Versionen) mit hochladen"));
+  m_pushTagsOpt->setStyleSheet("color: " + TM().colors().textPrimary + "; font-size: 11px;");
+  m_createReleaseOpt = new QCheckBox(tr("Release auf GitHub erstellen"));
+  m_createReleaseOpt->setStyleSheet("color: " + TM().colors().textPrimary + "; font-size: 11px;");
+  optRow->addWidget(m_pushTagsOpt);
+  optRow->addWidget(m_createReleaseOpt);
+  optRow->addStretch();
+  root->addLayout(optRow);
+
+  // Separator for Advanced
+  auto *line = new QFrame();
+  line->setFrameShape(QFrame::HLine);
+  line->setStyleSheet(QString("background: %1; max-height: 1px; margin: 10px 0;").arg(TM().colors().borderAlt));
+  root->addWidget(line);
+
+  // 4. ADVANCED / DANGER
+  auto *advLbl = new QLabel(tr("<b>Erweiterte Funktionen</b>"));
+  advLbl->setStyleSheet(labelStyle);
+  root->addWidget(advLbl);
+
+  addActionButton(tr("Alles Verwerfen"), tr("Löscht ALLE deine ungespeicherten Änderungen und setzt alles auf den Stand von GitHub zurück. <b>Vorsicht!</b>"), btnBase + "QPushButton { color:#ff6b6b; border:1px solid #ff6b6b; }", [this]() {
+      if (QMessageBox::critical(this, tr("Vorsicht"), tr("Willst du wirklich alle deine Änderungen unwiderruflich löschen?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+          runGitCommand({"reset", "--hard", "HEAD"});
+  });
+
+  // 5. LOG
+  auto *logLbl = new QLabel(tr("<b>Prozess-Log</b>"));
   logLbl->setStyleSheet(labelStyle);
   root->addWidget(logLbl);
 
   m_gitLog = new QTextEdit();
   m_gitLog->setReadOnly(true);
-  m_gitLog->setFixedHeight(100);
-  m_gitLog->setStyleSheet(QString("background:%1; color:%2; border:1px solid %3; font-family:monospace; font-size:12px; padding:8px; border-radius:3px;")
-                           .arg(TM().colors().bgDeep, TM().colors().textPrimary, TM().colors().borderAlt));
-  root->addWidget(m_gitLog);
+  // Separator for Config
+  auto *line2 = new QFrame();
+  line2->setFrameShape(QFrame::HLine);
+  line2->setStyleSheet(QString("background: %1; max-height: 1px; margin: 10px 0;").arg(TM().colors().borderAlt));
+  root->addWidget(line2);
+
+  // 6. CONFIGURATION
+  auto *cfgLbl = new QLabel(tr("<b>Verbindungseinstellungen</b>"));
+  cfgLbl->setStyleSheet(labelStyle);
+  root->addWidget(cfgLbl);
+
+  auto *formWrap = new QWidget();
+  auto *form = new QFormLayout(formWrap);
+  form->setSpacing(6);
+  m_gitLocalDir = new QLineEdit(); m_gitLocalDir->setStyleSheet(inputStyle);
+  auto *btnBrowse = new QPushButton(tr("Durchsuchen...")); btnBrowse->setStyleSheet(gitNormBtnSS);
+  auto *pathRow = new QHBoxLayout(); pathRow->addWidget(m_gitLocalDir, 1); pathRow->addWidget(btnBrowse);
+  form->addRow(tr("Projekt-Ordner:"), pathRow);
+  
+  m_gitRemoteUrl = new QLineEdit(); m_gitRemoteUrl->setStyleSheet(inputStyle);
+  form->addRow(tr("GitHub Link:"), m_gitRemoteUrl);
+  
+  m_gitUsername = new QLineEdit(); m_gitUsername->setStyleSheet(inputStyle);
+  form->addRow(tr("GitHub Name:"), m_gitUsername);
+  
+  m_gitToken = new QLineEdit(); m_gitToken->setEchoMode(QLineEdit::Password); m_gitToken->setStyleSheet(inputStyle);
+  form->addRow(tr("Passwort/Token:"), m_gitToken);
+  
+  root->addWidget(formWrap);
+
+  connect(btnBrowse, &QPushButton::clicked, this, [this]() {
+      QString dir = QFileDialog::getExistingDirectory(this, tr("Ordner wählen"), m_gitLocalDir->text());
+      if (!dir.isEmpty()) { m_gitLocalDir->setText(dir); m_gitPath = dir; save(); refreshGitStatus(); }
+  });
 
   // FOOTER
   auto *footer = new QHBoxLayout();
@@ -185,63 +213,15 @@ void GitManagerDialog::buildUI() {
 
   connect(btnClose, &QPushButton::clicked, this, &QDialog::close);
   connect(btnBrowse, &QPushButton::clicked, this, [this]() {
-      QString dir = QFileDialog::getExistingDirectory(this, tr("Git Repository auswählen"), m_gitLocalDir->text());
-      if (!dir.isEmpty()) {
-          m_gitLocalDir->setText(dir);
-          m_gitPath = dir;
-          save();
-          refreshGitStatus();
-      }
+      QString dir = QFileDialog::getExistingDirectory(this, tr("Ordner wählen"), m_gitLocalDir->text());
+      if (!dir.isEmpty()) { m_gitLocalDir->setText(dir); m_gitPath = dir; save(); refreshGitStatus(); }
   });
 
-  connect(btnPush, &QPushButton::clicked, this, [this]() {
-      QString msg = m_gitCommitMsg->text().trimmed();
-      if(msg.isEmpty()) msg = "Automatisches Speichern";
-      runGitCommand({"add", "."});
-      runGitCommand({"commit", "-m", msg});
-      runGitCommand({"push"});
-      m_gitCommitMsg->clear();
-  });
-  connect(btnPull, &QPushButton::clicked, this, [this]() { runGitCommand({"pull"}); });
-  connect(btnReset, &QPushButton::clicked, this, [this]() {
-      if (QMessageBox::warning(this, tr("Reset"), tr("Wirklich alle Änderungen verwerfen?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
-          runGitCommand({"reset", "--hard", "origin/" + m_gitBranchLabel->text().section(": ", 1)});
-  });
-  connect(btnMerge, &QPushButton::clicked, this, [this]() {
-      bool ok;
-      QString branch = QInputDialog::getText(this, tr("Merge"), tr("Welcher Branch soll eingepflegt werden?"), QLineEdit::Normal, "", &ok);
-      if (ok && !branch.isEmpty()) runGitCommand({"merge", branch});
-  });
-  connect(btnLog, &QPushButton::clicked, this, [this]() { runGitCommand({"log", "--oneline", "-n", "20"}); });
-  connect(btnDiff, &QPushButton::clicked, this, [this]() { runGitCommand({"diff"}); });
-  connect(btnStash, &QPushButton::clicked, this, [this]() { runGitCommand({"stash"}); });
-  connect(btnBranch, &QPushButton::clicked, this, [this]() {
-      bool ok;
-      QString name = QInputDialog::getText(this, tr("Branch wechseln/erstellen"), tr("Branch Name:"), QLineEdit::Normal, "", &ok);
-      if (ok && !name.isEmpty()) runGitCommand({"checkout", "-b", name});
-  });
-  connect(btnTag, &QPushButton::clicked, this, [this]() {
-      bool ok;
-      QString name = QInputDialog::getText(this, tr("Tag erstellen"), tr("Tag Name (z.B. v1.0.0):"), QLineEdit::Normal, "", &ok);
-      if (ok && !name.isEmpty()) runGitCommand({"tag", name});
-  });
-  connect(btnDelTag, &QPushButton::clicked, this, [this]() {
-      bool ok;
-      QString name = QInputDialog::getText(this, tr("Tag löschen"), tr("Welcher Tag soll gelöscht werden?"), QLineEdit::Normal, "", &ok);
-      if (ok && !name.isEmpty()) {
-          if (QMessageBox::question(this, tr("Tag löschen"), tr("Soll der Tag '%1' wirklich gelöscht werden?").arg(name)) == QMessageBox::Yes) {
-              runGitCommand({"tag", "-d", name});
-          }
-      }
-  });
-  connect(btnPushTags, &QPushButton::clicked, this, [this]() {
-      runGitCommand({"push", "--tags"});
-  });
-  connect(btnGenToken, &QPushButton::clicked, this, [this]() {
-      QString url = m_gitRemoteUrl->text();
-      QString target = "https://github.com/settings/tokens";
-      if (url.contains("gitlab")) target = "https://gitlab.com/-/profile/personal_access_tokens";
-      QDesktopServices::openUrl(QUrl(target));
+  auto *btnGenToken = new QPushButton(tr("Token generieren..."));
+  btnGenToken->setStyleSheet(gitNormBtnSS);
+  form->addRow(tr("Hilfe:"), btnGenToken);
+  connect(btnGenToken, &QPushButton::clicked, []() {
+      QDesktopServices::openUrl(QUrl("https://github.com/settings/tokens/new"));
   });
 }
 
@@ -332,7 +312,41 @@ void GitManagerDialog::refreshGitStatus() {
             QString file = line.mid(3);
             auto *item = new QListWidgetItem(QString("[%1] %2").arg(status, file), m_gitStatusList);
             item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-            item->setCheckState(Qt::Checked);
         }
     }
+}
+
+void GitManagerDialog::createGitHubRelease(const QString &tag) {
+    QString token = Config::gitToken();
+    QString remote = Config::gitRemoteUrl();
+    if (token.isEmpty()) {
+        QMessageBox::warning(this, tr("Fehler"), tr("Kein Git Token hinterlegt!"));
+        return;
+    }
+    
+    // Parse Owner/Repo: https://github.com/OWNER/REPO.git
+    QString repoPath = remote;
+    repoPath.remove("https://github.com/");
+    repoPath.remove(".git");
+    
+    QString json = QString("{\"tag_name\":\"%1\",\"name\":\"%1\",\"body\":\"Release %1\",\"draft\":false,\"prerelease\":false}").arg(tag);
+    
+    QProcess *proc = new QProcess(this);
+    QStringList args;
+    args << "-L" << "-X" << "POST" 
+         << "-H" << "Accept: application/vnd.github+json"
+         << "-H" << QString("Authorization: Bearer %1").arg(token)
+         << "-H" << "X-GitHub-Api-Version: 2022-11-28"
+         << QString("https://api.github.com/repos/%1/releases").arg(repoPath)
+         << "-d" << json;
+         
+    m_gitLog->append("<b>> GitHub API: Creating Release " + tag + "...</b>");
+    proc->start("curl", args);
+    connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this, proc, tag]() {
+        m_gitLog->append(QString::fromUtf8(proc->readAllStandardOutput()));
+        QString err = QString::fromUtf8(proc->readAllStandardError());
+        if (!err.isEmpty()) m_gitLog->append("<span style='color:#ff6b6b;'>" + err + "</span>");
+        m_gitLog->append("<b>✓ Release " + tag + " erstellt!</b>");
+        proc->deleteLater();
+    });
 }
