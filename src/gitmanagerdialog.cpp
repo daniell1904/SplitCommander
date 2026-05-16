@@ -130,9 +130,11 @@ void GitManagerDialog::buildUI() {
   auto *btnMerge  = setupGitBtn(tr("Merge"));
   auto *btnLog    = setupGitBtn(tr("Log"));
   auto *btnDiff   = setupGitBtn(tr("Diff"));
+  auto *btnPushTags = setupGitBtn(tr("Tags pushen"), true);
   auto *btnBranch = setupGitBtn(tr("Branch"));
   auto *btnStash  = setupGitBtn(tr("Stash"));
   auto *btnTag    = setupGitBtn(tr("Tag"));
+  auto *btnDelTag = setupGitBtn(tr("Tag löschen"), false, true);
   auto *btnReset  = setupGitBtn(tr("Reset"), false, true);
 
   actionsGrid->addWidget(btnPush,   0, 0);
@@ -144,8 +146,9 @@ void GitManagerDialog::buildUI() {
   actionsGrid->addWidget(btnBranch, 1, 0);
   actionsGrid->addWidget(btnStash,  1, 1);
   actionsGrid->addWidget(btnTag,    1, 2);
-  actionsGrid->addWidget(new QWidget(), 1, 3);
+  actionsGrid->addWidget(btnDelTag, 1, 3);
   actionsGrid->addWidget(btnReset,  1, 4);
+  actionsGrid->addWidget(btnPushTags, 2, 0);
   root->addLayout(actionsGrid);
 
   // 4. LOG
@@ -216,6 +219,23 @@ void GitManagerDialog::buildUI() {
       bool ok;
       QString name = QInputDialog::getText(this, tr("Branch wechseln/erstellen"), tr("Branch Name:"), QLineEdit::Normal, "", &ok);
       if (ok && !name.isEmpty()) runGitCommand({"checkout", "-b", name});
+  });
+  connect(btnTag, &QPushButton::clicked, this, [this]() {
+      bool ok;
+      QString name = QInputDialog::getText(this, tr("Tag erstellen"), tr("Tag Name (z.B. v1.0.0):"), QLineEdit::Normal, "", &ok);
+      if (ok && !name.isEmpty()) runGitCommand({"tag", name});
+  });
+  connect(btnDelTag, &QPushButton::clicked, this, [this]() {
+      bool ok;
+      QString name = QInputDialog::getText(this, tr("Tag löschen"), tr("Welcher Tag soll gelöscht werden?"), QLineEdit::Normal, "", &ok);
+      if (ok && !name.isEmpty()) {
+          if (QMessageBox::question(this, tr("Tag löschen"), tr("Soll der Tag '%1' wirklich gelöscht werden?").arg(name)) == QMessageBox::Yes) {
+              runGitCommand({"tag", "-d", name});
+          }
+      }
+  });
+  connect(btnPushTags, &QPushButton::clicked, this, [this]() {
+      runGitCommand({"push", "--tags"});
   });
   connect(btnGenToken, &QPushButton::clicked, this, [this]() {
       QString url = m_gitRemoteUrl->text();
