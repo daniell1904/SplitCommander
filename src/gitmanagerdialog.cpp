@@ -163,20 +163,7 @@ void GitManagerDialog::buildUI() {
           runGitCommand({"reset", "--hard", "HEAD"});
   });
 
-  // 5. LOG
-  auto *logLbl = new QLabel(tr("<b>Prozess-Log</b>"));
-  logLbl->setStyleSheet(labelStyle);
-  root->addWidget(logLbl);
-
-  m_gitLog = new QTextEdit();
-  m_gitLog->setReadOnly(true);
-  // Separator for Config
-  auto *line2 = new QFrame();
-  line2->setFrameShape(QFrame::HLine);
-  line2->setStyleSheet(QString("background: %1; max-height: 1px; margin: 10px 0;").arg(TM().colors().borderAlt));
-  root->addWidget(line2);
-
-  // 6. CONFIGURATION
+  // 5. CONFIGURATION
   auto *cfgLbl = new QLabel(tr("<b>Verbindungseinstellungen</b>"));
   cfgLbl->setStyleSheet(labelStyle);
   root->addWidget(cfgLbl);
@@ -198,12 +185,36 @@ void GitManagerDialog::buildUI() {
   m_gitToken = new QLineEdit(); m_gitToken->setEchoMode(QLineEdit::Password); m_gitToken->setStyleSheet(inputStyle);
   form->addRow(tr("Passwort/Token:"), m_gitToken);
   
+  auto *btnGenToken = new QPushButton(tr("Token generieren..."));
+  btnGenToken->setStyleSheet(gitNormBtnSS);
+  form->addRow(tr("Hilfe:"), btnGenToken);
   root->addWidget(formWrap);
 
   connect(btnBrowse, &QPushButton::clicked, this, [this]() {
       QString dir = QFileDialog::getExistingDirectory(this, tr("Ordner wählen"), m_gitLocalDir->text());
       if (!dir.isEmpty()) { m_gitLocalDir->setText(dir); m_gitPath = dir; save(); refreshGitStatus(); }
   });
+  connect(btnGenToken, &QPushButton::clicked, []() {
+      QDesktopServices::openUrl(QUrl("https://github.com/settings/tokens/new"));
+  });
+
+  auto *line2 = new QFrame();
+  line2->setFrameShape(QFrame::HLine);
+  line2->setStyleSheet(QString("background: %1; max-height: 1px; margin: 10px 0;").arg(TM().colors().borderAlt));
+  root->addWidget(line2);
+
+  // 6. LOG
+  auto *logLbl = new QLabel(tr("<b>Prozess-Ausgabe (Log)</b>"));
+  logLbl->setStyleSheet(labelStyle);
+  root->addWidget(logLbl);
+
+  m_gitLog = new QTextEdit();
+  m_gitLog->setReadOnly(true);
+  m_gitLog->setMinimumHeight(150);
+  m_gitLog->setStyleSheet(QString("background:%1; color:%2; border:2px solid %3; font-family:monospace; font-size:11px; padding:6px; border-radius:4px;")
+                           .arg(TM().colors().bgDeep, TM().colors().textPrimary, TM().colors().borderAlt));
+  m_gitLog->append("<span style='color:#50fa7b;'>✓ Git Manager bereit.</span>");
+  root->addWidget(m_gitLog, 1); // Nimmt den restlichen Platz ein
 
   // FOOTER
   auto *footer = new QHBoxLayout();
@@ -226,17 +237,6 @@ void GitManagerDialog::buildUI() {
   connect(m_gitToken,     &QLineEdit::textEdited, this, [this]() { save(); });
 
   connect(btnClose, &QPushButton::clicked, this, &QDialog::close);
-  connect(btnBrowse, &QPushButton::clicked, this, [this]() {
-      QString dir = QFileDialog::getExistingDirectory(this, tr("Ordner wählen"), m_gitLocalDir->text());
-      if (!dir.isEmpty()) { m_gitLocalDir->setText(dir); m_gitPath = dir; save(); refreshGitStatus(); }
-  });
-
-  auto *btnGenToken = new QPushButton(tr("Token generieren..."));
-  btnGenToken->setStyleSheet(gitNormBtnSS);
-  form->addRow(tr("Hilfe:"), btnGenToken);
-  connect(btnGenToken, &QPushButton::clicked, []() {
-      QDesktopServices::openUrl(QUrl("https://github.com/settings/tokens/new"));
-  });
 }
 
 void GitManagerDialog::load() {
