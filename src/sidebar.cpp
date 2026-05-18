@@ -5,6 +5,9 @@
 #include "addnetworkdialog.h"
 #include "drivedelegate.h"
 #include "drivemanager.h"
+#ifdef SC_PLUGIN_GIT
+#include "gitstatusmanager.h"
+#endif
 #include "hoverfader.h"
 #include "scglobal.h"
 #include <KDirWatch>
@@ -269,7 +272,6 @@ Sidebar::Sidebar(QWidget *parent) : QWidget(parent) {
   buildLogo(outerLay);
   buildDrivesSection(outerLay);
   buildGroupsSection(outerLay);
-  buildGitSection(outerLay);
   buildNewGroupFixedSection(outerLay);
   buildTagsSection(outerLay);
 
@@ -283,6 +285,11 @@ Sidebar::Sidebar(QWidget *parent) : QWidget(parent) {
             updateDrives();
             emit drivesChanged();
           });
+
+#ifdef SC_PLUGIN_GIT
+  connect(&GitStatusManager::instance(), &GitStatusManager::statusUpdated,
+          this, [this](const QString &) { refreshGitSection(); });
+#endif
 
   m_trashLister = new KDirLister(this);
   connect(m_trashLister, &KDirLister::completed, this,
@@ -371,7 +378,7 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent) {
       driveBoxSettings.readEntry("driveBoxLabel", tr("LAUFWERKE"));
   auto *lbl = new QLabel(driveBoxLabel);
 
-  lbl->setStyleSheet(QString("font-size:13px;font-weight:bold;text-transform:"
+  lbl->setStyleSheet(QString("font-size:13px;font-weight:normal;text-transform:"
                              "uppercase;background:transparent;color:%1;")
                          .arg(TM().colors().textAccent));
   hLay->addWidget(lbl, 1);
@@ -776,108 +783,156 @@ void Sidebar::buildNewGroupFixedSection(QVBoxLayout *parent) {
 
   connect(ngBtn, &QPushButton::clicked, this, &Sidebar::onNewGroupDialog);
 }
-// --- Sidebar::buildGitSection ---
-void Sidebar::buildGitSection(QVBoxLayout *parent) {
-  m_gitWrap = new QWidget(this);
-  m_gitWrap->setStyleSheet(QString("background:%1;").arg(TM().colors().bgMain));
-  auto *wLay = new QVBoxLayout(m_gitWrap);
-  wLay->setContentsMargins(10, 2, 6, 2);
-  wLay->setSpacing(0);
 
-  m_gitBox = new QWidget(m_gitWrap);
-  m_gitBox->setObjectName(QStringLiteral("gitBox"));
-  m_gitBox->setStyleSheet(TM().ssBox());
-  auto *vbox = new QVBoxLayout(m_gitBox);
-  vbox->setContentsMargins(0, 0, 0, 0);
-  vbox->setSpacing(0);
-  vbox->setSizeConstraint(QLayout::SetMinAndMaxSize);
+#ifdef SC_PLUGIN_GIT
+// Helper: füge Repo-Dateien rekursiv ein
+// Rekursiv Dateien einfügen. Rückgabe = höchste Status-Priorität (Kinder-Status wird auf Ordner übertragen).
+// Priorität: LocalChange > RemoteAhead > Unchanged
+static int sc_addRepoFiles(QTreeWidgetItem *parent, const QString &dirPath,
+                           const QString &repoRoot, int depth = 0) {
+  Q_UNUSED(dirPath)
+  Q_UNUSED(depth)
 
-  auto *header = new QWidget();
-  header->setStyleSheet("background:transparent; border:none;");
-  auto *hLay = new QHBoxLayout(header);
-  hLay->setContentsMargins(12, 10, 8, 6);
-  hLay->setSpacing(4);
+  const QStringList files = GitStatusManager::instance().trackedFiles(repoRoot);
+  
+  for (const QString &relPath : files) {
+    if (relPath.isEmpty()) continue;
+    GitFileStatus status = GitStatusManager::instance().statusFor(repoRoot, relPath);
+    if (status == GitFileStatus::Unchanged) continue;
 
-  auto *lbl = new QLabel(tr("GIT REPOSITORIES"));
-  lbl->setStyleSheet(QString("font-size:13px;font-weight:bold;text-transform:"
-                             "uppercase;background:transparent;color:%1;")
-                         .arg(TM().colors().textAccent));
-  hLay->addWidget(lbl, 1);
+    const QStringList parts = relPath.split('/', Qt::SkipEmptyParts);
+    QTreeWidgetItem *current = parent;
+    QString currentFullPath = repoRoot;
 
-  vbox->addWidget(header);
+    for (int i = 0; i < parts.size(); ++i) {
+      const QString &part = parts.at(i);
+      currentFullPath = QDir(currentFullPath).filePath(part);
 
-  auto *listCont = new QWidget();
-  listCont->setStyleSheet("background:transparent; border:none;");
-  auto *listLay = new QVBoxLayout(listCont);
-  listLay->setContentsMargins(6, 0, 6, 4);
-  listLay->setSizeConstraint(QLayout::SetMinAndMaxSize);
+      QTreeWidgetItem *child = nullptr;
+      for (int j = 0; j < current->childCount(); ++j) {
+        if (current->child(j)->text(0) == part) {
+          child = current->child(j);
+          break;
+        }
+      }
 
-  m_gitList = new QListWidget();
-  m_gitList->setSelectionMode(QAbstractItemView::SingleSelection);
-  m_gitList->setFrameShape(QFrame::NoFrame);
-  m_gitList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  m_gitList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  m_gitList->setIconSize(
-      QSize(Config::sidebarIconSize(), Config::sidebarIconSize()));
-  m_gitList->setStyleSheet(
-      QString("QListWidget { background:transparent; outline:none; }"
-              "QListWidget::item { padding: 4px; border-radius:4px; color:%1; "
-              "font-weight:500; font-size:14px; margin-bottom:2px; }"
-              "QListWidget::item:hover { background:%2; }"
-              "QListWidget::item:selected { background:%3; color:%4; "
-              "font-weight:bold; }")
-          .arg(TM().colors().textPrimary, TM().colors().bgHover,
-               TM().colors().bgSelect, TM().colors().textLight));
+      if (!child) {
+        child = new QTreeWidgetItem(current);
+        child->setText(0, part);
+        child->setData(0, Qt::UserRole, currentFullPath);
+        child->setForeground(0, QBrush(QColor(TM().colors().textPrimary)));
+      }
 
-  listLay->addWidget(m_gitList);
-  vbox->addWidget(listCont);
+      int currentStatus = child->data(0, Qt::UserRole + 1).toInt();
+      if ((int)status > currentStatus) {
+        child->setData(0, Qt::UserRole + 1, (int)status);
+      }
 
-  wLay->addWidget(m_gitBox);
-  parent->addWidget(m_gitWrap);
+      current = child;
+    }
+  }
 
-  connect(m_gitList, &QListWidget::itemClicked, this,
-          [this](QListWidgetItem *it) {
-            if (it) {
-              if (m_driveList)
-                m_driveList->clearSelection();
-              if (m_tagList)
-                m_tagList->clearSelection();
-              emit driveClicked(it->data(Qt::UserRole).toString());
-            }
-          });
+  auto updateColors = [](auto &self, QTreeWidgetItem *item, QTreeWidgetItem *prnt, const ThemeManager &tm) -> int {
+    int worst = item->data(0, Qt::UserRole + 1).toInt();
+    for (int i = 0; i < item->childCount(); ++i) {
+      int childWorst = self(self, item->child(i), prnt, tm);
+      if (childWorst > worst) {
+        worst = childWorst;
+      }
+    }
+    item->setData(0, Qt::UserRole + 1, worst);
 
-  refreshGitSection();
+    if (item != prnt) {
+      QColor c;
+      switch ((GitFileStatus)worst) {
+        case GitFileStatus::LocalChange: c = QColor("#ff2a2a"); break;
+        case GitFileStatus::RemoteAhead: c = QColor("#ffc107"); break;
+        default: c = QColor("#1fbf3a"); break;
+      }
+
+      const QString path = item->data(0, Qt::UserRole).toString();
+      const bool isDir = QFileInfo(path).isDir() || item->childCount() > 0;
+      QIcon baseIcon = isDir ? QIcon::fromTheme("folder")
+                             : QIcon::fromTheme("text-x-generic");
+
+      const int iconSz = qMax(8, Config::sidebarIconSize() * 2 / 3);
+      const int dotSz  = qMax(6, iconSz / 2);
+      const int gap    = 4;
+      const int totalW = dotSz + gap + iconSz;
+      QPixmap pix(totalW, iconSz);
+      pix.fill(Qt::transparent);
+      QPainter p(&pix);
+      p.setRenderHint(QPainter::Antialiasing);
+      p.setBrush(c);
+      p.setPen(Qt::NoPen);
+      p.drawEllipse(0, (iconSz - dotSz) / 2, dotSz, dotSz);
+      QPixmap basePix = baseIcon.pixmap(iconSz, iconSz);
+      p.drawPixmap(dotSz + gap, 0, basePix);
+      p.end();
+
+      item->setIcon(0, QIcon(pix));
+    }
+    return worst;
+  };
+
+  return updateColors(updateColors, parent, parent, TM());
 }
 
 void Sidebar::refreshGitSection() {
-  if (!m_gitList || !m_gitWrap)
-    return;
-
-  m_gitList->clear();
-  QString gitDir = Config::gitLocalDir();
-  if (gitDir.isEmpty()) {
-    m_gitWrap->hide();
-    return;
-  }
-  m_gitWrap->show();
-
-  QDir dir(gitDir);
-  if (dir.exists()) {
-    const auto subdirs = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
-    for (const QFileInfo &fi : subdirs) {
-      QDir sub(fi.absoluteFilePath());
-      if (sub.exists(".git")) {
-        auto *item = new QListWidgetItem(
-            QIcon::fromTheme("vcs-git", QIcon::fromTheme("folder-git")),
-            fi.fileName());
-        item->setData(Qt::UserRole, fi.absoluteFilePath());
-        item->setSizeHint(QSize(0, Config::sidebarIconSize() + 16));
-        m_gitList->addItem(item);
+  const auto trees = findChildren<QTreeWidget*>(QStringLiteral("gitTree"));
+  for (auto *tree : trees) {
+    tree->clear();
+    const auto repos = Config::gitRepos();
+    for (const auto &r : repos) {
+      if (r.localDir.isEmpty() || !QDir(r.localDir).exists()) continue;
+      auto *root = new QTreeWidgetItem(tree);
+      root->setText(0, r.name.isEmpty() ? QFileInfo(r.localDir).fileName() : r.name);
+      root->setData(0, Qt::UserRole, r.localDir);
+      QFont f = root->font(0);
+      f.setBold(true);
+      root->setFont(0, f);
+      int worst = sc_addRepoFiles(root, r.localDir, r.localDir);
+      QColor rc;
+      switch ((GitFileStatus)worst) {
+        case GitFileStatus::LocalChange: rc = QColor("#ff2a2a"); break;
+        case GitFileStatus::RemoteAhead: rc = QColor("#ffc107"); break;
+        default: rc = QColor("#1fbf3a"); break;
       }
+      // Composite-Icon: Punkt + vcs-git-Icon
+      QIcon vcsIcon = QIcon::fromTheme("vcs-git", QIcon::fromTheme("folder-git"));
+      const int iconSz = Config::sidebarIconSize();
+      const int dotSz  = 10;
+      const int gap    = 4;
+      QPixmap rpix(dotSz + gap + iconSz, iconSz);
+      rpix.fill(Qt::transparent);
+      QPainter rp(&rpix);
+      rp.setRenderHint(QPainter::Antialiasing);
+      rp.setBrush(rc);
+      rp.setPen(Qt::NoPen);
+      rp.drawEllipse(0, (iconSz - dotSz) / 2, dotSz, dotSz);
+      rp.drawPixmap(dotSz + gap, 0, vcsIcon.pixmap(iconSz, iconSz));
+      rp.end();
+      root->setIcon(0, QIcon(rpix));
+      root->setForeground(0, QBrush(QColor(TM().colors().textPrimary)));
     }
+    // Höhe anpassen
+    int totalH = 0;
+    const int rowH = tree->sizeHintForRow(0);
+    const int defaultRow = rowH > 0 ? rowH : (Config::sidebarIconSize() + 6);
+    std::function<int(QTreeWidgetItem*)> count = [&](QTreeWidgetItem *it) -> int {
+      int n = 1;
+      if (it->isExpanded())
+        for (int i = 0; i < it->childCount(); ++i) n += count(it->child(i));
+      return n;
+    };
+    for (int i = 0; i < tree->topLevelItemCount(); ++i)
+      totalH += count(tree->topLevelItem(i)) * defaultRow;
+    totalH += 8;
+    tree->setMinimumHeight(qMax(defaultRow + 8, totalH));
+    tree->setMaximumHeight(qMax(defaultRow + 8, totalH));
   }
-  adjustListHeight(m_gitList);
 }
+#endif // SC_PLUGIN_GIT
 
 // --- Sidebar::buildTagsSection ---
 void Sidebar::buildTagsSection(QVBoxLayout *parent) {
@@ -901,7 +956,7 @@ void Sidebar::buildTagsSection(QVBoxLayout *parent) {
   hLay->setContentsMargins(12, 10, 8, 6);
   hLay->setSpacing(4);
   auto *lbl = new QLabel(tr("TAGS"));
-  lbl->setStyleSheet(QString("font-size:13px;font-weight:bold;text-transform:"
+  lbl->setStyleSheet(QString("font-size:13px;font-weight:normal;text-transform:"
                              "uppercase;background:transparent;color:%1;")
                          .arg(TM().colors().textAccent));
   hLay->addWidget(lbl, 1);

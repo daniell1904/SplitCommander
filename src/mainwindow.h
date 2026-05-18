@@ -31,7 +31,9 @@ public:
 
 public:
     void openSettings(int page = -1);
+#ifdef SC_PLUGIN_GIT
     void openGitManager();
+#endif
 
 protected:
     void closeEvent(QCloseEvent *e) override;

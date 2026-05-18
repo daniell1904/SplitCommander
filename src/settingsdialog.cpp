@@ -12,6 +12,7 @@
 #include <QListWidget>
 #include <QLineEdit>
 #include <QSpinBox>
+#include <QComboBox>
 #include <QInputDialog>
 #include <QPushButton>
 #include <QLabel>
@@ -241,6 +242,40 @@ QWidget* SettingsDialog::createGeneralPage() {
     m_showDriveIp = new QCheckBox(tr("IP-Adresse für Netzlaufwerke anzeigen"));
     drivesLay->addWidget(m_showDriveIp);
     lay->addWidget(grpDrives);
+
+    // GIT
+#ifdef SC_PLUGIN_GIT
+    auto *grpGit = new QGroupBox(tr("Git"));
+    auto *gitLay = new QVBoxLayout(grpGit);
+
+    m_gitShowSidebar = new QCheckBox(tr("Git-Box in Sidebar anzeigen"));
+    gitLay->addWidget(m_gitShowSidebar);
+
+    auto *modeRow = new QHBoxLayout();
+    modeRow->addWidget(new QLabel(tr("Aktualisierung:")));
+    m_gitRefreshMode = new QComboBox();
+    m_gitRefreshMode->addItem(tr("Bei Änderungen"), "onchange");
+    m_gitRefreshMode->addItem(tr("Periodisch"), "periodic");
+    m_gitRefreshMode->addItem(tr("Manuell"), "manual");
+    modeRow->addWidget(m_gitRefreshMode, 1);
+    gitLay->addLayout(modeRow);
+
+    auto *intRow = new QHBoxLayout();
+    intRow->addWidget(new QLabel(tr("Intervall (Min):")));
+    m_gitRefreshInterval = new QSpinBox();
+    m_gitRefreshInterval->setRange(1, 1440);
+    intRow->addWidget(m_gitRefreshInterval);
+    intRow->addStretch();
+    gitLay->addLayout(intRow);
+
+    connect(m_gitRefreshMode, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, [this](int) {
+      m_gitRefreshInterval->setEnabled(
+        m_gitRefreshMode->currentData().toString() == QStringLiteral("periodic"));
+    });
+
+    lay->addWidget(grpGit);
+#endif // SC_PLUGIN_GIT
 
     // 4. PFAD-FILTER
     auto *grpFilter = new QGroupBox(tr("Pfad-Filter (Blacklist)"));
@@ -547,6 +582,15 @@ void SettingsDialog::load() {
   m_showDriveIp->setChecked(Config::showDriveIp());
   m_driveBlacklist->clear();
   m_driveBlacklist->addItems(Config::driveBlacklist());
+
+#ifdef SC_PLUGIN_GIT
+  m_gitShowSidebar->setChecked(Config::gitShowSidebar());
+  const QString gitMode = Config::gitRefreshMode();
+  int gitIdx = m_gitRefreshMode->findData(gitMode);
+  m_gitRefreshMode->setCurrentIndex(gitIdx >= 0 ? gitIdx : 0);
+  m_gitRefreshInterval->setValue(Config::gitRefreshIntervalMinutes());
+  m_gitRefreshInterval->setEnabled(gitMode == QStringLiteral("periodic"));
+#endif
   
   m_showMillerIp->setChecked(Config::showMillerIp());
   m_showHidden->setChecked(Config::showHiddenFiles());
@@ -589,6 +633,12 @@ void SettingsDialog::save() {
   QStringList bl;
   for(int i=0; i < m_driveBlacklist->count(); ++i) bl << m_driveBlacklist->item(i)->text();
   Config::setDriveBlacklist(bl);
+
+#ifdef SC_PLUGIN_GIT
+  Config::setGitShowSidebar(m_gitShowSidebar->isChecked());
+  Config::setGitRefreshMode(m_gitRefreshMode->currentData().toString());
+  Config::setGitRefreshIntervalMinutes(m_gitRefreshInterval->value());
+#endif
 
   Config::setShowMillerIp(m_showMillerIp->isChecked());
   Config::setShowHiddenFiles(m_showHidden->isChecked());

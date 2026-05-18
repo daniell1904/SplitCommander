@@ -9,6 +9,9 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+# ── Optionale Plugins ──────────────────────────────────────────────────────────
+option(SC_PLUGIN_GIT "Git Manager Plugin einbauen" OFF)
+
 find_package(ECM REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
 
@@ -18,15 +21,23 @@ find_package(KF6 REQUIRED COMPONENTS
     WidgetsAddons WindowSystem Solid Archive Service CoreAddons Baloo
 )
 
-add_executable(splitcommander
+set(SC_SOURCES
     src/main.cpp
-    src/panewidgets.cpp
+    src/panecomponents.cpp
     src/mainwindow.cpp
+    src/mainwindow_shortcuts.cpp
+    src/mainwindow_session.cpp
     src/panetoolbar.cpp
     src/millercolumn.cpp
     src/millerarea.cpp
     src/panewidget.cpp
+    src/panewidget_hamburger.cpp
+    src/panewidget_search.cpp
+    src/panewidget_footer.cpp
     src/filepane.cpp
+    src/filepane_menus.cpp
+    src/filepaneproxy.cpp
+    src/scremoveaction.cpp
     src/filepanedelegate.cpp
     src/drivedelegate.cpp
     src/joboverlay.cpp
@@ -39,15 +50,25 @@ add_executable(splitcommander
     src/sidebargroups.cpp
     src/tagmanager.cpp
     src/settingsdialog.cpp
-    src/gitmanagerdialog.cpp
     src/batchrenamer.cpp
     src/config.cpp
     src/thememanager.cpp
+    src/thememanager_themes.cpp
     src/dialogutils.cpp
     src/thumbnailmanager.cpp
     src/themecreatordialog.cpp
+    src/themepreviewwidget.cpp
     src/hoverfader.cpp
 )
+
+if(SC_PLUGIN_GIT)
+    list(APPEND SC_SOURCES
+        src/gitmanagerdialog.cpp
+        src/gitstatusmanager.cpp
+    )
+endif()
+
+add_executable(splitcommander ${SC_SOURCES})
 
 target_link_libraries(splitcommander
     Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Svg Qt6::Concurrent Qt6::DBus
@@ -59,6 +80,7 @@ target_link_libraries(splitcommander
 target_compile_definitions(splitcommander PRIVATE
     SC_VERSION="${PROJECT_VERSION}"
     QT_USE_QSTRINGBUILDER
+    $<$<BOOL:${SC_PLUGIN_GIT}>:SC_PLUGIN_GIT>
 )
 
 install(TARGETS splitcommander DESTINATION ${CMAKE_INSTALL_BINDIR})

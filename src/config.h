@@ -1,7 +1,9 @@
 #pragma once
 
 #include <QString>
+#include <QStringList>
 #include <QColor>
+#include <QList>
 #include <KSharedConfig>
 #include <KConfigGroup>
 
@@ -82,15 +84,35 @@ public:
     static void setMillerHeaderHeight(int i);
     static void setDriveRefreshMs(int i);
 
+#ifdef SC_PLUGIN_GIT
     static QString gitLocalDir();
     static QString gitRemoteUrl();
     static QString gitUsername();
+
+    // Multi-Repo
+    struct GitRepo {
+        QString name;
+        QString localDir;
+        QString remoteUrl;
+        QString username;
+    };
+    static QList<GitRepo> gitRepos();
+    static void setGitRepos(const QList<GitRepo> &repos);
+
+    // Git Sidebar / Refresh
+    static bool gitShowSidebar();
+    static QString gitRefreshMode(); // "onchange" | "periodic" | "manual"
+    static int gitRefreshIntervalMinutes();
+    static void setGitShowSidebar(bool b);
+    static void setGitRefreshMode(const QString &m);
+    static void setGitRefreshIntervalMinutes(int i);
     static QString gitToken();
-    
+
     static void setGitLocalDir(const QString &s);
     static void setGitRemoteUrl(const QString &s);
     static void setGitUsername(const QString &s);
     static void setGitToken(const QString &s);
+#endif // SC_PLUGIN_GIT
 
     static KConfigGroup group(const QString &name);
 

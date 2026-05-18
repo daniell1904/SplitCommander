@@ -5,11 +5,14 @@
 // Removed agebadgedialog.h
 #include "config.h"
 #include "settingsdialog.h"
+#ifdef SC_PLUGIN_GIT
 #include "gitmanagerdialog.h"
+#include "gitstatusmanager.h"
+#endif
 #include <QMessageBox>
 #include "filepane.h"
 #include "joboverlay.h"
-#include "panewidgets.h"
+#include "panecomponents.h"
 #include <KTerminalLauncherJob>
 #include <KDialogJobUiDelegate>
 #include "thememanager.h"
@@ -538,7 +541,10 @@ void MainWindow::initConnections() {
   });
   connect(m_sidebar, &Sidebar::settingsChanged, this, [this]() {
     m_sidebar->applyIconSizes();
+#ifdef SC_PLUGIN_GIT
+    GitStatusManager::instance().reloadConfig();
     m_sidebar->refreshGitSection();
+#endif
     for (auto *col : m_leftPane->miller()->cols())
       col->refreshStyle();
     for (auto *col : m_rightPane->miller()->cols())
@@ -639,310 +645,6 @@ void MainWindow::initTimers() {
           doAddToPlaces);
 }
 
-void MainWindow::restoreSession() {
-  QString leftPath, rightPath;
-  const int behavior = Config::startupBehavior();
-  const QString configPath = Config::startupPath();
-  const QString lastLeft = Config::lastLeftPath();
-  const QString lastRight = Config::lastRightPath();
-
-  if (behavior == 0) { // Letzte Sitzung
-    leftPath = lastLeft;
-    rightPath = lastRight;
-  } else if (behavior == 1) { // Dieser PC
-    leftPath = "__drives__";
-    rightPath = "__drives__";
-  } else if (behavior == 2) { // Fester Pfad
-    leftPath = configPath;
-    rightPath = configPath;
-  }
-  
-  // Validierung lokaler Pfade
-  if (behavior != 2) {
-      if (leftPath.isEmpty() || (leftPath.startsWith("/") && !QFileInfo::exists(leftPath)))
-        leftPath = QDir::homePath();
-      if (rightPath.isEmpty() || (rightPath.startsWith("/") && !QFileInfo::exists(rightPath)))
-        rightPath = QDir::homePath();
-  }
-
-  m_leftPane->navigateTo(leftPath);
-  m_rightPane->navigateTo(rightPath);
-
-  auto sUI = Config::group("UI");
-  m_currentMode = sUI.readEntry("layoutMode", 1);
-  applyLayout(m_currentMode);
-
-  connect(m_panesSplitter, &QSplitter::splitterMoved, this, [this](int, int) {
-    auto ss = Config::group("UI");
-    ss.writeEntry("panesSplitterState", m_panesSplitter->saveState());
-    ss.config()->sync();
-  });
-
-  m_leftPane->setFocused(true);
-  m_rightPane->setFocused(false);
-
-  QTimer::singleShot(100, this, [this]() {
-    m_leftPane->setFocused(true);
-    m_rightPane->setFocused(false);
-  });
-
-  registerShortcuts();
-}
-
-void MainWindow::registerShortcuts() {
-  if (!m_actionCollection) {
-    m_actionCollection =
-        new KActionCollection(this, QStringLiteral("splitcommander"));
-    m_actionCollection->setComponentDisplayName(tr("SplitCommander"));
-
-    // --- Hilfsmakro: Aktion anlegen ---
-    // Qt::ApplicationShortcut: greift immer, egal welches Widget den Fokus hat
-    auto addAct = [this](const QString &id, const QString &label,
-                         const QString &icon, const QKeySequence &defKey,
-                         std::function<void()> fn,
-                         const QKeySequence &altKey = {}) -> QAction * {
-      auto *a = m_actionCollection->addAction(id);
-      a->setText(label);
-      if (!icon.isEmpty())
-        a->setIcon(QIcon::fromTheme(icon));
-      a->setShortcutContext(Qt::ApplicationShortcut);
-      if (altKey.isEmpty()) {
-        m_actionCollection->setDefaultShortcut(a, defKey);
-      } else {
-        m_actionCollection->setDefaultShortcuts(a, {defKey, altKey});
-      }
-      connect(a, &QAction::triggered, this, fn);
-      return a;
-    };
-
-    // Navigation
-    addAct("nav_back", tr("Zurück"), "go-previous", Qt::ALT | Qt::Key_Left,
-           [this]() {
-             auto *p = activePane();
-             if (!p->histBack().isEmpty()) {
-               p->histFwd().push(p->currentPath());
-               p->navigateTo(p->histBack().pop(), false);
-             }
-           });
-    addAct("nav_forward", tr("Vorwärts"), "go-next", Qt::ALT | Qt::Key_Right,
-           [this]() {
-             auto *p = activePane();
-             if (!p->histFwd().isEmpty()) {
-               p->histBack().push(p->currentPath());
-               p->navigateTo(p->histFwd().pop(), false);
-             }
-           });
-    addAct("nav_up", tr("Übergeordneter Ordner"), "go-up", Qt::ALT | Qt::Key_Up,
-           [this]() {
-             QDir d(activePane()->currentPath());
-             if (d.cdUp())
-               activePane()->navigateTo(d.absolutePath());
-           });
-    addAct("nav_home", tr("Home-Verzeichnis"), "go-home",
-           Qt::ALT | Qt::Key_Home,
-           [this]() { activePane()->navigateTo(QDir::homePath()); });
-    addAct(
-        "nav_reload", tr("Neu laden"), "view-refresh", Qt::CTRL | Qt::Key_R,
-        [this]() {
-          m_leftPane->miller()->refreshDrives();
-          m_rightPane->miller()->refreshDrives();
-          m_leftPane->navigateTo(m_leftPane->currentPath());
-          m_rightPane->navigateTo(m_rightPane->currentPath());
-        },
-        Qt::Key_F5);
-
-    addAct("open_settings", tr("Einstellungen"), "settings-configure",
-           Qt::CTRL | Qt::Key_Comma, [this]() {
-             openSettings();
-           });
-
-    addAct("open_git", tr("GitHub Manager"), "vcs-commit",
-           Qt::CTRL | Qt::Key_G, [this]() {
-             openGitManager();
-           });
-
-    // Pane-Fokus
-    addAct("pane_focus_left", tr("Linke Pane fokussieren"), "go-first",
-           Qt::CTRL | Qt::Key_Left, [this]() {
-             m_leftPane->setFocused(true);
-             m_rightPane->setFocused(false);
-           });
-    addAct("pane_focus_right", tr("Rechte Pane fokussieren"), "go-last",
-           Qt::CTRL | Qt::Key_Right, [this]() {
-             m_rightPane->setFocused(true);
-             m_leftPane->setFocused(false);
-           });
-    addAct("pane_swap", tr("Panes tauschen"), "view-split-left-right",
-           Qt::CTRL | Qt::Key_U, [this]() {
-             const QString l = m_leftPane->currentPath();
-             const QString r = m_rightPane->currentPath();
-             m_leftPane->navigateTo(r);
-             m_rightPane->navigateTo(l);
-           });
-    addAct("pane_sync", tr("Pfade synchronisieren"), "view-refresh",
-           Qt::CTRL | Qt::SHIFT | Qt::Key_S,
-           [this]() { m_rightPane->navigateTo(m_leftPane->currentPath()); });
-
-    // Datei
-    addAct(
-        "file_rename", tr("Umbenennen"), "edit-rename", Qt::Key_F2, [this]() {
-          const QList<QUrl> urls = activePane()->selectedUrls();
-          if (urls.size() != 1)
-            return;
-          const QString path = urls.first().toLocalFile();
-          bool ok;
-          QString newName =
-              DialogUtils::getText(this, tr("Umbenennen"), tr("Neuer Name:"),
-                                   QFileInfo(path).fileName(), &ok);
-          if (!ok || newName.isEmpty() || newName == QFileInfo(path).fileName())
-            return;
-          QUrl dest = QUrl::fromLocalFile(QFileInfo(path).dir().absolutePath() +
-                                          "/" + newName);
-          KIO::moveAs(urls.first(), dest, KIO::DefaultFlags);
-        });
-    // Wie Dolphin: zwei separate Actions für Trash und permanentes Löschen
-    addAct("file_trash", tr("In den Papierkorb verschieben"), "user-trash",
-           Qt::Key_Delete, [this]() {
-             QWidget* fw = focusWidget();
-             bool inMiller = false;
-             while(fw) {
-                 if (qobject_cast<MillerArea*>(fw)) { inMiller = true; break; }
-                 fw = fw->parentWidget();
-             }
-             if (!inMiller)
-                 doDelete(activePane(), false);
-           });
-    addAct("file_delete", tr("Löschen"), "edit-delete",
-           QKeySequence(Qt::SHIFT | Qt::Key_Delete), [this]() {
-             QWidget* fw = focusWidget();
-             bool inMiller = false;
-             while(fw) {
-                 if (qobject_cast<MillerArea*>(fw)) { inMiller = true; break; }
-                 fw = fw->parentWidget();
-             }
-             if (!inMiller)
-                 doDelete(activePane(), true);
-           });
-    addAct("file_newfolder", tr("Neuer Ordner"), "folder-new", Qt::Key_F7,
-           [this]() { emit activePane() -> newFolderRequested(); });
-    addAct("file_copy", tr("Kopieren (Zwischenablage)"), "edit-copy",
-           KStandardShortcut::copy().first(), [this]() {
-             const QList<QUrl> urls = activePane()->selectedUrls();
-             if (urls.isEmpty())
-               return;
-             auto *mime = new QMimeData();
-             mime->setUrls(urls);
-             mime->setData("x-kde-cut-selection", QByteArray("0"));
-             QGuiApplication::clipboard()->setMimeData(mime);
-           });
-    addAct("file_move", tr("Ausschneiden (Zwischenablage)"), "edit-cut",
-           KStandardShortcut::cut().first(), [this]() {
-             const QList<QUrl> urls = activePane()->selectedUrls();
-             if (urls.isEmpty())
-               return;
-             auto *mime = new QMimeData();
-             mime->setUrls(urls);
-             mime->setData("x-kde-cut-selection", QByteArray("1"));
-             QGuiApplication::clipboard()->setMimeData(mime);
-           });
-
-    // Ansicht
-    addAct("view_hidden", tr("Versteckte Dateien umschalten"), "view-hidden",
-           Qt::CTRL | Qt::Key_H, [this]() {
-             const bool cur = Config::showHiddenFiles();
-             Config::setShowHiddenFiles(!cur);
-             m_leftPane->navigateTo(m_leftPane->currentPath());
-             m_rightPane->navigateTo(m_rightPane->currentPath());
-             for (auto *col : m_leftPane->miller()->cols())
-               col->populateDir(col->path());
-             for (auto *col : m_rightPane->miller()->cols())
-               col->populateDir(col->path());
-           });
-
-    addAct("view_layout", tr("Layout wechseln"), "view-choose",
-           Qt::CTRL | Qt::Key_L, [this]() {
-             int next = (m_currentMode + 1) % 3;
-             auto gs = Config::group("UI");
-             gs.writeEntry("layoutMode", next);
-             gs.config()->sync();
-             applyLayout(next);
-           });
-
-    // Einfügen
-    addAct("file_paste", tr("Einfügen"), "edit-paste",
-           KStandardShortcut::paste().first(), [this]() {
-             const QMimeData *clip = QGuiApplication::clipboard()->mimeData();
-             if (!clip || !clip->hasUrls())
-               return;
-             const bool isCut = clip->data("x-kde-cut-selection") == "1";
-             const QList<QUrl> urls = clip->urls();
-             const QUrl destUrl =
-                 QUrl::fromLocalFile(activePane()->currentPath());
-             if (isCut) {
-               auto *job = KIO::move(urls, destUrl, KIO::DefaultFlags);
-               job->uiDelegate()->setAutoErrorHandlingEnabled(true);
-               registerJob(job, tr("Verschiebe Dateien..."));
-               QGuiApplication::clipboard()->clear();
-             } else {
-               auto *job = KIO::copy(urls, destUrl, KIO::DefaultFlags);
-               job->uiDelegate()->setAutoErrorHandlingEnabled(true);
-               registerJob(job, tr("Kopiere Dateien..."));
-             }
-           });
-
-    // Alles auswählen
-    addAct("file_selectall", tr("Alles auswählen"), "edit-select-all",
-           KStandardShortcut::selectAll().first(),
-           [this]() { activePane()->filePane()->view()->selectAll(); });
-
-    // Shortcuts aus KConfig laden (persistiert KShortcutsDialog-Änderungen)
-    m_actionCollection->readSettings();
-
-    // Alle Aktionen dem MainWindow zuweisen, damit sie feuern
-    for (QAction *a : m_actionCollection->actions())
-      addAction(a);
-
-    // ActionCollection an Panes weitergeben — damit FilePane/PaneWidget
-    // keine globalen MW()-Zugriffe mehr brauchen
-    m_leftPane->setActionCollection(m_actionCollection);
-    m_rightPane->setActionCollection(m_actionCollection);
-  } else {
-    // Bereits initialisiert: nur Settings neu einlesen (z.B. nach KShortcutsDialog)
-    m_actionCollection->readSettings();
-  }
-}
-
-void MainWindow::saveWindowState() {
-  auto s = Config::group("UI");
-
-  // Fenster-Geometrie
-  s.writeEntry("windowGeometry", saveGeometry());
-
-  // Sidebar
-  s.writeEntry("sidebarVisible", m_sidebar->isVisible());
-  s.writeEntry("sidebarWidth", m_sidebar->width());
-
-  // Pane-Splitter (links/rechts bzw. oben/unten)
-  s.writeEntry("panesSplitterState", m_panesSplitter->saveState());
-
-  // Beide Panes: Miller-Größe und collapsed-State
-  m_leftPane->saveState();
-  m_rightPane->saveState();
-
-  s.config()->sync();
-}
-
-void MainWindow::closeEvent(QCloseEvent *e) {
-  saveWindowState();
-
-  // Session speichern falls aktiviert
-  if (Config::startupBehavior() == 1) {
-    Config::setLastPaths(m_leftPane->currentPath(), m_rightPane->currentPath());
-  }
-
-  QMainWindow::closeEvent(e);
-}
-
 void MainWindow::applyLayout(int mode) {
   m_currentMode = mode;
   auto s = Config::group("UI");
@@ -1013,9 +715,11 @@ void MainWindow::openSettings(int page) {
   else dlg->show();
 }
 
+#ifdef SC_PLUGIN_GIT
 void MainWindow::openGitManager() {
   auto *dlg = new GitManagerDialog(activePane()->currentPath(), this);
   dlg->setAttribute(Qt::WA_DeleteOnClose);
   connect(dlg, &GitManagerDialog::settingsChanged, m_sidebar, &Sidebar::settingsChanged);
   dlg->show();
 }
+#endif // SC_PLUGIN_GIT

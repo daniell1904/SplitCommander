@@ -2,7 +2,7 @@
 #include "scglobal.h"
 #include "thememanager.h"
 #include "drivemanager.h"
-#include "panewidgets.h"
+#include "panecomponents.h"
 #include <QPropertyAnimation>
 #include <QScrollBar>
 #include <QUrl>

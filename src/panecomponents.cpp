@@ -1,6 +1,6 @@
-// --- panewidgets.cpp — Implementierung der internen Widget-Klassen ---
+// --- panecomponents.cpp — Implementierung der internen Widget-Klassen ---
 
-#include "panewidgets.h"
+#include "panecomponents.h"
 #include "config.h"
 #include "thememanager.h"
 #include "scglobal.h"

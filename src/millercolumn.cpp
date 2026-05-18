@@ -7,7 +7,7 @@
 #include "config.h"
 #include "dialogutils.h"
 #include "drophandler.h"
-#include "panewidgets.h"
+#include "panecomponents.h"
 #include "thememanager.h"
 #include "scglobal.h"
 #include <QClipboard>

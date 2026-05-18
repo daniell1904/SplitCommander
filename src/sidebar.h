@@ -5,6 +5,7 @@
 #include <QScrollArea>
 #include <QResizeEvent>
 #include <QListWidget>
+#include <QTreeWidget>
 #include <QStyledItemDelegate>
 #include <QVBoxLayout>
 #include <QMouseEvent>
@@ -23,7 +24,9 @@ public:
 public slots:
     void updateDrives();
     void applyIconSizes();
+#ifdef SC_PLUGIN_GIT
     void refreshGitSection();
+#endif
     void renameNetworkPlace(const QString &path, const QString &newName);
     const QStringList& gdriveAccounts() const { return m_gdriveAccounts; }
     void addPlace(const QString &path);
@@ -56,7 +59,6 @@ private:
     void buildLogo(QVBoxLayout *parent);
     void buildDrivesSection(QVBoxLayout *parent);
     void buildGroupsSection(QVBoxLayout *parent);
-    void buildGitSection(QVBoxLayout *parent);
     void buildTagsSection(QVBoxLayout *parent);
     void buildNewGroupFixedSection(QVBoxLayout *parent);
     void showDriveContextMenu(QListWidgetItem *item, const QPoint &pos);
@@ -73,6 +75,9 @@ private:
     void loadCustomGroups();
     void saveGroupOrder();
     QListWidget *createGroupWidget(const QString &name, QWidget *beforeWidget);
+#ifdef SC_PLUGIN_GIT
+    void         createGitGroupWidget(const QString &name);
+#endif
 
     // --- Orte / Kontextmenü ---
     void showPlaceContextMenu(QListWidgetItem *item, QListWidget *list,
@@ -102,9 +107,6 @@ private:
     QWidget     *m_tagsWrap      = nullptr;
     QWidget     *m_tagsBox       = nullptr;
     
-    QListWidget *m_gitList       = nullptr;
-    QWidget     *m_gitWrap       = nullptr;
-    QWidget     *m_gitBox        = nullptr;
     
     class KDirLister *m_trashLister = nullptr;
 };

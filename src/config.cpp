@@ -1,6 +1,7 @@
 #include "config.h"
 #include <KConfigGroup>
 #include <QDir>
+#include <QFileInfo>
 
 static KConfigGroup generalGroup() {
     return KSharedConfig::openConfig("splitcommanderrc")->group(QStringLiteral("General"));
@@ -226,15 +227,74 @@ void Config::setMillerDriveRowHeight(int)    { /* Alias for sidebarDriveRowHeigh
 void Config::setMillerHeaderHeight(int i)    { adminGroup().writeEntry("millerHeaderHeight", i); adminGroup().config()->sync(); }
 void Config::setDriveRefreshMs(int i)        { adminGroup().writeEntry("driveRefreshMs", i); adminGroup().config()->sync(); }
 
+#ifdef SC_PLUGIN_GIT
 QString Config::gitLocalDir()  { return adminGroup().readEntry("gitLocalDir", QString()); }
 QString Config::gitRemoteUrl() { return adminGroup().readEntry("gitRemoteUrl", QString()); }
 QString Config::gitUsername()  { return adminGroup().readEntry("gitUsername", QString()); }
+
+QList<Config::GitRepo> Config::gitRepos() {
+    QList<GitRepo> out;
+    auto g = KSharedConfig::openConfig("splitcommanderrc")->group(QStringLiteral("GitRepos"));
+    const int count = g.readEntry("count", 0);
+    for (int i = 0; i < count; ++i) {
+        const QString prefix = QStringLiteral("repo%1_").arg(i);
+        GitRepo r;
+        r.name      = g.readEntry(prefix + "name", QString());
+        r.localDir  = g.readEntry(prefix + "localDir", QString());
+        r.remoteUrl = g.readEntry(prefix + "remoteUrl", QString());
+        r.username  = g.readEntry(prefix + "username", QString());
+        out << r;
+    }
+    // Migration vom alten Single-Repo
+    if (out.isEmpty()) {
+        const QString lo = gitLocalDir();
+        if (!lo.isEmpty()) {
+            GitRepo r;
+            r.localDir  = lo;
+            r.remoteUrl = gitRemoteUrl();
+            r.username  = gitUsername();
+            r.name      = QFileInfo(lo).fileName();
+            out << r;
+        }
+    }
+    return out;
+}
+
+void Config::setGitRepos(const QList<GitRepo> &repos) {
+    auto g = KSharedConfig::openConfig("splitcommanderrc")->group(QStringLiteral("GitRepos"));
+    // Alte Einträge entfernen
+    const int oldCount = g.readEntry("count", 0);
+    for (int i = 0; i < oldCount; ++i) {
+        const QString prefix = QStringLiteral("repo%1_").arg(i);
+        g.deleteEntry(prefix + "name");
+        g.deleteEntry(prefix + "localDir");
+        g.deleteEntry(prefix + "remoteUrl");
+        g.deleteEntry(prefix + "username");
+    }
+    g.writeEntry("count", repos.size());
+    for (int i = 0; i < repos.size(); ++i) {
+        const QString prefix = QStringLiteral("repo%1_").arg(i);
+        g.writeEntry(prefix + "name",      repos[i].name);
+        g.writeEntry(prefix + "localDir",  repos[i].localDir);
+        g.writeEntry(prefix + "remoteUrl", repos[i].remoteUrl);
+        g.writeEntry(prefix + "username",  repos[i].username);
+    }
+    g.config()->sync();
+}
+
+bool Config::gitShowSidebar()              { return adminGroup().readEntry("gitShowSidebar", true); }
+QString Config::gitRefreshMode()           { return adminGroup().readEntry("gitRefreshMode", QStringLiteral("onchange")); }
+int Config::gitRefreshIntervalMinutes()    { return adminGroup().readEntry("gitRefreshIntervalMinutes", 60); }
+void Config::setGitShowSidebar(bool b)             { adminGroup().writeEntry("gitShowSidebar", b); adminGroup().config()->sync(); }
+void Config::setGitRefreshMode(const QString &m)   { adminGroup().writeEntry("gitRefreshMode", m); adminGroup().config()->sync(); }
+void Config::setGitRefreshIntervalMinutes(int i)   { adminGroup().writeEntry("gitRefreshIntervalMinutes", i); adminGroup().config()->sync(); }
 QString Config::gitToken()     { return adminGroup().readEntry("gitToken", QString()); }
 
 void Config::setGitLocalDir(const QString &s)  { adminGroup().writeEntry("gitLocalDir", s); adminGroup().config()->sync(); }
 void Config::setGitRemoteUrl(const QString &s) { adminGroup().writeEntry("gitRemoteUrl", s); adminGroup().config()->sync(); }
 void Config::setGitUsername(const QString &s)  { adminGroup().writeEntry("gitUsername", s); adminGroup().config()->sync(); }
 void Config::setGitToken(const QString &s)     { adminGroup().writeEntry("gitToken", s); adminGroup().config()->sync(); }
+#endif // SC_PLUGIN_GIT
 
 
 

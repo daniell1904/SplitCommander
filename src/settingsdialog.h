@@ -4,6 +4,7 @@
 #include <QColor>
 
 class QCheckBox;
+class QComboBox;
 class QListWidget;
 class QLineEdit;
 class QSpinBox;
@@ -43,6 +44,11 @@ private:
 
   // Laufwerke
   QCheckBox   *m_showDriveIp    = nullptr;
+#ifdef SC_PLUGIN_GIT
+  QCheckBox   *m_gitShowSidebar    = nullptr;
+  QComboBox   *m_gitRefreshMode    = nullptr;
+  QSpinBox    *m_gitRefreshInterval = nullptr;
+#endif
   QListWidget *m_driveBlacklist = nullptr;
   QLineEdit   *m_blacklistEdit  = nullptr;
 

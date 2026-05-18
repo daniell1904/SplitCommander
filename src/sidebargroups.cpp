@@ -16,6 +16,9 @@
 #include <QDialogButtonBox>
 #include <QFontDialog>
 #include <QInputDialog>
+#include <QTreeWidget>
+#include <QDebug>
+#include <cstdio>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
@@ -23,6 +26,7 @@
 #include <QPainter>
 #include <QPushButton>
 #include <QTimer>
+#include <QPropertyAnimation>
 #include <QVBoxLayout>
 
 // sc_getText helper
@@ -78,12 +82,41 @@ void Sidebar::onNewGroupDialog()
     auto *btnGrp   = new QButtonGroup(&dlg);
     auto *emptyBtn = new QPushButton(tr("Leere Gruppe"));
     auto *homeBtn  = new QPushButton(tr("Home-Favoriten"));
+#ifdef SC_PLUGIN_GIT
+    auto *gitBtn   = new QPushButton(tr("Git Repositories"));
+    for (auto *b : {emptyBtn, homeBtn, gitBtn}) { b->setCheckable(true); b->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred); }
+#else
     for (auto *b : {emptyBtn, homeBtn}) { b->setCheckable(true); b->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred); }
+#endif
     emptyBtn->setChecked(true);
     btnGrp->addButton(emptyBtn, 0);
     btnGrp->addButton(homeBtn,  1);
+#ifdef SC_PLUGIN_GIT
+    btnGrp->addButton(gitBtn,   2);
+#endif
+
+    // Git-Button deaktivieren wenn schon eine Git-CustomGroup existiert
+#ifdef SC_PLUGIN_GIT
+    {
+        auto s = Config::group("CustomGroups");
+        const QStringList existingGroups = s.readEntry("groups", QStringList());
+        for (const QString &gn : existingGroups) {
+            KConfigGroup g(s.config(), s.name() + "/group_" + gn);
+            if (g.readEntry("type", QString()) == QStringLiteral("git")) {
+                gitBtn->setEnabled(false);
+                gitBtn->setToolTip(tr("Es existiert bereits eine Git-Box"));
+                break;
+            }
+        }
+    }
+#endif // SC_PLUGIN_GIT
+
     auto *optRow = new QHBoxLayout(); optRow->setSpacing(6);
+#ifdef SC_PLUGIN_GIT
+    optRow->addWidget(emptyBtn); optRow->addWidget(homeBtn); optRow->addWidget(gitBtn);
+#else
     optRow->addWidget(emptyBtn); optRow->addWidget(homeBtn);
+#endif
     vl->addLayout(optRow);
 
     auto *btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -105,6 +138,20 @@ void Sidebar::onNewGroupDialog()
         s.config()->sync();
     }
 
+    // Git-Gruppe
+#ifdef SC_PLUGIN_GIT
+    if (btnGrp->checkedId() == 2) {
+        KConfigGroup g(s.config(), s.name() + "/group_" + grpName);
+        g.writeEntry("type", QStringLiteral("git"));
+        g.config()->sync();
+        createGitGroupWidget(grpName);
+        saveGroupOrder();
+        refreshGitSection();
+        if (m_scrollArea && m_scrollArea->widget())
+            m_scrollArea->widget()->adjustSize();
+        return;
+    }
+#endif
 
     QListWidget *list = createGroupWidget(grpName, m_newGroupBox);
     saveGroupOrder();
@@ -160,7 +207,7 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     hLay->setSpacing(4);
 
     auto *lbl = new QLabel(name.toUpper());
-    lbl->setStyleSheet(QString("font-size:13px;font-weight:bold;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
+    lbl->setStyleSheet(QString("font-size:13px;font-weight:normal;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
     hLay->addWidget(lbl, 1);
 
     // Menü-Button (KDE Style)
@@ -375,6 +422,213 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     return list;
 }
 
+#ifdef SC_PLUGIN_GIT
+// --- Sidebar::createGitGroupWidget — Git-Box (Tree statt Liste, gleiches Menü) ---
+void Sidebar::createGitGroupWidget(const QString &name)
+{
+    // Äußere Box
+    auto *outerBox = new QWidget();
+    outerBox->setObjectName(QStringLiteral("groupBox"));
+    outerBox->setStyleSheet(TM().ssBox());
+    outerBox->setProperty("groupName", name);
+    outerBox->setProperty("groupType", QStringLiteral("git"));
+
+    auto *vbox = new QVBoxLayout(outerBox);
+    vbox->setContentsMargins(0, 0, 0, 0);
+    vbox->setSpacing(0);
+    vbox->setSizeConstraint(QLayout::SetMinAndMaxSize);
+
+    // Header
+    auto *headerRow = new QWidget(outerBox);
+    headerRow->setStyleSheet("background:transparent; border:none;");
+    auto *hLay = new QHBoxLayout(headerRow);
+    hLay->setContentsMargins(12, 10, 8, 6);
+    hLay->setSpacing(4);
+
+    auto *lbl = new QLabel(name.toUpper());
+    lbl->setStyleSheet(QString("font-size:13px;font-weight:normal;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
+    hLay->addWidget(lbl, 1);
+
+    auto *menuBtn = new QPushButton();
+    menuBtn->setIcon(QIcon::fromTheme(QStringLiteral("application-menu")));
+    if (menuBtn->icon().isNull()) menuBtn->setIcon(QIcon::fromTheme(QStringLiteral("view-more-symbolic")));
+    menuBtn->setFixedSize(26, 22);
+    menuBtn->setCursor(Qt::PointingHandCursor);
+    menuBtn->setStyleSheet(
+        QString("QPushButton { background: transparent; border: none; padding: 2px; }"
+                "QPushButton:hover { background: %1; border-radius: 4px; }")
+        .arg(TM().colors().bgHover));
+    hLay->addWidget(menuBtn);
+    vbox->addWidget(headerRow);
+
+    // Tree-Container
+    auto *listCont = new QWidget();
+    listCont->setStyleSheet("background:transparent; border:none;");
+    auto *listLay = new QVBoxLayout(listCont);
+    listLay->setContentsMargins(6, 0, 6, 0);
+    listLay->setSpacing(0);
+
+    auto *tree = new QTreeWidget();
+    tree->setObjectName(QStringLiteral("gitTree"));
+    tree->setHeaderHidden(true);
+    tree->setFrameShape(QFrame::NoFrame);
+    tree->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    tree->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    tree->setIndentation(14);
+    tree->setRootIsDecorated(true);
+    tree->setItemsExpandable(true);
+    tree->setExpandsOnDoubleClick(false);
+    tree->setDragEnabled(false);
+    tree->setDragDropMode(QAbstractItemView::NoDragDrop);
+    tree->setSelectionMode(QAbstractItemView::SingleSelection);
+    tree->setFocusPolicy(Qt::StrongFocus);
+    tree->setIconSize(QSize(Config::sidebarIconSize() + 16, Config::sidebarIconSize()));
+    tree->setAnimated(false);
+    tree->setUniformRowHeights(true);
+    tree->setStyleSheet(
+        QString("QTreeWidget { background:transparent; outline:none; border:none; }"
+                "QTreeWidget::item { padding: 3px; border-radius:4px; font-size:13px; }"
+                "QTreeWidget::item:hover { background:%1; }"
+                "QTreeWidget::item:selected { background:%2; }")
+            .arg(TM().colors().bgHover, TM().colors().bgSelect));
+    listLay->addWidget(tree);
+    vbox->addWidget(listCont);
+
+    // Toggle (Box ein/ausklappen)
+    auto *toggleBtn = new QPushButton();
+    toggleBtn->setCheckable(true);
+    toggleBtn->setFixedHeight(16);
+    toggleBtn->setIcon(QIcon::fromTheme(QStringLiteral("go-up")));
+    toggleBtn->setIconSize(QSize(10, 10));
+    toggleBtn->setStyleSheet("QPushButton{background:transparent !important; border:none;}");
+    vbox->addWidget(toggleBtn, 0, Qt::AlignCenter);
+    connect(toggleBtn, &QPushButton::toggled, this, [listCont, toggleBtn](bool collapsed) {
+        listCont->setVisible(!collapsed);
+        toggleBtn->setIcon(QIcon::fromTheme(collapsed ? "go-down" : "go-up"));
+    });
+
+    // Wrapper (gleiche Margins wie normale CustomGroups)
+    auto *wrapper = new QWidget();
+    wrapper->setObjectName(QStringLiteral("groupWrapper"));
+    wrapper->setStyleSheet(QString("background:%1;").arg(TM().colors().bgMain));
+    auto *wLay = new QVBoxLayout(wrapper);
+    wLay->setContentsMargins(10, 2, 6, 2);
+    wLay->setSpacing(0);
+    wLay->addWidget(outerBox);
+
+    auto sharedName = std::make_shared<QString>(name);
+
+    // Höhe nach Auf-/Zuklappen neu berechnen — Tree nicht neu aufbauen
+    auto adjustHeight = [tree]() {
+        const int rowH = tree->sizeHintForRow(0);
+        const int defaultRow = rowH > 0 ? rowH : 24;
+        const int maxH = defaultRow * 5 + 8;
+        int totalH = 0;
+        std::function<int(QTreeWidgetItem*)> count = [&](QTreeWidgetItem *it) -> int {
+            int n = 1;
+            if (it->isExpanded())
+                for (int i = 0; i < it->childCount(); ++i) n += count(it->child(i));
+            return n;
+        };
+        for (int i = 0; i < tree->topLevelItemCount(); ++i)
+            totalH += count(tree->topLevelItem(i)) * defaultRow;
+        totalH += 8;
+        const int finalH = qBound(defaultRow + 8, totalH, maxH);
+        tree->setMinimumHeight(finalH);
+        tree->setMaximumHeight(finalH);
+        tree->setVerticalScrollBarPolicy(
+            totalH > maxH ? Qt::ScrollBarAsNeeded : Qt::ScrollBarAlwaysOff);
+    };
+    connect(tree, &QTreeWidget::itemClicked, this, [this, adjustHeight](QTreeWidgetItem *it, int) {
+        if (!it) return;
+        if (!it->parent()) {
+            it->setExpanded(!it->isExpanded());
+            adjustHeight();
+            return;
+        }
+        const QString p = it->data(0, Qt::UserRole).toString();
+        if (p.isEmpty()) return;
+        emit driveClicked(p);
+    });
+    connect(tree, &QTreeWidget::itemExpanded,  this, adjustHeight);
+    connect(tree, &QTreeWidget::itemCollapsed, this, adjustHeight);
+
+    // Menü (identisch zu CustomGroups, ohne Pin)
+    connect(menuBtn, &QPushButton::clicked, this,
+            [this, menuBtn, lbl, sharedName, wrapper]() {
+        auto *m = new QMenu(this);
+        m->setAttribute(Qt::WA_DeleteOnClose);
+        m->setStyleSheet(TM().ssMenu());
+
+        connect(m->addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Gruppe umbenennen")),
+                &QAction::triggered, this, [this, lbl, sharedName]() {
+            bool ok;
+            QString newName = sc_getText(this, tr("Gruppe umbenennen"), tr("Neuer Name:"), *sharedName);
+            ok = !newName.isNull();
+            if (!ok || newName.trimmed().isEmpty() || newName.trimmed() == *sharedName) return;
+            const QString oldName = *sharedName;
+            *sharedName = newName.trimmed();
+            lbl->setText(sharedName->toUpper());
+
+            auto gs = Config::group("CustomGroups");
+            QStringList grps = gs.readEntry("groups", QStringList());
+            int idx = grps.indexOf(oldName);
+            if (idx != -1) { grps[idx] = *sharedName; gs.writeEntry("groups", grps); }
+
+            KConfigGroup oldGrp(gs.config(), gs.name() + "/group_" + oldName);
+            KConfigGroup newGrp(gs.config(), gs.name() + "/group_" + *sharedName);
+            newGrp.writeEntry("type", QStringLiteral("git"));
+            oldGrp.deleteGroup();
+            gs.config()->sync();
+        });
+
+        m->addSeparator();
+
+        auto *upAct   = m->addAction(QIcon::fromTheme(QStringLiteral("go-up")),   tr("Nach oben"));
+        auto *downAct = m->addAction(QIcon::fromTheme(QStringLiteral("go-down")), tr("Nach unten"));
+
+        m->addSeparator();
+        auto *delAct = m->addAction(QIcon::fromTheme(QStringLiteral("edit-delete")), tr("Gruppe löschen"));
+
+        connect(upAct, &QAction::triggered, this, [this, wrapper]() {
+            int idx = m_contentLayout->indexOf(wrapper);
+            if (idx > 0) { m_contentLayout->removeWidget(wrapper); m_contentLayout->insertWidget(idx - 1, wrapper); saveGroupOrder(); }
+        });
+        connect(downAct, &QAction::triggered, this, [this, wrapper]() {
+            int idx = m_contentLayout->indexOf(wrapper);
+            if (idx >= 0 && idx < m_contentLayout->count() - 2) { m_contentLayout->removeWidget(wrapper); m_contentLayout->insertWidget(idx + 1, wrapper); saveGroupOrder(); }
+        });
+        connect(delAct, &QAction::triggered, this, [this, wrapper, sharedName]() {
+            m_contentLayout->removeWidget(wrapper);
+            delete wrapper;
+            if (m_scrollArea && m_scrollArea->widget())
+                m_scrollArea->widget()->adjustSize();
+            auto gs = Config::group("CustomGroups");
+            KConfigGroup(gs.config(), gs.name() + "/group_" + *sharedName).deleteGroup();
+            QStringList grps = gs.readEntry("groups", QStringList());
+            grps.removeAll(*sharedName);
+            gs.writeEntry("groups", grps);
+            gs.config()->sync();
+            saveGroupOrder();
+        });
+
+        m->popup(menuBtn->mapToGlobal(QPoint(0, menuBtn->height())));
+    });
+
+    // In Layout einfügen (vor Stretch, wie normale CustomGroups)
+    if (m_contentLayout) {
+        int insertIdx = m_contentLayout->count();
+        const int total = m_contentLayout->count();
+        if (total > 0) {
+            auto *lastItem = m_contentLayout->itemAt(total - 1);
+            if (lastItem && lastItem->spacerItem())
+                insertIdx = total - 1;
+        }
+        m_contentLayout->insertWidget(insertIdx, wrapper);
+    }
+}
+#endif // SC_PLUGIN_GIT
+
 // --- Sidebar::saveGroupOrder ---
 void Sidebar::saveGroupOrder()
 {
@@ -395,10 +649,22 @@ void Sidebar::loadCustomGroups()
     auto s = Config::group("CustomGroups");
     const QStringList groups = s.readEntry("groups", QStringList());
     for (const QString &groupName : groups) {
+        KConfigGroup g(s.config(), s.name() + "/group_" + groupName);
+        const QString type = g.readEntry("type", QString());
+
+        // Git-Gruppe?
+#ifdef SC_PLUGIN_GIT
+        if (type == QStringLiteral("git")) {
+            createGitGroupWidget(groupName);
+            continue;
+        }
+#else
+        if (type == QStringLiteral("git")) continue; // Plugin nicht aktiv — überspringen
+#endif
+
         QListWidget *list = createGroupWidget(groupName, m_newGroupBox);
         if (groupName == "Favoriten") m_favList = list;
 
-        KConfigGroup g(s.config(), s.name() + "/group_" + groupName);
         int cnt = g.readEntry("size", 0);
         for (int i = 1; i <= cnt; ++i) {
             KConfigGroup itemG(g.config(), g.name() + "/" + QString::number(i));
@@ -429,6 +695,9 @@ void Sidebar::loadCustomGroups()
         }
         adjustListHeight(list);
     }
+#ifdef SC_PLUGIN_GIT
+    refreshGitSection();
+#endif
 }
 
 

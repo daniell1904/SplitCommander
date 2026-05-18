@@ -51,6 +51,7 @@ public:
 
     // Aktuelles Theme anwenden (liest QSettings, emittiert themeChanged)
     void apply();
+    void setTemporaryColors(const ThemeColors &c);
     bool saveTheme(const ThemeColors &c);
 
     // Alle verfügbaren Themes (intern + extern)

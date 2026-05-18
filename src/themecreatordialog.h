@@ -5,19 +5,32 @@
 #include <QList>
 #include "thememanager.h"
 
+class ThemePreviewWidget;
+
 class ThemeCreatorDialog : public QDialog
 {
     Q_OBJECT
 public:
     explicit ThemeCreatorDialog(QWidget *parent = nullptr);
+    ~ThemeCreatorDialog() override;
     ThemeColors resultTheme() const { return m_colors; }
+
+    struct ColorField {
+        QString key;
+        QString label;
+        QString *ref;
+        QPushButton *btn = nullptr;
+    };
 
 private:
     ThemeColors m_colors;
+    ThemeColors m_originalColors;
+    bool m_saved = false;
     QLineEdit *m_nameEdit;
-    QList<QPushButton*> m_chips;
+    QList<ColorField> m_fields;
+    ThemePreviewWidget *m_preview = nullptr;
     
     void setupUI();
-    void updateChips();
+    void pickColorForKey(const QString &key);
     void saveAndClose();
 };

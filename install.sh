@@ -93,13 +93,41 @@ install_deps() {
     print_ok "Abhängigkeiten installiert"
 }
 
+# ── Plugin-Auswahl ────────────────────────────────────────────────────────────
+select_plugins() {
+    echo ""
+    echo -e "${BOLD}Optionale Plugins:${RESET}"
+    echo "  [1] Git Manager  — Repository-Verwaltung, Git-Gruppe in der Sidebar"
+    echo ""
+    echo -e "Auswahl (z.B. ${BOLD}1${RESET} oder Enter für keine):"
+    read -r plugin_input
+
+    PLUGIN_GIT=0
+    for token in $plugin_input; do
+        case $token in
+            1) PLUGIN_GIT=1 ;;
+        esac
+    done
+
+    if [ "$PLUGIN_GIT" -eq 1 ]; then
+        print_ok "Plugin: Git Manager aktiviert"
+    else
+        print_warn "Plugin: Git Manager nicht installiert"
+    fi
+}
+
 # ── Build ─────────────────────────────────────────────────────────────────────
 build() {
     print_step "Konfiguriere Build"
+
+    local cmake_extra=""
+    [ "${PLUGIN_GIT:-0}" -eq 1 ] && cmake_extra="$cmake_extra -DSC_PLUGIN_GIT=ON"
+
     cmake -B "$BUILD_DIR" -S . \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX" \
-        -G Ninja
+        -G Ninja \
+        $cmake_extra
     print_ok "Konfiguration abgeschlossen"
 
     print_step "Kompiliere SplitCommander"
@@ -213,14 +241,22 @@ main() {
     # Optionale Flags
     local skip_deps=0
     local skip_install=0
+    local plugins_only=0
     for arg in "$@"; do
         case $arg in
-            --no-deps)    skip_deps=1 ;;
-            --no-install) skip_install=1 ;;
+            --no-deps)      skip_deps=1 ;;
+            --no-install)   skip_install=1 ;;
+            --plugins-only) plugins_only=1; skip_deps=1 ;;
         esac
     done
 
-    [ "$skip_deps" -eq 0 ]    && install_deps "$distro"
+    if [ "$plugins_only" -eq 1 ]; then
+        print_step "Plugin-Nachinstallation"
+    fi
+
+    select_plugins
+
+    [ "$skip_deps" -eq 0 ] && install_deps "$distro"
     build
     [ "$skip_install" -eq 0 ] && install
     install_icon
