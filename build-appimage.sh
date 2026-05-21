@@ -58,6 +58,8 @@ echo "=== 5. Erstelle AppImage ==="
 export EXTRA_QT_PLUGINS="platformthemes,styles,imageformats,iconengines"
 # Bei Qt6 müssen wir mitteilen, dass das Qt6-Plugin geladen werden soll
 export QMAKE="qmake6"
+# Verhindert Fehler beim Strippen von Bibliotheken mit neuartigen RELR-Relozierungen auf Fedora
+export NO_STRIP=1
 
 # Führe linuxdeploy aus
 ./tools/linuxdeploy-x86_64.AppImage \
