@@ -1,4 +1,4 @@
-app-id: org.github.daniell1904.SplitCommander
+app-id: app.splitcommander
 runtime: org.kde.Platform
 runtime-version: '6.7'
 sdk: org.kde.Sdk
