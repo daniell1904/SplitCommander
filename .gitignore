@@ -32,3 +32,9 @@ gcp
 # Git & Heavy Assets (Zusatz für Antigravity)
 .git/
 logo.svg
+
+# AI agent files
+.agents/
+.antigravityignore
+CLAUDE.md
+gemini.md
