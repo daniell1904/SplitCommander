@@ -46,6 +46,8 @@ chmod +x install.sh
 ./install.sh
 ```
 
+Running the script automatically compiles and launches a **beautiful, native Qt6 graphical setup wizard** that guides you through the installation process and optional plugin selection (when a graphical environment is active). In headless or server environments, it gracefully falls back to interactive terminal prompts.
+
 The script automatically detects your distribution and installs all required dependencies.
 
 | Distribution | Package manager |
@@ -123,6 +125,8 @@ cd SplitCommander
 chmod +x install.sh
 ./install.sh
 ```
+
+Das Ausführen des Skripts kompiliert und startet automatisch einen **wunderschönen, nativen Qt6-Grafik-Installer**, der dich komfortabel durch die Einrichtung und Plugin-Auswahl führt (sofern eine grafische Oberfläche aktiv ist). Auf Servern oder SSH-Verbindungen schaltet das Skript automatisch auf eine interaktive Terminal-Abfrage um.
 
 Das Script erkennt automatisch die Distribution und installiert alle Abhängigkeiten.
 
