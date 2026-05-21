@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component type="desktop-application">
-  <id>app.splitcommander</id>
+  <id>splitcommander</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
   <name>SplitCommander</name>
@@ -34,7 +34,7 @@
     </ul>
   </description>
   
-  <launchable type="desktop-id">app.splitcommander.desktop</launchable>
+  <launchable type="desktop-id">splitcommander.desktop</launchable>
   
   <url type="homepage">https://github.com/daniell1904/SplitCommander</url>
   <url type="bugtracker">https://github.com/daniell1904/SplitCommander/issues</url>

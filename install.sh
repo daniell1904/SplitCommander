@@ -296,7 +296,7 @@ install_icon() {
     print_step "Installiere Icon"
 
     local png="src/splitcommander_128.png"
-    local svg="src/app.splitcommander.svg"
+    local svg="src/splitcommander.svg"
 
     if [ ! -f "$png" ]; then
         print_warn "$png nicht gefunden — überspringe Icon-Installation"
@@ -334,14 +334,14 @@ install_icon() {
         else
             cp "$png" "/tmp/sc_${size}.png"
         fi
-        sudo cp "/tmp/sc_${size}.png" "$dir/app.splitcommander.png"
+        sudo cp "/tmp/sc_${size}.png" "$dir/splitcommander.png"
         rm -f "/tmp/sc_${size}.png"
     done
 
     # SVG zusätzlich installieren falls vorhanden
     if [ -f "$svg" ]; then
         sudo mkdir -p /usr/share/icons/hicolor/scalable/apps
-        sudo cp "$svg" /usr/share/icons/hicolor/scalable/apps/app.splitcommander.svg
+        sudo cp "$svg" /usr/share/icons/hicolor/scalable/apps/splitcommander.svg
     fi
 
     sudo gtk-update-icon-cache -f -t /usr/share/icons/hicolor 2>/dev/null || true
@@ -351,7 +351,7 @@ install_icon() {
 
 # ── Desktop-Eintrag ───────────────────────────────────────────────────────────
 install_desktop() {
-    local desktop_file="/usr/share/applications/app.splitcommander.desktop"
+    local desktop_file="/usr/share/applications/splitcommander.desktop"
     print_step "Erstelle Desktop-Eintrag"
     sudo tee "$desktop_file" > /dev/null <<EOF
 [Desktop Entry]
@@ -359,7 +359,7 @@ Name=SplitCommander
 Comment=Native KDE Dual-Pane File Manager
 Comment[de]=Nativer KDE Dual-Pane Dateimanager
 Exec=splitcommander
-Icon=app.splitcommander
+Icon=splitcommander
 Terminal=false
 Type=Application
 Categories=System;FileTools;FileManager;

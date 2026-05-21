@@ -145,9 +145,9 @@ qt6_add_translations(splitcommander
 install(FILES ${QM_FILES} DESTINATION ${CMAKE_INSTALL_DATADIR}/splitcommander/translations)
 
 # --- Desktop-Datei & Icons & Metainfo ---
-install(FILES app.splitcommander.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
-install(FILES app.splitcommander.metainfo.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo)
-install(FILES src/app.splitcommander.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
-install(FILES src/splitcommander_32.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/32x32/apps RENAME app.splitcommander.png)
-install(FILES src/splitcommander_64.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/64x64/apps RENAME app.splitcommander.png)
-install(FILES src/splitcommander_128.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/128x128/apps RENAME app.splitcommander.png)
+install(FILES splitcommander.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+install(FILES splitcommander.metainfo.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo)
+install(FILES src/splitcommander.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
+install(FILES src/splitcommander_32.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/32x32/apps RENAME splitcommander.png)
+install(FILES src/splitcommander_64.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/64x64/apps RENAME splitcommander.png)
+install(FILES src/splitcommander_128.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/128x128/apps RENAME splitcommander.png)

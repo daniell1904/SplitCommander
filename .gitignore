@@ -30,11 +30,6 @@ gcp
 core
 core.*
 
-# Flatpak
-.flatpak-builder/
-flatpak_app/
-*.flatpak
-
 # AI agent files
 .agents/
 .antigravityignore
