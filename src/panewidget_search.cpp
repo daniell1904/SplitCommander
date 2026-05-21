@@ -3,15 +3,9 @@
 // ---------------------------------------------------------------------------
 
 #include "panewidget.h"
-#include "mainwindow.h"
 #include <QShortcut>
 #include <QKeySequence>
-#include "config.h"
-#include "dialogutils.h"
-#include "panecomponents.h"
-#include "scglobal.h"
 #include "thememanager.h"
-#include "thumbnailmanager.h"
 #include <Baloo/Query>
 #include <Baloo/ResultIterator>
 #include <KAboutApplicationDialog>
@@ -171,7 +165,12 @@ void PaneWidget::initSearchPanel(QVBoxLayout *rootLay) {
   spTabLay->addWidget(tabOverall);
   spTabLay->addStretch();
   spVLay->addWidget(spTabRow);
-  rootLay->addWidget(searchPanel);
+  const int idx = rootLay->indexOf(m_vSplit);
+  if (idx >= 0) {
+    rootLay->insertWidget(idx, searchPanel);
+  } else {
+    rootLay->addWidget(searchPanel);
+  }
 
   // --- Suchergebnis-Overlay ---
   m_searchOverlay = new QWidget(this);

@@ -11,11 +11,14 @@ set(CMAKE_AUTOUIC ON)
 
 # ── Optionale Plugins ──────────────────────────────────────────────────────────
 option(SC_PLUGIN_GIT "Git Manager Plugin einbauen" OFF)
+option(SC_PLUGIN_PAPERLESS "Paperless-ngx Plugin einbauen" OFF)
+option(SC_PLUGIN_MOUNTISO "ISO-Einbinden Plugin einbauen" OFF)
+option(SC_PLUGIN_MAKEFILEACTIONS "Makefile-Aktionen Plugin einbauen" OFF)
 
 find_package(ECM REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Svg Concurrent DBus)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Svg Concurrent DBus Network)
 find_package(KF6 REQUIRED COMPONENTS
     I18n IconThemes ConfigWidgets XmlGui KIO
     WidgetsAddons WindowSystem Solid Archive Service CoreAddons Baloo
@@ -41,7 +44,6 @@ set(SC_SOURCES
     src/filepanedelegate.cpp
     src/drivedelegate.cpp
     src/joboverlay.cpp
-    src/previewpanel.cpp
     src/drophandler.cpp
     src/filemanager1.cpp
     src/drivemanager.cpp
@@ -63,15 +65,34 @@ set(SC_SOURCES
 
 if(SC_PLUGIN_GIT)
     list(APPEND SC_SOURCES
-        src/gitmanagerdialog.cpp
-        src/gitstatusmanager.cpp
+        src/plugins/git/gitmanagerdialog.cpp
+        src/plugins/git/gitstatusmanager.cpp
+    )
+endif()
+
+if(SC_PLUGIN_PAPERLESS)
+    list(APPEND SC_SOURCES
+        src/plugins/paperless/paperlessmanager.cpp
+        src/plugins/paperless/paperlessmanager.h
+    )
+endif()
+
+if(SC_PLUGIN_MOUNTISO)
+    list(APPEND SC_SOURCES
+        src/plugins/mountiso/mountiso.cpp
+    )
+endif()
+
+if(SC_PLUGIN_MAKEFILEACTIONS)
+    list(APPEND SC_SOURCES
+        src/plugins/makefileactions/makefileactions.cpp
     )
 endif()
 
 add_executable(splitcommander ${SC_SOURCES})
 
 target_link_libraries(splitcommander
-    Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Svg Qt6::Concurrent Qt6::DBus
+    Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Svg Qt6::Concurrent Qt6::DBus Qt6::Network
     KF6::I18n KF6::IconThemes KF6::IconWidgets KF6::ConfigWidgets KF6::XmlGui
     KF6::KIOCore KF6::KIOWidgets KF6::KIOFileWidgets KF6::WidgetsAddons
     KF6::WindowSystem KF6::Solid KF6::Archive KF6::Service KF6::CoreAddons KF6::Baloo
@@ -81,6 +102,9 @@ target_compile_definitions(splitcommander PRIVATE
     SC_VERSION="${PROJECT_VERSION}"
     QT_USE_QSTRINGBUILDER
     $<$<BOOL:${SC_PLUGIN_GIT}>:SC_PLUGIN_GIT>
+    $<$<BOOL:${SC_PLUGIN_PAPERLESS}>:SC_PLUGIN_PAPERLESS>
+    $<$<BOOL:${SC_PLUGIN_MOUNTISO}>:SC_PLUGIN_MOUNTISO>
+    $<$<BOOL:${SC_PLUGIN_MAKEFILEACTIONS}>:SC_PLUGIN_MAKEFILEACTIONS>
 )
 
 install(TARGETS splitcommander DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -91,6 +115,26 @@ find_package(Qt6 REQUIRED COMPONENTS LinguistTools)
 set(TS_FILES
     translations/splitcommander_de.ts
     translations/splitcommander_en.ts
+    translations/splitcommander_fr.ts
+    translations/splitcommander_es.ts
+    translations/splitcommander_it.ts
+    translations/splitcommander_pt.ts
+    translations/splitcommander_ru.ts
+    translations/splitcommander_pl.ts
+    translations/splitcommander_nl.ts
+    translations/splitcommander_zh_CN.ts
+    translations/splitcommander_tr.ts
+    translations/splitcommander_ja.ts
+    translations/splitcommander_ko.ts
+    translations/splitcommander_ar.ts
+    translations/splitcommander_sv.ts
+    translations/splitcommander_da.ts
+    translations/splitcommander_fi.ts
+    translations/splitcommander_nb.ts
+    translations/splitcommander_cs.ts
+    translations/splitcommander_sk.ts
+    translations/splitcommander_hu.ts
+    translations/splitcommander_ro.ts
 )
 
 qt6_add_translations(splitcommander

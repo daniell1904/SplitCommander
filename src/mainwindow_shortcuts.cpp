@@ -5,26 +5,19 @@
 // --- mainwindow.cpp — SplitCommander Hauptfenster ---
 
 #include "mainwindow.h"
-#include "filemanager1.h"
-// Removed agebadgedialog.h
 #include "config.h"
-#include "settingsdialog.h"
 #ifdef SC_PLUGIN_GIT
-#include "gitmanagerdialog.h"
-#include "gitstatusmanager.h"
+#include "plugins/git/gitmanagerdialog.h"
+#include "plugins/git/gitstatusmanager.h"
 #endif
 #include <QMessageBox>
 #include "filepane.h"
-#include "joboverlay.h"
-#include "panecomponents.h"
 #include <KTerminalLauncherJob>
 #include <KDialogJobUiDelegate>
-#include "thememanager.h"
 #include <KActionCollection>
 #include <KShortcutsDialog>
 #include <KStandardShortcut>
 
-// Removed drophandler.h
 #include <KFileItem>
 #include <KFormat>
 #include <KIO/CopyJob>
@@ -44,6 +37,7 @@
 #include <Solid/StorageVolume>
 
 #include "dialogutils.h"
+#include "batchrenamer.h"
 #include <QActionGroup>
 #include <QApplication>
 #include <QButtonGroup>
@@ -87,10 +81,7 @@
 #include <functional>
 
 
-// Removed panetoolbar.h
 #include "millercolumn.h"
-#include "scglobal.h"
-#include "drivemanager.h"
 
 #include "panewidget.h"
 
@@ -141,9 +132,17 @@ void MainWindow::registerShortcuts() {
            });
     addAct("nav_up", tr("Übergeordneter Ordner"), "go-up", Qt::ALT | Qt::Key_Up,
            [this]() {
-             QDir d(activePane()->currentPath());
-             if (d.cdUp())
-               activePane()->navigateTo(d.absolutePath());
+             const QUrl url = activePane()->currentUrl();
+             if (url.isLocalFile()) {
+               QDir d(url.toLocalFile());
+               if (d.cdUp())
+                 activePane()->navigateTo(d.absolutePath());
+             } else {
+               // KIO-URL: Elternpfad über URL-Manipulation
+               QUrl parent = url.adjusted(QUrl::StripTrailingSlash | QUrl::RemoveFilename);
+               if (parent.isValid() && parent != url)
+                 activePane()->navigateTo(parent.toString());
+             }
            });
     addAct("nav_home", tr("Home-Verzeichnis"), "go-home",
            Qt::ALT | Qt::Key_Home,
@@ -157,6 +156,17 @@ void MainWindow::registerShortcuts() {
           m_rightPane->navigateTo(m_rightPane->currentPath());
         },
         Qt::Key_F5);
+
+    addAct("tab_new", tr("Neuer Tab"), "tab-new", Qt::CTRL | Qt::Key_T,
+           [this]() { activePane()->addTab(activePane()->currentPath()); });
+    addAct("tab_close", tr("Tab schließen"), "", Qt::CTRL | Qt::Key_W,
+           [this]() { activePane()->closeTab(activePane()->currentTabIndex()); });
+    for (int i = 1; i <= 9; ++i) {
+      const int idx = i - 1;
+      addAct(QStringLiteral("tab_%1").arg(i), tr("Tab %1").arg(i), "",
+             QKeySequence(Qt::CTRL | (Qt::Key_1 + idx)),
+             [this, idx]() { if (idx < activePane()->tabCount()) activePane()->switchTab(idx); });
+    }
 
     addAct("open_settings", tr("Einstellungen"), "settings-configure",
            Qt::CTRL | Qt::Key_Comma, [this]() {
@@ -196,18 +206,41 @@ void MainWindow::registerShortcuts() {
     addAct(
         "file_rename", tr("Umbenennen"), "edit-rename", Qt::Key_F2, [this]() {
           const QList<QUrl> urls = activePane()->selectedUrls();
-          if (urls.size() != 1)
+          if (urls.isEmpty())
             return;
-          const QString path = urls.first().toLocalFile();
-          bool ok;
-          QString newName =
-              DialogUtils::getText(this, tr("Umbenennen"), tr("Neuer Name:"),
-                                   QFileInfo(path).fileName(), &ok);
-          if (!ok || newName.isEmpty() || newName == QFileInfo(path).fileName())
-            return;
-          QUrl dest = QUrl::fromLocalFile(QFileInfo(path).dir().absolutePath() +
-                                          "/" + newName);
-          KIO::moveAs(urls.first(), dest, KIO::DefaultFlags);
+
+          if (urls.size() == 1) {
+            // Einzelne Datei: einfacher Inline-Dialog
+            const QUrl &src = urls.first();
+            const QString oldName = src.fileName();
+            bool ok;
+            QString newName = DialogUtils::getText(
+                this, tr("Umbenennen"), tr("Neuer Name:"), oldName, &ok);
+            if (!ok || newName.isEmpty() || newName == oldName)
+              return;
+            QUrl dest = src.adjusted(QUrl::RemoveFilename);
+            dest.setPath(dest.path() + newName);
+            KIO::moveAs(src, dest, KIO::DefaultFlags);
+          } else {
+            // Mehrfachauswahl: BatchRenamer
+            QStringList paths;
+            for (const QUrl &u : urls)
+              paths << (u.isLocalFile() ? u.toLocalFile() : u.toString());
+            BatchRenamer dlg(paths, this);
+            if (dlg.exec() != QDialog::Accepted)
+              return;
+            const QStringList newNames = dlg.newNames();
+            for (int i = 0; i < urls.size() && i < newNames.size(); ++i) {
+              const QString &nn = newNames.at(i);
+              const QString oldName = urls.at(i).fileName();
+              if (nn.isEmpty() || nn == oldName)
+                continue;
+              QUrl dest = urls.at(i).adjusted(QUrl::RemoveFilename);
+              dest.setPath(dest.path() + nn);
+              auto *job = KIO::moveAs(urls.at(i), dest, KIO::DefaultFlags);
+              KJobWidgets::setWindow(job, this);
+            }
+          }
         });
     // Wie Dolphin: zwei separate Actions für Trash und permanentes Löschen
     addAct("file_trash", tr("In den Papierkorb verschieben"), "user-trash",

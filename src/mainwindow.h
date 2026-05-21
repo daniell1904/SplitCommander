@@ -34,6 +34,9 @@ public:
 #ifdef SC_PLUGIN_GIT
     void openGitManager();
 #endif
+#ifdef SC_PLUGIN_PAPERLESS
+    void openPaperlessManager();
+#endif
 
 protected:
     void closeEvent(QCloseEvent *e) override;

@@ -1,6 +1,5 @@
 #include "panetoolbar.h"
 #include "thememanager.h"
-#include "config.h"
 #include "scglobal.h"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -42,8 +41,6 @@ PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent) {
   r1->addWidget(mk("view-sort-ascending", tr("Sortieren"), &PaneToolbar::sortClicked));
   m_newFolderBtn = mk("folder-new", tr("Neu"), &PaneToolbar::newFolderClicked);
   r1->addWidget(m_newFolderBtn);
-  m_copyBtn = mk("edit-copy", tr("Kopieren"), &PaneToolbar::copyClicked);
-  r1->addWidget(m_copyBtn);
   m_emptyTrashBtn = mk("trash-empty", tr("Papierkorb leeren"), &PaneToolbar::emptyTrashClicked);
   m_emptyTrashBtn->hide();
   r1->addWidget(m_emptyTrashBtn);
@@ -77,10 +74,13 @@ PaneToolbar::PaneToolbar(QWidget *parent) : QWidget(parent) {
   auto *r3 = new QHBoxLayout();
   r3->setContentsMargins(0, 0, 0, 0);
   r3->setSpacing(2);
-  r3->addWidget(mk("go-previous", tr("Zurück"), &PaneToolbar::backClicked));
-  r3->addWidget(mk("go-next", tr("Vorwärts"), &PaneToolbar::forwardClicked));
+  m_backBtn = mk("go-previous", tr("Zurück"), &PaneToolbar::backClicked);
+  m_backBtn->setEnabled(false);
+  r3->addWidget(m_backBtn);
+  m_fwdBtn = mk("go-next", tr("Vorwärts"), &PaneToolbar::forwardClicked);
+  m_fwdBtn->setEnabled(false);
+  r3->addWidget(m_fwdBtn);
   r3->addWidget(mk("go-up", tr("Hoch"), &PaneToolbar::upClicked));
-
   auto *foldersFirstBtn = new QToolButton();
   foldersFirstBtn->setIcon(QIcon::fromTheme("go-parent-folder"));
   foldersFirstBtn->setIconSize(QSize(16, 16));
@@ -142,7 +142,6 @@ void PaneToolbar::setPath(const QString &path) {
   const bool isTrash = (path == "trash:/" || path.startsWith("trash:"));
   m_emptyTrashBtn->setVisible(isTrash);
   m_newFolderBtn->setVisible(!isTrash);
-  m_copyBtn->setVisible(!isTrash);
 }
 
 void PaneToolbar::setCount(int count, qint64 totalBytes) {
@@ -162,4 +161,9 @@ void PaneToolbar::setSelected(int count) {
   } else {
     m_selectedLabel->hide();
   }
+}
+
+void PaneToolbar::setNavState(bool canBack, bool canForward) {
+  if (m_backBtn) m_backBtn->setEnabled(canBack);
+  if (m_fwdBtn)  m_fwdBtn->setEnabled(canForward);
 }

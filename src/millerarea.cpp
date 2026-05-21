@@ -1,4 +1,5 @@
 #include "millerarea.h"
+#include "config.h"
 #include "scglobal.h"
 #include "thememanager.h"
 #include "drivemanager.h"
@@ -44,6 +45,12 @@ MillerArea::MillerArea(QWidget *parent) : QWidget(parent) {
   m_rowLayout->addWidget(m_colContainer, 1);
 
   outerLay->addWidget(m_rowWidget, 1);
+
+}
+
+void MillerArea::setCollapsed(bool collapsed, const QString &) {
+  m_collapsed = collapsed;
+  m_rowWidget->setVisible(!collapsed);
 }
 
 void MillerArea::updateVisibleColumns() {
@@ -123,10 +130,10 @@ void MillerArea::init() {
   connect(DriveManager::instance(), &DriveManager::drivesUpdated, this, &MillerArea::refreshDrives);
   auto *col = new MillerColumn();
   col->populateDrives();
+  col->setActive(true);
   m_colLayout->addWidget(col, 1);
   m_cols.append(col);
   m_activeCol = col;
-
   connect(col, &MillerColumn::entryClicked, this,
           [this, col](const QString &path, MillerColumn *src) {
             emit focusRequested();
@@ -171,6 +178,13 @@ void MillerArea::init() {
     m_activeCol = src;
   });
   connect(col, &MillerColumn::headerClicked, this, &MillerArea::headerClicked);
+  connect(col, &MillerColumn::editPathRequested, this, [this, col]() {
+    if (!m_cols.isEmpty() && m_cols.last() == col
+        && col->path() != QStringLiteral("__drives__"))
+      emit editPathRequested();
+    else
+      emit headerClicked(col->path().isEmpty() ? QStringLiteral("__drives__") : col->path());
+  });
 
   connect(col, &MillerColumn::teardownRequested, this,
           &MillerArea::teardownRequested);
@@ -223,6 +237,8 @@ void MillerArea::refresh() {
 void MillerArea::appendColumn(const QString &path) {
   auto *col = new MillerColumn();
   col->populateDir(path);
+  // Alle anderen auf inaktiv setzen
+  for (auto *c : m_cols) c->setActive(false);
   col->setActive(true);
   m_colLayout->addWidget(col, 1);
   m_cols.append(col);
@@ -272,6 +288,13 @@ void MillerArea::appendColumn(const QString &path) {
     m_activeCol = src;
   });
   connect(col, &MillerColumn::headerClicked, this, &MillerArea::headerClicked);
+  connect(col, &MillerColumn::editPathRequested, this, [this, col]() {
+    if (!m_cols.isEmpty() && m_cols.last() == col
+        && col->path() != QStringLiteral("__drives__"))
+      emit editPathRequested();
+    else
+      emit headerClicked(col->path().isEmpty() ? QStringLiteral("__drives__") : col->path());
+  });
   connect(col, &MillerColumn::openInLeft, this,
           [this](const QString &p) { emit openInLeft(p); });
   connect(col, &MillerColumn::openInRight, this,

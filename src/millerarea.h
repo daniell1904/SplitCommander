@@ -9,6 +9,7 @@ public:
     void refreshDrives();
     void navigateTo(const QString &path, bool clearForward = true);
     void refresh();
+    void setCollapsed(bool collapsed, const QString &fullPath = QString());
     QString activePath() const;
     QList<QUrl> selectedUrls() const;
     void setFocused(bool f);
@@ -24,6 +25,7 @@ signals:
     void teardownRequested(const QString &udi);
     void removeFromPlacesRequested(const QString &url);
     void drivesChanged();
+    void editPathRequested();
 protected:
     void resizeEvent(QResizeEvent *e) override;
 private:
@@ -40,4 +42,5 @@ private:
     QList<QWidget*>       m_strips;
     QFrame               *m_stripDivider  = nullptr;
     bool                  m_focused       = false;
+    bool                  m_collapsed     = false;
 };

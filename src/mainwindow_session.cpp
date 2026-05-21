@@ -6,26 +6,18 @@
 // --- mainwindow.cpp — SplitCommander Hauptfenster ---
 
 #include "mainwindow.h"
-#include "filemanager1.h"
-// Removed agebadgedialog.h
 #include "config.h"
-#include "settingsdialog.h"
 #ifdef SC_PLUGIN_GIT
-#include "gitmanagerdialog.h"
-#include "gitstatusmanager.h"
+#include "plugins/git/gitmanagerdialog.h"
+#include "plugins/git/gitstatusmanager.h"
 #endif
 #include <QMessageBox>
-#include "filepane.h"
-#include "joboverlay.h"
-#include "panecomponents.h"
 #include <KTerminalLauncherJob>
 #include <KDialogJobUiDelegate>
-#include "thememanager.h"
 #include <KActionCollection>
 #include <KShortcutsDialog>
 #include <KStandardShortcut>
 
-// Removed drophandler.h
 #include <KFileItem>
 #include <KFormat>
 #include <KIO/CopyJob>
@@ -44,7 +36,7 @@
 #include <Solid/StorageDrive>
 #include <Solid/StorageVolume>
 
-#include "dialogutils.h"
+
 #include <QActionGroup>
 #include <QApplication>
 #include <QButtonGroup>
@@ -85,13 +77,7 @@
 #include <QWidgetAction>
 #include <QXmlStreamReader>
 #include <QtConcurrent>
-#include <functional>
 
-
-// Removed panetoolbar.h
-#include "millercolumn.h"
-#include "scglobal.h"
-#include "drivemanager.h"
 
 #include "panewidget.h"
 
@@ -123,10 +109,17 @@ void MainWindow::restoreSession() {
         rightPath = QDir::homePath();
   }
 
-  m_leftPane->navigateTo(leftPath);
-  m_rightPane->navigateTo(rightPath);
-
   auto sUI = Config::group("UI");
+  // Einfache Navigation — Tabs werden nicht restored (zu früh im Init)
+  if (behavior == 0) {
+    QStringList leftTabs  = sUI.readEntry("left/tabs",  QStringList());
+    QStringList rightTabs = sUI.readEntry("right/tabs", QStringList());
+    m_leftPane->navigateTo(leftTabs.isEmpty()  ? leftPath  : leftTabs.first(), false);
+    m_rightPane->navigateTo(rightTabs.isEmpty() ? rightPath : rightTabs.first(), false);
+  } else {
+    m_leftPane->navigateTo(leftPath);
+    m_rightPane->navigateTo(rightPath);
+  }
   m_currentMode = sUI.readEntry("layoutMode", 1);
   applyLayout(m_currentMode);
 

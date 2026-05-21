@@ -4,7 +4,7 @@
 #include <QString>
 #include <QTimer>
 #include <QFileSystemWatcher>
-#include "config.h"
+#include "../../config.h"
 
 // Status pro Datei
 enum class GitFileStatus {

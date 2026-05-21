@@ -719,6 +719,14 @@ void FilePane::setShowHiddenFiles(bool show) {
 
 const QString &FilePane::currentPath() const { return m_currentPath; }
 
+QUrl FilePane::currentUrl() const {
+  if (m_kioMode && m_currentUrl.isValid())
+    return m_currentUrl;
+  if (!m_currentPath.isEmpty())
+    return QUrl::fromLocalFile(m_currentPath);
+  return {};
+}
+
 
 qint64 FilePane::currentTotalSize() const {
   qint64 size = 0;

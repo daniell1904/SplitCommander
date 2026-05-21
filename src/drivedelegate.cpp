@@ -2,6 +2,7 @@
 #include "config.h"
 #include "thememanager.h"
 #include "scglobal.h"
+#include <QApplication>
 #include <QPainter>
 #include <QIcon>
 #include <QUrl>
@@ -43,7 +44,7 @@ void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QM
             p->drawPixmap(iconX, iconY, pix.scaled(iconSz, iconSz, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
         }
     }
-    p->setFont(QFont("sans-serif", 10));
+    { QFont _f = qApp->font(); _f.setPointSize(10); p->setFont(_f); }
 
     const bool isKioPath = path.contains(QStringLiteral(":/"))
                            && !path.startsWith(QStringLiteral("/"))
@@ -62,36 +63,58 @@ void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QM
             const int     usedW    = fm.horizontalAdvance(usedStr);
             const int     restW    = fm.horizontalAdvance(restStr);
             const int     sizeW    = usedW + restW;
-            const int     nameW    = textW - sizeW - 6;
             const int     sizeX    = r.right() - sizeW - 6;
-            const int     lineH    = 24;
-            const int     barY     = r.top() + 24;
 
-            p->setPen(QColor(TM().colors().textPrimary));
-            p->drawText(textX, r.top(), nameW, lineH, Qt::AlignLeft | Qt::AlignVCenter,
-                        fm.elidedText(name, Qt::ElideRight, nameW));
+            // Abstände aus uiSpacing
+            const int sp     = Config::uiSpacing();
+            const int textH  = fm.height();
+            const int topPad = sp * 2;          // Oben zur Schrift
+            const int barPad = sp;              // Schrift-UK zum Balken
+            const int barH   = 3;              // Balkenhöhe (fix)
 
-            p->setPen(QColor(TM().colors().textLight));
-            p->drawText(sizeX, r.top(), usedW, lineH, Qt::AlignLeft | Qt::AlignVCenter, usedStr);
-            p->setPen(QColor(TM().colors().textAccent));
-            p->drawText(sizeX + usedW, r.top(), restW, lineH, Qt::AlignLeft | Qt::AlignVCenter, restStr);
+            const int textY = r.top() + topPad;
+            const int barY  = textY + textH + barPad;
+            const int lineH = textH;
 
-            p->setBrush(QColor(TM().colors().splitter)); p->setPen(Qt::NoPen);
-            p->drawRoundedRect(textX, barY, textW, 3, 1, 1);
-            p->setBrush(QColor(TM().colors().accentHover));
-            p->drawRoundedRect(textX, barY, (int)(textW * pct * m_animProgress), 3, 1, 1);
-
-            // Host/IP unter dem Balken (nur für Netzwerk)
+            // IP-Adresse zwischen Name und Größe (nur Netzlaufwerke)
+            QString ipStr;
             if (isKioPath && Config::showDriveIp()) {
                 QUrl u(path); u.setUserInfo(QString());
-                const QString hostStr = u.host();
-                if (!hostStr.isEmpty()) {
-                    p->setFont(QFont("sans-serif", 7));
-                    p->setPen(QColor(TM().colors().textAccent));
-                    p->drawText(textX, barY + 9, textW, r.bottom() - (barY + 9), 
-                                Qt::AlignLeft | Qt::AlignTop, hostStr);
+                QString host = u.host();
+                QString urlPath = u.path();
+                if (!host.isEmpty()) {
+                    ipStr = QStringLiteral("(//") + host + urlPath + QStringLiteral(")");
                 }
             }
+            const int ipInlineW = ipStr.isEmpty() ? 0 : fm.horizontalAdvance(ipStr) + 6;
+            const int availNameW = textW - sizeW - (ipInlineW > 0 ? ipInlineW + 6 : 0) - 6;
+            const int nameDrawW  = qMax(availNameW, 0);
+            const int ipInlineX  = textX + nameDrawW + 6;
+
+            p->setPen(QColor(TM().colors().textPrimary));
+            p->drawText(textX, textY, nameDrawW, lineH, Qt::AlignLeft | Qt::AlignVCenter,
+                        fm.elidedText(name, Qt::ElideRight, nameDrawW));
+
+            if (!ipStr.isEmpty() && ipInlineW > 0) {
+                const int ipAvailW = sizeX - ipInlineX - 4;
+                if (ipAvailW > 20) {
+                    p->setPen(QColor(TM().colors().textMuted));
+                    p->drawText(ipInlineX, textY, ipAvailW, lineH, Qt::AlignLeft | Qt::AlignVCenter,
+                                fm.elidedText(ipStr, Qt::ElideRight, ipAvailW));
+                }
+            }
+
+            p->setPen(QColor(TM().colors().textLight));
+            p->drawText(sizeX, textY, usedW, lineH, Qt::AlignLeft | Qt::AlignVCenter, usedStr);
+            p->setPen(QColor(TM().colors().textAccent));
+            p->drawText(sizeX + usedW, textY, restW, lineH, Qt::AlignLeft | Qt::AlignVCenter, restStr);
+
+            p->setBrush(QColor(TM().colors().splitter)); p->setPen(Qt::NoPen);
+            p->drawRoundedRect(textX, barY, textW, barH, 1, 1);
+            p->setBrush(QColor(TM().colors().accentHover));
+            p->drawRoundedRect(textX, barY, (int)(textW * pct * m_animProgress), barH, 1, 1);
+
+
         }
     } else if (isKioPath) {
         // KIO-Pfad ohne Balken: Name oben, URL/Host unten klein
@@ -102,7 +125,7 @@ void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QM
                     fm.elidedText(name, Qt::ElideRight, textW));
         QUrl u(path); u.setUserInfo(QString());
         const QString subtitle = u.host() + (u.path().isEmpty() || u.path() == "/" ? "" : u.path());
-        p->setFont(QFont("sans-serif", 8));
+        { QFont _f = qApp->font(); _f.setPointSize(8); p->setFont(_f); }
         p->setPen(QColor(TM().colors().textAccent));
         p->drawText(textX, r.top() + lineH, textW, lineH, Qt::AlignLeft | Qt::AlignVCenter,
                     QFontMetrics(p->font()).elidedText(subtitle, Qt::ElideRight, textW));

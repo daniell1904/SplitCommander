@@ -207,7 +207,7 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     hLay->setSpacing(4);
 
     auto *lbl = new QLabel(name.toUpper());
-    lbl->setStyleSheet(QString("font-size:13px;font-weight:normal;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
+    lbl->setStyleSheet(QString("font-size:14px;font-weight:normal;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
     hLay->addWidget(lbl, 1);
 
     // Menü-Button (KDE Style)
@@ -411,6 +411,9 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
                 m_scrollArea->widget()->adjustSize();
             auto gs = Config::group("CustomGroups");
             KConfigGroup(gs.config(), gs.name() + "/group_" + *sharedName).deleteGroup();
+            QStringList grps = gs.readEntry("groups", QStringList());
+            grps.removeAll(*sharedName);
+            gs.writeEntry("groups", grps);
             gs.config()->sync();
             saveGroupOrder();
         });
@@ -446,7 +449,7 @@ void Sidebar::createGitGroupWidget(const QString &name)
     hLay->setSpacing(4);
 
     auto *lbl = new QLabel(name.toUpper());
-    lbl->setStyleSheet(QString("font-size:13px;font-weight:normal;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
+    lbl->setStyleSheet(QString("font-size:14px;font-weight:normal;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
     hLay->addWidget(lbl, 1);
 
     auto *menuBtn = new QPushButton();

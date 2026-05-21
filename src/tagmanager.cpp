@@ -157,3 +157,45 @@ QStringList TagManager::filesWithTag(const QString &tag) const
     return result;
 }
 
+
+// --- KIO-URL-Überladungen ---
+// Für lokale Pfade wird der Pfad direkt verwendet.
+// Für KIO-URLs (gdrive:/, smb://, ...) wird die URL als String als Schlüssel genutzt.
+
+static QString keyForUrl(const QUrl &url)
+{
+    if (url.isLocalFile())
+        return url.toLocalFile();
+    return url.toString(QUrl::NormalizePathSegments);
+}
+
+void TagManager::setFileTag(const QUrl &url, const QString &tag)
+{
+    setFileTag(keyForUrl(url), tag);
+}
+
+void TagManager::clearFileTag(const QUrl &url)
+{
+    clearFileTag(keyForUrl(url));
+}
+
+QString TagManager::fileTag(const QUrl &url) const
+{
+    return fileTag(keyForUrl(url));
+}
+
+QList<QUrl> TagManager::urlsWithTag(const QString &tag) const
+{
+    QMutexLocker lock(&m_mutex);
+    QList<QUrl> result;
+    for (auto it = m_fileTags.begin(); it != m_fileTags.end(); ++it) {
+        if (it.value() == tag) {
+            const QString &key = it.key();
+            if (key.contains(QStringLiteral("://")))
+                result << QUrl(key);
+            else
+                result << QUrl::fromLocalFile(key);
+        }
+    }
+    return result;
+}

@@ -97,23 +97,31 @@ install_deps() {
 select_plugins() {
     echo ""
     echo -e "${BOLD}Optionale Plugins:${RESET}"
-    echo "  [1] Git Manager  — Repository-Verwaltung, Git-Gruppe in der Sidebar"
+    echo "  [1] Git Manager       — Repository-Verwaltung, Git-Gruppe in der Sidebar"
+    echo "  [2] Paperless-ngx     — Dokumente hochladen und durchsuchen"
+    echo "  [3] ISO einbinden     — ISO/IMG-Dateien als Laufwerk einbinden"
+    echo "  [4] Makefile-Aktionen — Make-Targets direkt aus dem Dateimanager starten"
     echo ""
-    echo -e "Auswahl (z.B. ${BOLD}1${RESET} oder Enter für keine):"
+    echo -e "Auswahl (z.B. ${BOLD}1 2 3${RESET} oder Enter für keine):"
     read -r plugin_input
 
     PLUGIN_GIT=0
+    PLUGIN_PAPERLESS=0
+    PLUGIN_MOUNTISO=0
+    PLUGIN_MAKEFILEACTIONS=0
     for token in $plugin_input; do
         case $token in
             1) PLUGIN_GIT=1 ;;
+            2) PLUGIN_PAPERLESS=1 ;;
+            3) PLUGIN_MOUNTISO=1 ;;
+            4) PLUGIN_MAKEFILEACTIONS=1 ;;
         esac
     done
 
-    if [ "$PLUGIN_GIT" -eq 1 ]; then
-        print_ok "Plugin: Git Manager aktiviert"
-    else
-        print_warn "Plugin: Git Manager nicht installiert"
-    fi
+    [ "$PLUGIN_GIT" -eq 1 ]            && print_ok "Plugin: Git Manager aktiviert"            || print_warn "Plugin: Git Manager nicht installiert"
+    [ "$PLUGIN_PAPERLESS" -eq 1 ]      && print_ok "Plugin: Paperless-ngx aktiviert"          || print_warn "Plugin: Paperless-ngx nicht installiert"
+    [ "$PLUGIN_MOUNTISO" -eq 1 ]       && print_ok "Plugin: ISO einbinden aktiviert"          || print_warn "Plugin: ISO einbinden nicht installiert"
+    [ "$PLUGIN_MAKEFILEACTIONS" -eq 1 ]&& print_ok "Plugin: Makefile-Aktionen aktiviert"      || print_warn "Plugin: Makefile-Aktionen nicht installiert"
 }
 
 # ── Build ─────────────────────────────────────────────────────────────────────
@@ -121,7 +129,10 @@ build() {
     print_step "Konfiguriere Build"
 
     local cmake_extra=""
-    [ "${PLUGIN_GIT:-0}" -eq 1 ] && cmake_extra="$cmake_extra -DSC_PLUGIN_GIT=ON"
+    [ "${PLUGIN_GIT:-0}" -eq 1 ]            && cmake_extra="$cmake_extra -DSC_PLUGIN_GIT=ON"
+    [ "${PLUGIN_PAPERLESS:-0}" -eq 1 ]      && cmake_extra="$cmake_extra -DSC_PLUGIN_PAPERLESS=ON"
+    [ "${PLUGIN_MOUNTISO:-0}" -eq 1 ]       && cmake_extra="$cmake_extra -DSC_PLUGIN_MOUNTISO=ON"
+    [ "${PLUGIN_MAKEFILEACTIONS:-0}" -eq 1 ]&& cmake_extra="$cmake_extra -DSC_PLUGIN_MAKEFILEACTIONS=ON"
 
     cmake -B "$BUILD_DIR" -S . \
         -DCMAKE_BUILD_TYPE=Release \

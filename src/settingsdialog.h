@@ -5,6 +5,8 @@
 
 class QCheckBox;
 class QComboBox;
+class QFontComboBox;
+class QLabel;
 class QListWidget;
 class QLineEdit;
 class QSpinBox;
@@ -59,8 +61,19 @@ private:
   QCheckBox   *m_showExtensions = nullptr;
 
   // Startup
-  QButtonGroup *m_startupGroup = nullptr;
+  QButtonGroup *m_startupGroup    = nullptr;
   QLineEdit    *m_startupPathEdit = nullptr;
+
+  // Darstellung
+  QSpinBox      *m_uiFontSize      = nullptr;
+  QFontComboBox *m_fontCombo       = nullptr;
+  QSlider       *m_uiSpacing       = nullptr;
+  QLabel        *m_uiSpacingLabel  = nullptr;
+
+  // Sprache
+  QComboBox     *m_languageCombo   = nullptr;
+  QLabel        *m_langHint        = nullptr;
+
 
   // Thumbnails
   QCheckBox *m_useThumbnails = nullptr;

@@ -1,7 +1,7 @@
 #pragma once
 #include <QDialog>
 #include <QStringList>
-#include "config.h"
+#include "../../config.h"
 
 class QCheckBox;
 class QListWidget;
@@ -59,6 +59,7 @@ private:
   // Push-Optionen (Checkboxen)
   QCheckBox     *m_optPushTags     = nullptr;
   QCheckBox     *m_optCreateRelease= nullptr;
+  QCheckBox     *m_optForceWithLease = nullptr;
 
   // Pull-Optionen
   QCheckBox     *m_optPullRebase   = nullptr;

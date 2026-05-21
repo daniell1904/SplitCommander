@@ -45,6 +45,7 @@
 #include <KDesktopFile>
 #include <QFile>
 #include <QFileInfo>
+#include <QImageReader>
 #include <QGuiApplication>
 #include <QInputDialog>
 #include <QMessageBox>
@@ -348,6 +349,28 @@ QVariant FPColumnsProxy::extraData(const KFileItem &item, FPCol col,
     QString lp = item.localPath();
     return lp.isEmpty() ? QVariant() : TagManager::instance().fileTag(lp);
   }
+  case FP_IMG_BREITE:
+  case FP_IMG_HOEHE:
+  case FP_IMG_ABMESS: {
+    if (role != Qt::DisplayRole)
+      return {};
+    if (item.isDir())
+      return {};
+    const QString lp = item.localPath();
+    if (lp.isEmpty())
+      return {};
+    // Nur den Bild-Header lesen — kein vollständiges Dekodieren
+    QImageReader reader(lp);
+    if (!reader.canRead())
+      return {};
+    const QSize sz = reader.size();
+    if (!sz.isValid())
+      return {};
+    if (col == FP_IMG_BREITE)  return QString::number(sz.width());
+    if (col == FP_IMG_HOEHE)   return QString::number(sz.height());
+    // FP_IMG_ABMESS
+    return QString(QString::number(sz.width()) + QStringLiteral(u"\u00D7") + QString::number(sz.height()));
+  }
   default:
     return {};
   }
@@ -366,13 +389,6 @@ QVariant FPColumnsProxy::data(const QModelIndex &index, int role) const {
     return QVariant::fromValue(item);
 
   if (role == Qt::UserRole + 2 && col == FP_NAME) {
-    if (!item.isNull()) {
-      qint64 mtime = item.time(KFileItem::ModificationTime).toSecsSinceEpoch();
-      return mtime > 0 ? QDateTime::currentSecsSinceEpoch() - mtime : -1LL;
-    }
-    return -1LL;
-  }
-  if (role == Qt::UserRole && col == FP_ALTER) {
     if (!item.isNull()) {
       qint64 mtime = item.time(KFileItem::ModificationTime).toSecsSinceEpoch();
       return mtime > 0 ? QDateTime::currentSecsSinceEpoch() - mtime : -1LL;
@@ -470,7 +486,4 @@ QVariant FPColumnsProxy::headerData(int section, Qt::Orientation orientation,
                : QVariant(Qt::AlignCenter);
   return {};
 }
-
-// --- Delegate ---
-
 

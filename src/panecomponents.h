@@ -15,6 +15,7 @@
 #include <QStyledItemDelegate>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QToolButton>
 #include <QVariantAnimation>
 #include <functional>
 
@@ -84,10 +85,12 @@ protected:
   void mouseReleaseEvent(QMouseEvent *e) override;
   void enterEvent(QEnterEvent *) override;
   void leaveEvent(QEvent *) override;
+  void resizeEvent(QResizeEvent *e) override;
 
 private:
   QWidget *m_sidebar;
   QList<QIcon> m_icons;
+  QToolButton *m_layoutBtn = nullptr;
   bool m_hov = false;
   bool m_dragging = false;
   int m_hovIcon = -1;

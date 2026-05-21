@@ -4,6 +4,16 @@
 
 #include "filepane.h"
 
+#ifdef SC_PLUGIN_PAPERLESS
+#include "plugins/paperless/paperlessmanager.h"
+#endif
+#ifdef SC_PLUGIN_MOUNTISO
+#include "plugins/mountiso/mountiso.h"
+#endif
+#ifdef SC_PLUGIN_MAKEFILEACTIONS
+#include "plugins/makefileactions/makefileactions.h"
+#endif
+
 #include <QApplication>
 #include <KActionCollection>
 #include <KFormat>
@@ -43,6 +53,8 @@
 #include <KDesktopFile>
 #include <QFile>
 #include <QFileInfo>
+#include <QCryptographicHash>
+#include <QToolTip>
 #include <QGuiApplication>
 #include <QInputDialog>
 #include <QMessageBox>
@@ -78,6 +90,35 @@
 
 #include "filepane_helpers.h"
 #include "scremoveaction.h"
+
+// Opens terminal in given directory, always in a new window.
+static void openTerminalHere(const QString &dir, QWidget *parent)
+{
+    static const QList<QPair<QString,QStringList>> candidates = {
+        {"konsole",  {"--new-window", "--workdir"}},
+        {"gnome-terminal", {"--working-directory"}},
+        {"xfce4-terminal", {"--working-directory"}},
+        {"tilix",    {"--working-directory"}},
+        {"alacritty",{"--working-directory"}},
+        {"kitty",    {"--directory"}},
+        {"foot",     {"--working-directory"}},
+    };
+    for (const auto &c : candidates) {
+        const QString bin = QStandardPaths::findExecutable(c.first);
+        if (!bin.isEmpty()) {
+            QStringList args = c.second;
+            args << dir;
+            QProcess::startDetached(bin, args);
+            return;
+        }
+    }
+    auto *job = new KTerminalLauncherJob(QString(), parent);
+    job->setWorkingDirectory(dir);
+    job->setUiDelegate(new KDialogJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, parent));
+    job->start();
+}
+
+
 
 void FilePane::showHeaderMenu(const QPoint &pos) {
   QMenu menu;
@@ -339,6 +380,46 @@ void FilePane::populateItemMenu(QMenu &menu, const ContextMenuState &ctx,
       auto *trashDeleteAction = new SCRemoveAction(m_actionCollection, &menu);
       menu.addAction(trashDeleteAction);
     }
+
+#ifdef SC_PLUGIN_PAPERLESS
+    if (ctx.hasItem) {
+        menu.addSeparator();
+        QStringList selectedPaths;
+        for (const auto &item : ctx.items)
+            if (item.url().isLocalFile())
+                selectedPaths << item.url().toLocalFile();
+        if (!selectedPaths.isEmpty()) {
+            auto *plAct = menu.addAction(
+                QIcon::fromTheme("document-send"),
+                tr("Zu Paperless hochladen"));
+            connect(plAct, &QAction::triggered, this, [selectedPaths, this]() {
+                PaperlessManagerDialog::uploadFiles(selectedPaths, this);
+            });
+        }
+    }
+#endif
+
+#ifdef SC_PLUGIN_MOUNTISO
+    if (ctx.hasItem && ctx.items.size() == 1 && ctx.items.first().url().isLocalFile()) {
+        const QString isoPath = ctx.items.first().url().toLocalFile();
+        if (MountIso::isMountable(isoPath)) {
+            menu.addSeparator();
+            if (MountIso::isMounted(isoPath)) {
+                auto *act = menu.addAction(
+                    QIcon::fromTheme("media-eject"), tr("ISO aushängen"));
+                connect(act, &QAction::triggered, this, [isoPath, this]() {
+                    MountIso::unmount(isoPath, this);
+                });
+            } else {
+                auto *act = menu.addAction(
+                    QIcon::fromTheme("media-mount"), tr("ISO einbinden"));
+                connect(act, &QAction::triggered, this, [isoPath, this]() {
+                    MountIso::mount(isoPath, this);
+                });
+            }
+        }
+    }
+#endif
     // Zu Laufwerken hinzufügen (Dolphin: add_to_places)
     if (isKioPath) {
       // Immer m_currentUrl verwenden wenn KIO-Modus — enthält User/Auth-Info
@@ -473,15 +554,13 @@ void FilePane::populateItemMenu(QMenu &menu, const ContextMenuState &ctx,
     auto *actMenu = new QMenu(tr("Aktionen"), &menu);
     actMenu->setIcon(QIcon::fromTheme(QStringLiteral("system-run")));
 
+
     // Terminal hier öffnen als ersten Eintrag
     auto *termAct = new QAction(QIcon::fromTheme(QStringLiteral("utilities-terminal")),
                                 tr("Terminal hier öffnen"), actMenu);
     termAct->setShortcut(QKeySequence(Qt::ALT | Qt::SHIFT | Qt::Key_F4));
     connect(termAct, &QAction::triggered, this, [this, dirUrl]() {
-        auto *job = new KTerminalLauncherJob(QString());
-        job->setWorkingDirectory(dirUrl.toLocalFile());
-        job->setUiDelegate(new KDialogJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
-        job->start();
+        openTerminalHere(dirUrl.toLocalFile(), this);
     });
     actMenu->addAction(termAct);
 
@@ -615,6 +694,47 @@ void FilePane::populateItemMenu(QMenu &menu, const ContextMenuState &ctx,
       });
     }
 
+    // --- 6. CHECKSUMMEN ---
+    {
+      QStringList localPaths;
+      for (const KFileItem &item : ctx.selectedItems)
+        if (item.url().isLocalFile() && !item.isDir())
+          localPaths << item.url().toLocalFile();
+
+      if (!localPaths.isEmpty()) {
+        menu.addSeparator();
+        auto *csMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("document-edit-verify")),
+                                    tr("Prüfsumme"));
+        for (const auto &pair : {
+               std::pair<QString, QCryptographicHash::Algorithm>{QStringLiteral("MD5"),    QCryptographicHash::Md5},
+               std::pair<QString, QCryptographicHash::Algorithm>{QStringLiteral("SHA-256"), QCryptographicHash::Sha256},
+               std::pair<QString, QCryptographicHash::Algorithm>{QStringLiteral("SHA-1"),   QCryptographicHash::Sha1},
+             }) {
+          const QString algName = pair.first;
+          const auto alg = pair.second;
+          csMenu->addAction(algName, this, [localPaths, algName, alg, this]() {
+            QStringList results;
+            for (const QString &path : localPaths) {
+              QFile f(path);
+              if (!f.open(QIODevice::ReadOnly)) continue;
+              QCryptographicHash hash(alg);
+              if (!hash.addData(&f)) continue;
+              const QString sum = hash.result().toHex();
+              results << (localPaths.size() > 1
+                          ? QFileInfo(path).fileName() + QStringLiteral(": ") + sum
+                          : sum);
+            }
+            if (results.isEmpty()) return;
+            const QString text = results.join(QLatin1Char('\n'));
+            QApplication::clipboard()->setText(text);
+            // Kurze visuelle Bestätigung via Tooltip-ähnlichem Mechanismus
+            QToolTip::showText(QCursor::pos(),
+                               tr("%1 kopiert").arg(algName), this, {}, 2000);
+          });
+        }
+      }
+    }
+
     menu.addSeparator();
   }
 
@@ -720,10 +840,7 @@ void FilePane::populateBackgroundMenu(QMenu &menu, const ContextMenuState &ctx,
                               tr("Terminal hier öffnen"), actMenu);
   termAct->setShortcut(QKeySequence(Qt::ALT | Qt::SHIFT | Qt::Key_F4));
   connect(termAct, &QAction::triggered, this, [this, dirUrl]() {
-    auto *job = new KTerminalLauncherJob(QString());
-    job->setWorkingDirectory(dirUrl.toLocalFile());
-    job->setUiDelegate(new KDialogJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
-    job->start();
+    openTerminalHere(dirUrl.toLocalFile(), this);
   });
   actMenu->addAction(termAct);
 
@@ -756,4 +873,23 @@ void FilePane::populateBackgroundMenu(QMenu &menu, const ContextMenuState &ctx,
   if (auto *action = findAction(tr("Aktivitäten")))
     menu.addAction(action);
   menu.addSeparator();
+
+#ifdef SC_PLUGIN_MAKEFILEACTIONS
+  {
+      const QString makePath = ctx.dirUrl.isLocalFile() ? ctx.dirUrl.toLocalFile() : m_currentPath;
+      if (!makePath.isEmpty() && MakefileActions::hasMakefile(makePath)) {
+          QStringList targets = MakefileActions::listTargets(makePath);
+          if (!targets.isEmpty()) {
+              auto *makeMenu = menu.addMenu(
+                  QIcon::fromTheme("run-build"), tr("Make"));
+              for (const QString &target : targets) {
+                  auto *act = makeMenu->addAction(target);
+                  connect(act, &QAction::triggered, this, [makePath, target, this]() {
+                      MakefileActions::runTarget(makePath, target, this);
+                  });
+              }
+          }
+      }
+  }
+#endif
 }

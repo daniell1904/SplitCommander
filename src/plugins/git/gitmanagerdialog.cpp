@@ -1,6 +1,6 @@
 #include "gitmanagerdialog.h"
-#include "config.h"
-#include "thememanager.h"
+#include "../../config.h"
+#include "../../thememanager.h"
 
 #include <QCheckBox>
 #include <QDesktopServices>
@@ -123,8 +123,8 @@ GitManagerDialog::GitManagerDialog(const QString &currentPath, QWidget *parent)
     : QDialog(parent), m_gitPath(currentPath)
 {
     setWindowTitle(tr("Git Manager"));
-    setMinimumSize(860, 780);
-    resize(900, 820);
+    setMinimumWidth(860);
+    resize(900, 1000);
     setWindowFlags(Qt::Window | Qt::WindowMinimizeButtonHint |
                    Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
     buildUI();
@@ -182,10 +182,12 @@ void GitManagerDialog::buildUI()
     m_repoCombo = new QComboBox(this);
     m_repoCombo->setStyleSheet(inputSS);
     auto *btnNewRepo = new QPushButton(tr("Neu"), this);
-    auto *btnDelRepo = new QPushButton(tr("Entfernen"), this);
+    btnNewRepo->setIcon(QIcon::fromTheme(QStringLiteral("list-add")));
     btnNewRepo->setStyleSheet(normBtnSS);
-    btnDelRepo->setStyleSheet(normBtnSS);
     btnNewRepo->setMinimumHeight(28);
+    auto *btnDelRepo = new QPushButton(tr("Entfernen"), this);
+    btnDelRepo->setIcon(QIcon::fromTheme(QStringLiteral("list-remove")));
+    btnDelRepo->setStyleSheet(normBtnSS);
     btnDelRepo->setMinimumHeight(28);
     repoRow->addWidget(repoLbl);
     repoRow->addWidget(m_repoCombo, 1);
@@ -227,18 +229,22 @@ void GitManagerDialog::buildUI()
     mainActRow->setSpacing(8);
 
     auto *btnPush = new QPushButton(tr("Commit && Push"), this);
+    btnPush->setIcon(QIcon::fromTheme(QStringLiteral("vcs-commit")));
     btnPush->setStyleSheet(primBtnSS);
     btnPush->setToolTip(tr("Speichert deine Änderungen und lädt sie zu GitHub hoch."));
 
     auto *btnFetch = new QPushButton(tr("Fetch"), this);
+    btnFetch->setIcon(QIcon::fromTheme(QStringLiteral("vcs-update-required")));
     btnFetch->setStyleSheet(normBtnSS);
     btnFetch->setToolTip(tr("Prüft ob es neue Änderungen auf GitHub gibt, ohne sie herunterzuladen."));
 
     auto *btnPull = new QPushButton(tr("Pull"), this);
+    btnPull->setIcon(QIcon::fromTheme(QStringLiteral("vcs-pull")));
     btnPull->setStyleSheet(normBtnSS);
     btnPull->setToolTip(tr("Holt die neuesten Änderungen von GitHub."));
 
     auto *btnDiscard = new QPushButton(tr("Änderungen verwerfen"), this);
+    btnDiscard->setIcon(QIcon::fromTheme(QStringLiteral("document-revert")));
     btnDiscard->setStyleSheet(dangerBtnSS);
     btnDiscard->setToolTip(tr("Setzt alle lokalen Änderungen auf den Stand von GitHub zurück."));
 
@@ -261,10 +267,15 @@ void GitManagerDialog::buildUI()
 
     m_optPushTags      = new QCheckBox(tr("Tags mit hochladen"), pushOptBox);
     m_optCreateRelease = new QCheckBox(tr("Release auf GitHub erstellen"), pushOptBox);
+    m_optForceWithLease = new QCheckBox(tr("Force with lease"), pushOptBox);
+    m_optForceWithLease->setToolTip(tr("Pusht auch wenn der Remote-Branch voraus ist — "
+                                       "aber nur wenn sich der Remote seit dem letzten Fetch nicht verändert hat."));
     m_optPushTags->setStyleSheet(checkSS);
     m_optCreateRelease->setStyleSheet(checkSS);
+    m_optForceWithLease->setStyleSheet(checkSS);
     pushOptLay->addWidget(m_optPushTags);
     pushOptLay->addWidget(m_optCreateRelease);
+    pushOptLay->addWidget(m_optForceWithLease);
     pushOptLay->addStretch();
     root->addWidget(pushOptBox);
 
@@ -304,29 +315,40 @@ void GitManagerDialog::buildUI()
     advLay->setSpacing(8);
     advLay->setContentsMargins(0, 4, 0, 0);
 
-    auto makeAdvBtn = [&](const QString &label, const QString &tip) {
-        auto *b = new QPushButton(label, m_advancedWidget);
+    auto makeAdvBtn = [&](const QString &label, const QString &tip, const QString &icon = QString()) {
+        auto *b = new QPushButton(m_advancedWidget);
+        if (!icon.isEmpty())
+            b->setIcon(QIcon::fromTheme(icon));
+        b->setText(label);
         b->setStyleSheet(normBtnSS);
         b->setToolTip(tip);
         return b;
     };
 
     auto *btnLog    = makeAdvBtn(tr("Verlauf (Log)"),
-                                 tr("Zeigt die letzten 20 Commits."));
+                                 tr("Zeigt die letzten 20 Commits."),
+                                 QStringLiteral("vcs-diff-cvs-cervisia"));
     auto *btnDiff   = makeAdvBtn(tr("Diff"),
-                                 tr("Zeigt welche Zeilen du geändert hast."));
+                                 tr("Zeigt welche Zeilen du geändert hast."),
+                                 QStringLiteral("vcs-diff"));
     auto *btnTag    = makeAdvBtn(tr("Tag erstellen"),
-                                 tr("Markiert den aktuellen Stand als Version, z.B. v1.0."));
+                                 tr("Markiert den aktuellen Stand als Version, z.B. v1.0."),
+                                 QStringLiteral("tag-assigned"));
     auto *btnBranch = makeAdvBtn(tr("Branch wechseln / erstellen"),
-                                 tr("Wechselt zu einem anderen Zweig oder erstellt einen neuen."));
+                                 tr("Wechselt zu einem anderen Zweig oder erstellt einen neuen."),
+                                 QStringLiteral("vcs-branch"));
     auto *btnMerge  = makeAdvBtn(tr("Merge"),
-                                 tr("Führt einen anderen Branch in den aktuellen zusammen."));
+                                 tr("Führt einen anderen Branch in den aktuellen zusammen."),
+                                 QStringLiteral("vcs-merge"));
     auto *btnRevert = makeAdvBtn(tr("Revert"),
-                                 tr("Macht einen bestimmten Commit rückgängig — History bleibt erhalten."));
+                                 tr("Macht einen bestimmten Commit rückgängig — History bleibt erhalten."),
+                                 QStringLiteral("edit-undo-symbolic"));
     auto *btnStash  = makeAdvBtn(tr("Stash (Parken)"),
-                                 tr("Legt deine Änderungen zur Seite ohne sie zu speichern."));
+                                 tr("Legt deine Änderungen zur Seite ohne sie zu speichern."),
+                                 QStringLiteral("vcs-stash"));
     auto *btnStashPop = makeAdvBtn(tr("Stash anwenden"),
-                                   tr("Holt die zuletzt geparkten Änderungen zurück."));
+                                   tr("Holt die zuletzt geparkten Änderungen zurück."),
+                                   QStringLiteral("vcs-stash-pop"));
 
     advLay->addWidget(btnLog,      0, 0);
     advLay->addWidget(btnDiff,     0, 1);
@@ -384,15 +406,29 @@ void GitManagerDialog::buildUI()
     m_gitToken = new QLineEdit(cfgWidget);
     m_gitToken->setEchoMode(QLineEdit::Password);
     m_gitToken->setStyleSheet(inputSS);
+    auto *btnTokenVisible = new QPushButton(cfgWidget);
+    btnTokenVisible->setIcon(QIcon::fromTheme("password-show-on"));
+    btnTokenVisible->setStyleSheet(normBtnSS);
+    btnTokenVisible->setCheckable(true);
+    btnTokenVisible->setMinimumHeight(28);
+    btnTokenVisible->setToolTip(tr("Token anzeigen"));
     auto *btnGenToken = new QPushButton(tr("Token generieren..."), cfgWidget);
     btnGenToken->setStyleSheet(normBtnSS);
     btnGenToken->setMinimumHeight(28);
     auto *tokenRow = new QHBoxLayout();
     tokenRow->addWidget(m_gitToken, 1);
+    tokenRow->addWidget(btnTokenVisible);
     tokenRow->addWidget(btnGenToken);
     form->addRow(tr("Token / Passwort:"), tokenRow);
 
+    connect(btnTokenVisible, &QPushButton::toggled, this, [this, btnTokenVisible](bool visible) {
+        m_gitToken->setEchoMode(visible ? QLineEdit::Normal : QLineEdit::Password);
+        btnTokenVisible->setIcon(QIcon::fromTheme(
+            visible ? "password-show-off" : "password-show-on"));
+    });
+
     auto *btnClone = new QPushButton(tr("Repository klonen"), cfgWidget);
+    btnClone->setIcon(QIcon::fromTheme(QStringLiteral("folder-download")));
     btnClone->setStyleSheet(normBtnSS);
     btnClone->setMinimumHeight(28);
     btnClone->setToolTip(tr("Klont das eingetragene Remote-Repository in den Projekt-Ordner."));
@@ -458,28 +494,99 @@ void GitManagerDialog::buildUI()
             runGitCommand({"tag", name.trimmed()});
     });
     connect(btnBranch, &QPushButton::clicked, this, [this]() {
-        bool ok;
-        QString name = QInputDialog::getText(this, tr("Branch"),
-                                             tr("Name des Branch:"),
-                                             QLineEdit::Normal, QString(), &ok);
-        if (ok && !name.trimmed().isEmpty())
-            runGitCommand({"checkout", "-b", name.trimmed()});
+        // Branches aus git holen
+        QProcess p; p.setWorkingDirectory(m_gitPath);
+        p.start("git", {"branch", "--all", "--format=%(refname:short)"});
+        p.waitForFinished(5000);
+        QStringList branches = QString::fromUtf8(p.readAllStandardOutput())
+            .split('\n', Qt::SkipEmptyParts);
+
+        QDialog dlg(this);
+        dlg.setWindowTitle(tr("Branch wechseln / erstellen"));
+        dlg.setMinimumWidth(360);
+        auto *lay = new QVBoxLayout(&dlg);
+        lay->setSpacing(8); lay->setContentsMargins(12,12,12,12);
+
+        const QString inputSS = QString("background:%1; color:%2; border:1px solid %3; "
+            "border-radius:3px; padding:2px 8px; font-size:13px; min-height:22px;")
+            .arg(TM().colors().bgInput, TM().colors().textPrimary, TM().colors().borderAlt);
+        const QString labelSS = QString("color:%1; font-size:12px; font-weight:bold;")
+            .arg(TM().colors().textPrimary);
+
+        auto *lblExist = new QLabel(tr("Vorhandenen Branch auschecken:"), &dlg);
+        lblExist->setStyleSheet(labelSS);
+        lay->addWidget(lblExist);
+        auto *branchCombo = new QComboBox(&dlg);
+        branchCombo->setStyleSheet(inputSS);
+        branchCombo->addItems(branches);
+        lay->addWidget(branchCombo);
+
+        auto *lblNew = new QLabel(tr("Oder neuen Branch erstellen:"), &dlg);
+        lblNew->setStyleSheet(labelSS);
+        lay->addWidget(lblNew);
+        auto *newBranchEdit = new QLineEdit(&dlg);
+        newBranchEdit->setStyleSheet(inputSS);
+        newBranchEdit->setPlaceholderText(tr("Neuer Branch-Name (leer lassen zum Auschecken)"));
+        lay->addWidget(newBranchEdit);
+
+        auto *forceCheck = new QCheckBox(tr("Force (lokale Änderungen verwerfen)"), &dlg);
+        forceCheck->setStyleSheet(QString("color:%1; font-size:12px;").arg(TM().colors().textPrimary));
+        lay->addWidget(forceCheck);
+
+        auto *btnRow = new QHBoxLayout();
+        auto *okBtn = new QPushButton(tr("Ausführen"), &dlg);
+        auto *cancelBtn = new QPushButton(tr("Abbrechen"), &dlg);
+        btnRow->addStretch(); btnRow->addWidget(cancelBtn); btnRow->addWidget(okBtn);
+        lay->addLayout(btnRow);
+        connect(okBtn, &QPushButton::clicked, &dlg, &QDialog::accept);
+        connect(cancelBtn, &QPushButton::clicked, &dlg, &QDialog::reject);
+
+        if (dlg.exec() != QDialog::Accepted) return;
+
+        const QString newName = newBranchEdit->text().trimmed();
+        if (!newName.isEmpty()) {
+            // Neuen Branch erstellen
+            QStringList args = {"checkout", "-b", newName};
+            if (forceCheck->isChecked()) args << "-f";
+            runGitCommand(args);
+        } else if (!branchCombo->currentText().isEmpty()) {
+            // Vorhandenen Branch auschecken
+            QStringList args = {"checkout", branchCombo->currentText()};
+            if (forceCheck->isChecked()) args << "-f";
+            runGitCommand(args);
+        }
     });
     connect(btnMerge, &QPushButton::clicked, this, [this]() {
+        // Branches aus git holen
+        QProcess p; p.setWorkingDirectory(m_gitPath);
+        p.start("git", {"branch", "--all", "--format=%(refname:short)"});
+        p.waitForFinished(5000);
+        QStringList branches = QString::fromUtf8(p.readAllStandardOutput())
+            .split('\n', Qt::SkipEmptyParts);
+
         bool ok;
-        QString name = QInputDialog::getText(this, tr("Merge"),
-                                             tr("Branch-Name der zusammengeführt werden soll:"),
-                                             QLineEdit::Normal, QString(), &ok);
+        QString name = QInputDialog::getItem(this, tr("Merge"),
+                                             tr("Branch der zusammengeführt werden soll:"),
+                                             branches, 0, true, &ok);
         if (ok && !name.trimmed().isEmpty())
             runGitCommand({"merge", name.trimmed()});
     });
     connect(btnRevert, &QPushButton::clicked, this, [this]() {
+        // Letzten Commits zeigen zur Auswahl
+        QProcess p; p.setWorkingDirectory(m_gitPath);
+        p.start("git", {"log", "--oneline", "-n", "20"});
+        p.waitForFinished(5000);
+        QStringList commits = QString::fromUtf8(p.readAllStandardOutput())
+            .split('\n', Qt::SkipEmptyParts);
+
         bool ok;
-        QString hash = QInputDialog::getText(this, tr("Revert"),
-                                             tr("Commit-Hash (z.B. a1b2c3d):"),
-                                             QLineEdit::Normal, QString(), &ok);
-        if (ok && !hash.trimmed().isEmpty())
-            runGitCommand({"revert", "--no-edit", hash.trimmed()});
+        QString entry = QInputDialog::getItem(this, tr("Revert"),
+                                              tr("Commit rückgängig machen:"),
+                                              commits, 0, false, &ok);
+        if (ok && !entry.isEmpty()) {
+            QString hash = entry.section(' ', 0, 0);
+            runGitCommand({"revert", "--no-edit", hash});
+        }
     });
     connect(btnStash,    &QPushButton::clicked, this,
             [this]() { runGitCommand({"stash"}); });
@@ -595,23 +702,56 @@ void GitManagerDialog::doCommitPush()
         return;
     }
 
-    // Release-Dialog zuerst — bevor wir pushen
+    // Release-Dialog zuerst — bevor wir irgendetwas tun
     QString relTag, relTitle, relBody;
     bool relLatest = true, relPrerelease = false;
     if (m_optCreateRelease->isChecked()) {
         if (!showReleaseDialog(this, relTag, relTitle, relBody,
                                relLatest, relPrerelease, TM())) {
-            return; // Nutzer hat Abbrechen gedrückt
+            return;
         }
     }
 
+    // Push-Optionen-Dialog
+    QProcess rp; rp.setWorkingDirectory(m_gitPath);
+    rp.start("git", {"remote"});
+    rp.waitForFinished(3000);
+    QStringList remotes = QString::fromUtf8(rp.readAllStandardOutput())
+        .split('\n', Qt::SkipEmptyParts);
+
+    QString pushRemote = remotes.value(0, "origin");
+    bool forcePush = false;
+
+    if (remotes.size() > 1) {
+        // Mehrere Remotes — fragen
+        bool ok;
+        pushRemote = QInputDialog::getItem(this, tr("Push"),
+            tr("Remote auswählen:"), remotes, 0, false, &ok);
+        if (!ok) return;
+    }
+
+    // Force with lease Checkbox abfragen
+    if (m_optForceWithLease && m_optForceWithLease->isChecked())
+        forcePush = true;
+
+    // 1. Commit
     runGitCommand({"add", "."});
     runGitCommand({"commit", "-m", msg});
-    runGitCommand({"push"});
 
-    if (m_optPushTags->isChecked())
-        runGitCommand({"push", "--tags"});
+    // 2. Tag lokal erstellen (vor dem Push!)
+    if (m_optCreateRelease->isChecked() && !relTag.isEmpty())
+        runGitCommand({"tag", relTag});
 
+    // 3. Push
+    QStringList pushArgs = {"push", pushRemote};
+    if (forcePush) pushArgs << "--force-with-lease";
+    runGitCommand(pushArgs);
+
+    // 4. Tags pushen
+    if (m_optPushTags->isChecked() || m_optCreateRelease->isChecked())
+        runGitCommand({"push", pushRemote, "--tags"});
+
+    // 5. GitHub Release via API
     if (m_optCreateRelease->isChecked() && !relTag.isEmpty())
         createGitHubRelease(relTag, relTitle, relBody, relLatest, relPrerelease);
 
@@ -622,10 +762,24 @@ void GitManagerDialog::doCommitPush()
 // ─── Pull ─────────────────────────────────────────────────────────────────────
 void GitManagerDialog::doPull()
 {
-    if (m_optPullRebase->isChecked())
-        runGitCommand({"pull", "--rebase"});
-    else
-        runGitCommand({"pull"});
+    // Remotes holen
+    QProcess rp; rp.setWorkingDirectory(m_gitPath);
+    rp.start("git", {"remote"});
+    rp.waitForFinished(3000);
+    QStringList remotes = QString::fromUtf8(rp.readAllStandardOutput())
+        .split('\n', Qt::SkipEmptyParts);
+
+    QString pullRemote = remotes.value(0, "origin");
+    if (remotes.size() > 1) {
+        bool ok;
+        pullRemote = QInputDialog::getItem(this, tr("Pull"),
+            tr("Remote auswählen:"), remotes, 0, false, &ok);
+        if (!ok) return;
+    }
+
+    QStringList args = {"pull", pullRemote};
+    if (m_optPullRebase->isChecked()) args.insert(1, "--rebase");
+    runGitCommand(args);
 }
 
 // ─── Verwerfen ────────────────────────────────────────────────────────────────

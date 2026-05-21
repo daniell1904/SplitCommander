@@ -12,6 +12,7 @@ public:
     void setCount(int count, qint64 totalBytes);
     void setSelected(int count);
     void setViewMode(int mode);
+    void setNavState(bool canBack, bool canForward);
 signals:
     void foldersFirstToggled(bool on);
     void backClicked();
@@ -22,7 +23,6 @@ signals:
     void deleteClicked();
     void sortClicked();
     void actionsClicked();
-    void copyClicked();
     void emptyTrashClicked();
 private:
     QLabel      *m_pathLabel     = nullptr;
@@ -30,7 +30,8 @@ private:
     QLabel      *m_selectedLabel = nullptr;
     QLabel      *m_sizeLabel     = nullptr;
     QToolButton *m_newFolderBtn  = nullptr;
-    QToolButton *m_copyBtn       = nullptr;
     QToolButton *m_emptyTrashBtn = nullptr;
+    QToolButton *m_backBtn       = nullptr;
+    QToolButton *m_fwdBtn        = nullptr;
     QButtonGroup *m_viewGroup    = nullptr;
 };

@@ -4,6 +4,8 @@
 #include "config.h"
 
 #include <QApplication>
+#include <QFont>
+#include <QFontDatabase>
 
 #include <QPalette>
 #include <QDir>
@@ -348,11 +350,16 @@ void ThemeManager::buildAppStyleSheet()
                    c.bgSelect, c.accent, c.bgSelect, c.textLight);
 
     // Combo
+    const QString arrowColor = c.textMuted;
     ss += QString("QComboBox { background:%1; border:1px solid %2; color:%3;"
                   "  padding:5px 8px; border-radius:4px; }"
-                  "QComboBox::drop-down { border:none; width:20px; }"
-                  "QComboBox QAbstractItemView { background:%1; color:%3; border:1px solid %2; }")
-              .arg(c.bgInput, c.borderAlt, c.textPrimary);
+                  "QComboBox::drop-down { border:none; width:24px; }"
+                  "QComboBox::down-arrow { width:0; height:0;"
+                  "  border-left:5px solid transparent;"
+                  "  border-right:5px solid transparent;"
+                  "  border-top:6px solid %4; }"
+                  "QComboBox QAbstractItemView { background:%1; color:%3; border:1px solid %2; selection-background-color:%5; }")
+              .arg(c.bgInput, c.borderAlt, c.textPrimary, arrowColor, c.bgSelect);
 
     // Tabs
     ss += QString("QTabWidget::pane { border:1px solid %1; background:%2; }"
@@ -386,6 +393,23 @@ void ThemeManager::buildAppStyleSheet()
               .arg(c.bgInput, c.borderAlt, c.textPrimary);
 
     qApp->setStyleSheet(ss);
+
+    // Gespeicherte Schriftart anwenden (nach setStyleSheet, damit font-family greift)
+    const QString savedFont = Config::uiFontFamily();
+    if (!savedFont.isEmpty()) {
+        QFontDatabase db;
+        if (db.families().contains(savedFont)) {
+            QFont f = qApp->font();
+            f.setFamily(savedFont);
+            qApp->setFont(f);
+            // font-family zusätzlich per Stylesheet setzen, damit es
+            // hardcoded font-size-Regeln in Widget-Stylesheets überlagert
+            const QString fontSs = QString("* { font-family: \"%1\"; }").arg(savedFont);
+            qApp->setStyleSheet(qApp->styleSheet() + fontSs);
+        } else {
+            Config::setUiFontFamily(QString());
+        }
+    }
 }
 
 // --- Stylesheet-Generatoren ---
@@ -495,6 +519,10 @@ QString ThemeManager::ssDialog() const {
         "QSpinBox::down-button{background:%5;border:none;width:14px;}"
         "QSpinBox::up-button:hover{background:%6;}"
         "QSpinBox::down-button:hover{background:%6;}"
+        "QComboBox{background:%3;border:1px solid %4;color:%2;padding:2px 8px;border-radius:4px;font-size:11px;min-height:24px;}"
+        "QComboBox::drop-down{border:none;width:24px;}"
+        "QComboBox::down-arrow{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid %10;}"
+        "QComboBox QAbstractItemView{background:%3;color:%2;border:1px solid %4;selection-background-color:%6;}"
         "QPushButton{background:%9;color:%2;border:1px solid %4;padding:7px 14px;border-radius:6px;font-size:11px;}"
         "QPushButton:hover{background:%6; border-color:%7;}"
         "QPushButton:checked{background:%6;border:2px solid %7;color:%8;}"
@@ -504,7 +532,7 @@ QString ThemeManager::ssDialog() const {
         "QScrollBar::handle:vertical{background:%4;border-radius:4px;min-height:20px;}"
         "QScrollBar::add-line:vertical{height:0;}"
         "QScrollBar::sub-line:vertical{height:0;}")
-        .arg(c.bgBox, c.textPrimary, c.bgDeep, c.borderAlt, c.bgHover, c.bgSelect, c.accent, c.textLight, c.bgAlternate);
+        .arg(c.bgBox, c.textPrimary, c.bgDeep, c.borderAlt, c.bgHover, c.bgSelect, c.accent, c.textLight, c.bgAlternate, c.textMuted);
 }
 
 QString ThemeManager::ssSidebar() const {

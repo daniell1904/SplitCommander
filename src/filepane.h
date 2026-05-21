@@ -135,6 +135,7 @@ public:
     void setFoldersFirst(bool on);
     void setShowHiddenFiles(bool show);
     [[nodiscard]] const QString& currentPath() const;
+    [[nodiscard]] QUrl currentUrl() const;
     QTreeView *view()     { return m_view; }
     [[nodiscard]] QList<QUrl> selectedUrls() const;
     [[nodiscard]] qint64 currentTotalSize() const;

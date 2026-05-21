@@ -1,18 +1,20 @@
 
 // --- sidebar.cpp — SplitCommander Sidebar ---
 
+// 1. Eigene Header
 #include "sidebar.h"
 #include "addnetworkdialog.h"
+#include "config.h"
+#include "dialogutils.h"
 #include "drivedelegate.h"
 #include "drivemanager.h"
-#ifdef SC_PLUGIN_GIT
-#include "gitstatusmanager.h"
-#endif
 #include "hoverfader.h"
 #include "scglobal.h"
-#include <KDirWatch>
+#ifdef SC_PLUGIN_GIT
+#include "plugins/git/gitstatusmanager.h"
+#endif
 
-// 1. Qt Core / UI
+// 2. Qt
 #include <QApplication>
 #include <QButtonGroup>
 #include <QClipboard>
@@ -23,6 +25,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QFormLayout>
 #include <QGraphicsDropShadowEffect>
 #include <QGridLayout>
 #include <QGuiApplication>
@@ -37,16 +40,12 @@
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPainter>
+#include <QPointer>
 #include <QProcess>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QStackedLayout>
-
-#include <KIO/JobUiDelegateFactory>
-#include <KIO/StoredTransferJob>
-#include <QFormLayout>
-#include <QPointer>
 #include <QStandardPaths>
 #include <QStorageInfo>
 #include <QTimer>
@@ -55,15 +54,20 @@
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 
-// 2. KDE / KIO / Solid
+// 3. KDE Frameworks / KIO / Solid
+#include <KDialogJobUiDelegate>
 #include <KDirLister>
+#include <KDirWatch>
 #include <KFile>
 #include <KIO/CopyJob>
 #include <KIO/FileSystemFreeSpaceJob>
 #include <KIO/Global>
+#include <KIO/JobUiDelegateFactory>
 #include <KIO/ListJob>
+#include <KIO/StoredTransferJob>
 #include <KIconDialog>
 #include <KPropertiesDialog>
+#include <KTerminalLauncherJob>
 #include <KUrlRequester>
 #include <Solid/Device>
 #include <Solid/DeviceNotifier>
@@ -71,12 +75,6 @@
 #include <Solid/StorageAccess>
 #include <Solid/StorageDrive>
 #include <Solid/StorageVolume>
-
-// 3. SplitCommander
-#include "config.h"
-#include "dialogutils.h"
-#include <KDialogJobUiDelegate>
-#include <KTerminalLauncherJob>
 
 #include "thememanager.h"
 // Themed input dialog - styled like QMenu
@@ -287,8 +285,8 @@ Sidebar::Sidebar(QWidget *parent) : QWidget(parent) {
           });
 
 #ifdef SC_PLUGIN_GIT
-  connect(&GitStatusManager::instance(), &GitStatusManager::statusUpdated,
-          this, [this](const QString &) { refreshGitSection(); });
+  connect(&GitStatusManager::instance(), &GitStatusManager::statusUpdated, this,
+          [this](const QString &) { refreshGitSection(); });
 #endif
 
   m_trashLister = new KDirLister(this);
@@ -350,7 +348,101 @@ void Sidebar::buildLogo(QVBoxLayout *parent) {
   lay->addWidget(nameLbl);
   lay->addStretch();
 
+  auto *layoutBtn = new QToolButton();
+  layoutBtn->setFixedSize(32, 32);
+  layoutBtn->setIcon(QIcon::fromTheme("view-split-left-right"));
+  layoutBtn->setIconSize(QSize(32, 32));
+  layoutBtn->setToolTip(tr("Layout wählen"));
+  layoutBtn->setStyleSheet(TM().ssToolBtn());
+  lay->addWidget(layoutBtn);
+
+  connect(layoutBtn, &QToolButton::clicked, this, [this, layoutBtn]() {
+    showLayoutMenu(layoutBtn);
+  });
+
   parent->addWidget(wrapper);
+}
+
+void Sidebar::showLayoutMenu(QWidget *anchor) {
+  QWidget *posAnchor = anchor ? anchor : this;
+  auto *popup = new QDialog(this, Qt::Popup | Qt::FramelessWindowHint);
+  popup->setAttribute(Qt::WA_DeleteOnClose);
+  const auto &c = TM().colors();
+  popup->setStyleSheet(
+      TM().ssDialog() +
+      QString("QPushButton { background:%1; border:1px solid %2; "
+              "color:%3;"
+              " border-radius:4px; padding:8px; font-size:10px; }"
+              "QPushButton:hover { background:%4; border-color:%5; }"
+              "QPushButton:checked { background:%4; border:2px solid %5; "
+              "color:%6; }")
+          .arg(c.bgInput, c.borderAlt, c.textPrimary, c.bgHover, c.accent,
+               c.textAccent));
+
+  auto *lay2 = new QHBoxLayout(popup);
+  lay2->setContentsMargins(8, 8, 8, 8);
+  lay2->setSpacing(6);
+
+  struct ModeEntry {
+    QString label, sub, icon;
+    int mode;
+  };
+  const QList<ModeEntry> modes = {
+      {tr("Klassisch"), tr("Einzeln"), "view-list-details", 0},
+      {tr("Standard"), tr("Dual"), "view-split-left-right", 1},
+      {tr("Spalten"), tr("Dual"), "view-split-top-bottom", 2},
+  };
+
+  auto *grp = new QButtonGroup(popup);
+  auto s = Config::group("UI");
+
+  int current = s.readEntry("layoutMode", 1);
+
+  for (const auto &entry : modes) {
+    auto *btn = new QPushButton();
+    btn->setCheckable(true);
+    btn->setChecked(entry.mode == current);
+    btn->setFixedSize(72, 68);
+
+    auto *vl = new QVBoxLayout(btn);
+    vl->setContentsMargins(4, 6, 4, 4);
+    vl->setSpacing(3);
+    auto *ic = new QLabel();
+    ic->setPixmap(QIcon::fromTheme(entry.icon).pixmap(24, 24));
+    ic->setAlignment(Qt::AlignCenter);
+    ic->setStyleSheet("background:transparent;border:none;");
+    auto *lb1 = new QLabel(entry.label);
+    lb1->setAlignment(Qt::AlignCenter);
+    lb1->setStyleSheet("background:transparent;border:none;font-weight:bold;"
+                       "font-size:10px;");
+    auto *lb2 = new QLabel(entry.sub);
+    lb2->setAlignment(Qt::AlignCenter);
+    lb2->setStyleSheet(
+        QString("background:transparent;border:none;color:%1;font-size:9px;")
+            .arg(TM().colors().textMuted));
+    vl->addWidget(ic);
+    vl->addWidget(lb1);
+    vl->addWidget(lb2);
+
+    grp->addButton(btn, entry.mode);
+    lay2->addWidget(btn);
+
+    connect(btn, &QPushButton::clicked, this, [this, popup, entry]() {
+      auto ss = Config::group("UI");
+
+      ss.writeEntry("layoutMode", entry.mode);
+      ss.config()->sync();
+      emit layoutChangeRequested(entry.mode);
+      popup->close();
+    });
+  }
+
+  QPoint targetPos = posAnchor->mapToGlobal(QPoint(0, posAnchor->height() + 2));
+  if (posAnchor->mapToGlobal(QPoint(0, 0)).y() > posAnchor->window()->height() - 150) {
+    targetPos = posAnchor->mapToGlobal(QPoint(0, -86)); // 84px Höhe + 2px Abstand
+  }
+  popup->move(targetPos);
+  popup->exec();
 }
 
 // --- Sidebar::buildDrivesSection ---
@@ -378,8 +470,9 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent) {
       driveBoxSettings.readEntry("driveBoxLabel", tr("LAUFWERKE"));
   auto *lbl = new QLabel(driveBoxLabel);
 
-  lbl->setStyleSheet(QString("font-size:13px;font-weight:normal;text-transform:"
-                             "uppercase;background:transparent;color:%1;")
+  lbl->setStyleSheet(QString("font-size:%1px;font-weight:normal;text-transform:"
+                             "uppercase;background:transparent;color:%2;")
+                         .arg(14)
                          .arg(TM().colors().textAccent));
   hLay->addWidget(lbl, 1);
 
@@ -786,19 +879,22 @@ void Sidebar::buildNewGroupFixedSection(QVBoxLayout *parent) {
 
 #ifdef SC_PLUGIN_GIT
 // Helper: füge Repo-Dateien rekursiv ein
-// Rekursiv Dateien einfügen. Rückgabe = höchste Status-Priorität (Kinder-Status wird auf Ordner übertragen).
-// Priorität: LocalChange > RemoteAhead > Unchanged
+// Rekursiv Dateien einfügen. Rückgabe = höchste Status-Priorität (Kinder-Status
+// wird auf Ordner übertragen). Priorität: LocalChange > RemoteAhead > Unchanged
 static int sc_addRepoFiles(QTreeWidgetItem *parent, const QString &dirPath,
                            const QString &repoRoot, int depth = 0) {
   Q_UNUSED(dirPath)
   Q_UNUSED(depth)
 
   const QStringList files = GitStatusManager::instance().trackedFiles(repoRoot);
-  
+
   for (const QString &relPath : files) {
-    if (relPath.isEmpty()) continue;
-    GitFileStatus status = GitStatusManager::instance().statusFor(repoRoot, relPath);
-    if (status == GitFileStatus::Unchanged) continue;
+    if (relPath.isEmpty())
+      continue;
+    GitFileStatus status =
+        GitStatusManager::instance().statusFor(repoRoot, relPath);
+    if (status == GitFileStatus::Unchanged)
+      continue;
 
     const QStringList parts = relPath.split('/', Qt::SkipEmptyParts);
     QTreeWidgetItem *current = parent;
@@ -832,7 +928,8 @@ static int sc_addRepoFiles(QTreeWidgetItem *parent, const QString &dirPath,
     }
   }
 
-  auto updateColors = [](auto &self, QTreeWidgetItem *item, QTreeWidgetItem *prnt, const ThemeManager &tm) -> int {
+  auto updateColors = [](auto &self, QTreeWidgetItem *item,
+                         QTreeWidgetItem *prnt, const ThemeManager &tm) -> int {
     int worst = item->data(0, Qt::UserRole + 1).toInt();
     for (int i = 0; i < item->childCount(); ++i) {
       int childWorst = self(self, item->child(i), prnt, tm);
@@ -845,9 +942,15 @@ static int sc_addRepoFiles(QTreeWidgetItem *parent, const QString &dirPath,
     if (item != prnt) {
       QColor c;
       switch ((GitFileStatus)worst) {
-        case GitFileStatus::LocalChange: c = QColor("#ff2a2a"); break;
-        case GitFileStatus::RemoteAhead: c = QColor("#ffc107"); break;
-        default: c = QColor("#1fbf3a"); break;
+      case GitFileStatus::LocalChange:
+        c = QColor("#ff2a2a");
+        break;
+      case GitFileStatus::RemoteAhead:
+        c = QColor("#ffc107");
+        break;
+      default:
+        c = QColor("#1fbf3a");
+        break;
       }
 
       const QString path = item->data(0, Qt::UserRole).toString();
@@ -856,8 +959,8 @@ static int sc_addRepoFiles(QTreeWidgetItem *parent, const QString &dirPath,
                              : QIcon::fromTheme("text-x-generic");
 
       const int iconSz = qMax(8, Config::sidebarIconSize() * 2 / 3);
-      const int dotSz  = qMax(6, iconSz / 2);
-      const int gap    = 4;
+      const int dotSz = qMax(6, iconSz / 2);
+      const int gap = 4;
       const int totalW = dotSz + gap + iconSz;
       QPixmap pix(totalW, iconSz);
       pix.fill(Qt::transparent);
@@ -879,14 +982,16 @@ static int sc_addRepoFiles(QTreeWidgetItem *parent, const QString &dirPath,
 }
 
 void Sidebar::refreshGitSection() {
-  const auto trees = findChildren<QTreeWidget*>(QStringLiteral("gitTree"));
+  const auto trees = findChildren<QTreeWidget *>(QStringLiteral("gitTree"));
   for (auto *tree : trees) {
     tree->clear();
     const auto repos = Config::gitRepos();
     for (const auto &r : repos) {
-      if (r.localDir.isEmpty() || !QDir(r.localDir).exists()) continue;
+      if (r.localDir.isEmpty() || !QDir(r.localDir).exists())
+        continue;
       auto *root = new QTreeWidgetItem(tree);
-      root->setText(0, r.name.isEmpty() ? QFileInfo(r.localDir).fileName() : r.name);
+      root->setText(0, r.name.isEmpty() ? QFileInfo(r.localDir).fileName()
+                                        : r.name);
       root->setData(0, Qt::UserRole, r.localDir);
       QFont f = root->font(0);
       f.setBold(true);
@@ -894,15 +999,22 @@ void Sidebar::refreshGitSection() {
       int worst = sc_addRepoFiles(root, r.localDir, r.localDir);
       QColor rc;
       switch ((GitFileStatus)worst) {
-        case GitFileStatus::LocalChange: rc = QColor("#ff2a2a"); break;
-        case GitFileStatus::RemoteAhead: rc = QColor("#ffc107"); break;
-        default: rc = QColor("#1fbf3a"); break;
+      case GitFileStatus::LocalChange:
+        rc = QColor("#ff2a2a");
+        break;
+      case GitFileStatus::RemoteAhead:
+        rc = QColor("#ffc107");
+        break;
+      default:
+        rc = QColor("#1fbf3a");
+        break;
       }
       // Composite-Icon: Punkt + vcs-git-Icon
-      QIcon vcsIcon = QIcon::fromTheme("vcs-git", QIcon::fromTheme("folder-git"));
+      QIcon vcsIcon =
+          QIcon::fromTheme("vcs-git", QIcon::fromTheme("folder-git"));
       const int iconSz = Config::sidebarIconSize();
-      const int dotSz  = 10;
-      const int gap    = 4;
+      const int dotSz = 10;
+      const int gap = 4;
       QPixmap rpix(dotSz + gap + iconSz, iconSz);
       rpix.fill(Qt::transparent);
       QPainter rp(&rpix);
@@ -919,10 +1031,12 @@ void Sidebar::refreshGitSection() {
     int totalH = 0;
     const int rowH = tree->sizeHintForRow(0);
     const int defaultRow = rowH > 0 ? rowH : (Config::sidebarIconSize() + 6);
-    std::function<int(QTreeWidgetItem*)> count = [&](QTreeWidgetItem *it) -> int {
+    std::function<int(QTreeWidgetItem *)> count =
+        [&](QTreeWidgetItem *it) -> int {
       int n = 1;
       if (it->isExpanded())
-        for (int i = 0; i < it->childCount(); ++i) n += count(it->child(i));
+        for (int i = 0; i < it->childCount(); ++i)
+          n += count(it->child(i));
       return n;
     };
     for (int i = 0; i < tree->topLevelItemCount(); ++i)
@@ -956,8 +1070,9 @@ void Sidebar::buildTagsSection(QVBoxLayout *parent) {
   hLay->setContentsMargins(12, 10, 8, 6);
   hLay->setSpacing(4);
   auto *lbl = new QLabel(tr("TAGS"));
-  lbl->setStyleSheet(QString("font-size:13px;font-weight:normal;text-transform:"
-                             "uppercase;background:transparent;color:%1;")
+  lbl->setStyleSheet(QString("font-size:%1px;font-weight:normal;text-transform:"
+                             "uppercase;background:transparent;color:%2;")
+                         .arg(14)
                          .arg(TM().colors().textAccent));
   hLay->addWidget(lbl, 1);
   auto *addBtn = new QPushButton();

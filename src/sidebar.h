@@ -20,6 +20,7 @@ class Sidebar : public QWidget {
 
 public:
     explicit Sidebar(QWidget *parent = nullptr);
+    void showLayoutMenu(QWidget *anchor = nullptr);
 
 public slots:
     void updateDrives();

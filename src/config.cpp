@@ -43,9 +43,6 @@ bool Config::singleClickOpen() {
     return generalGroup().readEntry("singleClick", false);
 }
 
-bool Config::confirmDelete() {
-    return generalGroup().readEntry("confirmDelete", true);
-}
 
 bool Config::showHiddenFiles() {
     return generalGroup().readEntry("showHidden", false);
@@ -73,11 +70,6 @@ int Config::ageBadgeSaturation() {
 
 int Config::ageBadgeLightness() {
     return ageBadgeGroup().readEntry("lightness", 140);
-}
-
-QString Config::terminalApp() {
-
-    return generalGroup().readEntry("terminalApp", QString());
 }
 
 QString Config::lastLeftPath() {
@@ -141,10 +133,6 @@ void Config::setAgeBadgeLightness(int i) {
     ageBadgeGroup().config()->sync();
 }
 
-void Config::setTerminalApp(const QString &t) {
-    generalGroup().writeEntry("terminalApp", t);
-    generalGroup().config()->sync();
-}
 
 void Config::setLastPaths(const QString &left, const QString &right) {
     generalGroup().writeEntry("lastLeftPath", left);
@@ -201,7 +189,7 @@ QStringList Config::driveBlacklist() {
         QStringList{"/var/lib/docker", "/var/lib/containers"});
 }
 int Config::sidebarIconSize()  { return adminGroup().readEntry("sidebarIconSize", 22); }
-int Config::driveIconSize()    { return adminGroup().readEntry("driveIconSize", 32); }
+int Config::driveIconSize()    { return uiFontSize(); }
 int Config::millerIconSize()   { return driveIconSize(); }
 int Config::listIconSize()     { return adminGroup().readEntry("listIconSize", 16); }
 
@@ -213,19 +201,28 @@ void Config::setDriveIconSize(int i)         { adminGroup().writeEntry("driveIco
 void Config::setMillerIconSize(int)        { /* Ignored, using driveIconSize */ }
 void Config::setListIconSize(int i)          { adminGroup().writeEntry("listIconSize", i); adminGroup().config()->sync(); }
 
-int Config::sidebarRowHeight()       { return adminGroup().readEntry("sidebarRowHeight", 34); }
-int Config::sidebarDriveRowHeight()  { return adminGroup().readEntry("sidebarDriveRowHeight", 50); }
+int Config::sidebarRowHeight()       { return uiFontSize() + uiSpacing() * 2 + 4; }
+int Config::sidebarDriveRowHeight()  { return uiFontSize() + 4 + uiSpacing() * 4 + 8; }
 int Config::sidebarNetRowHeight()    { return sidebarDriveRowHeight(); }
 int Config::millerDriveRowHeight()   { return sidebarDriveRowHeight(); }
-int Config::millerHeaderHeight()     { return adminGroup().readEntry("millerHeaderHeight", 38); }
-int Config::driveRefreshMs()         { return adminGroup().readEntry("driveRefreshMs", 5000); }
+int Config::uiFontSize() { return adminGroup().readEntry("uiFontSize", 14); }
+int Config::uiSpacing()  { return adminGroup().readEntry("uiSpacing",  2); }
+void Config::setUiFontSize(int i) { adminGroup().writeEntry("uiFontSize", i); adminGroup().config()->sync(); }
+void Config::setUiSpacing(int i)  { adminGroup().writeEntry("uiSpacing",  i); adminGroup().config()->sync(); }
+
+QString Config::uiFontFamily() { return adminGroup().readEntry("uiFontFamily", QString()); }
+void Config::setUiFontFamily(const QString &f) { adminGroup().writeEntry("uiFontFamily", f); adminGroup().config()->sync(); }
+
+QString Config::appLanguage() { return adminGroup().readEntry("appLanguage", QString()); }
+void Config::setAppLanguage(const QString &lang) { adminGroup().writeEntry("appLanguage", lang); adminGroup().config()->sync(); }
+
+int Config::millerHeaderHeight()     { return 38; }
 
 void Config::setSidebarRowHeight(int i)      { adminGroup().writeEntry("sidebarRowHeight", i); adminGroup().config()->sync(); }
 void Config::setSidebarDriveRowHeight(int i) { adminGroup().writeEntry("sidebarDriveRowHeight", i); adminGroup().config()->sync(); }
 void Config::setSidebarNetRowHeight(int)     { /* Alias for sidebarDriveRowHeight */ }
 void Config::setMillerDriveRowHeight(int)    { /* Alias for sidebarDriveRowHeight */ }
 void Config::setMillerHeaderHeight(int i)    { adminGroup().writeEntry("millerHeaderHeight", i); adminGroup().config()->sync(); }
-void Config::setDriveRefreshMs(int i)        { adminGroup().writeEntry("driveRefreshMs", i); adminGroup().config()->sync(); }
 
 #ifdef SC_PLUGIN_GIT
 QString Config::gitLocalDir()  { return adminGroup().readEntry("gitLocalDir", QString()); }
@@ -295,6 +292,16 @@ void Config::setGitRemoteUrl(const QString &s) { adminGroup().writeEntry("gitRem
 void Config::setGitUsername(const QString &s)  { adminGroup().writeEntry("gitUsername", s); adminGroup().config()->sync(); }
 void Config::setGitToken(const QString &s)     { adminGroup().writeEntry("gitToken", s); adminGroup().config()->sync(); }
 #endif // SC_PLUGIN_GIT
+
+#ifdef SC_PLUGIN_PAPERLESS
+QString Config::paperlessUrl()   { return adminGroup().readEntry("paperlessUrl", QString()); }
+QString Config::paperlessToken() { return adminGroup().readEntry("paperlessToken", QString()); }
+bool    Config::paperlessSslIgnore() { return adminGroup().readEntry("paperlessSslIgnore", false); }
+void Config::setPaperlessUrl(const QString &s)   { adminGroup().writeEntry("paperlessUrl", s); adminGroup().config()->sync(); }
+void Config::setPaperlessToken(const QString &s) { adminGroup().writeEntry("paperlessToken", s); adminGroup().config()->sync(); }
+void Config::setPaperlessSslIgnore(bool b)       { adminGroup().writeEntry("paperlessSslIgnore", b); adminGroup().config()->sync(); }
+#endif // SC_PLUGIN_PAPERLESS
+
 
 
 

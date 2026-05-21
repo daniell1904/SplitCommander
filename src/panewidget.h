@@ -8,6 +8,9 @@
 #include <QLineEdit>
 #include <QSplitter>
 #include <QStack>
+#include <QHBoxLayout>
+#include <QFrame>
+#include <QPushButton>
 #include <QTreeWidget>
 #include <QWidget>
 
@@ -20,6 +23,7 @@ public:
   void setFocused(bool f);
   bool isFocused() const { return m_focused; }
   QString currentPath() const;
+  QUrl    currentUrl() const { return m_filePane->currentUrl(); }
   void navigateTo(const QString &path, bool clearForward = true,
                   bool updateMiller = true);
   void setMillerVisible(bool visible);
@@ -29,6 +33,15 @@ public:
   QList<QUrl> selectedUrls() const;
   void saveState() const;
   void refreshFooter(const QString &path, int selectedCount);
+
+  // --- Tab-API ---
+  void addTab(const QString &path = QString());
+  void closeTab(int index);
+  void switchTab(int index);
+  int  tabCount()        const { return m_tabs.size(); }
+  int  currentTabIndex() const { return m_currentTab; }
+
+
 
   QStack<QString> &histBack() { return m_histBack; }
   QStack<QString> &histFwd() { return m_histFwd; }
@@ -52,7 +65,7 @@ protected:
 
 private:
   // Konstruktor-Helfer
-  void initTabBar(QVBoxLayout *rootLay);
+  void initTabBar();
   void initHamburgerMenu(QToolButton *hamburgerBtn, QToolButton *layoutBtn);
   void initSearchPanel(QVBoxLayout *rootLay);
   void initSplitter(QVBoxLayout *rootLay);
@@ -64,6 +77,24 @@ private:
   void refreshFooterForDirectory(int selectedCount);
   void refreshFooterForLocalPath(const QString &path);
   void refreshFooterForRemotePath(const QString &path, const QUrl &url);
+  QPushButton *m_activeHeaderBtn = nullptr;
+  QWidget     *m_activeHeader    = nullptr;
+  QWidget     *m_breadcrumbBar   = nullptr;
+
+  void updateBreadcrumb(const QString &path);
+  void openPathEditOverlay();
+
+  // --- Tabs ---
+  struct TabState {
+    QString path;
+    QStack<QString> histBack;
+    QStack<QString> histFwd;
+  };
+  QList<TabState>       m_tabs;
+  int                   m_currentTab = 0;
+  QWidget              *m_tabStrip   = nullptr;  // container for extra tab buttons
+  QHBoxLayout          *m_tabStripLay = nullptr;
+  QList<QToolButton *>  m_tabButtons; // index = tabs-index - 1
 
   QString m_settingsKey;
   QLineEdit *m_pathEdit = nullptr;
@@ -90,6 +121,7 @@ private:
   // Zwischen init*-Methoden geteilte Widgets
   QStackedWidget *m_pathStack = nullptr;
   QToolButton *m_searchBtn = nullptr;
+  QToolButton *m_hamburgerBtn = nullptr;
   QWidget *m_searchOverlay = nullptr;
   QLineEdit *m_searchEdit = nullptr;
   QTreeWidget *m_searchResults = nullptr;

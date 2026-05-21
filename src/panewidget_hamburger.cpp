@@ -68,6 +68,12 @@ void PaneWidget::initHamburgerMenu(QToolButton *hamburgerBtn,
   });
   hamburgerMenu->addSeparator();
 #endif
+#ifdef SC_PLUGIN_PAPERLESS
+  hamburgerMenu->addAction(QIcon::fromTheme("document-send"), tr("Paperless Manager"), this, []() {
+      if(auto *mw = MW()) mw->openPaperlessManager();
+  });
+  hamburgerMenu->addSeparator();
+#endif
 
   // Neu erstellen
   auto *menuNew = hamburgerMenu->addMenu(QIcon::fromTheme("folder-new"),
@@ -153,6 +159,12 @@ void PaneWidget::initHamburgerMenu(QToolButton *hamburgerBtn,
 #ifdef SC_PLUGIN_GIT
     aboutData.addComponent(QStringLiteral("Plugin: Git Manager"),
                            tr("Repository-Verwaltung und Git-Sidebar-Integration"),
+                           QStringLiteral("1.0"),
+                           QStringLiteral("https://github.com/daniell1904/SplitCommander"));
+#endif
+#ifdef SC_PLUGIN_PAPERLESS
+    aboutData.addComponent(QStringLiteral("Plugin: Paperless-ngx"),
+                           tr("Dokumente hochladen und durchsuchen"),
                            QStringLiteral("1.0"),
                            QStringLiteral("https://github.com/daniell1904/SplitCommander"));
 #endif

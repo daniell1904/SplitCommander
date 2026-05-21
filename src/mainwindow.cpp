@@ -2,42 +2,33 @@
 
 #include "mainwindow.h"
 #include "filemanager1.h"
-// Removed agebadgedialog.h
 #include "config.h"
 #include "settingsdialog.h"
 #ifdef SC_PLUGIN_GIT
-#include "gitmanagerdialog.h"
-#include "gitstatusmanager.h"
+#include "plugins/git/gitmanagerdialog.h"
+#include "plugins/git/gitstatusmanager.h"
+#endif
+#ifdef SC_PLUGIN_PAPERLESS
+#include "plugins/paperless/paperlessmanager.h"
 #endif
 #include <QMessageBox>
 #include "filepane.h"
 #include "joboverlay.h"
 #include "panecomponents.h"
-#include <KTerminalLauncherJob>
 #include <KDialogJobUiDelegate>
 #include "thememanager.h"
 #include <KActionCollection>
-#include <KShortcutsDialog>
-#include <KStandardShortcut>
 
-// Removed drophandler.h
 #include <KFileItem>
-#include <KFormat>
 #include <KIO/CopyJob>
 #include <KIO/Global>
 #include <KIO/DeleteOrTrashJob>
-#include <KIO/EmptyTrashJob>
 #include <KIO/JobUiDelegateFactory>
 #include <KIO/MkdirJob>
-#include <KIO/SimpleJob>
-#include <KIO/FileSystemFreeSpaceJob>
 #include <KJobWidgets>
-#include <KPropertiesDialog>
 #include <Solid/Device>
 #include <Solid/DeviceNotifier>
 #include <Solid/StorageAccess>
-#include <Solid/StorageDrive>
-#include <Solid/StorageVolume>
 
 #include "dialogutils.h"
 #include <QActionGroup>
@@ -80,11 +71,8 @@
 #include <QWidgetAction>
 #include <QXmlStreamReader>
 #include <QtConcurrent>
-#include <functional>
 
 
-// Removed panetoolbar.h
-#include "millercolumn.h"
 #include "scglobal.h"
 #include "drivemanager.h"
 
@@ -96,6 +84,14 @@ MainWindow::~MainWindow() {}
 void MainWindow::registerJob(KJob *job, const QString &title) {
   if (m_jobOverlay)
     m_jobOverlay->addJob(job, title);
+
+  connect(job, &KJob::result, this, [title](KJob *finishedJob) {
+    if (finishedJob->error() == 0) {
+      sc_notify(title, tr("Vorgang erfolgreich abgeschlossen."));
+    } else {
+      sc_notify(tr("Fehler bei: %1").arg(title), finishedJob->errorString(), QStringLiteral("dialog-error"));
+    }
+  });
 }
 
 void MainWindow::refreshAllDrives() {
@@ -203,7 +199,6 @@ void MainWindow::initUI() {
   m_panesSplitter->addWidget(m_leftPane);
   m_panesSplitter->addWidget(m_rightPane);
   rootLay->addWidget(m_panesSplitter, 1);
-
 }
 
 void MainWindow::initConnections() {
@@ -238,7 +233,9 @@ void MainWindow::initConnections() {
           this, tr("Neuer Ordner"), tr("Ordnername:"), tr("Neuer Ordner"), &ok);
       if (!ok || name.isEmpty())
         return;
-      auto *job = KIO::mkdir(QUrl::fromLocalFile(pane->currentPath() + "/" + name));
+      QUrl mkdirUrl = pane->currentUrl();
+      mkdirUrl.setPath(mkdirUrl.path().chopped(mkdirUrl.path().endsWith('/') ? 1 : 0) + '/' + name);
+      auto *job = KIO::mkdir(mkdirUrl);
       job->setUiDelegate(KIO::createDefaultJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
       connect(job, &KJob::result, this, [this, job]() {
         if (job->error())
@@ -264,8 +261,7 @@ void MainWindow::initConnections() {
       const QList<QUrl> urls = pane->filePane()->selectedUrls();
       if (urls.isEmpty() || other->currentPath().isEmpty())
         return;
-      auto *job = KIO::copy(urls, QUrl::fromLocalFile(other->currentPath()),
-                            KIO::DefaultFlags);
+      auto *job = KIO::copy(urls, other->currentUrl(), KIO::DefaultFlags);
       job->uiDelegate()->setAutoErrorHandlingEnabled(true);
       registerJob(job, tr("Kopiere Dateien..."));
     });
@@ -309,10 +305,13 @@ void MainWindow::initConnections() {
       } else {
         connect(
             acc, &Solid::StorageAccess::setupDone, this,
-            [acc, navigate](Solid::ErrorType, QVariant, const QString &) {
+            [this, acc, navigate](Solid::ErrorType, QVariant errData, const QString &) {
               if (acc->isAccessible()) {
                 DriveManager::instance()->refreshAll();
                 navigate(acc->filePath());
+                sc_notify(this->tr("Laufwerk bereit"), this->tr("Das Laufwerk wurde erfolgreich eingebunden."), QStringLiteral("media-removable"));
+              } else {
+                sc_notify(this->tr("Fehler beim Einbinden"), this->tr("Das Laufwerk konnte nicht eingebunden werden:\n%1").arg(errData.toString()), QStringLiteral("dialog-warning"));
               }
             },
             Qt::SingleShotConnection);
@@ -380,6 +379,18 @@ void MainWindow::initConnections() {
 
   // NetworkPlace aus Millers entfernen — sofort refreshen
   auto doRemoveFromPlaces = [this](const QString &url) {
+    // Aus Config entfernen
+    if (!url.isEmpty()) {
+      auto s = Config::group("NetworkPlaces");
+      QStringList saved = s.readEntry("places", QStringList());
+      saved.removeAll(url);
+      // Auch ohne UserInfo prüfen
+      QUrl qurl(url);
+      qurl.setUserInfo(QString());
+      saved.removeAll(qurl.toString());
+      s.writeEntry("places", saved);
+      s.config()->sync();
+    }
     if (!url.isEmpty()) {
       const QString normUrl = mw_normalizePath(url);
       for (auto *pane : {m_leftPane, m_rightPane}) {
@@ -480,9 +491,13 @@ void MainWindow::initConnections() {
         [this, leftMillerOnMount, rightMillerOnMount]
         (Solid::ErrorType err, QVariant errData, const QString &) {
           if (err != Solid::NoError) {
-            QMessageBox::warning(this, tr("Aushängen fehlgeschlagen"),
-                tr("Das Laufwerk konnte nicht ausgehängt werden:\n%1")
-                    .arg(errData.toString()));
+            sc_notify(tr("Aushängen fehlgeschlagen"),
+                      tr("Das Laufwerk konnte nicht ausgehängt werden:\n%1").arg(errData.toString()),
+                      QStringLiteral("dialog-warning"));
+          } else {
+            sc_notify(tr("Laufwerk sicher entfernt"),
+                      tr("Sie können das Gerät jetzt sicher abziehen."),
+                      QStringLiteral("media-eject"));
           }
           if (!leftMillerOnMount)  m_leftPane->miller()->refreshDrives();
           if (!rightMillerOnMount) m_rightPane->miller()->refreshDrives();
@@ -723,3 +738,11 @@ void MainWindow::openGitManager() {
   dlg->show();
 }
 #endif // SC_PLUGIN_GIT
+
+#ifdef SC_PLUGIN_PAPERLESS
+void MainWindow::openPaperlessManager() {
+  auto *dlg = new PaperlessManagerDialog(activePane()->currentPath(), this);
+  dlg->setAttribute(Qt::WA_DeleteOnClose);
+  dlg->show();
+}
+#endif // SC_PLUGIN_PAPERLESS

@@ -13,6 +13,7 @@
 #include <QLineEdit>
 #include <QSpinBox>
 #include <QComboBox>
+#include <QFontComboBox>
 #include <QInputDialog>
 #include <QPushButton>
 #include <QLabel>
@@ -26,6 +27,7 @@
 #include <QApplication>
 #include <QProcess>
 #include <QMessageBox>
+#include <QRegularExpression>
 #include <QColorDialog>
 #include <QFileDialog>
 
@@ -183,6 +185,51 @@ QWidget* SettingsDialog::createGeneralPage() {
     lbl->setStyleSheet(QString("QLabel { font-size: 18px; font-weight: bold; color: %1; }").arg(c.accent));
     lay->addWidget(lbl);
 
+    // 0. SPRACHE
+    auto *grpLang = new QGroupBox(tr("Sprache"));
+    auto *langForm = new QFormLayout(grpLang);
+    m_languageCombo = new QComboBox();
+    m_languageCombo->setMaxVisibleItems(25);
+    // Sprachcodes + Anzeigenamen
+    struct LangEntry { QString code; QString display; };
+    const QList<LangEntry> langs = {
+        {"",      tr("Systemsprache")},
+        {"cs",    "Cestina"},
+        {"da",    "Dansk"},
+        {"de",    "Deutsch"},
+        {"en",    "English"},
+        {"es",    "Espanol"},
+        {"fi",    "Suomi"},
+        {"fr",    "Francais"},
+        {"hu",    "Magyar"},
+        {"it",    "Italiano"},
+        {"ja",    "Japanese"},
+        {"ko",    "Korean"},
+        {"nb",    "Norsk bokmal"},
+        {"nl",    "Nederlands"},
+        {"pl",    "Polski"},
+        {"pt",    "Portugues"},
+        {"ro",    "Romana"},
+        {"ru",    "Russian"},
+        {"sk",    "Slovencina"},
+        {"sv",    "Svenska"},
+        {"tr",    "Turkce"},
+        {"zh_CN", "Chinese (Simplified)"},
+        {"ar",    "Arabic"},
+    };
+    for (const auto &e : langs)
+        m_languageCombo->addItem(e.display, e.code);
+
+    m_langHint = new QLabel(tr("Neustart erforderlich, um die Sprache zu wechseln."));
+    m_langHint->setStyleSheet(QString("QLabel { font-size: 11px; color: %1; }").arg(c.accent));
+    m_langHint->setVisible(false);
+    connect(m_languageCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int) {
+        m_langHint->setVisible(true);
+    });
+    langForm->addRow(tr("Sprache:"), m_languageCombo);
+    langForm->addRow(m_langHint);
+    lay->addWidget(grpLang);
+
     // 1. START-VERHALTEN
     auto *grpStart = new QGroupBox(tr("Start-Verhalten"));
     auto *startLay = new QVBoxLayout(grpStart);
@@ -277,7 +324,45 @@ QWidget* SettingsDialog::createGeneralPage() {
     lay->addWidget(grpGit);
 #endif // SC_PLUGIN_GIT
 
-    // 4. PFAD-FILTER
+    // 4. DARSTELLUNG
+    auto *grpDisplay = new QGroupBox(tr("Darstellung"));
+    auto *displayForm = new QFormLayout(grpDisplay);
+
+    m_uiFontSize = new QSpinBox();
+    m_uiFontSize->setRange(8, 24);
+    m_uiFontSize->setSuffix(tr(" pt"));
+    m_uiFontSize->setToolTip(tr("Steuert Schriftgröße, Icon-Größe und Zeilenhöhe"));
+
+    m_fontCombo = new QFontComboBox();
+    m_fontCombo->setEditable(true);
+    m_fontCombo->setToolTip(tr("App-weite Schriftart"));
+
+    auto *fontSizePreview = new QLabel();
+    fontSizePreview->setStyleSheet(QString("color:%1; font-size:11px;").arg(c.textMuted));
+    fontSizePreview->setText(tr("Icon-Größe und Zeilenhöhen werden automatisch angepasst"));
+
+    m_uiSpacing = new QSlider(Qt::Horizontal);
+    m_uiSpacing->setRange(0, 8);
+    m_uiSpacing->setTickInterval(1);
+    m_uiSpacing->setTickPosition(QSlider::TicksBelow);
+
+    auto *spacingRow = new QHBoxLayout();
+    m_uiSpacingLabel = new QLabel("2");
+    m_uiSpacingLabel->setFixedWidth(20);
+    spacingRow->addWidget(m_uiSpacing, 1);
+    spacingRow->addWidget(m_uiSpacingLabel);
+
+    connect(m_uiSpacing, &QSlider::valueChanged, this, [this](int v) {
+        m_uiSpacingLabel->setText(QString::number(v));
+    });
+
+    displayForm->addRow(tr("Schriftart:"), m_fontCombo);
+    displayForm->addRow(tr("Schriftgröße:"), m_uiFontSize);
+    displayForm->addRow(fontSizePreview);
+    displayForm->addRow(tr("Abstände:"), spacingRow);
+    lay->addWidget(grpDisplay);
+
+    // 5. PFAD-FILTER
     auto *grpFilter = new QGroupBox(tr("Pfad-Filter (Blacklist)"));
     auto *filterLay = new QVBoxLayout(grpFilter);
     auto *hint = new QLabel(tr("Diese Verzeichnisse werden in der Sidebar und den Laufwerkslisten versteckt."));
@@ -466,55 +551,7 @@ QWidget* SettingsDialog::createAppearancePage() {
       }
   });
 
-  // 5. ICON GRÖSSEN & ZEILENHÖHEN
-  auto *grpIcons = new QGroupBox(tr("Icon-Größen & Zeilenhöhen"));
-  auto *iconForm = new QFormLayout(grpIcons);
-  m_sidebarIconSize = new QSpinBox(); m_sidebarIconSize->setRange(16, 64);
-  m_driveIconSize = new QSpinBox();   m_driveIconSize->setRange(16, 64);
-  m_listIconSize = new QSpinBox();    m_listIconSize->setRange(16, 64);
-  m_sidebarRowHeight = new QSpinBox();      m_sidebarRowHeight->setRange(20, 80);
-  m_sidebarDriveRowHeight = new QSpinBox(); m_sidebarDriveRowHeight->setRange(30, 100);
-  m_millerHeaderHeight = new QSpinBox();    m_millerHeaderHeight->setRange(24, 80);
-
-  // Versteckte Felder — werden per Checkbox + Passwort eingeblendet
-  auto *chkAdvanced = new QCheckBox(tr("Erweiterte Höhen-Optionen anzeigen"));
-
-  iconForm->addRow(tr("Sidebar Icon:"), m_sidebarIconSize);
-  iconForm->addRow(tr("Laufwerke Icon:"), m_driveIconSize);
-  iconForm->addRow(tr("Dateilisten Icon:"), m_listIconSize);
-  iconForm->addRow(chkAdvanced);
-  iconForm->addRow(tr("Sidebar Höhe:"), m_sidebarRowHeight);
-  iconForm->addRow(tr("Laufwerke Höhe:"), m_sidebarDriveRowHeight);
-  iconForm->addRow(tr("Miller Header Höhe:"), m_millerHeaderHeight);
-
-  auto setAdvVisible = [this, iconForm](bool v) {
-    m_sidebarRowHeight->setVisible(v);
-    m_sidebarDriveRowHeight->setVisible(v);
-    m_millerHeaderHeight->setVisible(v);
-    if (auto *l = iconForm->labelForField(m_sidebarRowHeight))      l->setVisible(v);
-    if (auto *l = iconForm->labelForField(m_sidebarDriveRowHeight)) l->setVisible(v);
-    if (auto *l = iconForm->labelForField(m_millerHeaderHeight))    l->setVisible(v);
-  };
-  setAdvVisible(false);
-
-  connect(chkAdvanced, &QCheckBox::toggled, this, [this, chkAdvanced, setAdvVisible](bool checked) {
-    if (!checked) { setAdvVisible(false); return; }
-    bool ok = false;
-    const QString pw = QInputDialog::getText(this, tr("Passwort erforderlich"),
-                                             tr("Passwort für erweiterte Optionen:"),
-                                             QLineEdit::Password, QString(), &ok);
-    if (ok && pw == QStringLiteral("sudo")) {
-      setAdvVisible(true);
-    } else {
-      chkAdvanced->blockSignals(true);
-      chkAdvanced->setChecked(false);
-      chkAdvanced->blockSignals(false);
-    }
-  });
-
-  lay->addWidget(grpIcons);
-
-  // 6. AGE BADGES
+  // 5. AGE BADGES
   auto *grpAge = new QGroupBox(tr("Alters-Plaketten"));
   auto *ageLay = new QVBoxLayout(grpAge);
   
@@ -596,6 +633,32 @@ void SettingsDialog::load() {
   m_showHidden->setChecked(Config::showHiddenFiles());
   m_showExtensions->setChecked(Config::showFileExtensions());
   m_singleClick->setChecked(Config::singleClickOpen());
+  if (m_uiFontSize)     m_uiFontSize->setValue(Config::uiFontSize());
+  if (m_uiSpacing)      m_uiSpacing->setValue(Config::uiSpacing());
+  if (m_uiSpacingLabel) m_uiSpacingLabel->setText(QString::number(Config::uiSpacing()));
+
+  // Schriftart
+  if (m_fontCombo) {
+      const QString fam = Config::uiFontFamily();
+      if (!fam.isEmpty()) {
+          int idx = m_fontCombo->findText(fam, Qt::MatchFixedString);
+          if (idx >= 0)
+              m_fontCombo->setCurrentIndex(idx);
+          else
+              m_fontCombo->setCurrentFont(QFont(fam));
+      } else {
+          // Kein gespeicherter Wert — aktuelle App-Font anzeigen
+          m_fontCombo->setCurrentFont(qApp->font());
+      }
+  }
+
+  // Sprache
+  if (m_languageCombo) {
+      const QString lang = Config::appLanguage();
+      int idx = m_languageCombo->findData(lang);
+      m_languageCombo->setCurrentIndex(idx >= 0 ? idx : 0);
+      m_langHint->setVisible(false);
+  }
   
   int sb = Config::startupBehavior();
   if (auto *btn = m_startupGroup->button(sb)) btn->setChecked(true);
@@ -608,13 +671,6 @@ void SettingsDialog::load() {
 
   m_fileTypeColorList->clear();
   m_fileTypeColorList->addItems(Config::fileTypeColors());
-
-  m_sidebarIconSize->setValue(Config::sidebarIconSize());
-  m_driveIconSize->setValue(Config::driveIconSize());
-  m_listIconSize->setValue(Config::listIconSize());
-  m_sidebarRowHeight->setValue(Config::sidebarRowHeight());
-  m_sidebarDriveRowHeight->setValue(Config::sidebarDriveRowHeight());
-  m_millerHeaderHeight->setValue(Config::millerHeaderHeight());
 
   m_sSlider->setValue(Config::ageBadgeSaturation());
   m_lSlider->setValue(Config::ageBadgeLightness());
@@ -644,6 +700,22 @@ void SettingsDialog::save() {
   Config::setShowHiddenFiles(m_showHidden->isChecked());
   Config::setShowFileExtensions(m_showExtensions->isChecked());
   Config::setSingleClickOpen(m_singleClick->isChecked());
+  if (m_uiFontSize) Config::setUiFontSize(m_uiFontSize->value());
+  if (m_uiSpacing)  Config::setUiSpacing(m_uiSpacing->value());
+  if (m_fontCombo) {
+      const QString fam = m_fontCombo->currentFont().family();
+      Config::setUiFontFamily(fam);
+      QFont f = qApp->font();
+      f.setFamily(fam);
+      qApp->setFont(f);
+      const QString fontSs = QString("* { font-family: \"%1\"; }").arg(fam);
+      // Vorherige font-family-Regel ersetzen
+      QString ss = qApp->styleSheet();
+      static QRegularExpression re(R"(\* \{ font-family: "[^"]*"; \})");
+      ss.remove(re);
+      qApp->setStyleSheet(ss + fontSs);
+  }
+  if (m_languageCombo) Config::setAppLanguage(m_languageCombo->currentData().toString());
   
   Config::setStartupBehavior(m_startupGroup->checkedId());
   Config::setStartupPath(m_startupPathEdit->text());
@@ -655,13 +727,6 @@ void SettingsDialog::save() {
   for(int i=0; i < m_fileTypeColorList->count(); ++i) extCols << m_fileTypeColorList->item(i)->text();
   Config::setFileTypeColors(extCols);
   
-  Config::setSidebarIconSize(m_sidebarIconSize->value());
-  Config::setDriveIconSize(m_driveIconSize->value());
-  Config::setListIconSize(m_listIconSize->value());
-  Config::setSidebarRowHeight(m_sidebarRowHeight->value());
-  Config::setSidebarDriveRowHeight(m_sidebarDriveRowHeight->value());
-  Config::setMillerHeaderHeight(m_millerHeaderHeight->value());
-
   Config::setAgeBadgeSaturation(m_sSlider->value());
   Config::setAgeBadgeLightness(m_lSlider->value());
   Config::setShowNewIndicator(m_indicatorCheck->isChecked());
@@ -671,10 +736,14 @@ void SettingsDialog::save() {
   }
 
   emit settingsChanged();
-  
-  if (QMessageBox::question(this, tr("Neustart erforderlich"), 
+
+  if (QMessageBox::question(this, tr("Neustart erforderlich"),
       tr("Einige Änderungen erfordern einen Neustart. Jetzt neu starten?")) == QMessageBox::Yes) {
-      QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments());
-      QApplication::quit();
+      const QString bin = QApplication::applicationFilePath();
+      // Erst neuen Prozess starten, dann beenden
+      if (QProcess::startDetached(bin, {}))
+          QApplication::quit();
+      else
+          QMessageBox::warning(this, tr("Fehler"), tr("Neustart fehlgeschlagen: %1").arg(bin));
   }
 }

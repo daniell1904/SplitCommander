@@ -6,6 +6,7 @@
 #include <QList>
 #include <QMutex>
 #include <KSharedConfig>
+#include <QUrl>
 
 
 // --- TagManager --- (Verwaltet die Datei-Tags (Markierungen))
@@ -23,12 +24,18 @@ public:
     void addTag(const QString &name, const QString &color);
     void removeTag(const QString &name);
 
-    // Tag einer Datei setzen/lesen
+    // Tag einer Datei setzen/lesen (lokaler Pfad oder KIO-URL als String)
     void    setFileTag(const QString &path, const QString &tag);
     void    setFileTags(const QStringList &paths, const QString &tag);
     void    clearFileTag(const QString &path);
     void    clearFileTags(const QStringList &paths);
     QString fileTag(const QString &path) const;
+
+    // KIO-URL-Überladungen (gdrive:/, smb://, ...)
+    void    setFileTag(const QUrl &url, const QString &tag);
+    void    clearFileTag(const QUrl &url);
+    QString fileTag(const QUrl &url) const;
+    QList<QUrl> urlsWithTag(const QString &tag) const;
     QString tagColor(const QString &tagName) const;
 
     // Alle Dateien mit einem bestimmten Tag
