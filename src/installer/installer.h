@@ -326,13 +326,6 @@ private:
         connect(cbMakefile, &QCheckBox::toggled, this, [cardMakefile, updateCardStyle](bool checked) {
             updateCardStyle(cardMakefile, checked);
         });
-        
-        // Set Defaults
-        cbGit->setChecked(true);
-        cbPaperless->setChecked(true);
-        updateCardStyle(cardGit, true);
-        updateCardStyle(cardPaperless, true);
-        
         layout->addStretch(1);
         
         QHBoxLayout *btnLayout = new QHBoxLayout();
