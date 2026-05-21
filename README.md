@@ -63,6 +63,27 @@ The script automatically detects your distribution and installs all required dep
 ./install.sh --no-install  # build only, don't install system-wide
 ```
 
+#### 📦 Flatpak (Recommended)
+Build and run SplitCommander as a sandboxed Flatpak package:
+```bash
+flatpak-builder --force-clean --user --install build-flatpak org.github.daniell1904.SplitCommander.yml
+flatpak run org.github.daniell1904.SplitCommander
+```
+
+#### 🚀 Portable AppImage
+Build a fully portable, single-file executable that runs on any Linux distribution:
+```bash
+./build-appimage.sh
+# Run it directly:
+./dist/SplitCommander-x86_64.AppImage
+```
+
+#### 🏔️ Arch Linux (AUR)
+If you are on Arch Linux, CachyOS, or Manjaro, you can install the development version directly from the AUR:
+```bash
+yay -S splitcommander-git
+```
+
 ### Manual build
 
 ```bash
@@ -141,6 +162,27 @@ Das Script erkennt automatisch die Distribution und installiert alle Abhängigke
 ```bash
 ./install.sh --no-deps     # Abhängigkeiten überspringen
 ./install.sh --no-install  # Nur bauen, nicht systemweit installieren
+```
+
+#### 📦 Flatpak (Empfohlen)
+Du kannst SplitCommander als isoliertes Flatpak-Paket bauen und installieren:
+```bash
+flatpak-builder --force-clean --user --install build-flatpak org.github.daniell1904.SplitCommander.yml
+flatpak run org.github.daniell1904.SplitCommander
+```
+
+#### 🚀 Portables AppImage
+Erstelle eine portable, eigenständige ausführbare Datei, die auf jeder Distribution läuft:
+```bash
+./build-appimage.sh
+# Direkt starten:
+./dist/SplitCommander-x86_64.AppImage
+```
+
+#### 🏔️ Arch Linux (AUR)
+Nutzer von Arch Linux, CachyOS oder Manjaro können die Entwicklungsversion direkt aus dem AUR installieren:
+```bash
+yay -S splitcommander-git
 ```
 
 ### Manueller Build

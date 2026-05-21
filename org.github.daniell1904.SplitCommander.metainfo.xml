@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component type="desktop-application">
+  <id>org.github.daniell1904.SplitCommander</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>SplitCommander</name>
+  <name xml:lang="de">SplitCommander</name>
+  <summary>Native dual-pane C++/Qt6 file manager with Miller Columns</summary>
+  <summary xml:lang="de">Nativer zweispaltiger C++/Qt6-Dateimanager mit Miller-Columns</summary>
+  
+  <description>
+    <p>
+      SplitCommander is a fast, native, and highly-customizable dual-pane file manager for the KDE Plasma desktop. Built with modern C++20, Qt6, and KDE Frameworks 6, it delivers a premium, lightweight, and perfectly integrated user experience.
+    </p>
+    <p xml:lang="de">
+      SplitCommander ist ein extrem schneller, nativer und hochgradig anpassbarer zweispaltiger Dateimanager für den KDE Plasma Desktop. Entwickelt mit modernem C++20, Qt6 und KDE Frameworks 6 bietet er eine erstklassige, leichtgewichtige und perfekt integrierte Benutzererfahrung.
+    </p>
+    <p>Key Features:</p>
+    <p xml:lang="de">Hauptfunktionen:</p>
+    <ul>
+      <li>Dual-pane layout to view two folders side-by-side</li>
+      <li xml:lang="de">Zweispaltiges Layout, um zwei Ordner nebeneinander zu betrachten</li>
+      <li>Miller Columns view for ultra-fast tree-style navigation</li>
+      <li xml:lang="de">Miller-Columns-Ansicht für rasend schnelle Baum-Navigation</li>
+      <li>Highly customizable sidebar with drives, bookmarks, tags, and custom groups</li>
+      <li xml:lang="de">Anpassbare Seitenleiste mit Laufwerken, Lesezeichen, Tags und Gruppen</li>
+      <li>Native Google Drive and network share integration</li>
+      <li xml:lang="de">Native Google Drive und Netzwerkfreigaben-Integration</li>
+      <li>Batch renamer, integrated terminal actions, and full KIO drag-and-drop</li>
+      <li xml:lang="de">Mehrfach-Umbenenner, integrierte Terminal-Aktionen und volles Drag-and-Drop</li>
+      <li>Premium themes like Catppuccin, Nord, and Gruvbox</li>
+      <li xml:lang="de">Erstklassige Themes wie Catppuccin, Nord und Gruvbox</li>
+    </ul>
+  </description>
+  
+  <launchable type="desktop-id">splitcommander.desktop</launchable>
+  
+  <screenshots>
+    <screenshot type="default">
+      <caption>Main window with Nord theme and Miller Columns</caption>
+      <caption xml:lang="de">Hauptfenster im Nord-Theme mit Miller-Columns</caption>
+      <image>https://raw.githubusercontent.com/daniell1904/SplitCommander/main/screenshots/main_nord.png</image>
+    </screenshot>
+  </screenshots>
+  
+  <url type="homepage">https://github.com/daniell1904/SplitCommander</url>
+  <url type="bugtracker">https://github.com/daniell1904/SplitCommander/issues</url>
+  
+  <provides>
+    <binary>splitcommander</binary>
+  </provides>
+  
+  <content_rating type="oars-1.1"/>
+</component>
