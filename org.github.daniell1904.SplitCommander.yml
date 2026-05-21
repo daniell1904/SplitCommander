@@ -1,0 +1,39 @@
+app-id: org.github.daniell1904.SplitCommander
+runtime: org.kde.Platform
+runtime-version: '6.7'
+sdk: org.kde.Sdk
+command: splitcommander
+finish-args:
+  # Grafik & Anzeige
+  - --socket=wayland
+  - --socket=x11
+  - --share=ipc
+  - --device=dri
+  
+  # Netzwerk & Sockets (z.B. für Git, Paperless, Netzlaufwerke)
+  - --share=network
+  
+  # Dateimanager-Rechte (Zwingend erforderlich)
+  - --filesystem=host             # Ermöglicht Vollzugriff auf das Dateisystem des Nutzers
+  - --filesystem=xdg-run/gvfs     # Zugriff auf KIO/GVfs Netzwerkmounts
+  - --filesystem=xdg-run/gvfsd
+  
+  # DBus-Schnittstellen zur tiefen Systemintegration
+  - --talk-name=org.freedesktop.FileManager1    # Um als Standard-Dateimanager zu agieren
+  - --talk-name=org.kde.baloo                  # Baloo-Suchindex-Abfragen
+  - --talk-name=org.freedesktop.Notifications  # Systembenachrichtigungen
+  - --talk-name=org.freedesktop.secrets        # Für Git-Passwörter / KWallet
+  - --own-name=org.freedesktop.FileManager1
+
+modules:
+  - name: splitcommander
+    buildsystem: cmake-ninja
+    config-opts:
+      # Alle optionalen Plugins standardmäßig im Flatpak-Build aktivieren
+      - -DSC_PLUGIN_GIT=ON
+      - -DSC_PLUGIN_PAPERLESS=ON
+      - -DSC_PLUGIN_MOUNTISO=ON
+      - -DSC_PLUGIN_MAKEFILEACTIONS=ON
+    sources:
+      - type: dir
+        path: .
