@@ -22,16 +22,18 @@ cmake_install.cmake
 install_manifest.txt
 compile_commands.json
 
-# Backups
+# Backups & Temporary files
 versions/
 src/Sicherung/
-release.sh
 gcp
 .vscode/
+core
+core.*
 
-# Git & Heavy Assets (Zusatz für Antigravity)
-.git/
-logo.svg
+# Flatpak
+.flatpak-builder/
+flatpak_app/
+*.flatpak
 
 # AI agent files
 .agents/
