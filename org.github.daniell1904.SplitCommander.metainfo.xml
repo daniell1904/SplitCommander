@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component type="desktop-application">
-  <id>org.github.daniell1904.SplitCommander</id>
+  <id>splitcommander</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
   <name>SplitCommander</name>
   <name xml:lang="de">SplitCommander</name>
+  <developer_name>Daniel Lange</developer_name>
   <summary>Native dual-pane C++/Qt6 file manager with Miller Columns</summary>
   <summary xml:lang="de">Nativer zweispaltiger C++/Qt6-Dateimanager mit Miller-Columns</summary>
   
@@ -34,14 +35,6 @@
   </description>
   
   <launchable type="desktop-id">splitcommander.desktop</launchable>
-  
-  <screenshots>
-    <screenshot type="default">
-      <caption>Main window with Nord theme and Miller Columns</caption>
-      <caption xml:lang="de">Hauptfenster im Nord-Theme mit Miller-Columns</caption>
-      <image>https://raw.githubusercontent.com/daniell1904/SplitCommander/main/screenshots/main_nord.png</image>
-    </screenshot>
-  </screenshots>
   
   <url type="homepage">https://github.com/daniell1904/SplitCommander</url>
   <url type="bugtracker">https://github.com/daniell1904/SplitCommander/issues</url>
