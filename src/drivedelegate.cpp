@@ -117,18 +117,25 @@ void DriveDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QM
 
         }
     } else if (isKioPath) {
-        // KIO-Pfad ohne Balken: Name oben, URL/Host unten klein
-        QFontMetrics fm(p->font());
-        const int lineH = r.height() / 2;
-        p->setPen(QColor(TM().colors().textPrimary));
-        p->drawText(textX, r.top(), textW, lineH, Qt::AlignLeft | Qt::AlignVCenter,
-                    fm.elidedText(name, Qt::ElideRight, textW));
         QUrl u(path); u.setUserInfo(QString());
         const QString subtitle = u.host() + (u.path().isEmpty() || u.path() == "/" ? "" : u.path());
-        { QFont _f = qApp->font(); _f.setPointSize(8); p->setFont(_f); }
-        p->setPen(QColor(TM().colors().textAccent));
-        p->drawText(textX, r.top() + lineH, textW, lineH, Qt::AlignLeft | Qt::AlignVCenter,
-                    QFontMetrics(p->font()).elidedText(subtitle, Qt::ElideRight, textW));
+        
+        if (subtitle.isEmpty()) {
+            // Kein Subtitel vorhanden (z. B. trash:/): Text vertikal mittig ausrichten
+            p->setPen(QColor(TM().colors().textPrimary));
+            p->drawText(textX, r.top(), textW, r.height(), Qt::AlignLeft | Qt::AlignVCenter, name);
+        } else {
+            // Subtitel vorhanden: Name oben, Subtitel (Host/Pfad) unten klein
+            QFontMetrics fm(p->font());
+            const int lineH = r.height() / 2;
+            p->setPen(QColor(TM().colors().textPrimary));
+            p->drawText(textX, r.top(), textW, lineH, Qt::AlignLeft | Qt::AlignVCenter,
+                        fm.elidedText(name, Qt::ElideRight, textW));
+            { QFont _f = qApp->font(); _f.setPointSize(8); p->setFont(_f); }
+            p->setPen(QColor(TM().colors().textAccent));
+            p->drawText(textX, r.top() + lineH, textW, lineH, Qt::AlignLeft | Qt::AlignVCenter,
+                        QFontMetrics(p->font()).elidedText(subtitle, Qt::ElideRight, textW));
+        }
     } else {
         // Nicht eingehängt oder lokal: Name gedämpft + Eject-Symbol rechts
         const bool unmounted = path.startsWith("solid:");
