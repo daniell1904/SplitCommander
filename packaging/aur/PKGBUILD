@@ -1,0 +1,37 @@
+# Maintainer: Daniel Lange <https://github.com/daniell1904>
+pkgname=splitcommander-git
+_pkgname=SplitCommander
+pkgver=0.5.2.r0.g4b144f6
+pkgrel=1
+pkgdesc="A native, high-performance C++/Qt6 file manager for KDE with Miller Columns and custom themes"
+arch=('x86_64')
+url="https://github.com/daniell1904/SplitCommander"
+license=('GPL-3.0-or-later')
+depends=('qt6-base' 'qt6-svg' 'kio' 'solid' 'baloo' 'ki18n' 'kiconthemes' 'kconfigwidgets' 'kxmlgui' 'kwidgetsaddons' 'kwindowsystem' 'karchive' 'kcoreaddons')
+makedepends=('git' 'cmake' 'ninja' 'extra-cmake-modules')
+provides=('splitcommander')
+conflicts=('splitcommander')
+source=("git+https://github.com/daniell1904/SplitCommander.git")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "${srcdir}/${_pkgname}"
+  git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g;s/^v//'
+}
+
+build() {
+  # Build mit allen aktivierten optionalen Plugins
+  cmake -B build -S "${srcdir}/${_pkgname}" \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DSC_PLUGIN_GIT=ON \
+    -DSC_PLUGIN_PAPERLESS=ON \
+    -DSC_PLUGIN_MOUNTISO=ON \
+    -DSC_PLUGIN_MAKEFILEACTIONS=ON \
+    -G Ninja
+  cmake --build build
+}
+
+package() {
+  DESTDIR="${pkgdir}" cmake --install build
+}
