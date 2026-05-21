@@ -17,35 +17,47 @@ rm -rf "${BUILD_DIR}" "${APPDIR}"
 mkdir -p "${BUILD_DIR}"
 mkdir -p "${OUTPUT_DIR}"
 
-echo "=== 2. Lade linuxdeploy herunter ==="
-mkdir -p "${PROJECT_DIR}/tools"
-cd "${PROJECT_DIR}/tools"
+echo "=== 2. Lade linuxdeploy und Tooling herunter ==="
+mkdir -p tools
 
-# Lade linuxdeploy falls nicht vorhanden
-if [ ! -f "linuxdeploy-x86_64.AppImage" ]; then
-    echo "Lade linuxdeploy herunter..."
-    curl -sLo linuxdeploy-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-    chmod +x linuxdeploy-x86_64.AppImage
+if [ ! -d "tools/linuxdeploy-extracted" ]; then
+    echo "Lade linuxdeploy herunter und entpacke..."
+    wget -qO tools/linuxdeploy-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+    chmod +x tools/linuxdeploy-x86_64.AppImage
+    ./tools/linuxdeploy-x86_64.AppImage --appimage-extract > /dev/null
+    mv squashfs-root tools/linuxdeploy-extracted
 fi
 
-# Lade linuxdeploy Qt-Plugin falls nicht vorhanden
-if [ ! -f "linuxdeploy-plugin-qt-x86_64.AppImage" ]; then
-    echo "Lade linuxdeploy-plugin-qt herunter..."
-    curl -sLo linuxdeploy-plugin-qt-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
-    chmod +x linuxdeploy-plugin-qt-x86_64.AppImage
+if [ ! -d "tools/linuxdeploy-plugin-qt-extracted" ]; then
+    echo "Lade linuxdeploy-plugin-qt herunter und entpacke..."
+    wget -qO tools/linuxdeploy-plugin-qt-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+    chmod +x tools/linuxdeploy-plugin-qt-x86_64.AppImage
+    ./tools/linuxdeploy-plugin-qt-x86_64.AppImage --appimage-extract > /dev/null
+    mv squashfs-root tools/linuxdeploy-plugin-qt-extracted
+fi
+
+if [ ! -f "tools/patchelf_tmp/bin/patchelf" ]; then
+    echo "Lade modernes patchelf (0.18.0) als Fix für Fedora DT_RELR herunter..."
+    curl -sL https://github.com/NixOS/patchelf/releases/download/0.18.0/patchelf-0.18.0-x86_64.tar.gz -o tools/patchelf.tar.gz
+    mkdir -p tools/patchelf_tmp
+    tar -xzf tools/patchelf.tar.gz -C tools/patchelf_tmp
+    
+    # Überschreibe die kaputten patchelf Versionen in linuxdeploy
+    cp tools/patchelf_tmp/bin/patchelf tools/linuxdeploy-extracted/usr/bin/patchelf
+    cp tools/patchelf_tmp/bin/patchelf tools/linuxdeploy-plugin-qt-extracted/usr/bin/patchelf
 fi
 
 # Lade appimagetool falls nicht vorhanden
-if [ ! -f "appimagetool-x86_64.AppImage" ]; then
+if [ ! -f "tools/appimagetool-x86_64.AppImage" ]; then
     echo "Lade appimagetool herunter..."
-    curl -sLo appimagetool-x86_64.AppImage https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
-    chmod +x appimagetool-x86_64.AppImage
+    curl -sLo tools/appimagetool-x86_64.AppImage https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+    chmod +x tools/appimagetool-x86_64.AppImage
 fi
 # Deaktiviere extrem strenge AppStream-Validierung, indem wir ein Dummy-Skript in den lokalen PATH legen
 echo -e '#!/bin/sh\nexit 0' > "${PROJECT_DIR}/tools/appstreamcli"
 chmod +x "${PROJECT_DIR}/tools/appstreamcli"
 
-export PATH="${PROJECT_DIR}/tools:${PATH}"
+export PATH="${PROJECT_DIR}/tools:${PROJECT_DIR}/tools/linuxdeploy-plugin-qt-extracted/usr/bin:${PATH}"
 
 echo "=== 3. Kompiliere SplitCommander ==="
 cd "${PROJECT_DIR}"
@@ -77,7 +89,7 @@ export NO_STRIP=1
 
 # Führe linuxdeploy aus (nur Bereitstellung, kein direktes Packen, mit expliziter Desktop-Datei gegen Warnungen)
 echo "Analysiere und kopiere Qt/KF6 Abhängigkeiten (dies kann einen Moment dauern)..."
-if ! ./tools/linuxdeploy-x86_64.AppImage \
+if ! ./tools/linuxdeploy-extracted/AppRun \
     --appdir "${APPDIR}" \
     --desktop-file "${APPDIR}/usr/share/applications/splitcommander.desktop" \
     --plugin qt > build-linuxdeploy.log 2>&1; then
@@ -98,6 +110,8 @@ SYSTEM_LIBS=(
     "libdouble-conversion" "libicu" "libcanberra" "libvorbis" "libtdb" "libltdl"
     "libsasl2" "libgomp" "libcurl" "libnghttp" "libngtcp" "libbrotli" "libldap"
     "liblber" "libproxy" "libpxbackend" "libxcb" "libxkbcommon" "libz" "liblzma"
+    "libplist" "libimobiledevice" "libusbmuxd" "libwayland" "liblmdb" "libpcre2" "libb2"
+    "libbz2"
 )
 
 echo "Entferne problematische System-Bibliotheken aus AppDir..."
