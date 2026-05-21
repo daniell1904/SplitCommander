@@ -210,8 +210,8 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     hLay->setContentsMargins(12, 10, 8, 6);
     hLay->setSpacing(4);
 
-    auto *lbl = new QLabel(name.toUpper());
-    lbl->setStyleSheet(QString("font-size:14px;font-weight:normal;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
+    auto *lbl = new QLabel(name);
+    lbl->setStyleSheet(QString("font-size:14px;font-weight:normal;background:transparent;color:%1;").arg(TM().colors().textAccent));
     hLay->addWidget(lbl, 1);
 
     // Menü-Button (KDE Style)
@@ -352,7 +352,7 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
             if (!ok || newName.trimmed().isEmpty() || newName.trimmed() == *sharedName) return;
             const QString oldName = *sharedName;
             *sharedName = newName.trimmed();
-            lbl->setText(sharedName->toUpper());
+            lbl->setText(*sharedName);
 
             auto gs = Config::group("CustomGroups");
             QStringList grps = gs.readEntry("groups", QStringList());
@@ -452,8 +452,8 @@ void Sidebar::createGitGroupWidget(const QString &name)
     hLay->setContentsMargins(12, 10, 8, 6);
     hLay->setSpacing(4);
 
-    auto *lbl = new QLabel(name.toUpper());
-    lbl->setStyleSheet(QString("font-size:14px;font-weight:normal;text-transform:uppercase;background:transparent;color:%1;").arg(TM().colors().textAccent));
+    auto *lbl = new QLabel(name);
+    lbl->setStyleSheet(QString("font-size:14px;font-weight:normal;background:transparent;color:%1;").arg(TM().colors().textAccent));
     hLay->addWidget(lbl, 1);
 
     auto *menuBtn = new QPushButton();
@@ -575,7 +575,7 @@ void Sidebar::createGitGroupWidget(const QString &name)
             if (!ok || newName.trimmed().isEmpty() || newName.trimmed() == *sharedName) return;
             const QString oldName = *sharedName;
             *sharedName = newName.trimmed();
-            lbl->setText(sharedName->toUpper());
+            lbl->setText(*sharedName);
 
             auto gs = Config::group("CustomGroups");
             QStringList grps = gs.readEntry("groups", QStringList());

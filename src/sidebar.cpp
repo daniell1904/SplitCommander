@@ -467,11 +467,10 @@ void Sidebar::buildDrivesSection(QVBoxLayout *parent) {
   hLay->setSpacing(0);
   auto driveBoxSettings = Config::group("UI");
   const QString driveBoxLabel =
-      driveBoxSettings.readEntry("driveBoxLabel", tr("LAUFWERKE"));
+      driveBoxSettings.readEntry("driveBoxLabel", tr("Laufwerke"));
   auto *lbl = new QLabel(driveBoxLabel);
 
-  lbl->setStyleSheet(QString("font-size:%1px;font-weight:normal;text-transform:"
-                             "uppercase;background:transparent;color:%2;")
+  lbl->setStyleSheet(QString("font-size:%1px;font-weight:normal;background:transparent;color:%2;")
                          .arg(14)
                          .arg(TM().colors().textAccent));
   hLay->addWidget(lbl, 1);
@@ -1069,9 +1068,8 @@ void Sidebar::buildTagsSection(QVBoxLayout *parent) {
   auto *hLay = new QHBoxLayout(header);
   hLay->setContentsMargins(12, 10, 8, 6);
   hLay->setSpacing(4);
-  auto *lbl = new QLabel(tr("TAGS"));
-  lbl->setStyleSheet(QString("font-size:%1px;font-weight:normal;text-transform:"
-                             "uppercase;background:transparent;color:%2;")
+  auto *lbl = new QLabel(tr("Tags"));
+  lbl->setStyleSheet(QString("font-size:%1px;font-weight:normal;background:transparent;color:%2;")
                          .arg(14)
                          .arg(TM().colors().textAccent));
   hLay->addWidget(lbl, 1);
