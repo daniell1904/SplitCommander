@@ -26,6 +26,27 @@ finish-args:
   - --own-name=org.freedesktop.FileManager1
 
 modules:
+  - name: lmdb
+    no-autogen: true
+    make-install-args:
+      - prefix=/app
+    subdir: libraries/liblmdb
+    sources:
+      - type: archive
+        url: https://git.openldap.org/openldap/openldap/-/archive/LMDB_0.9.35/openldap-LMDB_0.9.35.tar.bz2
+        sha256: 98e28ab0a5c23fb2eb8ad12c12d7ad5fc5e4c3563f41d0b91e9420a075974d6f
+
+  - name: baloo
+    config-opts:
+      - -DBUILD_TESTING=OFF
+    buildsystem: cmake-ninja
+    builddir: true
+    sources:
+      - type: archive
+        url: https://download.kde.org/stable/frameworks/6.11/baloo-6.11.0.tar.xz
+        sha256: bb87d40534a00cc363d29e3d7d0f37a9dcdd0d831db1a57bbf8b8e395507560a
+
+
   - name: splitcommander
     buildsystem: cmake-ninja
     config-opts:
