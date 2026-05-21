@@ -15,10 +15,13 @@ finish-args:
   
   # Dateimanager-Rechte (Zwingend erforderlich)
   - --filesystem=host             # Ermöglicht Vollzugriff auf das Dateisystem des Nutzers
+  - --filesystem=/media           # Für externe Laufwerke/USB-Sticks
+  - --filesystem=/run/media       # Für automatisch gemountete Laufwerke in KDE
   - --filesystem=xdg-run/gvfs     # Zugriff auf KIO/GVfs Netzwerkmounts
   - --filesystem=xdg-run/gvfsd
   
   # DBus-Schnittstellen zur tiefen Systemintegration
+  - --system-talk-name=org.freedesktop.UDisks2  # ZWINGEND: Damit Laufwerke in der Seitenleiste auftauchen
   - --talk-name=org.freedesktop.FileManager1    # Um als Standard-Dateimanager zu agieren
   - --talk-name=org.kde.baloo                  # Baloo-Suchindex-Abfragen
   - --talk-name=org.freedesktop.Notifications  # Systembenachrichtigungen
