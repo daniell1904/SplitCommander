@@ -11,6 +11,24 @@
 
 ---
 
+### 📸 Screenshots & Gallery / Galerie
+
+<details open>
+<summary><b>Click to expand / Zum Aufklappen anklicken</b></summary>
+<br/>
+
+| 🔵 Nord Theme & Miller Columns | 🎨 Theme Creator & Tagging |
+| :---: | :---: |
+| <img src="screenshots/Bildschirmfoto_20260521_201438.png" width="450" alt="Main Window"/> <br/> *SplitCommander main window layout* | <img src="screenshots/Bildschirmfoto_20260521_201615.png" width="450" alt="Themes and Tags"/> <br/> *Miller Columns & custom file tagging* |
+
+| 📦 Native Qt6 Installer Wizard | 📂 Custom Sidebar Groups & Casing |
+| :---: | :---: |
+| <img src="screenshots/Bildschirmfoto_20260521_201513.png" width="450" alt="Installer Wizard"/> <br/> *Graphical setup wizard with custom plugin choices* | <img src="screenshots/Bildschirmfoto_20260521_201631.png" width="450" alt="New Group Dialog"/> <br/> *Wider, readable dialogs & centered sidebar elements* |
+
+</details>
+
+---
+
 <details open>
 <summary><b>🇬🇧 English</b></summary>
 
