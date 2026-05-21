@@ -5,11 +5,11 @@
 
 #include "thememanager.h"
 #include "tagmanager.h"
-#include "scglobal.h"
 #include <KIO/CopyJob>
 #include <KIO/Global>
 #include <KIO/OpenUrlJob>
 #include <KIO/JobUiDelegateFactory>
+#include <QDir>
 #include <QButtonGroup>
 #include <QColorDialog>
 #include <QCoreApplication>
@@ -18,7 +18,6 @@
 #include <QInputDialog>
 #include <QTreeWidget>
 #include <QDebug>
-#include <cstdio>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
@@ -67,7 +66,7 @@ void Sidebar::onNewGroupDialog()
 {
     QDialog dlg(this);
     dlg.setWindowTitle(tr("Neue Gruppe"));
-    dlg.setMinimumWidth(360);
+    dlg.setMinimumWidth(480);
     dlg.setStyleSheet(TM().ssDialog());
 
     auto *vl       = new QVBoxLayout(&dlg);
@@ -125,6 +124,11 @@ void Sidebar::onNewGroupDialog()
     vl->addWidget(btns);
 
     nameEdit->setFocus();
+    dlg.adjustSize();
+    if (auto *p = dlg.parentWidget()) {
+        QPoint center = p->mapToGlobal(p->rect().center());
+        dlg.move(center - QPoint(dlg.width() / 2, dlg.height() / 2));
+    }
     if (dlg.exec() != QDialog::Accepted) return;
 
     const QString grpName = nameEdit->text().trimmed();
