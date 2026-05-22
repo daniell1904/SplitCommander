@@ -821,6 +821,7 @@ void Sidebar::addTagItem(const QString &name, const QString &color, const QStrin
     p.drawEllipse(0, 0, 14, 14);
 
     auto *it = new QListWidgetItem(QIcon(pix), name, m_tagList);
+    it->setSizeHint(QSize(0, Config::sidebarRowHeight()));
     it->setData(Qt::UserRole,     color);
     it->setData(Qt::UserRole + 1, fontFamily);
     if (!fontFamily.isEmpty()) it->setFont(QFont(fontFamily));
