@@ -6,7 +6,8 @@
 #include <QList>
 
 // --- ThemeColors — alle semantischen Farben eines Themes ---
-struct ThemeColors {
+struct ThemeColors
+{
     // === Hintergründe ===
     QString bgMain;       // Sidebar-Hintergrund und allgemeine App-Basis
     QString bgDeep;       // Tiefster Hintergrund (Basis der Dateiansichten / Panes)
@@ -43,11 +44,12 @@ struct ThemeColors {
 };
 
 // --- ThemeManager — Singleton ---
-class ThemeManager : public QObject {
+class ThemeManager : public QObject
+{
     Q_OBJECT
 
 public:
-    static ThemeManager &instance();
+    [[nodiscard]] static ThemeManager &instance();
 
     // Aktuelles Theme anwenden (liest QSettings, emittiert themeChanged)
     void apply();
@@ -55,38 +57,38 @@ public:
     bool saveTheme(const ThemeColors &c);
 
     // Alle verfügbaren Themes (intern + extern)
-    QList<ThemeColors> allThemes();
+    [[nodiscard]] QList<ThemeColors> allThemes();
     void loadExternalThemes();
 
     // Direkter Zugriff auf Farben
-    const ThemeColors &colors() const { return m_colors; }
+    [[nodiscard]] const ThemeColors &colors() const { return m_colors; }
 
     // Stylesheet-Generatoren
-    QString ssToolBtn()     const;
-    QString ssActionBtn()   const;
-    QString ssColActive()   const;
-    QString ssColInactive() const;
-    QString ssColDrives()   const;
-    QString ssMenu()        const;
-    QString ssListWidget()  const;
-    QString ssDialog()      const;
-    QString ssSidebar()     const;
-    QString ssPane()        const;
-    QString ssToolbar()     const;
-    QString ssSearchPanel() const;
-    QString ssPathEdit()    const;
-    QString ssSplitter()    const;
-    QString ssBox()         const;
-    QString ssFooterBtn()   const;
+    [[nodiscard]] QString ssToolBtn()     const;
+    [[nodiscard]] QString ssActionBtn()   const;
+    [[nodiscard]] QString ssColActive()   const;
+    [[nodiscard]] QString ssColInactive() const;
+    [[nodiscard]] QString ssColDrives()   const;
+    [[nodiscard]] QString ssMenu()        const;
+    [[nodiscard]] QString ssListWidget()  const;
+    [[nodiscard]] QString ssDialog()      const;
+    [[nodiscard]] QString ssSidebar()     const;
+    [[nodiscard]] QString ssPane()        const;
+    [[nodiscard]] QString ssToolbar()     const;
+    [[nodiscard]] QString ssSearchPanel() const;
+    [[nodiscard]] QString ssPathEdit()    const;
+    [[nodiscard]] QString ssSplitter()    const;
+    [[nodiscard]] QString ssBox()         const;
+    [[nodiscard]] QString ssFooterBtn()   const;
 
     // Vordefinierte Themes (Nur noch als Vorlagen für den Export)
 private:
-    static ThemeColors nordTheme();
-    static ThemeColors catppuccinTheme();
-    static ThemeColors gruvboxTheme();
-    static ThemeColors draculaTheme();
-    static ThemeColors oneDarkTheme();
-    static ThemeColors solarizedDarkTheme();
+    [[nodiscard]] static ThemeColors nordTheme();
+    [[nodiscard]] static ThemeColors catppuccinTheme();
+    [[nodiscard]] static ThemeColors gruvboxTheme();
+    [[nodiscard]] static ThemeColors draculaTheme();
+    [[nodiscard]] static ThemeColors oneDarkTheme();
+    [[nodiscard]] static ThemeColors solarizedDarkTheme();
 
 signals:
     void themeChanged();
@@ -98,9 +100,11 @@ private:
 
     void exportDefaultThemes(const QString &destDir);
     void buildAppStyleSheet();
-    static ThemeColors themeFromJson(const QByteArray &data);
+    [[nodiscard]] static ThemeColors themeFromJson(const QByteArray &data);
 };
 
 // Kurzschreibweise
-inline ThemeManager &TM() { return ThemeManager::instance(); }
-
+[[nodiscard]] inline ThemeManager &TM()
+{
+    return ThemeManager::instance();
+}

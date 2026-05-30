@@ -9,7 +9,8 @@
 #include <QPropertyAnimation>
 #include <KIO/Job>
 
-class JobOverlay : public QWidget {
+class JobOverlay : public QWidget
+{
     Q_OBJECT
 
 public:
@@ -29,9 +30,9 @@ private:
     void updateStyling();
     void updatePosition();
 
-    QLabel *m_titleLabel;
-    QLabel *m_infoLabel;
-    QProgressBar *m_progressBar;
-    QPushButton *m_cancelBtn;
+    QLabel *m_titleLabel = nullptr;
+    QLabel *m_infoLabel = nullptr;
+    QProgressBar *m_progressBar = nullptr;
+    QPushButton *m_cancelBtn = nullptr;
     KJob *m_currentJob = nullptr;
 };

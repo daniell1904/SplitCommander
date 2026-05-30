@@ -1,4 +1,5 @@
 #pragma once
+
 #include <QDialog>
 #include <QStringList>
 #include "../../config.h"
@@ -11,59 +12,73 @@ class QLabel;
 class QComboBox;
 class QPushButton;
 class QWidget;
+class QVBoxLayout;
 
-class GitManagerDialog : public QDialog {
-  Q_OBJECT
+class GitManagerDialog : public QDialog
+{
+    Q_OBJECT
+
 public:
-  explicit GitManagerDialog(const QString &currentPath,
-                            QWidget *parent = nullptr);
+    explicit GitManagerDialog(const QString &currentPath, QWidget *parent = nullptr);
+    ~GitManagerDialog() override = default;
 
 signals:
-  void settingsChanged();
+    void settingsChanged();
 
 private:
-  void buildUI();
-  void load();
-  void save();
+    void buildUI();
+    void load();
+    void save();
 
-  void runGitCommand(const QStringList &args);
-  void refreshGitStatus();
-  void createGitHubRelease(const QString &tag, const QString &title,
-                           const QString &body, bool isLatest, bool isPrerelease);
-  void doCommitPush();
-  void doPull();
-  void doDiscard();
+    void runGitCommand(const QStringList &args);
+    void refreshGitStatus();
+    void createGitHubRelease(const QString &tag, const QString &title,
+                             const QString &body, bool isLatest, bool isPrerelease);
+    void doCommitPush();
+    void doPull();
+    void doDiscard();
 
-  // Multi-Repo helpers
-  void loadRepoToFields(int index);
-  void saveCurrentFieldsToRepo();
-  void rebuildRepoCombo();
+    // Section builders (NASA Rule 4 Compliance)
+    void setupRepoSelectionSection(QVBoxLayout *root, const QString &normBtnSS, const QString &inputSS, const QString &labelSS);
+    void setupBranchStatusSection(QVBoxLayout *root, const QString &labelSS, const QString &accentColor);
+    void setupCommitMessageSection(QVBoxLayout *root, const QString &labelSS, const QString &inputSS);
+    void setupMainActionsSection(QVBoxLayout *root, const QString &primBtnSS, const QString &normBtnSS, const QString &dangerBtnSS);
+    void setupPushOptionsSection(QVBoxLayout *root, const QString &checkSS, const QString &textAccent, const QString &borderAlt);
+    void setupPullOptionsSection(QVBoxLayout *root, const QString &checkSS, const QString &textAccent, const QString &borderAlt);
+    void setupAdvancedFunctionsSection(QVBoxLayout *root, const QString &normBtnSS, const QString &textAccent, const QString &accentColor);
+    void setupConnectionSettingsSection(QVBoxLayout *root, const QString &inputSS, const QString &normBtnSS, const QString &textAccent, const QString &borderAlt);
+    void setupLogOutputSection(QVBoxLayout *root, const QString &labelSS, const QString &bgDeep, const QString &textPrimary, const QString &borderAlt);
 
-  QString m_gitPath;
-  QLabel        *m_gitBranchLabel  = nullptr;
-  QTextEdit     *m_gitLog          = nullptr;
-  QLineEdit     *m_gitCommitMsg    = nullptr;
-  QListWidget   *m_gitStatusList   = nullptr;
+    // Multi-Repo helpers
+    void loadRepoToFields(int index);
+    void saveCurrentFieldsToRepo();
+    void rebuildRepoCombo();
 
-  // Repo config
-  QComboBox     *m_repoCombo       = nullptr;
-  QList<Config::GitRepo> m_repos;
-  int            m_currentRepo     = -1;
-  bool           m_blockSave       = false;
-  QLineEdit     *m_gitLocalDir     = nullptr;
-  QLineEdit     *m_gitRemoteUrl    = nullptr;
-  QLineEdit     *m_gitUsername     = nullptr;
-  QLineEdit     *m_gitToken        = nullptr;
-  QLineEdit     *m_gitRepoName     = nullptr;
+    QString m_gitPath;
+    QLabel        *m_gitBranchLabel  = nullptr;
+    QTextEdit     *m_gitLog          = nullptr;
+    QLineEdit     *m_gitCommitMsg    = nullptr;
+    QListWidget   *m_gitStatusList   = nullptr;
 
-  // Push-Optionen (Checkboxen)
-  QCheckBox     *m_optPushTags     = nullptr;
-  QCheckBox     *m_optCreateRelease= nullptr;
-  QCheckBox     *m_optForceWithLease = nullptr;
+    // Repo config
+    QComboBox     *m_repoCombo       = nullptr;
+    QList<Config::GitRepo> m_repos;
+    int            m_currentRepo     = -1;
+    bool           m_blockSave       = false;
+    QLineEdit     *m_gitLocalDir     = nullptr;
+    QLineEdit     *m_gitRemoteUrl    = nullptr;
+    QLineEdit     *m_gitUsername     = nullptr;
+    QLineEdit     *m_gitToken        = nullptr;
+    QLineEdit     *m_gitRepoName     = nullptr;
 
-  // Pull-Optionen
-  QCheckBox     *m_optPullRebase   = nullptr;
+    // Push-Optionen (Checkboxen)
+    QCheckBox     *m_optPushTags     = nullptr;
+    QCheckBox     *m_optCreateRelease= nullptr;
+    QCheckBox     *m_optForceWithLease = nullptr;
 
-  // Erweitert-Bereich
-  QWidget       *m_advancedWidget  = nullptr;
+    // Pull-Optionen
+    QCheckBox     *m_optPullRebase   = nullptr;
+
+    // Erweitert-Bereich
+    QWidget       *m_advancedWidget  = nullptr;
 };

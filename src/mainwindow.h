@@ -1,4 +1,5 @@
 #pragma once
+
 #include <QMainWindow>
 #include <QApplication>
 #include <QSplitter>
@@ -6,6 +7,7 @@
 #include <KActionCollection>
 #include <KDirWatch>
 #include <KJob>
+#include <functional>
 #include "sidebar.h"
 #include "panewidget.h"
 #include "filemanager1.h"
@@ -13,21 +15,23 @@
 class JobOverlay;
 class Sidebar;
 
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow
+{
     Q_OBJECT
+
 public:
     explicit MainWindow(QWidget *parent = nullptr);
-    virtual ~MainWindow();
+    ~MainWindow() override;
 
     void registerJob(KJob *job, const QString &title);
     void doDelete(PaneWidget *pane = nullptr, bool permanent = false);
     void registerShortcuts();
-    KActionCollection *actionCollection() const { return m_actionCollection; }
-
-    PaneWidget *activePane() const;
-    PaneWidget *leftPane()   const { return m_leftPane; }
-    PaneWidget *rightPane()  const { return m_rightPane; }
-    Sidebar    *sidebar()    const { return m_sidebar; }
+    
+    [[nodiscard]] KActionCollection *actionCollection() const { return m_actionCollection; }
+    [[nodiscard]] PaneWidget *activePane() const;
+    [[nodiscard]] PaneWidget *leftPane()   const { return m_leftPane; }
+    [[nodiscard]] PaneWidget *rightPane()  const { return m_rightPane; }
+    [[nodiscard]] Sidebar    *sidebar()    const { return m_sidebar; }
 
 public:
     void openSettings(int page = -1);
@@ -53,6 +57,27 @@ private:
     void refreshAllDrives();
     void scheduleDriveRefresh();  // debounced refreshAllDrives
 
+    // --- Connections Hilfsfunktionen (NASA Rule 4) ---
+    void connectPaneSignals(PaneWidget *pane, PaneWidget *other);
+    void connectSidebarSignals();
+    void connectSystemNotifications();
+    void connectFileWatcher();
+
+    // --- Shortcuts Hilfsfunktionen (NASA Rule 4) ---
+    struct ShortcutRegistrar
+    {
+        std::function<QAction*(const QString&, const QString&, const QString&, const QKeySequence&, std::function<void()>, const QKeySequence&)> addActRaw;
+        QAction* operator()(const QString &id, const QString &label, const QString &icon, const QKeySequence &defKey, std::function<void()> fn, const QKeySequence &altKey = {}) const
+        {
+            return addActRaw(id, label, icon, defKey, fn, altKey);
+        }
+    };
+    void registerNavigationShortcuts(const ShortcutRegistrar &addAct);
+    void registerTabShortcuts(const ShortcutRegistrar &addAct);
+    void registerPaneShortcuts(const ShortcutRegistrar &addAct);
+    void registerFileShortcuts(const ShortcutRegistrar &addAct);
+    void registerViewShortcuts(const ShortcutRegistrar &addAct);
+
     Sidebar    *m_sidebar          = nullptr;
     JobOverlay *m_jobOverlay       = nullptr;
     PaneWidget *m_leftPane         = nullptr;
@@ -67,8 +92,14 @@ private:
     QTimer     *m_driveRefreshTimer = nullptr;
 };
 
-inline MainWindow *MW() {
+[[nodiscard]] inline MainWindow *MW()
+{
     for (auto *w : qApp->topLevelWidgets())
-        if (auto *mw = qobject_cast<MainWindow*>(w)) return mw;
+    {
+        if (auto *mw = qobject_cast<MainWindow*>(w))
+        {
+            return mw;
+        }
+    }
     return nullptr;
 }

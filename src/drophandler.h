@@ -6,7 +6,8 @@
 #include <QModelIndex>
 #include <functional>
 
-class DropHandler : public QObject {
+class DropHandler : public QObject
+{
     Q_OBJECT
 public:
     using UrlResolver = std::function<QUrl(const QModelIndex&)>;
@@ -14,7 +15,7 @@ public:
     explicit DropHandler(QAbstractItemView *view, UrlResolver resolver, QObject *parent = nullptr);
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *e) override;
+    [[nodiscard]] bool eventFilter(QObject *obj, QEvent *e) override;
 
 private:
     QAbstractItemView *m_view;

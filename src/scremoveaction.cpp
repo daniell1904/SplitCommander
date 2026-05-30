@@ -1,31 +1,59 @@
-// --- scremoveaction.cpp -----------------------------------------------------
 #include "scremoveaction.h"
-
 #include <KActionCollection>
 #include <QGuiApplication>
 #include <QKeyEvent>
 #include <QMenu>
 
 SCRemoveAction::SCRemoveAction(KActionCollection *collection, QMenu *menu)
-    : QAction(menu), m_collection(collection), m_menu(menu) {
-    connect(this, &QAction::triggered, this, [this]() {
-        if (m_action) m_action->trigger();
-    });
-    if (m_menu) m_menu->installEventFilter(this);
-    if (auto *app = QGuiApplication::instance()) app->installEventFilter(this);
-    m_shiftPressed = QGuiApplication::queryKeyboardModifiers() & Qt::ShiftModifier;
+    : QAction(menu)
+    , m_collection(collection)
+    , m_menu(menu)
+{
+    Q_ASSERT(collection != nullptr);
+    Q_ASSERT(menu != nullptr);
+
+    connect(this, &QAction::triggered, this, [this]()
+            {
+                if (m_action != nullptr)
+                {
+                    m_action->trigger();
+                }
+            });
+
+    m_menu->installEventFilter(this);
+
+    auto *app = QGuiApplication::instance();
+    Q_ASSERT(app != nullptr);
+    app->installEventFilter(this);
+
+    m_shiftPressed = (QGuiApplication::queryKeyboardModifiers() & Qt::ShiftModifier) != 0;
     update(m_shiftPressed ? ShiftState::Pressed : ShiftState::Released);
 }
 
-SCRemoveAction::~SCRemoveAction() {
-    if (m_menu) m_menu->removeEventFilter(this);
-    if (auto *app = QGuiApplication::instance()) app->removeEventFilter(this);
+SCRemoveAction::~SCRemoveAction()
+{
+    if (m_menu != nullptr)
+    {
+        m_menu->removeEventFilter(this);
+    }
+    auto *app = QGuiApplication::instance();
+    if (app != nullptr)
+    {
+        app->removeEventFilter(this);
+    }
 }
 
-bool SCRemoveAction::eventFilter(QObject *obj, QEvent *event) {
-    if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
+bool SCRemoveAction::eventFilter(QObject *obj, QEvent *event)
+{
+    Q_ASSERT(obj != nullptr);
+    Q_ASSERT(event != nullptr);
+
+    if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease)
+    {
         auto *ke = static_cast<QKeyEvent *>(event);
-        if (ke->key() == Qt::Key_Shift && !ke->isAutoRepeat()) {
+        Q_ASSERT(ke != nullptr);
+        if (ke->key() == Qt::Key_Shift && !ke->isAutoRepeat())
+        {
             m_shiftPressed = (event->type() == QEvent::KeyPress);
             update(m_shiftPressed ? ShiftState::Pressed : ShiftState::Released);
         }
@@ -33,23 +61,39 @@ bool SCRemoveAction::eventFilter(QObject *obj, QEvent *event) {
     return QObject::eventFilter(obj, event);
 }
 
-void SCRemoveAction::update(ShiftState state) {
-    if (!m_collection) return;
-    if (state == ShiftState::Unknown) {
-        state = m_shiftPressed ? ShiftState::Pressed : ShiftState::Released;
+void SCRemoveAction::update(ShiftState state)
+{
+    if (m_collection == nullptr)
+    {
+        return;
     }
-    if (state == ShiftState::Pressed) {
+
+    ShiftState targetState = state;
+    if (targetState == ShiftState::Unknown)
+    {
+        targetState = m_shiftPressed ? ShiftState::Pressed : ShiftState::Released;
+    }
+
+    if (targetState == ShiftState::Pressed)
+    {
         m_action = m_collection->action(QStringLiteral("file_delete"));
-    } else {
+    }
+    else
+    {
         m_action = m_collection->action(QStringLiteral("file_trash"));
     }
-    if (m_action) {
+
+    if (m_action != nullptr)
+    {
         setText(m_action->text());
         setIcon(m_action->icon());
         setEnabled(m_action->isEnabled());
-        setShortcut(state == ShiftState::Pressed
+        setShortcut(targetState == ShiftState::Pressed
                         ? QKeySequence(Qt::SHIFT | Qt::Key_Delete)
                         : QKeySequence(Qt::Key_Delete));
-        if (m_menu) m_menu->update();
+        if (m_menu != nullptr)
+        {
+            m_menu->update();
+        }
     }
 }

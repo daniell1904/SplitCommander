@@ -47,7 +47,7 @@ void ThemePreviewWidget::setupUI()
     middleLay->setContentsMargins(0, 0, 0, 0);
     middleLay->setSpacing(0);
 
-    // --- SIDEBAR ---
+    // --- SEITENLEISTE ---
     m_sidebar = new QFrame(middleWidget);
     m_sidebar->setObjectName("mockSidebar");
     m_sidebar->setFixedWidth(190);
@@ -112,7 +112,7 @@ void ThemePreviewWidget::setupUI()
     sidebarLay->addStretch();
     middleLay->addWidget(m_sidebar);
 
-    // --- FILE PANES ---
+    // --- DATEIANSICHTEN ---
     // Linke Pane (Aktiv & Fokussiert)
     m_activePane = new QFrame(middleWidget);
     m_activePane->setObjectName("mockActivePane");
@@ -173,7 +173,7 @@ void ThemePreviewWidget::setupUI()
 
     containerLay->addWidget(middleWidget, 1);
 
-    // --- FOOTER / TOOLBAR ---
+    // --- FUSSZEILE / WERKZEUGLEISTE ---
     m_footer = new QFrame(m_container);
     m_footer->setObjectName("mockFooter");
     m_footer->setFixedHeight(44);

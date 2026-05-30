@@ -1,4 +1,5 @@
 #pragma once
+
 #include <QObject>
 #include <QHash>
 #include <QString>
@@ -7,21 +8,24 @@
 #include "../../config.h"
 
 // Status pro Datei
-enum class GitFileStatus {
+enum class GitFileStatus
+{
     Unchanged,    // grün
     LocalChange,  // rot — uncommitted / lokal geändert
     RemoteAhead,  // gelb — Remote hat neuere Version
 };
 
-class GitStatusManager : public QObject {
+class GitStatusManager : public QObject
+{
     Q_OBJECT
+
 public:
-    static GitStatusManager& instance();
+    [[nodiscard]] static GitStatusManager &instance();
 
     // Status für eine konkrete Datei (relativ oder absolut)
-    GitFileStatus statusFor(const QString &repoPath, const QString &filePath) const;
+    [[nodiscard]] GitFileStatus statusFor(const QString &repoPath, const QString &filePath) const;
     // Liste aller Repo-Dateien für die der Manager Status hat
-    QStringList trackedFiles(const QString &repoPath) const;
+    [[nodiscard]] QStringList trackedFiles(const QString &repoPath) const;
 
     void reloadConfig();
     void refreshAllRepos();
@@ -32,6 +36,7 @@ signals:
 
 private:
     explicit GitStatusManager(QObject *parent = nullptr);
+    ~GitStatusManager() override = default;
 
     void setupWatchers();
     void setupTimer();

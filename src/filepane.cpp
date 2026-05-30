@@ -71,7 +71,6 @@
 #include <KNewFileMenu>
 #include <KPropertiesDialog>
 #include <KService>
-#include "filepane_helpers.h"
 #include "scremoveaction.h"
 
 
@@ -484,13 +483,6 @@ void FilePane::setupConnections() {
   connect(m_iconView, &QListView::customContextMenuRequested, this,
           &FilePane::showContextMenu);
   connect(m_iconView, &QListView::activated, this, &FilePane::onItemActivated);
-
-  // QTimer::singleShot(100, this, [this]() {
-  //    if (m_view && m_view->viewport())
-  //    m_view->viewport()->installEventFilter(this); if (m_iconView &&
-  //    m_iconView->viewport())
-  //    m_iconView->viewport()->installEventFilter(this);
-  // });
 
   auto resolver = [this](const QModelIndex &idx) -> QUrl {
     QUrl dest = QUrl::fromUserInput(m_currentPath);

@@ -6,6 +6,7 @@
 #include <QDialogButtonBox>
 #include <QIcon>
 #include <QPixmap>
+#include <QUrl>
 
 AddNetworkDialog::AddNetworkDialog(QWidget *parent)
     : QDialog(parent)
@@ -15,34 +16,38 @@ AddNetworkDialog::AddNetworkDialog(QWidget *parent)
     setStyleSheet(TM().ssDialog());
 
     auto *mainLay = new QVBoxLayout(this);
+    Q_ASSERT(mainLay != nullptr);
     mainLay->setSpacing(12);
     mainLay->setContentsMargins(16, 16, 16, 16);
 
     auto *form = new QFormLayout();
+    Q_ASSERT(form != nullptr);
     form->setSpacing(8);
     form->setLabelAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
-    const QString inputStyle = QString(
+    const QString inputStyle = QStringLiteral(
         "QLineEdit { background:%1; border:1px solid %2; color:%3; "
         "padding:4px 8px; border-radius:3px; font-size:12px; }"
         "QLineEdit:focus { border-color:%4; }")
         .arg(TM().colors().bgInput, TM().colors().borderAlt,
              TM().colors().textPrimary, TM().colors().accent);
 
-    const QString labelStyle = QString("color:%1; font-size:11px;")
+    const QString labelStyle = QStringLiteral("color:%1; font-size:11px;")
         .arg(TM().colors().textMuted);
 
     m_urlEdit = new QLineEdit(this);
+    Q_ASSERT(m_urlEdit != nullptr);
     m_urlEdit->setPlaceholderText(QStringLiteral("smb://192.168.0.1/Freigabe"));
     m_urlEdit->setStyleSheet(inputStyle);
 
     m_nameEdit = new QLineEdit(this);
+    Q_ASSERT(m_nameEdit != nullptr);
     m_nameEdit->setPlaceholderText(tr("Anzeigename"));
     m_nameEdit->setStyleSheet(inputStyle);
 
-    // Symbol-Auswahl
     m_iconCombo = new QComboBox(this);
-    m_iconCombo->setStyleSheet(QString(
+    Q_ASSERT(m_iconCombo != nullptr);
+    m_iconCombo->setStyleSheet(QStringLiteral(
         "QComboBox { background:%1; border:1px solid %2; color:%3; "
         "padding:4px 8px; border-radius:3px; font-size:11px; }"
         "QComboBox::drop-down { border:none; width:20px; }"
@@ -51,7 +56,7 @@ AddNetworkDialog::AddNetworkDialog(QWidget *parent)
         .arg(TM().colors().bgInput, TM().colors().borderAlt,
              TM().colors().textPrimary, TM().colors().bgSelect));
 
-    const QList<QPair<QString,QString>> icons = {
+    const QList<QPair<QString, QString>> icons = {
         {QStringLiteral("folder-remote-smb"),  tr("Freigegebener Ordner (SMB)")},
         {QStringLiteral("network-connect"),    tr("SSH / SFTP")},
         {QStringLiteral("folder-gdrive"),      tr("Google Drive")},
@@ -61,53 +66,78 @@ AddNetworkDialog::AddNetworkDialog(QWidget *parent)
         {QStringLiteral("folder-network"),     tr("Netzwerkordner")},
     };
     for (const auto &p : icons)
+    {
         m_iconCombo->addItem(QIcon::fromTheme(p.first), p.second, p.first);
+    }
 
     m_iconPreview = new QLabel(this);
+    Q_ASSERT(m_iconPreview != nullptr);
     m_iconPreview->setFixedSize(32, 32);
     m_iconPreview->setAlignment(Qt::AlignCenter);
 
     auto *iconRow = new QHBoxLayout();
+    Q_ASSERT(iconRow != nullptr);
     iconRow->setSpacing(8);
     iconRow->addWidget(m_iconCombo, 1);
     iconRow->addWidget(m_iconPreview);
 
     auto *urlLabel  = new QLabel(tr("Adresse:"),  this);
+    Q_ASSERT(urlLabel != nullptr);
     auto *nameLabel = new QLabel(tr("Name:"),      this);
+    Q_ASSERT(nameLabel != nullptr);
     auto *iconLabel = new QLabel(tr("Symbol:"),    this);
+    Q_ASSERT(iconLabel != nullptr);
     for (auto *l : {urlLabel, nameLabel, iconLabel})
+    {
         l->setStyleSheet(labelStyle);
+    }
 
     form->addRow(urlLabel,  m_urlEdit);
     form->addRow(nameLabel, m_nameEdit);
     form->addRow(iconLabel, iconRow);
     mainLay->addLayout(form);
 
-    // Auto-Name aus URL ableiten
-    connect(m_urlEdit, &QLineEdit::textChanged, this, [this](const QString &text) {
-        if (!m_nameEdit->isModified()) {
-            const QUrl url = QUrl::fromUserInput(text);
-            const QString scheme = url.scheme().toLower();
+    connect(m_urlEdit, &QLineEdit::textChanged, this, [this](const QString &text)
+    {
+        Q_ASSERT(m_nameEdit != nullptr);
+        Q_ASSERT(m_iconCombo != nullptr);
+        if (!m_nameEdit->isModified())
+        {
+            const QUrl urlObj = QUrl::fromUserInput(text);
+            const QString scheme = urlObj.scheme().toLower();
             QString derived;
             if (scheme == QStringLiteral("gdrive"))
-                derived = url.path().section('/', 1, 1);
+            {
+                derived = urlObj.path().section(QLatin1Char('/'), 1, 1);
+            }
             if (derived.isEmpty())
-                derived = url.fileName();
-            if (derived.isEmpty() && !url.host().isEmpty())
-                derived = url.host();
+            {
+                derived = urlObj.fileName();
+            }
+            if (derived.isEmpty() && !urlObj.host().isEmpty())
+            {
+                derived = urlObj.host();
+            }
             m_nameEdit->setText(derived);
             m_nameEdit->setModified(false);
 
-            // Icon auto-wählen
             int idx = 0;
             if (scheme == QStringLiteral("sftp") || scheme == QStringLiteral("ssh"))
+            {
                 idx = 1;
+            }
             else if (scheme == QStringLiteral("gdrive"))
+            {
                 idx = 2;
+            }
             else if (scheme == QStringLiteral("mtp"))
+            {
                 idx = 4;
+            }
             else if (scheme == QStringLiteral("bluetooth"))
+            {
                 idx = 5;
+            }
             m_iconCombo->setCurrentIndex(idx);
         }
         updateIcon();
@@ -117,10 +147,10 @@ AddNetworkDialog::AddNetworkDialog(QWidget *parent)
             this, &AddNetworkDialog::updateIcon);
     updateIcon();
 
-    // Buttons
     auto *buttons = new QDialogButtonBox(
         QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
-    buttons->setStyleSheet(QString(
+    Q_ASSERT(buttons != nullptr);
+    buttons->setStyleSheet(QStringLiteral(
         "QPushButton { background:%1; border:1px solid %2; color:%3; "
         "padding:5px 16px; border-radius:3px; font-size:11px; min-width:70px; }"
         "QPushButton:hover { background:%4; }"
@@ -129,35 +159,55 @@ AddNetworkDialog::AddNetworkDialog(QWidget *parent)
              TM().colors().textPrimary, TM().colors().bgHover,
              TM().colors().accent));
 
-    connect(buttons, &QDialogButtonBox::accepted, this, [this]() {
+    connect(buttons, &QDialogButtonBox::accepted, this, [this]()
+    {
+        Q_ASSERT(m_urlEdit != nullptr);
         if (!m_urlEdit->text().trimmed().isEmpty())
+        {
             accept();
+        }
     });
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
     mainLay->addWidget(buttons);
 }
 
-QString AddNetworkDialog::url() const {
+QString AddNetworkDialog::url() const
+{
+    Q_ASSERT(m_urlEdit != nullptr);
     QString raw = m_urlEdit->text().trimmed();
-    if (raw.isEmpty()) return raw;
+    if (raw.isEmpty())
+    {
+        return raw;
+    }
     if (!raw.contains(QStringLiteral("://")))
+    {
         raw = QStringLiteral("smb://") + raw;
+    }
     QUrl u(raw);
     if (u.path().isEmpty())
+    {
         u.setPath(QStringLiteral("/"));
+    }
     return u.toString();
 }
 
-QString AddNetworkDialog::name() const {
+QString AddNetworkDialog::name() const
+{
+    Q_ASSERT(m_nameEdit != nullptr);
     const QString n = m_nameEdit->text().trimmed();
     return n.isEmpty() ? url() : n;
 }
 
-QString AddNetworkDialog::iconName() const {
+QString AddNetworkDialog::iconName() const
+{
+    Q_ASSERT(m_iconCombo != nullptr);
     return m_iconCombo->currentData().toString();
 }
 
-void AddNetworkDialog::updateIcon() {
+void AddNetworkDialog::updateIcon()
+{
+    Q_ASSERT(m_iconCombo != nullptr);
+    Q_ASSERT(m_iconPreview != nullptr);
     const QString icon = m_iconCombo->currentData().toString();
     m_iconPreview->setPixmap(QIcon::fromTheme(icon).pixmap(28, 28));
 }

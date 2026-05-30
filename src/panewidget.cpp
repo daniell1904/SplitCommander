@@ -660,7 +660,7 @@ void PaneWidget::setFocused(bool f) {
           "QTreeView::item:hover{background:%3;}"
           "QTreeView::item:selected{background:%4;color:%5;}"
 
-          /* Header-Fix: Hintergrund geht bis zum Rand */
+          // Header-Fix: Hintergrund geht bis zum Rand
           "QHeaderView{background:%6;border:none;margin:0px;padding:0px;}"
           "QHeaderView::section{background:%6;color:%7;border:none;"
           "border-bottom:1px solid %3;border-right:1px solid %3;"
@@ -669,7 +669,7 @@ void PaneWidget::setFocused(bool f) {
 
           "QTreeView::corner{background:transparent;border:none;}"
 
-          /* Scrollbar komplett versteckt */
+          // Scrollbar komplett versteckt
           "QTreeView "
           "QScrollBar:vertical{width:0px;background:transparent;border:none;}"
           "QTreeView "

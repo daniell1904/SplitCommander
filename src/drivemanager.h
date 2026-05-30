@@ -5,27 +5,30 @@
 #include <QString>
 #include <QHash>
 #include <QPair>
+#include <QSet>
 
-struct DriveInfo {
-    bool isNetwork;
-    bool isMounted;
-    QString path;       // Pfad, URL oder "solid:udi"
-    QString name;       // Anzeigename
-    QString iconName;   // Icon
-    QString udi;        // Solid UDI (falls zutreffend)
-    QString subtitle;   // Zusatzinfo (z.B. Dateisystem oder URL-Scheme)
-    QString scheme;     // Netzwerk-Scheme (gdrive, smb, ftp etc)
-    double total;       // Gesamt in GB
-    double free;        // Frei in GB
+struct DriveInfo
+{
+    bool isNetwork = false;
+    bool isMounted = false;
+    QString path;
+    QString name;
+    QString iconName;
+    QString udi;
+    QString subtitle;
+    QString scheme;
+    double total = 0.0;
+    double free = 0.0;
 };
 
-class DriveManager : public QObject {
+class DriveManager : public QObject
+{
     Q_OBJECT
 public:
-    static DriveManager* instance();
+    [[nodiscard]] static DriveManager* instance();
 
-    QList<DriveInfo> localDrives() const { return m_localDrives; }
-    QList<DriveInfo> networkDrives() const { return m_networkDrives; }
+    [[nodiscard]] QList<DriveInfo> localDrives() const;
+    [[nodiscard]] QList<DriveInfo> networkDrives() const;
 
 public slots:
     void refreshAll();
@@ -39,7 +42,12 @@ private:
     explicit DriveManager(QObject *parent = nullptr);
     ~DriveManager() override = default;
 
+    void processStorageAccessDevices(QSet<QString> &shownPaths, QSet<QString> &shownUdis);
+    void processStorageVolumeDevices(const QSet<QString> &shownUdis);
+    void processSavedNetworkPlaces(QSet<QString> &shownPaths);
+    void processMountedNetworkVolumes(QSet<QString> &shownPaths);
+
     QList<DriveInfo> m_localDrives;
     QList<DriveInfo> m_networkDrives;
-    QHash<QString, QPair<double,double>> m_netFreeCache;
+    QHash<QString, QPair<double, double>> m_netFreeCache;
 };

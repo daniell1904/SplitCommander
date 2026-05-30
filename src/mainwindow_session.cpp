@@ -3,8 +3,6 @@
 // Tabs, Pfaden und Close-Event-Handling.
 // ---------------------------------------------------------------------------
 
-// --- mainwindow.cpp — SplitCommander Hauptfenster ---
-
 #include "mainwindow.h"
 #include "config.h"
 #ifdef SC_PLUGIN_GIT
@@ -35,7 +33,6 @@
 #include <Solid/StorageAccess>
 #include <Solid/StorageDrive>
 #include <Solid/StorageVolume>
-
 
 #include <QActionGroup>
 #include <QApplication>
@@ -78,97 +75,116 @@
 #include <QXmlStreamReader>
 #include <QtConcurrent>
 
-
 #include "panewidget.h"
 
 // --- MainWindow ---
 
-void MainWindow::restoreSession() {
-  QString leftPath, rightPath;
-  const int behavior = Config::startupBehavior();
-  const QString configPath = Config::startupPath();
-  const QString lastLeft = Config::lastLeftPath();
-  const QString lastRight = Config::lastRightPath();
+void MainWindow::restoreSession()
+{
+    Q_ASSERT(m_leftPane != nullptr && m_rightPane != nullptr && m_panesSplitter != nullptr);
+    QString leftPath;
+    QString rightPath;
+    const int behavior = Config::startupBehavior();
+    const QString configPath = Config::startupPath();
+    const QString lastLeft = Config::lastLeftPath();
+    const QString lastRight = Config::lastRightPath();
 
-  if (behavior == 0) { // Letzte Sitzung
-    leftPath = lastLeft;
-    rightPath = lastRight;
-  } else if (behavior == 1) { // Dieser PC
-    leftPath = "__drives__";
-    rightPath = "__drives__";
-  } else if (behavior == 2) { // Fester Pfad
-    leftPath = configPath;
-    rightPath = configPath;
-  }
-  
-  // Validierung lokaler Pfade
-  if (behavior != 2) {
-      if (leftPath.isEmpty() || (leftPath.startsWith("/") && !QFileInfo::exists(leftPath)))
-        leftPath = QDir::homePath();
-      if (rightPath.isEmpty() || (rightPath.startsWith("/") && !QFileInfo::exists(rightPath)))
-        rightPath = QDir::homePath();
-  }
+    if (behavior == 0) // Letzte Sitzung
+    {
+        leftPath = lastLeft;
+        rightPath = lastRight;
+    }
+    else if (behavior == 1) // Dieser PC
+    {
+        leftPath = QStringLiteral("__drives__");
+        rightPath = QStringLiteral("__drives__");
+    }
+    else if (behavior == 2) // Fester Pfad
+    {
+        leftPath = configPath;
+        rightPath = configPath;
+    }
+    
+    // Validierung lokaler Pfade
+    if (behavior != 2)
+    {
+        if (leftPath.isEmpty() || (leftPath.startsWith(QLatin1Char('/')) && !QFileInfo::exists(leftPath)))
+        {
+            leftPath = QDir::homePath();
+        }
+        if (rightPath.isEmpty() || (rightPath.startsWith(QLatin1Char('/')) && !QFileInfo::exists(rightPath)))
+        {
+            rightPath = QDir::homePath();
+        }
+    }
 
-  auto sUI = Config::group("UI");
-  // Einfache Navigation — Tabs werden nicht restored (zu früh im Init)
-  if (behavior == 0) {
-    QStringList leftTabs  = sUI.readEntry("left/tabs",  QStringList());
-    QStringList rightTabs = sUI.readEntry("right/tabs", QStringList());
-    m_leftPane->navigateTo(leftTabs.isEmpty()  ? leftPath  : leftTabs.first(), false);
-    m_rightPane->navigateTo(rightTabs.isEmpty() ? rightPath : rightTabs.first(), false);
-  } else {
-    m_leftPane->navigateTo(leftPath);
-    m_rightPane->navigateTo(rightPath);
-  }
-  m_currentMode = sUI.readEntry("layoutMode", 1);
-  applyLayout(m_currentMode);
+    auto sUI = Config::group("UI");
+    // Einfache Navigation — Tabs werden nicht restored (zu früh im Init)
+    if (behavior == 0)
+    {
+        const QStringList leftTabs  = sUI.readEntry("left/tabs",  QStringList());
+        const QStringList rightTabs = sUI.readEntry("right/tabs", QStringList());
+        m_leftPane->navigateTo(leftTabs.isEmpty() ? leftPath : leftTabs.first(), false);
+        m_rightPane->navigateTo(rightTabs.isEmpty() ? rightPath : rightTabs.first(), false);
+    }
+    else
+    {
+        m_leftPane->navigateTo(leftPath);
+        m_rightPane->navigateTo(rightPath);
+    }
+    m_currentMode = sUI.readEntry("layoutMode", 1);
+    applyLayout(m_currentMode);
 
-  connect(m_panesSplitter, &QSplitter::splitterMoved, this, [this](int, int) {
-    auto ss = Config::group("UI");
-    ss.writeEntry("panesSplitterState", m_panesSplitter->saveState());
-    ss.config()->sync();
-  });
+    connect(m_panesSplitter, &QSplitter::splitterMoved, this, [this](int, int)
+    {
+        auto ss = Config::group("UI");
+        ss.writeEntry("panesSplitterState", m_panesSplitter->saveState());
+        ss.config()->sync();
+    });
 
-  m_leftPane->setFocused(true);
-  m_rightPane->setFocused(false);
-
-  QTimer::singleShot(100, this, [this]() {
     m_leftPane->setFocused(true);
     m_rightPane->setFocused(false);
-  });
 
-  registerShortcuts();
+    QTimer::singleShot(100, this, [this]()
+    {
+        m_leftPane->setFocused(true);
+        m_rightPane->setFocused(false);
+    });
+
+    registerShortcuts();
 }
 
+void MainWindow::saveWindowState()
+{
+    Q_ASSERT(m_sidebar != nullptr && m_panesSplitter != nullptr && m_leftPane != nullptr && m_rightPane != nullptr);
+    auto s = Config::group("UI");
 
-void MainWindow::saveWindowState() {
-  auto s = Config::group("UI");
+    // Fenster-Geometrie
+    s.writeEntry("windowGeometry", saveGeometry());
 
-  // Fenster-Geometrie
-  s.writeEntry("windowGeometry", saveGeometry());
+    // Sidebar
+    s.writeEntry("sidebarVisible", m_sidebar->isVisible());
+    s.writeEntry("sidebarWidth", m_sidebar->width());
 
-  // Sidebar
-  s.writeEntry("sidebarVisible", m_sidebar->isVisible());
-  s.writeEntry("sidebarWidth", m_sidebar->width());
+    // Pane-Splitter (links/rechts bzw. oben/unten)
+    s.writeEntry("panesSplitterState", m_panesSplitter->saveState());
 
-  // Pane-Splitter (links/rechts bzw. oben/unten)
-  s.writeEntry("panesSplitterState", m_panesSplitter->saveState());
+    // Beide Panes: Miller-Größe und collapsed-State
+    m_leftPane->saveState();
+    m_rightPane->saveState();
 
-  // Beide Panes: Miller-Größe und collapsed-State
-  m_leftPane->saveState();
-  m_rightPane->saveState();
-
-  s.config()->sync();
+    s.config()->sync();
 }
 
-void MainWindow::closeEvent(QCloseEvent *e) {
-  saveWindowState();
+void MainWindow::closeEvent(QCloseEvent *e)
+{
+    saveWindowState();
 
-  // Session speichern falls aktiviert
-  if (Config::startupBehavior() == 1) {
-    Config::setLastPaths(m_leftPane->currentPath(), m_rightPane->currentPath());
-  }
+    // Session speichern falls aktiviert
+    if (Config::startupBehavior() == 1)
+    {
+        Config::setLastPaths(m_leftPane->currentPath(), m_rightPane->currentPath());
+    }
 
-  QMainWindow::closeEvent(e);
+    QMainWindow::closeEvent(e);
 }
-

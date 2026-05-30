@@ -3,249 +3,635 @@
 #include <QDir>
 #include <QFileInfo>
 
-static KConfigGroup generalGroup() {
-    return KSharedConfig::openConfig("splitcommanderrc")->group(QStringLiteral("General"));
+static KConfigGroup generalGroup()
+{
+    auto config = KSharedConfig::openConfig(QStringLiteral("splitcommanderrc"));
+    Q_ASSERT(config != nullptr);
+    auto group = config->group(QStringLiteral("General"));
+    Q_ASSERT(group.isValid());
+    return group;
 }
 
-static KConfigGroup appearanceGroup() {
-    return KSharedConfig::openConfig("splitcommanderrc")->group(QStringLiteral("Appearance"));
+static KConfigGroup appearanceGroup()
+{
+    auto config = KSharedConfig::openConfig(QStringLiteral("splitcommanderrc"));
+    Q_ASSERT(config != nullptr);
+    auto group = config->group(QStringLiteral("Appearance"));
+    Q_ASSERT(group.isValid());
+    return group;
 }
 
-static KConfigGroup ageBadgeGroup() {
-    return KSharedConfig::openConfig("splitcommanderrc")->group(QStringLiteral("AgeBadge"));
+static KConfigGroup ageBadgeGroup()
+{
+    auto config = KSharedConfig::openConfig(QStringLiteral("splitcommanderrc"));
+    Q_ASSERT(config != nullptr);
+    auto group = config->group(QStringLiteral("AgeBadge"));
+    Q_ASSERT(group.isValid());
+    return group;
 }
 
-bool Config::useSystemTheme() {
-    return appearanceGroup().readEntry("useSystemTheme", false);
+static KConfigGroup adminGroup()
+{
+    auto config = KSharedConfig::openConfig(QStringLiteral("splitcommanderrc"));
+    Q_ASSERT(config != nullptr);
+    auto group = config->group(QStringLiteral("Admin"));
+    Q_ASSERT(group.isValid());
+    return group;
 }
 
-QString Config::selectedTheme() {
-    return appearanceGroup().readEntry("theme", QStringLiteral("Nord"));
+bool Config::useSystemTheme()
+{
+    auto g = appearanceGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("useSystemTheme", false);
 }
 
-QColor Config::ageBadgeColor(int index) {
+QString Config::selectedTheme()
+{
+    auto g = appearanceGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("theme", QStringLiteral("Nord"));
+}
+
+QColor Config::ageBadgeColor(int index)
+{
+    Q_ASSERT(index >= 0);
+    auto g = ageBadgeGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+
     const int hues[6] = {0, 30, 80, 160, 220, 270};
-    auto group = ageBadgeGroup();
-    int sat = group.readEntry("saturation", 220);
-    int lit = group.readEntry("lightness", 140);
-    int sMapped = 40 + (sat * (255 - 40) / 255);
-    int lMapped = 60 + (lit * (220 - 60) / 255);
-    int idx = qBound(0, index, 5);
-    int s_final = (idx == 5) ? sMapped / 2 : sMapped;
+    const int sat = g.readEntry("saturation", 220);
+    const int lit = g.readEntry("lightness", 140);
+    const int sMapped = 40 + (sat * (255 - 40) / 255);
+    const int lMapped = 60 + (lit * (220 - 60) / 255);
+    const int idx = qBound(0, index, 5);
+    const int s_final = (idx == 5) ? sMapped / 2 : sMapped;
     return QColor::fromHsl(hues[idx], s_final, lMapped);
 }
 
-QString Config::dateFormat() {
-    return generalGroup().readEntry("dateFormat", QStringLiteral("yyyy-MM-dd HH:mm"));
+QString Config::dateFormat()
+{
+    auto g = generalGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("dateFormat", QStringLiteral("yyyy-MM-dd HH:mm"));
 }
 
-bool Config::singleClickOpen() {
-    return generalGroup().readEntry("singleClick", false);
+bool Config::singleClickOpen()
+{
+    auto g = generalGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("singleClick", false);
 }
 
-
-bool Config::showHiddenFiles() {
-    return generalGroup().readEntry("showHidden", false);
+bool Config::showHiddenFiles()
+{
+    auto g = generalGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("showHidden", false);
 }
 
-bool Config::showFileExtensions() {
-    return generalGroup().readEntry("showExtensions", true);
+bool Config::showFileExtensions()
+{
+    auto g = generalGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("showExtensions", true);
 }
 
-int Config::startupBehavior() {
-    return generalGroup().readEntry("startupBehavior", 1);
+int Config::startupBehavior()
+{
+    auto g = generalGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("startupBehavior", 1);
 }
 
-QString Config::startupPath() {
-    return generalGroup().readEntry("startupPath", QDir::homePath());
+QString Config::startupPath()
+{
+    auto g = generalGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("startupPath", QDir::homePath());
 }
 
-bool Config::showNewIndicator() {
-    return ageBadgeGroup().readEntry("showNewIndicator", true);
+bool Config::showNewIndicator()
+{
+    auto g = ageBadgeGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("showNewIndicator", true);
 }
 
-int Config::ageBadgeSaturation() {
-    return ageBadgeGroup().readEntry("saturation", 220);
+int Config::ageBadgeSaturation()
+{
+    auto g = ageBadgeGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("saturation", 220);
 }
 
-int Config::ageBadgeLightness() {
-    return ageBadgeGroup().readEntry("lightness", 140);
+int Config::ageBadgeLightness()
+{
+    auto g = ageBadgeGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("lightness", 140);
 }
 
-QString Config::lastLeftPath() {
-    return generalGroup().readEntry("lastLeftPath", QDir::homePath());
+QString Config::lastLeftPath()
+{
+    auto g = generalGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("lastLeftPath", QDir::homePath());
 }
 
-QString Config::lastRightPath() {
-    return generalGroup().readEntry("lastRightPath", QDir::homePath());
+QString Config::lastRightPath()
+{
+    auto g = generalGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("lastRightPath", QDir::homePath());
 }
 
-
-
-
-void Config::setUseSystemTheme(bool b) {
-    appearanceGroup().writeEntry("useSystemTheme", b);
-    appearanceGroup().config()->sync();
+void Config::setUseSystemTheme(bool b)
+{
+    auto g = appearanceGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("useSystemTheme", b);
+    g.config()->sync();
 }
 
-void Config::setSelectedTheme(const QString &t) {
-    appearanceGroup().writeEntry("theme", t);
-    appearanceGroup().config()->sync();
+void Config::setSelectedTheme(const QString &t)
+{
+    Q_ASSERT(!t.isEmpty());
+    auto g = appearanceGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("theme", t);
+    g.config()->sync();
 }
 
-void Config::setSingleClickOpen(bool b) {
-    generalGroup().writeEntry("singleClick", b);
-    generalGroup().config()->sync();
+void Config::setSingleClickOpen(bool b)
+{
+    auto g = generalGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("singleClick", b);
+    g.config()->sync();
 }
 
-void Config::setShowHiddenFiles(bool b) {
-    generalGroup().writeEntry("showHidden", b);
-    generalGroup().config()->sync();
+void Config::setShowHiddenFiles(bool b)
+{
+    auto g = generalGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("showHidden", b);
+    g.config()->sync();
 }
 
-void Config::setShowFileExtensions(bool b) {
-    generalGroup().writeEntry("showExtensions", b);
-    generalGroup().config()->sync();
+void Config::setShowFileExtensions(bool b)
+{
+    auto g = generalGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("showExtensions", b);
+    g.config()->sync();
 }
 
-void Config::setStartupBehavior(int i) {
-    generalGroup().writeEntry("startupBehavior", i);
-    generalGroup().config()->sync();
+void Config::setStartupBehavior(int i)
+{
+    Q_ASSERT(i >= 0);
+    auto g = generalGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("startupBehavior", i);
+    g.config()->sync();
 }
 
-void Config::setStartupPath(const QString &p) {
-    generalGroup().writeEntry("startupPath", p);
-    generalGroup().config()->sync();
+void Config::setStartupPath(const QString &p)
+{
+    Q_ASSERT(!p.isEmpty());
+    auto g = generalGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("startupPath", p);
+    g.config()->sync();
 }
 
-void Config::setShowNewIndicator(bool b) {
-    ageBadgeGroup().writeEntry("showNewIndicator", b);
-    ageBadgeGroup().config()->sync();
+void Config::setShowNewIndicator(bool b)
+{
+    auto g = ageBadgeGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("showNewIndicator", b);
+    g.config()->sync();
 }
 
-void Config::setAgeBadgeSaturation(int i) {
-    ageBadgeGroup().writeEntry("saturation", i);
-    ageBadgeGroup().config()->sync();
+void Config::setAgeBadgeSaturation(int i)
+{
+    Q_ASSERT(i >= 0);
+    auto g = ageBadgeGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("saturation", i);
+    g.config()->sync();
 }
 
-void Config::setAgeBadgeLightness(int i) {
-    ageBadgeGroup().writeEntry("lightness", i);
-    ageBadgeGroup().config()->sync();
+void Config::setAgeBadgeLightness(int i)
+{
+    Q_ASSERT(i >= 0);
+    auto g = ageBadgeGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("lightness", i);
+    g.config()->sync();
 }
 
-
-void Config::setLastPaths(const QString &left, const QString &right) {
-    generalGroup().writeEntry("lastLeftPath", left);
-    generalGroup().writeEntry("lastRightPath", right);
-    generalGroup().config()->sync();
+void Config::setLastPaths(const QString &left, const QString &right)
+{
+    Q_ASSERT(!left.isEmpty());
+    Q_ASSERT(!right.isEmpty());
+    auto g = generalGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("lastLeftPath", left);
+    g.writeEntry("lastRightPath", right);
+    g.config()->sync();
 }
 
-bool Config::useThumbnails() {
-    return appearanceGroup().readEntry("useThumbnails", true);
+bool Config::useThumbnails()
+{
+    auto g = appearanceGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("useThumbnails", true);
 }
 
-int Config::maxThumbnailSize() {
-    return appearanceGroup().readEntry("maxThumbnailSize", 50); // 50 MB
+int Config::maxThumbnailSize()
+{
+    auto g = appearanceGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("maxThumbnailSize", 50);
 }
 
-void Config::setUseThumbnails(bool b) {
-    appearanceGroup().writeEntry("useThumbnails", b);
-    appearanceGroup().config()->sync();
+void Config::setUseThumbnails(bool b)
+{
+    auto g = appearanceGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("useThumbnails", b);
+    g.config()->sync();
 }
 
-void Config::setMaxThumbnailSize(int i) {
-    appearanceGroup().writeEntry("maxThumbnailSize", i);
-    appearanceGroup().config()->sync();
+void Config::setMaxThumbnailSize(int i)
+{
+    Q_ASSERT(i >= 0);
+    auto g = appearanceGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("maxThumbnailSize", i);
+    g.config()->sync();
 }
 
-QStringList Config::fileTypeColors() {
+QStringList Config::fileTypeColors()
+{
+    auto g = appearanceGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+
     QStringList defaults;
-    defaults << ".js:#f7df1e" << ".cpp:#00599c" << ".h:#00599c" 
-             << ".pdf:#ff0000" << ".zip:#ffa500" << ".tar:#ffa500" << ".gz:#ffa500"
-             << ".md:#42b883" << ".txt:#42b883"
-             << ".png:#bd93f9" << ".jpg:#bd93f9" << ".svg:#bd93f9"
-             << ".mp4:#ff79c6" << ".mp3:#ff79c6";
+    defaults << QStringLiteral(".js:#f7df1e") << QStringLiteral(".cpp:#00599c") << QStringLiteral(".h:#00599c") 
+             << QStringLiteral(".pdf:#ff0000") << QStringLiteral(".zip:#ffa500") << QStringLiteral(".tar:#ffa500") << QStringLiteral(".gz:#ffa500")
+             << QStringLiteral(".md:#42b883") << QStringLiteral(".txt:#42b883")
+             << QStringLiteral(".png:#bd93f9") << QStringLiteral(".jpg:#bd93f9") << QStringLiteral(".svg:#bd93f9")
+             << QStringLiteral(".mp4:#ff79c6") << QStringLiteral(".mp3:#ff79c6");
 
-    return appearanceGroup().readEntry("fileTypeColors", defaults);
+    return g.readEntry("fileTypeColors", defaults);
 }
 
-void Config::setFileTypeColors(const QStringList &list) {
-    appearanceGroup().writeEntry("fileTypeColors", list);
-    appearanceGroup().config()->sync();
+void Config::setFileTypeColors(const QStringList &list)
+{
+    auto g = appearanceGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("fileTypeColors", list);
+    g.config()->sync();
 }
 
-KConfigGroup Config::group(const QString &name) {
-    return KSharedConfig::openConfig("splitcommanderrc")->group(name);
+KConfigGroup Config::group(const QString &name)
+{
+    Q_ASSERT(!name.isEmpty());
+    auto config = KSharedConfig::openConfig(QStringLiteral("splitcommanderrc"));
+    Q_ASSERT(config != nullptr);
+    auto grp = config->group(name);
+    Q_ASSERT(grp.isValid());
+    return grp;
 }
 
-static KConfigGroup adminGroup() {
-    return KSharedConfig::openConfig("splitcommanderrc")->group(QStringLiteral("Admin"));
+bool Config::showDriveIp()
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("showDriveIp", true);
 }
 
-bool Config::showDriveIp()        { return adminGroup().readEntry("showDriveIp", true); }
-bool Config::showMillerIp()       { return adminGroup().readEntry("showMillerIp", false); }
-QStringList Config::driveBlacklist() {
-    return adminGroup().readEntry("driveBlacklist",
-        QStringList{"/var/lib/docker", "/var/lib/containers"});
+bool Config::showMillerIp()
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("showMillerIp", false);
 }
-int Config::sidebarIconSize()  { return adminGroup().readEntry("sidebarIconSize", 22); }
-int Config::driveIconSize()    { return uiFontSize(); }
-int Config::millerIconSize()   { return driveIconSize(); }
-int Config::listIconSize()     { return adminGroup().readEntry("listIconSize", 16); }
 
-void Config::setShowDriveIp(bool b)          { adminGroup().writeEntry("showDriveIp", b); adminGroup().config()->sync(); }
-void Config::setShowMillerIp(bool b)         { adminGroup().writeEntry("showMillerIp", b); adminGroup().config()->sync(); }
-void Config::setDriveBlacklist(const QStringList &l) { adminGroup().writeEntry("driveBlacklist", l); adminGroup().config()->sync(); }
-void Config::setSidebarIconSize(int i)       { adminGroup().writeEntry("sidebarIconSize", i); adminGroup().config()->sync(); }
-void Config::setDriveIconSize(int i)         { adminGroup().writeEntry("driveIconSize", i); adminGroup().config()->sync(); }
-void Config::setMillerIconSize(int)        { /* Ignored, using driveIconSize */ }
-void Config::setListIconSize(int i)          { adminGroup().writeEntry("listIconSize", i); adminGroup().config()->sync(); }
+QStringList Config::driveBlacklist()
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("driveBlacklist", QStringList{QStringLiteral("/var/lib/docker"), QStringLiteral("/var/lib/containers")});
+}
 
-int Config::sidebarRowHeight()       { return uiFontSize() + uiSpacing() * 2 + 4; }
-int Config::sidebarDriveRowHeight()  { return uiFontSize() + 4 + uiSpacing() * 4 + 8; }
-int Config::sidebarNetRowHeight()    { return sidebarDriveRowHeight(); }
-int Config::millerDriveRowHeight()   { return sidebarDriveRowHeight(); }
-int Config::uiFontSize() { return adminGroup().readEntry("uiFontSize", 14); }
-int Config::uiSpacing()  { return adminGroup().readEntry("uiSpacing",  2); }
-void Config::setUiFontSize(int i) { adminGroup().writeEntry("uiFontSize", i); adminGroup().config()->sync(); }
-void Config::setUiSpacing(int i)  { adminGroup().writeEntry("uiSpacing",  i); adminGroup().config()->sync(); }
+int Config::sidebarIconSize()
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("sidebarIconSize", 22);
+}
 
-QString Config::uiFontFamily() { return adminGroup().readEntry("uiFontFamily", QString()); }
-void Config::setUiFontFamily(const QString &f) { adminGroup().writeEntry("uiFontFamily", f); adminGroup().config()->sync(); }
+int Config::driveIconSize()
+{
+    return uiFontSize();
+}
 
-QString Config::appLanguage() { return adminGroup().readEntry("appLanguage", QString()); }
-void Config::setAppLanguage(const QString &lang) { adminGroup().writeEntry("appLanguage", lang); adminGroup().config()->sync(); }
+int Config::millerIconSize()
+{
+    return driveIconSize();
+}
 
-int Config::millerHeaderHeight()     { return 38; }
+int Config::listIconSize()
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("listIconSize", 16);
+}
 
-void Config::setSidebarRowHeight(int i)      { adminGroup().writeEntry("sidebarRowHeight", i); adminGroup().config()->sync(); }
-void Config::setSidebarDriveRowHeight(int i) { adminGroup().writeEntry("sidebarDriveRowHeight", i); adminGroup().config()->sync(); }
-void Config::setSidebarNetRowHeight(int)     { /* Alias for sidebarDriveRowHeight */ }
-void Config::setMillerDriveRowHeight(int)    { /* Alias for sidebarDriveRowHeight */ }
-void Config::setMillerHeaderHeight(int i)    { adminGroup().writeEntry("millerHeaderHeight", i); adminGroup().config()->sync(); }
+void Config::setShowDriveIp(bool b)
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("showDriveIp", b);
+    g.config()->sync();
+}
 
-#ifdef SC_PLUGIN_GIT
-QString Config::gitLocalDir()  { return adminGroup().readEntry("gitLocalDir", QString()); }
-QString Config::gitRemoteUrl() { return adminGroup().readEntry("gitRemoteUrl", QString()); }
-QString Config::gitUsername()  { return adminGroup().readEntry("gitUsername", QString()); }
+void Config::setShowMillerIp(bool b)
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("showMillerIp", b);
+    g.config()->sync();
+}
 
-QList<Config::GitRepo> Config::gitRepos() {
+void Config::setDriveBlacklist(const QStringList &l)
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("driveBlacklist", l);
+    g.config()->sync();
+}
+
+void Config::setSidebarIconSize(int i)
+{
+    Q_ASSERT(i >= 0);
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("sidebarIconSize", i);
+    g.config()->sync();
+}
+
+void Config::setDriveIconSize(int i)
+{
+    Q_ASSERT(i >= 0);
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("driveIconSize", i);
+    g.config()->sync();
+}
+
+void Config::setMillerIconSize(int i)
+{
+    Q_UNUSED(i)
+}
+
+void Config::setListIconSize(int i)
+{
+    Q_ASSERT(i >= 0);
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("listIconSize", i);
+    g.config()->sync();
+}
+
+int Config::sidebarRowHeight()
+{
+    return uiFontSize() + uiSpacing() * 2 + 4;
+}
+
+int Config::sidebarDriveRowHeight()
+{
+    return uiFontSize() + 4 + uiSpacing() * 4 + 8;
+}
+
+int Config::sidebarNetRowHeight()
+{
+    return sidebarDriveRowHeight();
+}
+
+int Config::millerDriveRowHeight()
+{
+    return sidebarDriveRowHeight();
+}
+
+int Config::uiFontSize()
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("uiFontSize", 14);
+}
+
+int Config::uiSpacing()
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("uiSpacing", 2);
+}
+
+void Config::setUiFontSize(int i)
+{
+    Q_ASSERT(i >= 0);
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("uiFontSize", i);
+    g.config()->sync();
+}
+
+void Config::setUiSpacing(int i)
+{
+    Q_ASSERT(i >= 0);
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("uiSpacing", i);
+    g.config()->sync();
+}
+
+QString Config::uiFontFamily()
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("uiFontFamily", QString());
+}
+
+void Config::setUiFontFamily(const QString &f)
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("uiFontFamily", f);
+    g.config()->sync();
+}
+
+QString Config::appLanguage()
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("appLanguage", QString());
+}
+
+void Config::setAppLanguage(const QString &lang)
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("appLanguage", lang);
+    g.config()->sync();
+}
+
+int Config::millerHeaderHeight()
+{
+    return 38;
+}
+
+void Config::setSidebarRowHeight(int i)
+{
+    Q_ASSERT(i >= 0);
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("sidebarRowHeight", i);
+    g.config()->sync();
+}
+
+void Config::setSidebarDriveRowHeight(int i)
+{
+    Q_ASSERT(i >= 0);
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("sidebarDriveRowHeight", i);
+    g.config()->sync();
+}
+
+void Config::setSidebarNetRowHeight(int i)
+{
+    Q_UNUSED(i)
+}
+
+void Config::setMillerDriveRowHeight(int i)
+{
+    Q_UNUSED(i)
+}
+
+void Config::setMillerHeaderHeight(int i)
+{
+    Q_ASSERT(i >= 0);
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("millerHeaderHeight", i);
+    g.config()->sync();
+}
+
+QString Config::gitLocalDir()
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("gitLocalDir", QString());
+}
+
+QString Config::gitRemoteUrl()
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("gitRemoteUrl", QString());
+}
+
+QString Config::gitUsername()
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("gitUsername", QString());
+}
+
+QList<Config::GitRepo> Config::gitRepos()
+{
     QList<GitRepo> out;
-    auto g = KSharedConfig::openConfig("splitcommanderrc")->group(QStringLiteral("GitRepos"));
+    auto config = KSharedConfig::openConfig(QStringLiteral("splitcommanderrc"));
+    Q_ASSERT(config != nullptr);
+    auto g = config->group(QStringLiteral("GitRepos"));
+    Q_ASSERT(g.isValid());
+
     const int count = g.readEntry("count", 0);
-    for (int i = 0; i < count; ++i) {
+    for (int i = 0; i < count; ++i)
+    {
         const QString prefix = QStringLiteral("repo%1_").arg(i);
         GitRepo r;
-        r.name      = g.readEntry(prefix + "name", QString());
-        r.localDir  = g.readEntry(prefix + "localDir", QString());
-        r.remoteUrl = g.readEntry(prefix + "remoteUrl", QString());
-        r.username  = g.readEntry(prefix + "username", QString());
+        r.name      = g.readEntry(prefix + QStringLiteral("name"), QString());
+        r.localDir  = g.readEntry(prefix + QStringLiteral("localDir"), QString());
+        r.remoteUrl = g.readEntry(prefix + QStringLiteral("remoteUrl"), QString());
+        r.username  = g.readEntry(prefix + QStringLiteral("username"), QString());
         out << r;
     }
-    // Migration vom alten Single-Repo
-    if (out.isEmpty()) {
+    if (out.isEmpty())
+    {
         const QString lo = gitLocalDir();
-        if (!lo.isEmpty()) {
+        if (!lo.isEmpty())
+        {
             GitRepo r;
             r.localDir  = lo;
             r.remoteUrl = gitRemoteUrl();
@@ -257,52 +643,178 @@ QList<Config::GitRepo> Config::gitRepos() {
     return out;
 }
 
-void Config::setGitRepos(const QList<GitRepo> &repos) {
-    auto g = KSharedConfig::openConfig("splitcommanderrc")->group(QStringLiteral("GitRepos"));
-    // Alte Einträge entfernen
+void Config::setGitRepos(const QList<GitRepo> &repos)
+{
+    auto config = KSharedConfig::openConfig(QStringLiteral("splitcommanderrc"));
+    Q_ASSERT(config != nullptr);
+    auto g = config->group(QStringLiteral("GitRepos"));
+    Q_ASSERT(g.isValid());
+
     const int oldCount = g.readEntry("count", 0);
-    for (int i = 0; i < oldCount; ++i) {
+    for (int i = 0; i < oldCount; ++i)
+    {
         const QString prefix = QStringLiteral("repo%1_").arg(i);
-        g.deleteEntry(prefix + "name");
-        g.deleteEntry(prefix + "localDir");
-        g.deleteEntry(prefix + "remoteUrl");
-        g.deleteEntry(prefix + "username");
+        g.deleteEntry(prefix + QStringLiteral("name"));
+        g.deleteEntry(prefix + QStringLiteral("localDir"));
+        g.deleteEntry(prefix + QStringLiteral("remoteUrl"));
+        g.deleteEntry(prefix + QStringLiteral("username"));
     }
     g.writeEntry("count", repos.size());
-    for (int i = 0; i < repos.size(); ++i) {
+    for (int i = 0; i < repos.size(); ++i)
+    {
         const QString prefix = QStringLiteral("repo%1_").arg(i);
-        g.writeEntry(prefix + "name",      repos[i].name);
-        g.writeEntry(prefix + "localDir",  repos[i].localDir);
-        g.writeEntry(prefix + "remoteUrl", repos[i].remoteUrl);
-        g.writeEntry(prefix + "username",  repos[i].username);
+        g.writeEntry(prefix + QStringLiteral("name"),      repos[i].name);
+        g.writeEntry(prefix + QStringLiteral("localDir"),  repos[i].localDir);
+        g.writeEntry(prefix + QStringLiteral("remoteUrl"), repos[i].remoteUrl);
+        g.writeEntry(prefix + QStringLiteral("username"),  repos[i].username);
     }
     g.config()->sync();
 }
 
-bool Config::gitShowSidebar()              { return adminGroup().readEntry("gitShowSidebar", true); }
-QString Config::gitRefreshMode()           { return adminGroup().readEntry("gitRefreshMode", QStringLiteral("onchange")); }
-int Config::gitRefreshIntervalMinutes()    { return adminGroup().readEntry("gitRefreshIntervalMinutes", 60); }
-void Config::setGitShowSidebar(bool b)             { adminGroup().writeEntry("gitShowSidebar", b); adminGroup().config()->sync(); }
-void Config::setGitRefreshMode(const QString &m)   { adminGroup().writeEntry("gitRefreshMode", m); adminGroup().config()->sync(); }
-void Config::setGitRefreshIntervalMinutes(int i)   { adminGroup().writeEntry("gitRefreshIntervalMinutes", i); adminGroup().config()->sync(); }
-QString Config::gitToken()     { return adminGroup().readEntry("gitToken", QString()); }
+bool Config::gitShowSidebar()
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("gitShowSidebar", true);
+}
 
-void Config::setGitLocalDir(const QString &s)  { adminGroup().writeEntry("gitLocalDir", s); adminGroup().config()->sync(); }
-void Config::setGitRemoteUrl(const QString &s) { adminGroup().writeEntry("gitRemoteUrl", s); adminGroup().config()->sync(); }
-void Config::setGitUsername(const QString &s)  { adminGroup().writeEntry("gitUsername", s); adminGroup().config()->sync(); }
-void Config::setGitToken(const QString &s)     { adminGroup().writeEntry("gitToken", s); adminGroup().config()->sync(); }
-#endif // SC_PLUGIN_GIT
+QString Config::gitRefreshMode()
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("gitRefreshMode", QStringLiteral("onchange"));
+}
 
-#ifdef SC_PLUGIN_PAPERLESS
-QString Config::paperlessUrl()   { return adminGroup().readEntry("paperlessUrl", QString()); }
-QString Config::paperlessToken() { return adminGroup().readEntry("paperlessToken", QString()); }
-bool    Config::paperlessSslIgnore() { return adminGroup().readEntry("paperlessSslIgnore", false); }
-void Config::setPaperlessUrl(const QString &s)   { adminGroup().writeEntry("paperlessUrl", s); adminGroup().config()->sync(); }
-void Config::setPaperlessToken(const QString &s) { adminGroup().writeEntry("paperlessToken", s); adminGroup().config()->sync(); }
-void Config::setPaperlessSslIgnore(bool b)       { adminGroup().writeEntry("paperlessSslIgnore", b); adminGroup().config()->sync(); }
-#endif // SC_PLUGIN_PAPERLESS
+int Config::gitRefreshIntervalMinutes()
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("gitRefreshIntervalMinutes", 60);
+}
 
+void Config::setGitShowSidebar(bool b)
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("gitShowSidebar", b);
+    g.config()->sync();
+}
 
+void Config::setGitRefreshMode(const QString &m)
+{
+    Q_ASSERT(!m.isEmpty());
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("gitRefreshMode", m);
+    g.config()->sync();
+}
 
+void Config::setGitRefreshIntervalMinutes(int i)
+{
+    Q_ASSERT(i >= 0);
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("gitRefreshIntervalMinutes", i);
+    g.config()->sync();
+}
 
+QString Config::gitToken()
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("gitToken", QString());
+}
 
+void Config::setGitLocalDir(const QString &s)
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("gitLocalDir", s);
+    g.config()->sync();
+}
+
+void Config::setGitRemoteUrl(const QString &s)
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("gitRemoteUrl", s);
+    g.config()->sync();
+}
+
+void Config::setGitUsername(const QString &s)
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("gitUsername", s);
+    g.config()->sync();
+}
+
+void Config::setGitToken(const QString &s)
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("gitToken", s);
+    g.config()->sync();
+}
+
+QString Config::paperlessUrl()
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("paperlessUrl", QString());
+}
+
+QString Config::paperlessToken()
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("paperlessToken", QString());
+}
+
+bool Config::paperlessSslIgnore()
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    return g.readEntry("paperlessSslIgnore", false);
+}
+
+void Config::setPaperlessUrl(const QString &s)
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("paperlessUrl", s);
+    g.config()->sync();
+}
+
+void Config::setPaperlessToken(const QString &s)
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("paperlessToken", s);
+    g.config()->sync();
+}
+
+void Config::setPaperlessSslIgnore(bool b)
+{
+    auto g = adminGroup();
+    Q_ASSERT(g.isValid());
+    Q_ASSERT(g.config() != nullptr);
+    g.writeEntry("paperlessSslIgnore", b);
+    g.config()->sync();
+}

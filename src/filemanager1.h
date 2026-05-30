@@ -1,10 +1,10 @@
 #pragma once
+
 #include <QObject>
 #include <QStringList>
 
-// Implementiert org.freedesktop.FileManager1 — wie Dolphin dbusinterface.h
-// Ermöglicht "In Ordner anzeigen" aus Browsern
-class FileManager1 : public QObject {
+class FileManager1 : public QObject
+{
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "org.freedesktop.FileManager1")
 public:

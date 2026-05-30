@@ -1,19 +1,27 @@
 #pragma once
 #include "millercolumn.h"
-// --- MillerArea ---
-class MillerArea : public QWidget {
+#include <Solid/StorageAccess>
+
+class MillerArea : public QWidget
+{
     Q_OBJECT
 public:
     explicit MillerArea(QWidget *parent = nullptr);
+    ~MillerArea() override = default;
+
     void init();
     void refreshDrives();
     void navigateTo(const QString &path, bool clearForward = true);
     void refresh();
     void setCollapsed(bool collapsed, const QString &fullPath = QString());
-    QString activePath() const;
-    QList<QUrl> selectedUrls() const;
+    
+    [[nodiscard]] QString activePath() const;
+    [[nodiscard]] QList<QUrl> selectedUrls() const;
+    
     void setFocused(bool f);
-    const QList<MillerColumn*>& cols() const { return m_cols; }
+    
+    [[nodiscard]] const QList<MillerColumn*>& cols() const;
+
 signals:
     void pathChanged(const QString &path);
     void focusRequested();
@@ -26,12 +34,20 @@ signals:
     void removeFromPlacesRequested(const QString &url);
     void drivesChanged();
     void editPathRequested();
+
 protected:
     void resizeEvent(QResizeEvent *e) override;
+
 private:
     void appendColumn(const QString &path);
     void updateVisibleColumns();
     void trimAfter(MillerColumn *col);
+
+    void initColumnSignals(MillerColumn *col);
+    void handleDeviceSetup(Solid::StorageAccess *acc);
+    void selectAndNavigateDrive(const QUrl &startUrl, QString &drivePath);
+    void buildAndAppendSegments(const QStringList &segments, int startIdx, const QString &targetDir);
+
     QList<MillerColumn*>  m_cols;
     MillerColumn         *m_activeCol     = nullptr;
     QHBoxLayout          *m_rowLayout     = nullptr;

@@ -1,26 +1,26 @@
 #pragma once
+
 #include <QDialog>
 #include <QLineEdit>
 #include <QLabel>
 #include <QComboBox>
 #include <QPushButton>
 
-// Dialog zum manuellen Hinzufügen eines Netzlaufwerks
-// Felder: URL, Anzeigename, Symbol
-class AddNetworkDialog : public QDialog {
+class AddNetworkDialog : public QDialog
+{
     Q_OBJECT
 public:
     explicit AddNetworkDialog(QWidget *parent = nullptr);
 
-    QString url()      const;
-    QString name()     const;
-    QString iconName() const;
+    [[nodiscard]] QString url() const;
+    [[nodiscard]] QString name() const;
+    [[nodiscard]] QString iconName() const;
 
 private:
     void updateIcon();
 
-    QLineEdit   *m_urlEdit;
-    QLineEdit   *m_nameEdit;
-    QComboBox   *m_iconCombo;
-    QLabel      *m_iconPreview;
+    QLineEdit   *m_urlEdit = nullptr;
+    QLineEdit   *m_nameEdit = nullptr;
+    QComboBox   *m_iconCombo = nullptr;
+    QLabel      *m_iconPreview = nullptr;
 };
