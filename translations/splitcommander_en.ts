@@ -68,27 +68,27 @@
     <name>AgeBadgeDialog</name>
     <message>
         <source>Altersbadges</source>
-        <translation type="vanished">Age badges</translation>
+        <translation>Age badges</translation>
     </message>
     <message>
         <source>Dateialter / relatives Datum</source>
-        <translation type="vanished">File age / relative date</translation>
+        <translation>File age / relative date</translation>
     </message>
     <message>
         <source>Zurücksetzen</source>
-        <translation type="vanished">Reset</translation>
+        <translation>Reset</translation>
     </message>
     <message>
         <source>Neue Dateien hervorheben (&lt; 2 Tage)</source>
-        <translation type="vanished">Highlight new files (&lt; 2 days)</translation>
+        <translation>Highlight new files (&lt; 2 days)</translation>
     </message>
     <message>
         <source>Abbrechen</source>
-        <translation type="vanished">Cancel</translation>
+        <translation>Cancel</translation>
     </message>
     <message>
         <source>Übernehmen</source>
-        <translation type="vanished">Apply</translation>
+        <translation>Apply</translation>
     </message>
 </context>
 <context>
@@ -336,7 +336,7 @@
     </message>
     <message>
         <source>Öffnen</source>
-        <translation type="vanished">Open</translation>
+        <translation>Open</translation>
     </message>
     <message>
         <location filename="../src/filepane_menus.cpp" line="357"/>
@@ -346,27 +346,27 @@
     </message>
     <message>
         <source>Adresse kopieren</source>
-        <translation type="vanished">Copy address</translation>
+        <translation>Copy address</translation>
     </message>
     <message>
         <source>Hier duplizieren</source>
-        <translation type="vanished">Duplicate here</translation>
+        <translation>Duplicate here</translation>
     </message>
     <message>
         <source>Dupliziere Datei...</source>
-        <translation type="vanished">Duplicate file...</translation>
+        <translation>Duplicate file...</translation>
     </message>
     <message>
         <source>Favoriten</source>
-        <translation type="vanished">Favorites</translation>
+        <translation>Favorites</translation>
     </message>
     <message>
         <source>Hinzufügen zu</source>
-        <translation type="vanished">Add to</translation>
+        <translation>Add to</translation>
     </message>
     <message>
         <source>Laufwerke</source>
-        <translation type="vanished">Drives</translation>
+        <translation>Drives</translation>
     </message>
     <message>
         <location filename="../src/filepane_menus.cpp" line="557"/>
@@ -376,11 +376,11 @@
     </message>
     <message>
         <source>Diaschau starten</source>
-        <translation type="vanished">Start slideshow</translation>
+        <translation>Start slideshow</translation>
     </message>
     <message>
         <source>Tag</source>
-        <translation type="vanished">Tag</translation>
+        <translation>Tag</translation>
     </message>
     <message>
         <location filename="../src/filepane_menus.cpp" line="621"/>
@@ -395,19 +395,19 @@
     </message>
     <message>
         <source>In neuen Ordner verschieben ...</source>
-        <translation type="vanished">Move to new folder...</translation>
+        <translation>Move to new folder...</translation>
     </message>
     <message>
         <source>In neuen Ordner verschieben</source>
-        <translation type="vanished">Move to new folder</translation>
+        <translation>Move to new folder</translation>
     </message>
     <message>
         <source>Ordnername:</source>
-        <translation type="vanished">Folder name:</translation>
+        <translation>Folder name:</translation>
     </message>
     <message>
         <source>Neuer Ordner</source>
-        <translation type="vanished">New folder</translation>
+        <translation>New folder</translation>
     </message>
     <message>
         <location filename="../src/filepane_menus.cpp" line="255"/>
@@ -424,343 +424,343 @@
     <name>GitManagerDialog</name>
     <message>
         <source>Git Manager</source>
-        <translation type="vanished">Git Manager</translation>
+        <translation>Git Manager</translation>
     </message>
     <message>
         <source>Repository:</source>
-        <translation type="vanished">Repository:</translation>
+        <translation>Repository:</translation>
     </message>
     <message>
         <source>Neu</source>
-        <translation type="vanished">New</translation>
+        <translation>New</translation>
     </message>
     <message>
         <source>Entfernen</source>
-        <translation type="vanished">Remove</translation>
+        <translation>Remove</translation>
     </message>
     <message>
         <source>Geänderte Dateien:</source>
-        <translation type="vanished">Changed files:</translation>
+        <translation>Changed files:</translation>
     </message>
     <message>
         <source>Branch: …</source>
-        <translation type="vanished">Branch: …</translation>
+        <translation>Branch: …</translation>
     </message>
     <message>
         <source>Beschreibung der Änderungen:</source>
-        <translation type="vanished">Description of changes:</translation>
+        <translation>Description of changes:</translation>
     </message>
     <message>
         <source>z.B. Fehler in der Suche behoben...</source>
-        <translation type="vanished">e.g. Fixed bug in search...</translation>
+        <translation>e.g. Fixed bug in search...</translation>
     </message>
     <message>
         <source>Commit &amp;&amp; Push</source>
-        <translation type="vanished">Commit &amp;&amp; Push</translation>
+        <translation>Commit &amp;&amp; Push</translation>
     </message>
     <message>
         <source>Speichert deine Änderungen und lädt sie zu GitHub hoch.</source>
-        <translation type="vanished">Saves your changes and uploads them to GitHub.</translation>
+        <translation>Saves your changes and uploads them to GitHub.</translation>
     </message>
     <message>
         <source>Fetch</source>
-        <translation type="vanished">Fetch</translation>
+        <translation>Fetch</translation>
     </message>
     <message>
         <source>Prüft ob es neue Änderungen auf GitHub gibt, ohne sie herunterzuladen.</source>
-        <translation type="vanished">Checks for new changes on GitHub without downloading them.</translation>
+        <translation>Checks for new changes on GitHub without downloading them.</translation>
     </message>
     <message>
         <source>Pull</source>
-        <translation type="vanished">Pull</translation>
+        <translation>Pull</translation>
     </message>
     <message>
         <source>Holt die neuesten Änderungen von GitHub.</source>
-        <translation type="vanished">Fetches the latest changes from GitHub.</translation>
+        <translation>Fetches the latest changes from GitHub.</translation>
     </message>
     <message>
         <source>Änderungen verwerfen</source>
-        <translation type="vanished">Discard changes</translation>
+        <translation>Discard changes</translation>
     </message>
     <message>
         <source>Setzt alle lokalen Änderungen auf den Stand von GitHub zurück.</source>
-        <translation type="vanished">Resets all local changes to the state on GitHub.</translation>
+        <translation>Resets all local changes to the state on GitHub.</translation>
     </message>
     <message>
         <source>Optionen für Commit &amp;&amp; Push</source>
-        <translation type="vanished">Options for Commit &amp;&amp; Push</translation>
+        <translation>Options for Commit &amp;&amp; Push</translation>
     </message>
     <message>
         <source>Tags mit hochladen</source>
-        <translation type="vanished">Upload tags</translation>
+        <translation>Upload tags</translation>
     </message>
     <message>
         <source>Release auf GitHub erstellen</source>
-        <translation type="vanished">Create release on GitHub</translation>
+        <translation>Create release on GitHub</translation>
     </message>
     <message>
         <source>Force with lease</source>
-        <translation type="vanished">Force with lease</translation>
+        <translation>Force with lease</translation>
     </message>
     <message>
         <source>Pusht auch wenn der Remote-Branch voraus ist — aber nur wenn sich der Remote seit dem letzten Fetch nicht verändert hat.</source>
-        <translation type="vanished">Pushes even if the remote branch is ahead — but only if the remote hasn&apos;t changed since the last fetch.</translation>
+        <translation>Pushes even if the remote branch is ahead — but only if the remote hasn&apos;t changed since the last fetch.</translation>
     </message>
     <message>
         <source>Optionen für Pull</source>
-        <translation type="vanished">Options for Pull</translation>
+        <translation>Options for Pull</translation>
     </message>
     <message>
         <source>Rebase statt Merge</source>
-        <translation type="vanished">Rebase instead of merge</translation>
+        <translation>Rebase instead of merge</translation>
     </message>
     <message>
         <source>git pull --rebase — hält den Verlauf sauber.</source>
-        <translation type="vanished">git pull --rebase — keeps history clean.</translation>
+        <translation>git pull --rebase — keeps history clean.</translation>
     </message>
     <message>
         <source>▶  Erweiterte Funktionen</source>
-        <translation type="vanished">▶  Advanced functions</translation>
+        <translation>▶  Advanced functions</translation>
     </message>
     <message>
         <source>Verlauf (Log)</source>
-        <translation type="vanished">History (Log)</translation>
+        <translation>History (Log)</translation>
     </message>
     <message>
         <source>Zeigt die letzten 20 Commits.</source>
-        <translation type="vanished">Shows the last 20 commits.</translation>
+        <translation>Shows the last 20 commits.</translation>
     </message>
     <message>
         <source>Diff</source>
-        <translation type="vanished">Diff</translation>
+        <translation>Diff</translation>
     </message>
     <message>
         <source>Zeigt welche Zeilen du geändert hast.</source>
-        <translation type="vanished">Shows which lines you changed.</translation>
+        <translation>Shows which lines you changed.</translation>
     </message>
     <message>
         <source>Tag erstellen</source>
-        <translation type="vanished">Create tag</translation>
+        <translation>Create tag</translation>
     </message>
     <message>
         <source>Markiert den aktuellen Stand als Version, z.B. v1.0.</source>
-        <translation type="vanished">Marks the current state as a version, e.g. v1.0.</translation>
+        <translation>Marks the current state as a version, e.g. v1.0.</translation>
     </message>
     <message>
         <source>Branch wechseln / erstellen</source>
-        <translation type="vanished">Switch / create branch</translation>
+        <translation>Switch / create branch</translation>
     </message>
     <message>
         <source>Wechselt zu einem anderen Zweig oder erstellt einen neuen.</source>
-        <translation type="vanished">Switches to another branch or creates a new one.</translation>
+        <translation>Switches to another branch or creates a new one.</translation>
     </message>
     <message>
         <source>Merge</source>
-        <translation type="vanished">Merge</translation>
+        <translation>Merge</translation>
     </message>
     <message>
         <source>Führt einen anderen Branch in den aktuellen zusammen.</source>
-        <translation type="vanished">Merges another branch into the current one.</translation>
+        <translation>Merges another branch into the current one.</translation>
     </message>
     <message>
         <source>Revert</source>
-        <translation type="vanished">Revert</translation>
+        <translation>Revert</translation>
     </message>
     <message>
         <source>Macht einen bestimmten Commit rückgängig — History bleibt erhalten.</source>
-        <translation type="vanished">Undoes a specific commit — history is preserved.</translation>
+        <translation>Undoes a specific commit — history is preserved.</translation>
     </message>
     <message>
         <source>Stash (Parken)</source>
-        <translation type="vanished">Stash</translation>
+        <translation>Stash</translation>
     </message>
     <message>
         <source>Legt deine Änderungen zur Seite ohne sie zu speichern.</source>
-        <translation type="vanished">Sets your changes aside without saving them.</translation>
+        <translation>Sets your changes aside without saving them.</translation>
     </message>
     <message>
         <source>Stash anwenden</source>
-        <translation type="vanished">Apply stash</translation>
+        <translation>Apply stash</translation>
     </message>
     <message>
         <source>Holt die zuletzt geparkten Änderungen zurück.</source>
-        <translation type="vanished">Retrieves the last stashed changes.</translation>
+        <translation>Retrieves the last stashed changes.</translation>
     </message>
     <message>
         <source>▶  Verbindungseinstellungen</source>
-        <translation type="vanished">▶  Connection settings</translation>
+        <translation>▶  Connection settings</translation>
     </message>
     <message>
         <source>z.B. SplitCommander</source>
-        <translation type="vanished">z.B. SplitCommander</translation>
+        <translation>z.B. SplitCommander</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="vanished">Name:</translation>
+        <translation>Name:</translation>
     </message>
     <message>
         <source>Durchsuchen...</source>
-        <translation type="vanished">Browse...</translation>
+        <translation>Browse...</translation>
     </message>
     <message>
         <source>Projekt-Ordner:</source>
-        <translation type="vanished">Project folder:</translation>
+        <translation>Project folder:</translation>
     </message>
     <message>
         <source>GitHub URL:</source>
-        <translation type="vanished">GitHub URL:</translation>
+        <translation>GitHub URL:</translation>
     </message>
     <message>
         <source>GitHub Benutzername:</source>
-        <translation type="vanished">GitHub username:</translation>
+        <translation>GitHub username:</translation>
     </message>
     <message>
         <source>Token anzeigen</source>
-        <translation type="vanished">Show token</translation>
+        <translation>Show token</translation>
     </message>
     <message>
         <source>Token generieren...</source>
-        <translation type="vanished">Generate token...</translation>
+        <translation>Generate token...</translation>
     </message>
     <message>
         <source>Token / Passwort:</source>
-        <translation type="vanished">Token / password:</translation>
+        <translation>Token / password:</translation>
     </message>
     <message>
         <source>Repository klonen</source>
-        <translation type="vanished">Clone repository</translation>
+        <translation>Clone repository</translation>
     </message>
     <message>
         <source>Klont das eingetragene Remote-Repository in den Projekt-Ordner.</source>
-        <translation type="vanished">Clones the configured remote repository into the project folder.</translation>
+        <translation>Clones the configured remote repository into the project folder.</translation>
     </message>
     <message>
         <source>Klonen:</source>
-        <translation type="vanished">Clone:</translation>
+        <translation>Clone:</translation>
     </message>
     <message>
         <source>Ausgabe:</source>
-        <translation type="vanished">Output:</translation>
+        <translation>Output:</translation>
     </message>
     <message>
         <source>Schließen</source>
-        <translation type="vanished">Close</translation>
+        <translation>Close</translation>
     </message>
     <message>
         <source>▼  Erweiterte Funktionen</source>
-        <translation type="vanished">▼  Advanced functions</translation>
+        <translation>▼  Advanced functions</translation>
     </message>
     <message>
         <source>Tag-Name (z.B. v1.0.0):</source>
-        <translation type="vanished">Tag name (e.g. v1.0.0):</translation>
+        <translation>Tag name (e.g. v1.0.0):</translation>
     </message>
     <message>
         <source>Vorhandenen Branch auschecken:</source>
-        <translation type="vanished">Checkout existing branch:</translation>
+        <translation>Checkout existing branch:</translation>
     </message>
     <message>
         <source>Oder neuen Branch erstellen:</source>
-        <translation type="vanished">Or create new branch:</translation>
+        <translation>Or create new branch:</translation>
     </message>
     <message>
         <source>Neuer Branch-Name (leer lassen zum Auschecken)</source>
-        <translation type="vanished">New branch name (leave empty to checkout)</translation>
+        <translation>New branch name (leave empty to checkout)</translation>
     </message>
     <message>
         <source>Force (lokale Änderungen verwerfen)</source>
-        <translation type="vanished">Force (discard local changes)</translation>
+        <translation>Force (discard local changes)</translation>
     </message>
     <message>
         <source>Ausführen</source>
-        <translation type="vanished">Execute</translation>
+        <translation>Execute</translation>
     </message>
     <message>
         <source>Abbrechen</source>
-        <translation type="vanished">Cancel</translation>
+        <translation>Cancel</translation>
     </message>
     <message>
         <source>Branch der zusammengeführt werden soll:</source>
-        <translation type="vanished">Branch to be merged:</translation>
+        <translation>Branch to be merged:</translation>
     </message>
     <message>
         <source>Commit rückgängig machen:</source>
-        <translation type="vanished">Undo commit:</translation>
+        <translation>Undo commit:</translation>
     </message>
     <message>
         <source>Branch</source>
-        <translation type="vanished">Branch</translation>
+        <translation>Branch</translation>
     </message>
     <message>
         <source>Name des Branch:</source>
-        <translation type="vanished">Branch name:</translation>
+        <translation>Branch name:</translation>
     </message>
     <message>
         <source>Branch-Name der zusammengeführt werden soll:</source>
-        <translation type="vanished">Branch name to merge:</translation>
+        <translation>Branch name to merge:</translation>
     </message>
     <message>
         <source>Commit-Hash (z.B. a1b2c3d):</source>
-        <translation type="vanished">Commit hash (e.g. a1b2c3d):</translation>
+        <translation>Commit hash (e.g. a1b2c3d):</translation>
     </message>
     <message>
         <source>Hinweis</source>
-        <translation type="vanished">Note</translation>
+        <translation>Note</translation>
     </message>
     <message>
         <source>Bitte GitHub URL und Projekt-Ordner eintragen.</source>
-        <translation type="vanished">Please enter the GitHub URL and project folder.</translation>
+        <translation>Please enter the GitHub URL and project folder.</translation>
     </message>
     <message>
         <source>Projekt-Ordner wählen</source>
-        <translation type="vanished">Choose project folder</translation>
+        <translation>Choose project folder</translation>
     </message>
     <message>
         <source>Neues Repo</source>
-        <translation type="vanished">New repo</translation>
+        <translation>New repo</translation>
     </message>
     <message>
         <source>(unbenannt)</source>
-        <translation type="vanished">(unnamed)</translation>
+        <translation>(unnamed)</translation>
     </message>
     <message>
         <source>Bitte gib eine Beschreibung ein.</source>
-        <translation type="vanished">Please enter a description.</translation>
+        <translation>Please enter a description.</translation>
     </message>
     <message>
         <source>Push</source>
-        <translation type="vanished">Push</translation>
+        <translation>Push</translation>
     </message>
     <message>
         <source>Remote auswählen:</source>
-        <translation type="vanished">Select remote:</translation>
+        <translation>Select remote:</translation>
     </message>
     <message>
         <source>Alle lokalen Änderungen werden unwiderruflich gelöscht und auf den Stand von GitHub zurückgesetzt.
 
 Fortfahren?</source>
-        <translation type="vanished">All local changes will be permanently deleted and reset to the state on GitHub.
+        <translation>All local changes will be permanently deleted and reset to the state on GitHub.
 
 Continue?</translation>
     </message>
     <message>
         <source>Kein Repository</source>
-        <translation type="vanished">No repository</translation>
+        <translation>No repository</translation>
     </message>
     <message>
         <source>Fehler</source>
-        <translation type="vanished">Error</translation>
+        <translation>Error</translation>
     </message>
     <message>
         <source>Kein GitHub Token hinterlegt!</source>
-        <translation type="vanished">No GitHub token stored!</translation>
+        <translation>No GitHub token stored!</translation>
     </message>
     <message>
         <source>Branch: %1</source>
-        <translation type="vanished">Branch: %1</translation>
+        <translation>Branch: %1</translation>
     </message>
     <message>
         <source>✓ Keine ungespeicherten Änderungen</source>
-        <translation type="vanished">✓ No unsaved changes</translation>
+        <translation>✓ No unsaved changes</translation>
     </message>
 </context>
 <context>
@@ -1112,7 +1112,7 @@ Continue?</translation>
     </message>
     <message>
         <source>Kopieren</source>
-        <translation type="vanished">Copy</translation>
+        <translation>Copy</translation>
     </message>
     <message>
         <location filename="../src/panetoolbar.cpp" line="55"/>
@@ -1256,15 +1256,15 @@ Continue?</translation>
     </message>
     <message>
         <source>Versteckte Dateien anzeigen</source>
-        <translation type="vanished">Show hidden files</translation>
+        <translation>Show hidden files</translation>
     </message>
     <message>
         <source>Einfachklick zum Öffnen</source>
-        <translation type="vanished">Einfachklick zum Öffnen</translation>
+        <translation>Einfachklick zum Öffnen</translation>
     </message>
     <message>
         <source>Dateiendungen anzeigen</source>
-        <translation type="vanished">Dateiendungen anzeigen</translation>
+        <translation>Dateiendungen anzeigen</translation>
     </message>
     <message>
         <location filename="../src/panewidget_hamburger.cpp" line="95"/>
@@ -1278,23 +1278,23 @@ Continue?</translation>
     </message>
     <message>
         <source>Einrichten</source>
-        <translation type="vanished">Einrichten</translation>
+        <translation>Einrichten</translation>
     </message>
     <message>
         <source>Fenster-Farbschema</source>
-        <translation type="vanished">Fenster-Farbschema</translation>
+        <translation>Fenster-Farbschema</translation>
     </message>
     <message>
         <source>KDE Global Theme verwenden</source>
-        <translation type="vanished">KDE Global Theme verwenden</translation>
+        <translation>KDE Global Theme verwenden</translation>
     </message>
     <message>
         <source>Übernimmt Farben und Stil des aktiven KDE Global Themes.</source>
-        <translation type="vanished">Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
+        <translation>Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
     </message>
     <message>
         <source>Designs neu laden</source>
-        <translation type="vanished">Designs neu laden</translation>
+        <translation>Designs neu laden</translation>
     </message>
     <message>
         <location filename="../src/panewidget_hamburger.cpp" line="324"/>
@@ -1303,27 +1303,27 @@ Continue?</translation>
     </message>
     <message>
         <source>Übernehmen</source>
-        <translation type="vanished">Apply</translation>
+        <translation>Apply</translation>
     </message>
     <message>
         <source>Neustart erforderlich</source>
-        <translation type="vanished">Neustart erforderlich</translation>
+        <translation>Neustart erforderlich</translation>
     </message>
     <message>
         <source>Das Theme wird nach einem Neustart angewendet.</source>
-        <translation type="vanished">Das Theme wird nach einem Neustart angewendet.</translation>
+        <translation>Das Theme wird nach einem Neustart angewendet.</translation>
     </message>
     <message>
         <source>Tastaturkurzbefehle festlegen …</source>
-        <translation type="vanished">Tastaturkurzbefehle festlegen …</translation>
+        <translation>Tastaturkurzbefehle festlegen …</translation>
     </message>
     <message>
         <source>Terminal wählen…</source>
-        <translation type="vanished">Terminal wählen…</translation>
+        <translation>Terminal wählen…</translation>
     </message>
     <message>
         <source>Altersbadges</source>
-        <translation type="vanished">Age badges</translation>
+        <translation>Age badges</translation>
     </message>
     <message>
         <location filename="../src/panewidget_hamburger.cpp" line="117"/>
@@ -1332,11 +1332,11 @@ Continue?</translation>
     </message>
     <message>
         <source>&lt;b&gt;SplitCommander&lt;/b&gt; &amp;nbsp;&lt;small&gt;v%1&lt;/small&gt;&lt;br&gt;</source>
-        <translation type="vanished">&lt;b&gt;SplitCommander&lt;/b&gt; &amp;nbsp;&lt;small&gt;v%1&lt;/small&gt;&lt;br&gt;</translation>
+        <translation>&lt;b&gt;SplitCommander&lt;/b&gt; &amp;nbsp;&lt;small&gt;v%1&lt;/small&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;small&gt;Ein nativer KDE-Dateimanager.&lt;/small&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Stack:&lt;/b&gt; Qt6 · KF6 · C++20&lt;br&gt;&lt;b&gt;Autor:&lt;/b&gt; D. Lange</source>
-        <translation type="vanished">&lt;small&gt;Ein nativer KDE-Dateimanager.&lt;/small&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Stack:&lt;/b&gt; Qt6 · KF6 · C++20&lt;br&gt;&lt;b&gt;Autor:&lt;/b&gt; D. Lange</translation>
+        <translation>&lt;small&gt;Ein nativer KDE-Dateimanager.&lt;/small&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Stack:&lt;/b&gt; Qt6 · KF6 · C++20&lt;br&gt;&lt;b&gt;Autor:&lt;/b&gt; D. Lange</translation>
     </message>
     <message>
         <location filename="../src/panewidget_hamburger.cpp" line="63"/>
@@ -1493,11 +1493,11 @@ Inspired by OneCommander.</translation>
     </message>
     <message>
         <source>Ziel waehlen</source>
-        <translation type="vanished">Ziel waehlen</translation>
+        <translation>Ziel waehlen</translation>
     </message>
     <message>
         <source>Verknuepfungsname</source>
-        <translation type="vanished">Verknuepfungsname</translation>
+        <translation>Verknuepfungsname</translation>
     </message>
     <message>
         <location filename="../src/panewidget_hamburger.cpp" line="340"/>
@@ -1574,19 +1574,19 @@ Inspired by OneCommander.</translation>
     </message>
     <message>
         <source>Neuer Ordner</source>
-        <translation type="vanished">New folder</translation>
+        <translation>New folder</translation>
     </message>
     <message>
         <source>Ordnername:</source>
-        <translation type="vanished">Folder name:</translation>
+        <translation>Folder name:</translation>
     </message>
     <message>
         <source>Fehler</source>
-        <translation type="vanished">Error</translation>
+        <translation>Error</translation>
     </message>
     <message>
         <source>Ordner konnte nicht erstellt werden.</source>
-        <translation type="vanished">Ordner konnte nicht erstellt werden.</translation>
+        <translation>Ordner konnte nicht erstellt werden.</translation>
     </message>
     <message>
         <location filename="../src/panewidget.cpp" line="643"/>
@@ -1600,7 +1600,7 @@ Inspired by OneCommander.</translation>
     </message>
     <message>
         <source>Kopiere Dateien...</source>
-        <translation type="vanished">Kopiere Dateien...</translation>
+        <translation>Kopiere Dateien...</translation>
     </message>
     <message>
         <location filename="../src/panewidget_footer.cpp" line="82"/>
@@ -1688,179 +1688,179 @@ Inspired by OneCommander.</translation>
     <name>PaperlessManagerDialog</name>
     <message>
         <source>Paperless</source>
-        <translation type="vanished">Paperless</translation>
+        <translation>Paperless</translation>
     </message>
     <message>
         <source>Bitte zuerst URL und Token im Paperless Manager konfigurieren.</source>
-        <translation type="vanished">Please configure URL and token in Paperless Manager first.</translation>
+        <translation>Please configure URL and token in Paperless Manager first.</translation>
     </message>
     <message>
         <source>Paperless Upload</source>
-        <translation type="vanished">Paperless Upload</translation>
+        <translation>Paperless Upload</translation>
     </message>
     <message>
         <source>Fehler beim Hochladen von %1:
 %2</source>
-        <translation type="vanished">Error uploading %1:
+        <translation>Error uploading %1:
 %2</translation>
     </message>
     <message>
         <source>Upload abgeschlossen.</source>
-        <translation type="vanished">Upload completed.</translation>
+        <translation>Upload completed.</translation>
     </message>
     <message>
         <source>Paperless Manager</source>
-        <translation type="vanished">Paperless Manager</translation>
+        <translation>Paperless Manager</translation>
     </message>
     <message>
         <source>Verbindung</source>
-        <translation type="vanished">Connection</translation>
+        <translation>Connection</translation>
     </message>
     <message>
         <source>URL:</source>
-        <translation type="vanished">URL:</translation>
+        <translation>URL:</translation>
     </message>
     <message>
         <source>Token anzeigen</source>
-        <translation type="vanished">Show token</translation>
+        <translation>Show token</translation>
     </message>
     <message>
         <source>API-Token:</source>
-        <translation type="vanished">API Token:</translation>
+        <translation>API Token:</translation>
     </message>
     <message>
         <source>SSL-Zertifikat nicht prüfen (für selbstsignierte Zertifikate)</source>
-        <translation type="vanished">Do not verify SSL certificate (for self-signed certificates)</translation>
+        <translation>Do not verify SSL certificate (for self-signed certificates)</translation>
     </message>
     <message>
         <source>Speichern</source>
-        <translation type="vanished">Save</translation>
+        <translation>Save</translation>
     </message>
     <message>
         <source>Dokumente suchen…</source>
-        <translation type="vanished">Search documents…</translation>
+        <translation>Search documents…</translation>
     </message>
     <message>
         <source>Suchen</source>
-        <translation type="vanished">Search</translation>
+        <translation>Search</translation>
     </message>
     <message>
         <source>Hochladen</source>
-        <translation type="vanished">Upload</translation>
+        <translation>Upload</translation>
     </message>
     <message>
         <source>Aktualisieren</source>
-        <translation type="vanished">Refresh</translation>
+        <translation>Refresh</translation>
     </message>
     <message>
         <source>Dokumente:</source>
-        <translation type="vanished">Documents:</translation>
+        <translation>Documents:</translation>
     </message>
     <message>
         <source>Im Browser öffnen</source>
-        <translation type="vanished">Open in browser</translation>
+        <translation>Open in browser</translation>
     </message>
     <message>
         <source>Schließen</source>
-        <translation type="vanished">Close</translation>
+        <translation>Close</translation>
     </message>
     <message>
         <source>Dateien für Paperless auswählen</source>
-        <translation type="vanished">Select files for Paperless</translation>
+        <translation>Select files for Paperless</translation>
     </message>
     <message>
         <source>Bitte URL und Token konfigurieren.</source>
-        <translation type="vanished">Please configure URL and token.</translation>
+        <translation>Please configure URL and token.</translation>
     </message>
     <message>
         <source>Lädt…</source>
-        <translation type="vanished">Loading…</translation>
+        <translation>Loading…</translation>
     </message>
     <message>
         <source>Fehler: %1</source>
-        <translation type="vanished">Error: %1</translation>
+        <translation>Error: %1</translation>
     </message>
     <message>
         <source>%1 Dokument(e) — %2 angezeigt</source>
-        <translation type="vanished">%1 document(s) — %2 displayed</translation>
+        <translation>%1 document(s) — %2 displayed</translation>
     </message>
     <message>
         <source>Lade %1 herunter…</source>
-        <translation type="vanished">Downloading %1…</translation>
+        <translation>Downloading %1…</translation>
     </message>
     <message>
         <source>%1 geöffnet.</source>
-        <translation type="vanished">%1 opened.</translation>
+        <translation>%1 opened.</translation>
     </message>
     <message>
         <source>Konnte Datei nicht schreiben.</source>
-        <translation type="vanished">Could not write file.</translation>
+        <translation>Could not write file.</translation>
     </message>
     <message>
         <source>Einstellungen gespeichert.</source>
-        <translation type="vanished">Settings saved.</translation>
+        <translation>Settings saved.</translation>
     </message>
 </context>
 <context>
     <name>PaperlessUploadDialog</name>
     <message>
         <source>Zu Paperless hochladen</source>
-        <translation type="vanished">Upload to Paperless</translation>
+        <translation>Upload to Paperless</translation>
     </message>
     <message>
         <source>Dateien:</source>
-        <translation type="vanished">Files:</translation>
+        <translation>Files:</translation>
     </message>
     <message>
         <source>Titel (optional):</source>
-        <translation type="vanished">Title (optional):</translation>
+        <translation>Title (optional):</translation>
     </message>
     <message>
         <source>Wird aus Dateiname ermittelt</source>
-        <translation type="vanished">Determined from filename</translation>
+        <translation>Determined from filename</translation>
     </message>
     <message>
         <source>Tags:</source>
-        <translation type="vanished">Tags:</translation>
+        <translation>Tags:</translation>
     </message>
     <message>
         <source>Wird geladen…</source>
-        <translation type="vanished">Loading…</translation>
+        <translation>Loading…</translation>
     </message>
     <message>
         <source>Korrespondent:</source>
-        <translation type="vanished">Correspondent:</translation>
+        <translation>Correspondent:</translation>
     </message>
     <message>
         <source>Hochladen</source>
-        <translation type="vanished">Upload</translation>
+        <translation>Upload</translation>
     </message>
     <message>
         <source>Abbrechen</source>
-        <translation type="vanished">Cancel</translation>
+        <translation>Cancel</translation>
     </message>
     <message>
         <source>— keiner —</source>
-        <translation type="vanished">— none —</translation>
+        <translation>— none —</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
         <source>Löschen</source>
-        <translation type="vanished">Delete</translation>
+        <translation>Delete</translation>
     </message>
     <message>
         <source>In den Papierkorb verschieben</source>
-        <translation type="vanished">Move to trash</translation>
+        <translation>Move to trash</translation>
     </message>
     <message>
         <source>System</source>
-        <translation type="vanished">System</translation>
+        <translation>System</translation>
     </message>
     <message>
         <source>Keine Ergebnisse</source>
-        <translation type="vanished">No results</translation>
+        <translation>No results</translation>
     </message>
     <message>
         <location filename="../src/sidebar.cpp" line="160"/>
@@ -1904,71 +1904,71 @@ Inspired by OneCommander.</translation>
     </message>
     <message>
         <source>GitHub Release erstellen</source>
-        <translation type="vanished">Create GitHub release</translation>
+        <translation>Create GitHub release</translation>
     </message>
     <message>
         <source>Tag-Name (z.B. v1.0.0):</source>
-        <translation type="vanished">Tag name (e.g. v1.0.0):</translation>
+        <translation>Tag name (e.g. v1.0.0):</translation>
     </message>
     <message>
         <source>Release-Titel:</source>
-        <translation type="vanished">Release title:</translation>
+        <translation>Release title:</translation>
     </message>
     <message>
         <source>z.B. Version 1.0.0</source>
-        <translation type="vanished">e.g. Version 1.0.0</translation>
+        <translation>e.g. Version 1.0.0</translation>
     </message>
     <message>
         <source>Beschreibung / Changelog:</source>
-        <translation type="vanished">Description / Changelog:</translation>
+        <translation>Description / Changelog:</translation>
     </message>
     <message>
         <source>Was ist neu in dieser Version?</source>
-        <translation type="vanished">What&apos;s new in this version?</translation>
+        <translation>What&apos;s new in this version?</translation>
     </message>
     <message>
         <source>Als &quot;Latest&quot; markieren</source>
-        <translation type="vanished">Als &amp;quot;Latest&amp;quot; markieren</translation>
+        <translation>Als &amp;quot;Latest&amp;quot; markieren</translation>
     </message>
     <message>
         <source>Pre-release</source>
-        <translation type="vanished">Pre-release</translation>
+        <translation>Pre-release</translation>
     </message>
     <message>
         <source>Release erstellen</source>
-        <translation type="vanished">Create release</translation>
+        <translation>Create release</translation>
     </message>
     <message>
         <source>Abbrechen</source>
-        <translation type="vanished">Cancel</translation>
+        <translation>Cancel</translation>
     </message>
     <message>
         <source>▼  Verbindungseinstellungen</source>
-        <translation type="vanished">▼  Connection settings</translation>
+        <translation>▼  Connection settings</translation>
     </message>
     <message>
         <source>▶  Verbindungseinstellungen</source>
-        <translation type="vanished">▶  Connection settings</translation>
+        <translation>▶  Connection settings</translation>
     </message>
     <message>
         <source>ISO einbinden</source>
-        <translation type="vanished">Mount ISO</translation>
+        <translation>Mount ISO</translation>
     </message>
     <message>
         <source>Konnte Datei nicht öffnen: %1</source>
-        <translation type="vanished">Could not open file: %1</translation>
+        <translation>Could not open file: %1</translation>
     </message>
     <message>
         <source>Fehler: %1</source>
-        <translation type="vanished">Error: %1</translation>
+        <translation>Error: %1</translation>
     </message>
     <message>
         <source>ISO aushängen</source>
-        <translation type="vanished">Unmount ISO</translation>
+        <translation>Unmount ISO</translation>
     </message>
     <message>
         <source>Gerät nicht gefunden.</source>
-        <translation type="vanished">Device not found.</translation>
+        <translation>Device not found.</translation>
     </message>
     <message>
         <location filename="../src/sidebargroups.cpp" line="135"/>
@@ -2318,43 +2318,43 @@ Inspired by OneCommander.</translation>
     </message>
     <message>
         <source>Icon-Größen &amp; Zeilenhöhen</source>
-        <translation type="vanished">Icon-Größen &amp; Zeilenhöhen</translation>
+        <translation>Icon-Größen &amp; Zeilenhöhen</translation>
     </message>
     <message>
         <source>Erweiterte Höhen-Optionen anzeigen</source>
-        <translation type="vanished">Erweiterte Höhen-Optionen anzeigen</translation>
+        <translation>Erweiterte Höhen-Optionen anzeigen</translation>
     </message>
     <message>
         <source>Sidebar Icon:</source>
-        <translation type="vanished">Sidebar Icon:</translation>
+        <translation>Sidebar Icon:</translation>
     </message>
     <message>
         <source>Laufwerke Icon:</source>
-        <translation type="vanished">Laufwerke Icon:</translation>
+        <translation>Laufwerke Icon:</translation>
     </message>
     <message>
         <source>Dateilisten Icon:</source>
-        <translation type="vanished">Dateilisten Icon:</translation>
+        <translation>Dateilisten Icon:</translation>
     </message>
     <message>
         <source>Sidebar Höhe:</source>
-        <translation type="vanished">Sidebar Höhe:</translation>
+        <translation>Sidebar Höhe:</translation>
     </message>
     <message>
         <source>Laufwerke Höhe:</source>
-        <translation type="vanished">Laufwerke Höhe:</translation>
+        <translation>Laufwerke Höhe:</translation>
     </message>
     <message>
         <source>Miller Header Höhe:</source>
-        <translation type="vanished">Miller Header Höhe:</translation>
+        <translation>Miller Header Höhe:</translation>
     </message>
     <message>
         <source>Passwort erforderlich</source>
-        <translation type="vanished">Passwort erforderlich</translation>
+        <translation>Passwort erforderlich</translation>
     </message>
     <message>
         <source>Passwort für erweiterte Optionen:</source>
-        <translation type="vanished">Passwort für erweiterte Optionen:</translation>
+        <translation>Passwort für erweiterte Optionen:</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="755"/>
@@ -2422,7 +2422,7 @@ Inspired by OneCommander.</translation>
     </message>
     <message>
         <source>LAUFWERKE</source>
-        <translation type="vanished">LAUFWERKE</translation>
+        <translation>LAUFWERKE</translation>
     </message>
     <message>
         <location filename="../src/sidebar.cpp" line="746"/>
@@ -2530,7 +2530,7 @@ Inspired by OneCommander.</translation>
     </message>
     <message>
         <source>TAGS</source>
-        <translation type="vanished">TAGS</translation>
+        <translation>TAGS</translation>
     </message>
     <message>
         <location filename="../src/sidebar.cpp" line="1250"/>
@@ -2616,31 +2616,31 @@ Inspired by OneCommander.</translation>
     </message>
     <message>
         <source>Gruppenname:</source>
-        <translation type="vanished">Group name:</translation>
+        <translation>Group name:</translation>
     </message>
     <message>
         <source>Mein Ordner...</source>
-        <translation type="vanished">My folder...</translation>
+        <translation>My folder...</translation>
     </message>
     <message>
         <source>Inhalt:</source>
-        <translation type="vanished">Content:</translation>
+        <translation>Content:</translation>
     </message>
     <message>
         <source>Leere Gruppe</source>
-        <translation type="vanished">Empty group</translation>
+        <translation>Empty group</translation>
     </message>
     <message>
         <source>Home-Favoriten</source>
-        <translation type="vanished">Home favorites</translation>
+        <translation>Home favorites</translation>
     </message>
     <message>
         <source>Git Repositories</source>
-        <translation type="vanished">Git repositories</translation>
+        <translation>Git repositories</translation>
     </message>
     <message>
         <source>Es existiert bereits eine Git-Box</source>
-        <translation type="vanished">A Git box already exists</translation>
+        <translation>A Git box already exists</translation>
     </message>
     <message>
         <location filename="../src/sidebargroups.cpp" line="277"/>
@@ -2710,27 +2710,27 @@ Inspired by OneCommander.</translation>
     </message>
     <message>
         <source>Schreibtisch</source>
-        <translation type="vanished">Desktop</translation>
+        <translation>Desktop</translation>
     </message>
     <message>
         <source>Dokumente</source>
-        <translation type="vanished">Documents</translation>
+        <translation>Documents</translation>
     </message>
     <message>
         <source>Bilder</source>
-        <translation type="vanished">Pictures</translation>
+        <translation>Pictures</translation>
     </message>
     <message>
         <source>Videos</source>
-        <translation type="vanished">Videos</translation>
+        <translation>Videos</translation>
     </message>
     <message>
         <source>Musik</source>
-        <translation type="vanished">Music</translation>
+        <translation>Music</translation>
     </message>
     <message>
         <source>Downloads</source>
-        <translation type="vanished">Downloads</translation>
+        <translation>Downloads</translation>
     </message>
     <message>
         <location filename="../src/sidebargroups.cpp" line="972"/>
@@ -2739,11 +2739,11 @@ Inspired by OneCommander.</translation>
     </message>
     <message>
         <source>Programmierung</source>
-        <translation type="vanished">Programming</translation>
+        <translation>Programming</translation>
     </message>
     <message>
         <source>Projekt</source>
-        <translation type="vanished">Project</translation>
+        <translation>Project</translation>
     </message>
     <message>
         <location filename="../src/sidebargroups.cpp" line="976"/>
@@ -2808,19 +2808,19 @@ Inspired by OneCommander.</translation>
     <name>SplitCommander</name>
     <message>
         <source>Altersbadges</source>
-        <translation type="vanished">Age badges</translation>
+        <translation>Age badges</translation>
     </message>
     <message>
         <source>Dateialter / relatives Datum</source>
-        <translation type="vanished">File age / relative date</translation>
+        <translation>File age / relative date</translation>
     </message>
     <message>
         <source>Zurücksetzen</source>
-        <translation type="vanished">Reset</translation>
+        <translation>Reset</translation>
     </message>
     <message>
         <source>Neue Dateien hervorheben (&lt; 2 Tage)</source>
-        <translation type="vanished">Highlight new files (&lt; 2 days)</translation>
+        <translation>Highlight new files (&lt; 2 days)</translation>
     </message>
     <message>
         <location filename="../src/sidebar.cpp" line="90"/>
@@ -2836,487 +2836,487 @@ Inspired by OneCommander.</translation>
     </message>
     <message>
         <source>Übernehmen</source>
-        <translation type="vanished">Apply</translation>
+        <translation>Apply</translation>
     </message>
     <message>
         <source>Batch Rename - %1 Dateien</source>
-        <translation type="vanished">Batch Rename - %1 files</translation>
+        <translation>Batch Rename - %1 files</translation>
     </message>
     <message>
         <source>An ursprünglichem Ort wiederherstellen</source>
-        <translation type="vanished">Restore to original location</translation>
+        <translation>Restore to original location</translation>
     </message>
     <message>
         <source>Löschen</source>
-        <translation type="vanished">Delete</translation>
+        <translation>Delete</translation>
     </message>
     <message>
         <source>Sortieren nach</source>
-        <translation type="vanished">Sort by</translation>
+        <translation>Sort by</translation>
     </message>
     <message>
         <source>Ansichtsmodus ändern</source>
-        <translation type="vanished">Change view mode</translation>
+        <translation>Change view mode</translation>
     </message>
     <message>
         <source>Details</source>
-        <translation type="vanished">Details</translation>
+        <translation>Details</translation>
     </message>
     <message>
         <source>Symbole</source>
-        <translation type="vanished">Icons</translation>
+        <translation>Icons</translation>
     </message>
     <message>
         <source>Papierkorb leeren</source>
-        <translation type="vanished">Empty trash</translation>
+        <translation>Empty trash</translation>
     </message>
     <message>
         <source>Öffnen</source>
-        <translation type="vanished">Open</translation>
+        <translation>Open</translation>
     </message>
     <message>
         <source>Neu erstellen</source>
-        <translation type="vanished">Create new</translation>
+        <translation>Create new</translation>
     </message>
     <message>
         <source>Adresse kopieren</source>
-        <translation type="vanished">Copy address</translation>
+        <translation>Copy address</translation>
     </message>
     <message>
         <source>Hier duplizieren</source>
-        <translation type="vanished">Duplicate here</translation>
+        <translation>Duplicate here</translation>
     </message>
     <message>
         <source>Dupliziere Datei...</source>
-        <translation type="vanished">Duplicate file...</translation>
+        <translation>Duplicate file...</translation>
     </message>
     <message>
         <source>Favoriten</source>
-        <translation type="vanished">Favorites</translation>
+        <translation>Favorites</translation>
     </message>
     <message>
         <source>Hinzufügen zu</source>
-        <translation type="vanished">Add to</translation>
+        <translation>Add to</translation>
     </message>
     <message>
         <source>Laufwerke</source>
-        <translation type="vanished">Drives</translation>
+        <translation>Drives</translation>
     </message>
     <message>
         <source>Terminal hier öffnen</source>
-        <translation type="vanished">Open terminal here</translation>
+        <translation>Open terminal here</translation>
     </message>
     <message>
         <source>Diaschau starten</source>
-        <translation type="vanished">Start slideshow</translation>
+        <translation>Start slideshow</translation>
     </message>
     <message>
         <source>Tag</source>
-        <translation type="vanished">Tag</translation>
+        <translation>Tag</translation>
     </message>
     <message>
         <source>Tag entfernen</source>
-        <translation type="vanished">Remove tag</translation>
+        <translation>Remove tag</translation>
     </message>
     <message>
         <source>Aktionen</source>
-        <translation type="vanished">Actions</translation>
+        <translation>Actions</translation>
     </message>
     <message>
         <source>In neuen Ordner verschieben ...</source>
-        <translation type="vanished">Move to new folder...</translation>
+        <translation>Move to new folder...</translation>
     </message>
     <message>
         <source>In neuen Ordner verschieben</source>
-        <translation type="vanished">Move to new folder</translation>
+        <translation>Move to new folder</translation>
     </message>
     <message>
         <source>Ordnername:</source>
-        <translation type="vanished">Folder name:</translation>
+        <translation>Folder name:</translation>
     </message>
     <message>
         <source>Neuer Ordner</source>
-        <translation type="vanished">New folder</translation>
+        <translation>New folder</translation>
     </message>
     <message>
         <source>Eigenschaften</source>
-        <translation type="vanished">Properties</translation>
+        <translation>Properties</translation>
     </message>
     <message>
         <source>Zu Laufwerken hinzufügen</source>
-        <translation type="vanished">Add to drives</translation>
+        <translation>Add to drives</translation>
     </message>
     <message>
         <source>Initialisierung...</source>
-        <translation type="vanished">Initialisierung...</translation>
+        <translation>Initialisierung...</translation>
     </message>
     <message>
         <source>Fortschritt: %1%</source>
-        <translation type="vanished">Fortschritt: %1%</translation>
+        <translation>Fortschritt: %1%</translation>
     </message>
     <message>
         <source>Fehler: %1</source>
-        <translation type="vanished">Fehler: %1</translation>
+        <translation>Fehler: %1</translation>
     </message>
     <message>
         <source>Fertig!</source>
-        <translation type="vanished">Fertig!</translation>
+        <translation>Fertig!</translation>
     </message>
     <message>
         <source>Löschen...</source>
-        <translation type="vanished">Löschen...</translation>
+        <translation>Löschen...</translation>
     </message>
     <message>
         <source>Fehler</source>
-        <translation type="vanished">Error</translation>
+        <translation>Error</translation>
     </message>
     <message>
         <source>Ordner konnte nicht erstellt werden.</source>
-        <translation type="vanished">Ordner konnte nicht erstellt werden.</translation>
+        <translation>Ordner konnte nicht erstellt werden.</translation>
     </message>
     <message>
         <source>SplitCommander</source>
-        <translation type="vanished">SplitCommander</translation>
+        <translation>SplitCommander</translation>
     </message>
     <message>
         <source>Zurück</source>
-        <translation type="vanished">Back</translation>
+        <translation>Back</translation>
     </message>
     <message>
         <source>Vorwärts</source>
-        <translation type="vanished">Vorwärts</translation>
+        <translation>Vorwärts</translation>
     </message>
     <message>
         <source>Übergeordneter Ordner</source>
-        <translation type="vanished">Parent folder</translation>
+        <translation>Parent folder</translation>
     </message>
     <message>
         <source>Home-Verzeichnis</source>
-        <translation type="vanished">Home-Verzeichnis</translation>
+        <translation>Home-Verzeichnis</translation>
     </message>
     <message>
         <source>Neu laden</source>
-        <translation type="vanished">Neu laden</translation>
+        <translation>Neu laden</translation>
     </message>
     <message>
         <source>Linke Pane fokussieren</source>
-        <translation type="vanished">Linke Pane fokussieren</translation>
+        <translation>Linke Pane fokussieren</translation>
     </message>
     <message>
         <source>Rechte Pane fokussieren</source>
-        <translation type="vanished">Rechte Pane fokussieren</translation>
+        <translation>Rechte Pane fokussieren</translation>
     </message>
     <message>
         <source>Panes tauschen</source>
-        <translation type="vanished">Panes tauschen</translation>
+        <translation>Panes tauschen</translation>
     </message>
     <message>
         <source>Pfade synchronisieren</source>
-        <translation type="vanished">Pfade synchronisieren</translation>
+        <translation>Pfade synchronisieren</translation>
     </message>
     <message>
         <source>Umbenennen</source>
-        <translation type="vanished">Rename</translation>
+        <translation>Rename</translation>
     </message>
     <message>
         <source>Neuer Name:</source>
-        <translation type="vanished">New name:</translation>
+        <translation>New name:</translation>
     </message>
     <message>
         <source>In den Papierkorb verschieben</source>
-        <translation type="vanished">Move to trash</translation>
+        <translation>Move to trash</translation>
     </message>
     <message>
         <source>Kopieren (Zwischenablage)</source>
-        <translation type="vanished">Kopieren (Zwischenablage)</translation>
+        <translation>Kopieren (Zwischenablage)</translation>
     </message>
     <message>
         <source>Ausschneiden (Zwischenablage)</source>
-        <translation type="vanished">Ausschneiden (Zwischenablage)</translation>
+        <translation>Ausschneiden (Zwischenablage)</translation>
     </message>
     <message>
         <source>Versteckte Dateien umschalten</source>
-        <translation type="vanished">Versteckte Dateien umschalten</translation>
+        <translation>Versteckte Dateien umschalten</translation>
     </message>
     <message>
         <source>Layout wechseln</source>
-        <translation type="vanished">Layout wechseln</translation>
+        <translation>Layout wechseln</translation>
     </message>
     <message>
         <source>Einfügen</source>
-        <translation type="vanished">Paste</translation>
+        <translation>Paste</translation>
     </message>
     <message>
         <source>Verschiebe Dateien...</source>
-        <translation type="vanished">Verschiebe Dateien...</translation>
+        <translation>Verschiebe Dateien...</translation>
     </message>
     <message>
         <source>Kopiere Dateien...</source>
-        <translation type="vanished">Kopiere Dateien...</translation>
+        <translation>Kopiere Dateien...</translation>
     </message>
     <message>
         <source>Alles auswählen</source>
-        <translation type="vanished">Alles auswählen</translation>
+        <translation>Alles auswählen</translation>
     </message>
     <message>
         <source>Öffnen in</source>
-        <translation type="vanished">Öffnen in</translation>
+        <translation>Öffnen in</translation>
     </message>
     <message>
         <source>Linke Ansicht</source>
-        <translation type="vanished">Linke Ansicht</translation>
+        <translation>Linke Ansicht</translation>
     </message>
     <message>
         <source>Rechte Ansicht</source>
-        <translation type="vanished">Rechte Ansicht</translation>
+        <translation>Rechte Ansicht</translation>
     </message>
     <message>
         <source>Anzeigename:</source>
-        <translation type="vanished">Anzeigename:</translation>
+        <translation>Anzeigename:</translation>
     </message>
     <message>
         <source>Aus Laufwerken entfernen</source>
-        <translation type="vanished">Aus Laufwerken entfernen</translation>
+        <translation>Aus Laufwerken entfernen</translation>
     </message>
     <message>
         <source>Kopieren</source>
-        <translation type="vanished">Copy</translation>
+        <translation>Copy</translation>
     </message>
     <message>
         <source>Pfad kopieren</source>
-        <translation type="vanished">Pfad kopieren</translation>
+        <translation>Pfad kopieren</translation>
     </message>
     <message>
         <source>Name kopieren</source>
-        <translation type="vanished">Name kopieren</translation>
+        <translation>Name kopieren</translation>
     </message>
     <message>
         <source>Aushängen</source>
-        <translation type="vanished">Unmount</translation>
+        <translation>Unmount</translation>
     </message>
     <message>
         <source>Einhängen</source>
-        <translation type="vanished">Mount</translation>
+        <translation>Mount</translation>
     </message>
     <message>
         <source>Im Terminal öffnen</source>
-        <translation type="vanished">Open in terminal</translation>
+        <translation>Open in terminal</translation>
     </message>
     <message>
         <source>Dieser PC</source>
-        <translation type="vanished">Dieser PC</translation>
+        <translation>Dieser PC</translation>
     </message>
     <message>
         <source>Sortieren</source>
-        <translation type="vanished">Sortieren</translation>
+        <translation>Sortieren</translation>
     </message>
     <message>
         <source>Neu</source>
-        <translation type="vanished">New</translation>
+        <translation>New</translation>
     </message>
     <message>
         <source>Hoch</source>
-        <translation type="vanished">Hoch</translation>
+        <translation>Hoch</translation>
     </message>
     <message>
         <source>Ordner zuerst</source>
-        <translation type="vanished">Folders first</translation>
+        <translation>Folders first</translation>
     </message>
     <message>
         <source>%1 Elemente</source>
-        <translation type="vanished">%1 Elemente</translation>
+        <translation>%1 Elemente</translation>
     </message>
     <message>
         <source> | %1 ausgewählt</source>
-        <translation type="vanished"> | %1 ausgewählt</translation>
+        <translation> | %1 ausgewählt</translation>
     </message>
     <message>
         <source>Miller-Columns ein-/ausklappen</source>
-        <translation type="vanished">Miller-Columns ein-/ausklappen</translation>
+        <translation>Miller-Columns ein-/ausklappen</translation>
     </message>
     <message>
         <source>Suchen</source>
-        <translation type="vanished">Suchen</translation>
+        <translation>Suchen</translation>
     </message>
     <message>
         <source>Layout wählen</source>
-        <translation type="vanished">Layout wählen</translation>
+        <translation>Layout wählen</translation>
     </message>
     <message>
         <source>Menü</source>
-        <translation type="vanished">Menü</translation>
+        <translation>Menü</translation>
     </message>
     <message>
         <source>Ordner …</source>
-        <translation type="vanished">Ordner …</translation>
+        <translation>Ordner …</translation>
     </message>
     <message>
         <source>Textdatei …</source>
-        <translation type="vanished">Textdatei …</translation>
+        <translation>Textdatei …</translation>
     </message>
     <message>
         <source>HTML-Datei …</source>
-        <translation type="vanished">HTML-Datei …</translation>
+        <translation>HTML-Datei …</translation>
     </message>
     <message>
         <source>Leere Datei …</source>
-        <translation type="vanished">Leere Datei …</translation>
+        <translation>Leere Datei …</translation>
     </message>
     <message>
         <source>Verknüpfung zu Datei oder Ordner …</source>
-        <translation type="vanished">Verknüpfung zu Datei oder Ordner …</translation>
+        <translation>Verknüpfung zu Datei oder Ordner …</translation>
     </message>
     <message>
         <source>Versteckte Dateien anzeigen</source>
-        <translation type="vanished">Show hidden files</translation>
+        <translation>Show hidden files</translation>
     </message>
     <message>
         <source>Einfachklick zum Öffnen</source>
-        <translation type="vanished">Einfachklick zum Öffnen</translation>
+        <translation>Einfachklick zum Öffnen</translation>
     </message>
     <message>
         <source>Dateiendungen anzeigen</source>
-        <translation type="vanished">Dateiendungen anzeigen</translation>
+        <translation>Dateiendungen anzeigen</translation>
     </message>
     <message>
         <source>Terminal</source>
-        <translation type="vanished">Terminal</translation>
+        <translation>Terminal</translation>
     </message>
     <message>
         <source>In Terminal öffnen</source>
-        <translation type="vanished">Open in terminal</translation>
+        <translation>Open in terminal</translation>
     </message>
     <message>
         <source>Einrichten</source>
-        <translation type="vanished">Einrichten</translation>
+        <translation>Einrichten</translation>
     </message>
     <message>
         <source>Fenster-Farbschema</source>
-        <translation type="vanished">Fenster-Farbschema</translation>
+        <translation>Fenster-Farbschema</translation>
     </message>
     <message>
         <source>KDE Global Theme verwenden</source>
-        <translation type="vanished">KDE Global Theme verwenden</translation>
+        <translation>KDE Global Theme verwenden</translation>
     </message>
     <message>
         <source>Übernimmt Farben und Stil des aktiven KDE Global Themes.</source>
-        <translation type="vanished">Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
+        <translation>Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
     </message>
     <message>
         <source>Designs neu laden</source>
-        <translation type="vanished">Designs neu laden</translation>
+        <translation>Designs neu laden</translation>
     </message>
     <message>
         <source>Neustart erforderlich</source>
-        <translation type="vanished">Neustart erforderlich</translation>
+        <translation>Neustart erforderlich</translation>
     </message>
     <message>
         <source>Das Theme wird nach einem Neustart angewendet.</source>
-        <translation type="vanished">Das Theme wird nach einem Neustart angewendet.</translation>
+        <translation>Das Theme wird nach einem Neustart angewendet.</translation>
     </message>
     <message>
         <source>Tastaturkurzbefehle festlegen …</source>
-        <translation type="vanished">Tastaturkurzbefehle festlegen …</translation>
+        <translation>Tastaturkurzbefehle festlegen …</translation>
     </message>
     <message>
         <source>Terminal wählen…</source>
-        <translation type="vanished">Terminal wählen…</translation>
+        <translation>Terminal wählen…</translation>
     </message>
     <message>
         <source>Über SplitCommander</source>
-        <translation type="vanished">About SplitCommander</translation>
+        <translation>About SplitCommander</translation>
     </message>
     <message>
         <source>Klassisch</source>
-        <translation type="vanished">Klassisch</translation>
+        <translation>Klassisch</translation>
     </message>
     <message>
         <source>Einzeln</source>
-        <translation type="vanished">Einzeln</translation>
+        <translation>Einzeln</translation>
     </message>
     <message>
         <source>Standard</source>
-        <translation type="vanished">Standard</translation>
+        <translation>Standard</translation>
     </message>
     <message>
         <source>Dual</source>
-        <translation type="vanished">Dual</translation>
+        <translation>Dual</translation>
     </message>
     <message>
         <source>Spalten</source>
-        <translation type="vanished">Spalten</translation>
+        <translation>Spalten</translation>
     </message>
     <message>
         <source>Neue Textdatei</source>
-        <translation type="vanished">Neue Textdatei</translation>
+        <translation>Neue Textdatei</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="vanished">Name:</translation>
+        <translation>Name:</translation>
     </message>
     <message>
         <source>Neue Datei.txt</source>
-        <translation type="vanished">Neue Datei.txt</translation>
+        <translation>Neue Datei.txt</translation>
     </message>
     <message>
         <source>Neue HTML-Datei</source>
-        <translation type="vanished">Neue HTML-Datei</translation>
+        <translation>Neue HTML-Datei</translation>
     </message>
     <message>
         <source>index.html</source>
-        <translation type="vanished">index.html</translation>
+        <translation>index.html</translation>
     </message>
     <message>
         <source>Leere Datei</source>
-        <translation type="vanished">Leere Datei</translation>
+        <translation>Leere Datei</translation>
     </message>
     <message>
         <source>Neue Datei</source>
-        <translation type="vanished">New file</translation>
+        <translation>New file</translation>
     </message>
     <message>
         <source>Ziel waehlen</source>
-        <translation type="vanished">Ziel waehlen</translation>
+        <translation>Ziel waehlen</translation>
     </message>
     <message>
         <source>Verknuepfungsname</source>
-        <translation type="vanished">Verknuepfungsname</translation>
+        <translation>Verknuepfungsname</translation>
     </message>
     <message>
         <source>Link</source>
-        <translation type="vanished">Link</translation>
+        <translation>Link</translation>
     </message>
     <message>
         <source>Suchen ...</source>
-        <translation type="vanished">Suchen ...</translation>
+        <translation>Suchen ...</translation>
     </message>
     <message>
         <source>Filtern</source>
-        <translation type="vanished">Filtern</translation>
+        <translation>Filtern</translation>
     </message>
     <message>
         <source>Dateinamen</source>
-        <translation type="vanished">Dateinamen</translation>
+        <translation>Dateinamen</translation>
     </message>
     <message>
         <source>Dateiinhalt</source>
-        <translation type="vanished">Dateiinhalt</translation>
+        <translation>Dateiinhalt</translation>
     </message>
     <message>
         <source>KFind öffnen</source>
-        <translation type="vanished">KFind öffnen</translation>
+        <translation>KFind öffnen</translation>
     </message>
     <message>
         <source>Sucheinstellungen</source>
-        <translation type="vanished">Sucheinstellungen</translation>
+        <translation>Sucheinstellungen</translation>
     </message>
     <message>
         <source>Ab hier</source>
-        <translation type="vanished">Ab hier</translation>
+        <translation>Ab hier</translation>
     </message>
     <message>
         <source>Überall</source>
-        <translation type="vanished">Überall</translation>
+        <translation>Überall</translation>
     </message>
     <message>
         <location filename="../src/filepane.cpp" line="143"/>
@@ -3335,283 +3335,283 @@ Inspired by OneCommander.</translation>
     </message>
     <message>
         <source>Suche läuft...</source>
-        <translation type="vanished">Suche läuft...</translation>
+        <translation>Suche läuft...</translation>
     </message>
     <message>
         <source>Möchten Sie den Papierkorb wirklich leeren?</source>
-        <translation type="vanished">Möchten Sie den Papierkorb wirklich leeren?</translation>
+        <translation>Möchten Sie den Papierkorb wirklich leeren?</translation>
     </message>
     <message>
         <source>%1 ausgewählt</source>
-        <translation type="vanished">%1 ausgewählt</translation>
+        <translation>%1 ausgewählt</translation>
     </message>
     <message>
         <source>Graustufen 8-bit</source>
-        <translation type="vanished">Graustufen 8-bit</translation>
+        <translation>Graustufen 8-bit</translation>
     </message>
     <message>
         <source>Graustufen 16-bit</source>
-        <translation type="vanished">Graustufen 16-bit</translation>
+        <translation>Graustufen 16-bit</translation>
     </message>
     <message>
         <source>RGB 24-bit</source>
-        <translation type="vanished">RGB 24-bit</translation>
+        <translation>RGB 24-bit</translation>
     </message>
     <message>
         <source>RGBA 32-bit</source>
-        <translation type="vanished">RGBA 32-bit</translation>
+        <translation>RGBA 32-bit</translation>
     </message>
     <message>
         <source>%1-bit</source>
-        <translation type="vanished">%1-bit</translation>
+        <translation>%1-bit</translation>
     </message>
     <message>
         <source>Aufl.</source>
-        <translation type="vanished">Aufl.</translation>
+        <translation>Aufl.</translation>
     </message>
     <message>
         <source>Format</source>
-        <translation type="vanished">Format</translation>
+        <translation>Format</translation>
     </message>
     <message>
         <source>Tiefe</source>
-        <translation type="vanished">Tiefe</translation>
+        <translation>Tiefe</translation>
     </message>
     <message>
         <source>DPI</source>
-        <translation type="vanished">DPI</translation>
+        <translation>DPI</translation>
     </message>
     <message>
         <source>Maße</source>
-        <translation type="vanished">Maße</translation>
+        <translation>Maße</translation>
     </message>
     <message>
         <source>Ordner</source>
-        <translation type="vanished">Folder</translation>
+        <translation>Folder</translation>
     </message>
     <message>
         <source>Protokoll</source>
-        <translation type="vanished">Protokoll</translation>
+        <translation>Protokoll</translation>
     </message>
     <message>
         <source>…</source>
-        <translation type="vanished">…</translation>
+        <translation>…</translation>
     </message>
     <message>
         <source>Datei</source>
-        <translation type="vanished">File</translation>
+        <translation>File</translation>
     </message>
     <message>
         <source>-Datei</source>
-        <translation type="vanished">-Datei</translation>
+        <translation>-Datei</translation>
     </message>
     <message>
         <source>Heute</source>
-        <translation type="vanished">Heute</translation>
+        <translation>Heute</translation>
     </message>
     <message>
         <source>Gestern</source>
-        <translation type="vanished">Gestern</translation>
+        <translation>Gestern</translation>
     </message>
     <message>
         <source>%1 t</source>
-        <translation type="vanished">%1 t</translation>
+        <translation>%1 t</translation>
     </message>
     <message>
         <source>%1 m</source>
-        <translation type="vanished">%1 m</translation>
+        <translation>%1 m</translation>
     </message>
     <message>
         <source>%1 j</source>
-        <translation type="vanished">%1 j</translation>
+        <translation>%1 j</translation>
     </message>
     <message>
         <source>System</source>
-        <translation type="vanished">System</translation>
+        <translation>System</translation>
     </message>
     <message>
         <source>Keine Ergebnisse</source>
-        <translation type="vanished">No results</translation>
+        <translation>No results</translation>
     </message>
     <message>
         <source>Eintrag bearbeiten</source>
-        <translation type="vanished">Eintrag bearbeiten</translation>
+        <translation>Eintrag bearbeiten</translation>
     </message>
     <message>
         <source>Adresse:</source>
-        <translation type="vanished">Address:</translation>
+        <translation>Address:</translation>
     </message>
     <message>
         <source>Bearbeiten...</source>
-        <translation type="vanished">Bearbeiten...</translation>
+        <translation>Bearbeiten...</translation>
     </message>
     <message>
         <source>Aus Gruppe entfernen</source>
-        <translation type="vanished">Aus Gruppe entfernen</translation>
+        <translation>Aus Gruppe entfernen</translation>
     </message>
     <message>
         <source>LAUFWERKE</source>
-        <translation type="vanished">LAUFWERKE</translation>
+        <translation>LAUFWERKE</translation>
     </message>
     <message>
         <source>Linke Pane</source>
-        <translation type="vanished">Linke Pane</translation>
+        <translation>Linke Pane</translation>
     </message>
     <message>
         <source>Rechte Pane</source>
-        <translation type="vanished">Rechte Pane</translation>
+        <translation>Rechte Pane</translation>
     </message>
     <message>
         <source>Trennen</source>
-        <translation type="vanished">Disconnect</translation>
+        <translation>Disconnect</translation>
     </message>
     <message>
         <source>Box umbenennen …</source>
-        <translation type="vanished">Box umbenennen …</translation>
+        <translation>Box umbenennen …</translation>
     </message>
     <message>
         <source>Box umbenennen</source>
-        <translation type="vanished">Box umbenennen</translation>
+        <translation>Box umbenennen</translation>
     </message>
     <message>
         <source>Alles aktualisieren</source>
-        <translation type="vanished">Alles aktualisieren</translation>
+        <translation>Alles aktualisieren</translation>
     </message>
     <message>
         <source>Netzwerklaufwerk verbinden</source>
-        <translation type="vanished">Netzwerklaufwerk verbinden</translation>
+        <translation>Netzwerklaufwerk verbinden</translation>
     </message>
     <message>
         <source>+ Neue Gruppe</source>
-        <translation type="vanished">+ Neue Gruppe</translation>
+        <translation>+ Neue Gruppe</translation>
     </message>
     <message>
         <source>TAGS</source>
-        <translation type="vanished">TAGS</translation>
+        <translation>TAGS</translation>
     </message>
     <message>
         <source>Neuer Tag</source>
-        <translation type="vanished">Neuer Tag</translation>
+        <translation>Neuer Tag</translation>
     </message>
     <message>
         <source>Tag-Name:</source>
-        <translation type="vanished">Tag-Name:</translation>
+        <translation>Tag-Name:</translation>
     </message>
     <message>
         <source>Farbe wählen</source>
-        <translation type="vanished">Farbe wählen</translation>
+        <translation>Farbe wählen</translation>
     </message>
     <message>
         <source>Über</source>
-        <translation type="vanished">Über</translation>
+        <translation>Über</translation>
     </message>
     <message>
         <source>Drucken</source>
-        <translation type="vanished">Drucken</translation>
+        <translation>Drucken</translation>
     </message>
     <message>
         <source>Nachricht</source>
-        <translation type="vanished">Nachricht</translation>
+        <translation>Nachricht</translation>
     </message>
     <message>
         <source>Auswerfen</source>
-        <translation type="vanished">Eject</translation>
+        <translation>Eject</translation>
     </message>
     <message>
         <source>Verknüpfung erstellen</source>
-        <translation type="vanished">Create link</translation>
+        <translation>Create link</translation>
     </message>
     <message>
         <source>Neue Gruppe</source>
-        <translation type="vanished">New group</translation>
+        <translation>New group</translation>
     </message>
     <message>
         <source>Gruppenname:</source>
-        <translation type="vanished">Group name:</translation>
+        <translation>Group name:</translation>
     </message>
     <message>
         <source>Mein Ordner...</source>
-        <translation type="vanished">My folder...</translation>
+        <translation>My folder...</translation>
     </message>
     <message>
         <source>Inhalt:</source>
-        <translation type="vanished">Content:</translation>
+        <translation>Content:</translation>
     </message>
     <message>
         <source>Leere Gruppe</source>
-        <translation type="vanished">Empty group</translation>
+        <translation>Empty group</translation>
     </message>
     <message>
         <source>Home-Favoriten</source>
-        <translation type="vanished">Home favorites</translation>
+        <translation>Home favorites</translation>
     </message>
     <message>
         <source>Gruppe umbenennen</source>
-        <translation type="vanished">Rename group</translation>
+        <translation>Rename group</translation>
     </message>
     <message>
         <source>Lösen</source>
-        <translation type="vanished">Unpin</translation>
+        <translation>Unpin</translation>
     </message>
     <message>
         <source>An Position verankern</source>
-        <translation type="vanished">Pin position</translation>
+        <translation>Pin position</translation>
     </message>
     <message>
         <source>Nach oben</source>
-        <translation type="vanished">Move up</translation>
+        <translation>Move up</translation>
     </message>
     <message>
         <source>Nach unten</source>
-        <translation type="vanished">Move down</translation>
+        <translation>Move down</translation>
     </message>
     <message>
         <source>Gruppe löschen</source>
-        <translation type="vanished">Delete group</translation>
+        <translation>Delete group</translation>
     </message>
     <message>
         <source>Papierkorb</source>
-        <translation type="vanished">Trash</translation>
+        <translation>Trash</translation>
     </message>
     <message>
         <source>Zuletzt verwendet</source>
-        <translation type="vanished">Recently used</translation>
+        <translation>Recently used</translation>
     </message>
     <message>
         <source>Netzwerk</source>
-        <translation type="vanished">Network</translation>
+        <translation>Network</translation>
     </message>
     <message>
         <source>Persönlicher Ordner</source>
-        <translation type="vanished">Home folder</translation>
+        <translation>Home folder</translation>
     </message>
     <message>
         <source>Farbe ändern …</source>
-        <translation type="vanished">Change color…</translation>
+        <translation>Change color…</translation>
     </message>
     <message>
         <source>Umbenennen …</source>
-        <translation type="vanished">Rename…</translation>
+        <translation>Rename…</translation>
     </message>
     <message>
         <source>Tag umbenennen</source>
-        <translation type="vanished">Rename tag</translation>
+        <translation>Rename tag</translation>
     </message>
     <message>
         <source>Theme auswählen</source>
-        <translation type="vanished">Theme auswählen</translation>
+        <translation>Theme auswählen</translation>
     </message>
     <message>
         <source>System-Theme</source>
-        <translation type="vanished">System-Theme</translation>
+        <translation>System-Theme</translation>
     </message>
     <message>
         <source>Eigenes Theme</source>
-        <translation type="vanished">Eigenes Theme</translation>
+        <translation>Eigenes Theme</translation>
     </message>
     <message>
         <source>Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</source>
-        <translation type="vanished">Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</translation>
+        <translation>Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</translation>
     </message>
     <message>
         <location filename="../src/filepane.cpp" line="144"/>
@@ -3805,43 +3805,43 @@ Inspired by OneCommander.</translation>
     </message>
     <message>
         <source>Kopiere diese Datei, um ein eigenes Theme zu erstellen!</source>
-        <translation type="vanished">Kopiere diese Datei, um ein eigenes Theme zu erstellen!</translation>
+        <translation>Kopiere diese Datei, um ein eigenes Theme zu erstellen!</translation>
     </message>
     <message>
         <source>Ändere den &apos;name&apos;, damit es als neues Theme im Menü erscheint.</source>
-        <translation type="vanished">Ändere den &amp;apos;name&amp;apos;, damit es als neues Theme im Menü erscheint.</translation>
+        <translation>Ändere den &amp;apos;name&amp;apos;, damit es als neues Theme im Menü erscheint.</translation>
     </message>
     <message>
         <source>Mein neues Design</source>
-        <translation type="vanished">Mein neues Design</translation>
+        <translation>Mein neues Design</translation>
     </message>
     <message>
         <source>#1e1e2e (Sidebar &amp; App-Hintergrund)</source>
-        <translation type="vanished">#1e1e2e (Sidebar &amp; App-Hintergrund)</translation>
+        <translation>#1e1e2e (Sidebar &amp; App-Hintergrund)</translation>
     </message>
     <message>
         <source>#11111b (Hintergrund der Dateilisten)</source>
-        <translation type="vanished">#11111b (Hintergrund der Dateilisten)</translation>
+        <translation>#11111b (Hintergrund der Dateilisten)</translation>
     </message>
     <message>
         <source>#313244 (Hintergrund der Karten/Favoriten)</source>
-        <translation type="vanished">#313244 (Hintergrund der Karten/Favoriten)</translation>
+        <translation>#313244 (Hintergrund der Karten/Favoriten)</translation>
     </message>
     <message>
         <source>#cdd6f4 (Haupt-Schriftfarbe)</source>
-        <translation type="vanished">#cdd6f4 (Haupt-Schriftfarbe)</translation>
+        <translation>#cdd6f4 (Haupt-Schriftfarbe)</translation>
     </message>
     <message>
         <source>#cba6f7 (Farbe für Pfade und Highlights)</source>
-        <translation type="vanished">#cba6f7 (Farbe für Pfade und Highlights)</translation>
+        <translation>#cba6f7 (Farbe für Pfade und Highlights)</translation>
     </message>
     <message>
         <source>#f5c2e7 (Buttons und Markierungen)</source>
-        <translation type="vanished">#f5c2e7 (Buttons und Markierungen)</translation>
+        <translation>#f5c2e7 (Buttons und Markierungen)</translation>
     </message>
     <message>
         <source>#313244 (Rahmenlinien)</source>
-        <translation type="vanished">#313244 (Rahmenlinien)</translation>
+        <translation>#313244 (Rahmenlinien)</translation>
     </message>
 </context>
 <context>
@@ -4001,39 +4001,39 @@ Inspired by OneCommander.</translation>
     <name>ThemeDialog</name>
     <message>
         <source>Theme auswählen</source>
-        <translation type="vanished">Theme auswählen</translation>
+        <translation>Theme auswählen</translation>
     </message>
     <message>
         <source>System-Theme</source>
-        <translation type="vanished">System-Theme</translation>
+        <translation>System-Theme</translation>
     </message>
     <message>
         <source>KDE Global Theme verwenden</source>
-        <translation type="vanished">KDE Global Theme verwenden</translation>
+        <translation>KDE Global Theme verwenden</translation>
     </message>
     <message>
         <source>Übernimmt Farben und Stil des aktiven KDE Global Themes.</source>
-        <translation type="vanished">Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
+        <translation>Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
     </message>
     <message>
         <source>Eigenes Theme</source>
-        <translation type="vanished">Eigenes Theme</translation>
+        <translation>Eigenes Theme</translation>
     </message>
     <message>
         <source>Abbrechen</source>
-        <translation type="vanished">Cancel</translation>
+        <translation>Cancel</translation>
     </message>
     <message>
         <source>Übernehmen</source>
-        <translation type="vanished">Apply</translation>
+        <translation>Apply</translation>
     </message>
     <message>
         <source>Neustart erforderlich</source>
-        <translation type="vanished">Neustart erforderlich</translation>
+        <translation>Neustart erforderlich</translation>
     </message>
     <message>
         <source>Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</source>
-        <translation type="vanished">Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</translation>
+        <translation>Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</translation>
     </message>
 </context>
 <context>

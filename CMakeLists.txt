@@ -138,9 +138,22 @@ set(TS_FILES
     translations/splitcommander_ro.ts
 )
 
+# Plugin-Quellen für lupdate immer scannen (unabhängig von Plugin-Flags),
+# damit Übersetzungen nie als "vanished" markiert werden.
+set(SC_LUPDATE_SOURCES
+    ${SC_SOURCES}
+    src/plugins/git/gitmanagerdialog.cpp
+    src/plugins/git/gitstatusmanager.cpp
+    src/plugins/paperless/paperlessmanager.cpp
+    src/plugins/mountiso/mountiso.cpp
+    src/plugins/makefileactions/makefileactions.cpp
+)
+list(REMOVE_DUPLICATES SC_LUPDATE_SOURCES)
+
 qt6_add_translations(splitcommander
     TS_FILES ${TS_FILES}
     QM_FILES_OUTPUT_VARIABLE QM_FILES
+    SOURCES ${SC_LUPDATE_SOURCES}
 )
 target_sources(splitcommander PRIVATE ${QM_FILES})
 
