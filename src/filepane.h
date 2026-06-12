@@ -109,6 +109,9 @@ private:
     bool acceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
     QVariant extraData(const KFileItem &item, FPCol col, int role) const;
     int kdirColumn(FPCol col) const;
+    QVariant resolveNameData(const KFileItem &item, int role) const;
+    QVariant resolveSizeData(const KFileItem &item, int role) const;
+    QVariant resolveStandardColData(const KFileItem &item, FPCol col, int role) const;
 
     QList<FPCol>              m_visCols;
     QString                   m_tagFilter;
@@ -194,6 +197,8 @@ private:
                            KFileItemActions &actions, KFileItemListProperties &props);
     void populateItemMenu(QMenu &menu, const ContextMenuState &ctx,
                           KFileItemActions &actions, KFileItemListProperties &props);
+    void buildExtractionMenu(QMenu &menu, const ContextMenuState &ctx);
+    void setupExtractionMenuActions(QMenu* extractMenu, const QStringList& archivePaths, const QString& workDir);
     void populateBackgroundMenu(QMenu &menu, const ContextMenuState &ctx,
                                KFileItemActions &actions, KFileItemListProperties &props);
     void applyMenuStyling(QMenu &menu);
@@ -201,7 +206,19 @@ private:
     void setupColumns();
     void setupModel();
     void setupView();
+    void buildTreeView();
+    void setupTreeViewAppearance();
+    void setupTreeViewHeader();
+    void setupOverlayScrollbars();
+    void buildIconView();
     void setupConnections();
+    void connectTreeViewSignals();
+    void connectIconViewSignals();
+    void setupDropHandlers();
+    void connectSelectionSignals();
+    void connectMiscSignals();
+    void executeLocalPathLoad(const QUrl &url);
+    bool handleRemoteViewItem(const KFileItem &item);
 
     QStackedWidget           *m_stack;
     QTreeView                *m_view;
@@ -210,7 +227,7 @@ private:
     QScrollBar               *m_overlayBar;
     QScrollBar               *m_overlayHBar = nullptr;
 
-    // KDE model stack
+    // KDE-Modell-Stack
     KDirLister               *m_lister;
     KDirModel                *m_dirModel;
     KDirSortFilterProxyModel *m_sortProxy;

@@ -7,7 +7,7 @@
 
 BatchRenamer::BatchRenamer(const QStringList &files, QWidget *parent)
     : QDialog(parent)
-    , m_originalFiles(files) 
+    , m_originalFiles(files)
 {
     Q_ASSERT(!files.isEmpty());
 
@@ -21,39 +21,7 @@ BatchRenamer::BatchRenamer(const QStringList &files, QWidget *parent)
 
     auto *formLayout = new QGridLayout();
     Q_ASSERT(formLayout != nullptr);
-    
-    m_searchEdit = new QLineEdit();
-    Q_ASSERT(m_searchEdit != nullptr);
-    m_searchEdit->setPlaceholderText(QStringLiteral("Suchen..."));
-    
-    m_replaceEdit = new QLineEdit();
-    Q_ASSERT(m_replaceEdit != nullptr);
-    m_replaceEdit->setPlaceholderText(QStringLiteral("Ersetzen durch..."));
-    
-    m_prefixEdit = new QLineEdit();
-    Q_ASSERT(m_prefixEdit != nullptr);
-    m_prefixEdit->setPlaceholderText(QStringLiteral("Präfix hinzufügen..."));
-    
-    m_suffixEdit = new QLineEdit();
-    Q_ASSERT(m_suffixEdit != nullptr);
-    m_suffixEdit->setPlaceholderText(QStringLiteral("Suffix hinzufügen..."));
-
-    const QString editStyle = QStringLiteral("QLineEdit { background: %1; border: 1px solid %2; padding: 5px; color: %3; }")
-        .arg(TM().colors().bgList, TM().colors().borderAlt, TM().colors().textAccent);
-    m_searchEdit->setStyleSheet(editStyle);
-    m_replaceEdit->setStyleSheet(editStyle);
-    m_prefixEdit->setStyleSheet(editStyle);
-    m_suffixEdit->setStyleSheet(editStyle);
-
-    formLayout->addWidget(new QLabel(QStringLiteral("Suchen:")), 0, 0);
-    formLayout->addWidget(m_searchEdit, 0, 1);
-    formLayout->addWidget(new QLabel(QStringLiteral("Ersetzen:")), 1, 0);
-    formLayout->addWidget(m_replaceEdit, 1, 1);
-    formLayout->addWidget(new QLabel(QStringLiteral("Präfix:")), 2, 0);
-    formLayout->addWidget(m_prefixEdit, 2, 1);
-    formLayout->addWidget(new QLabel(QStringLiteral("Suffix:")), 3, 0);
-    formLayout->addWidget(m_suffixEdit, 3, 1);
-
+    setupFormFields(formLayout);
     layout->addLayout(formLayout);
 
     layout->addWidget(new QLabel(QStringLiteral("VORSCHAU:")));
@@ -63,28 +31,68 @@ BatchRenamer::BatchRenamer(const QStringList &files, QWidget *parent)
         .arg(TM().colors().bgInput));
     layout->addWidget(m_previewList);
 
+    setupButtons(layout);
+
+    connect(m_searchEdit,  &QLineEdit::textChanged, this, &BatchRenamer::updatePreview);
+    connect(m_replaceEdit, &QLineEdit::textChanged, this, &BatchRenamer::updatePreview);
+    connect(m_prefixEdit,  &QLineEdit::textChanged, this, &BatchRenamer::updatePreview);
+    connect(m_suffixEdit,  &QLineEdit::textChanged, this, &BatchRenamer::updatePreview);
+
+    updatePreview();
+}
+
+void BatchRenamer::setupFormFields(QGridLayout *formLay)
+{
+    Q_ASSERT(formLay != nullptr);
+    const QString editStyle = QStringLiteral("QLineEdit { background: %1; border: 1px solid %2; padding: 5px; color: %3; }")
+        .arg(TM().colors().bgList, TM().colors().borderAlt, TM().colors().textAccent);
+
+    m_searchEdit  = new QLineEdit();
+    m_replaceEdit = new QLineEdit();
+    m_prefixEdit  = new QLineEdit();
+    m_suffixEdit  = new QLineEdit();
+    Q_ASSERT(m_searchEdit != nullptr && m_replaceEdit != nullptr);
+    Q_ASSERT(m_prefixEdit != nullptr && m_suffixEdit != nullptr);
+
+    m_searchEdit->setPlaceholderText(QStringLiteral("Suchen..."));
+    m_replaceEdit->setPlaceholderText(QStringLiteral("Ersetzen durch..."));
+    m_prefixEdit->setPlaceholderText(QStringLiteral("Präfix hinzufügen..."));
+    m_suffixEdit->setPlaceholderText(QStringLiteral("Suffix hinzufügen..."));
+
+    m_searchEdit->setStyleSheet(editStyle);
+    m_replaceEdit->setStyleSheet(editStyle);
+    m_prefixEdit->setStyleSheet(editStyle);
+    m_suffixEdit->setStyleSheet(editStyle);
+
+    formLay->addWidget(new QLabel(QStringLiteral("Suchen:")),   0, 0);
+    formLay->addWidget(m_searchEdit,                            0, 1);
+    formLay->addWidget(new QLabel(QStringLiteral("Ersetzen:")), 1, 0);
+    formLay->addWidget(m_replaceEdit,                           1, 1);
+    formLay->addWidget(new QLabel(QStringLiteral("Präfix:")),   2, 0);
+    formLay->addWidget(m_prefixEdit,                            2, 1);
+    formLay->addWidget(new QLabel(QStringLiteral("Suffix:")),   3, 0);
+    formLay->addWidget(m_suffixEdit,                            3, 1);
+}
+
+void BatchRenamer::setupButtons(QVBoxLayout *lay)
+{
+    Q_ASSERT(lay != nullptr);
     auto *btnLayout = new QHBoxLayout();
     Q_ASSERT(btnLayout != nullptr);
-    auto *okBtn = new QPushButton(QStringLiteral("Umbenennen"));
-    Q_ASSERT(okBtn != nullptr);
+    auto *okBtn     = new QPushButton(QStringLiteral("Umbenennen"));
     auto *cancelBtn = new QPushButton(QStringLiteral("Abbrechen"));
-    Q_ASSERT(cancelBtn != nullptr);
+    Q_ASSERT(okBtn != nullptr && cancelBtn != nullptr);
+
     okBtn->setStyleSheet(QStringLiteral("background: %1; padding: 8px; font-weight: bold;").arg(TM().colors().accent));
     cancelBtn->setStyleSheet(QStringLiteral("background: %1; padding: 8px;").arg(TM().colors().borderAlt));
-    
+
     btnLayout->addStretch();
     btnLayout->addWidget(cancelBtn);
     btnLayout->addWidget(okBtn);
-    layout->addLayout(btnLayout);
+    lay->addLayout(btnLayout);
 
-    connect(m_searchEdit, &QLineEdit::textChanged, this, &BatchRenamer::updatePreview);
-    connect(m_replaceEdit, &QLineEdit::textChanged, this, &BatchRenamer::updatePreview);
-    connect(m_prefixEdit, &QLineEdit::textChanged, this, &BatchRenamer::updatePreview);
-    connect(m_suffixEdit, &QLineEdit::textChanged, this, &BatchRenamer::updatePreview);
-    connect(okBtn, &QPushButton::clicked, this, &QDialog::accept);
+    connect(okBtn,     &QPushButton::clicked, this, &QDialog::accept);
     connect(cancelBtn, &QPushButton::clicked, this, &QDialog::reject);
-
-    updatePreview();
 }
 
 void BatchRenamer::updatePreview()

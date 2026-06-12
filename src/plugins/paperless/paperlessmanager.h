@@ -16,6 +16,8 @@ class QNetworkAccessManager;
 class QNetworkReply;
 class QProgressBar;
 class QVBoxLayout;
+class QHttpMultiPart;
+class QFormLayout;
 
 // ─── Upload-Dialog ────────────────────────────────────────────────────────────
 class PaperlessUploadDialog : public QDialog
@@ -31,6 +33,13 @@ public:
     [[nodiscard]] int selectedCorrespondent() const;
 
 private:
+    void buildUI(const QStringList &files);
+    void buildFileList(QVBoxLayout *lay, const QStringList &files, const QString &labelSS, const QString &textMuted, const QString &bgInput, const QString &borderAlt);
+    void buildTitleField(QVBoxLayout *lay, const QStringList &files, const QString &labelSS, const QString &inputSS);
+    void buildTagsList(QVBoxLayout *lay, const QString &labelSS, const QString &bgInput, const QString &textPrimary, const QString &borderAlt);
+    void buildCorrespondentCombo(QVBoxLayout *lay, const QString &labelSS, const QString &inputSS);
+    void buildActionButtons(QVBoxLayout *lay, const QString &primSS, const QString &normSS);
+    
     void loadMeta();
     QLineEdit       *m_titleEdit    = nullptr;
     QListWidget     *m_tagsList     = nullptr;
@@ -58,7 +67,15 @@ private:
     void downloadAndOpen(int docId, const QString &filename);
     void saveSettings();
 
-    // UI builders (NASA Rule 4 Compliance)
+    // Refaktorierungs-Helfer für Upload
+    static QHttpMultiPart* createUploadMultiPart(const QString &filePath, const QString &titleText, const QList<int> &tags, int correspondent);
+    static void sendUploadRequest(QNetworkAccessManager *nam, QHttpMultiPart *multiPart, const QString &filePath, int *pending, QWidget *parent);
+
+    // Refaktorierungs-Helfer für UI
+    void buildUrlAndTokenFields(QFormLayout *cfgLay, const QString &inputSS, const QString &normBtnSS);
+    void buildConnectionSettingsFooter(QFormLayout *cfgLay, const QString &normBtnSS);
+
+    // UI-Abschnitts-Builder (NASA Regel 4 Compliance)
     void setupConnectionSection(QVBoxLayout *root, const QString &inputSS, const QString &normBtnSS, const QString &textAccent, const QString &borderAlt);
     void setupSearchSection(QVBoxLayout *root, const QString &inputSS, const QString &primBtnSS, const QString &normBtnSS);
     void setupDocumentListSection(QVBoxLayout *root, const QString &labelSS, const QString &bgInput, const QString &textPrimary, const QString &borderAlt);

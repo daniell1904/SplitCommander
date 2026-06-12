@@ -125,9 +125,31 @@ void SettingsDialog::buildUI()
     root->setContentsMargins(0, 0, 0, 0);
     root->setSpacing(0);
 
-    const auto &c = TM().colors();
+    buildSidebar(root);
 
-    // SIDEBAR
+    // STACK
+    m_stack = new QStackedWidget();
+    Q_ASSERT(m_stack != nullptr);
+    m_stack->addWidget(createGeneralPage());
+    m_stack->addWidget(createAppearancePage()); 
+    m_stack->addWidget(createShortcutsPage());
+
+    root->addWidget(m_stack, 1);
+
+    connect(m_sidebar, &QListWidget::currentRowChanged, m_stack, &QStackedWidget::setCurrentIndex);
+
+    auto *rightSide = new QVBoxLayout();
+    Q_ASSERT(rightSide != nullptr);
+    rightSide->addWidget(m_stack, 1);
+    
+    buildFooter(rightSide);
+    
+    root->addLayout(rightSide, 1);
+}
+
+void SettingsDialog::buildSidebar(QHBoxLayout *root)
+{
+    const auto &c = TM().colors();
     m_sidebar = new QListWidget();
     Q_ASSERT(m_sidebar != nullptr);
     m_sidebar->setFixedWidth(220);
@@ -155,22 +177,11 @@ void SettingsDialog::buildUI()
     m_sidebar->addItem(tr("Kurzbefehle"));
 
     root->addWidget(m_sidebar);
+}
 
-    // STACK
-    m_stack = new QStackedWidget();
-    Q_ASSERT(m_stack != nullptr);
-    m_stack->addWidget(createGeneralPage());
-    m_stack->addWidget(createAppearancePage()); 
-    m_stack->addWidget(createShortcutsPage());
-
-    root->addWidget(m_stack, 1);
-
-    connect(m_sidebar, &QListWidget::currentRowChanged, m_stack, &QStackedWidget::setCurrentIndex);
-
-    auto *rightSide = new QVBoxLayout();
-    Q_ASSERT(rightSide != nullptr);
-    rightSide->addWidget(m_stack, 1);
-    
+void SettingsDialog::buildFooter(QVBoxLayout *rightSide)
+{
+    const auto &c = TM().colors();
     auto *footer = new QHBoxLayout();
     Q_ASSERT(footer != nullptr);
     footer->setContentsMargins(20, 10, 20, 20);
@@ -189,8 +200,6 @@ void SettingsDialog::buildUI()
     footer->addWidget(btnClose);
     footer->addWidget(btnApply);
     rightSide->addLayout(footer);
-    
-    root->addLayout(rightSide, 1);
 
     connect(btnClose, &QPushButton::clicked, this, &QDialog::close);
     connect(btnApply, &QPushButton::clicked, this, &SettingsDialog::save);
@@ -577,32 +586,9 @@ void SettingsDialog::setupThemesSection(QVBoxLayout *lay)
     themeGrid->setSpacing(8);
 
     const auto allThemes = TM().allThemes();
-    const int columns = 2;
     for (int i = 0; i < allThemes.size(); ++i)
     {
-        const auto &t = allThemes.at(i);
-        auto *card = new ColorCard(nullptr, t.bgMain, c.borderAlt, 6);
-        Q_ASSERT(card != nullptr);
-        card->setFixedHeight(38);
-        auto *cardLay = new QHBoxLayout(card);
-        Q_ASSERT(cardLay != nullptr);
-        cardLay->setContentsMargins(8, 4, 8, 4);
-        cardLay->setSpacing(6);
-        auto *rb = new QRadioButton();
-        Q_ASSERT(rb != nullptr);
-        m_themeGroup->addButton(rb, i);
-        cardLay->addWidget(rb);
-        cardLay->addWidget(new QLabel(t.name), 1);
-
-        const QList<QColor> chipCols = {t.bgMain, t.bgBox, t.accent, t.textPrimary};
-        for (int j = 0; j < chipCols.size(); ++j)
-        {
-            auto *chip = new ColorCard(nullptr, chipCols[j], c.borderAlt, 3);
-            Q_ASSERT(chip != nullptr);
-            chip->setFixedSize(16, 16);
-            cardLay->addWidget(chip);
-        }
-        themeGrid->addWidget(card, i / columns, i % columns);
+        buildThemeCard(i, allThemes.at(i), themeGrid);
     }
     themeInnerLay->addLayout(themeGrid);
     themesLay->addWidget(m_themeBox);
@@ -623,6 +609,35 @@ void SettingsDialog::setupThemesSection(QVBoxLayout *lay)
             }
         }
     });
+}
+
+void SettingsDialog::buildThemeCard(int index, const ThemeColors &t, QGridLayout *themeGrid)
+{
+    const auto &c = TM().colors();
+    const int columns = 2;
+
+    auto *card = new ColorCard(nullptr, t.bgMain, c.borderAlt, 6);
+    Q_ASSERT(card != nullptr);
+    card->setFixedHeight(38);
+    auto *cardLay = new QHBoxLayout(card);
+    Q_ASSERT(cardLay != nullptr);
+    cardLay->setContentsMargins(8, 4, 8, 4);
+    cardLay->setSpacing(6);
+    auto *rb = new QRadioButton();
+    Q_ASSERT(rb != nullptr);
+    m_themeGroup->addButton(rb, index);
+    cardLay->addWidget(rb);
+    cardLay->addWidget(new QLabel(t.name), 1);
+
+    const QList<QColor> chipCols = {t.bgMain, t.bgBox, t.accent, t.textPrimary};
+    for (int j = 0; j < chipCols.size(); ++j)
+    {
+        auto *chip = new ColorCard(nullptr, chipCols[j], c.borderAlt, 3);
+        Q_ASSERT(chip != nullptr);
+        chip->setFixedSize(16, 16);
+        cardLay->addWidget(chip);
+    }
+    themeGrid->addWidget(card, index / columns, index % columns);
 }
 
 void SettingsDialog::setupThumbnailsSection(QVBoxLayout *lay)
@@ -693,6 +708,12 @@ void SettingsDialog::setupFileTypeColorsSection(QVBoxLayout *lay)
     extLay->addLayout(extInputRow);
     lay->addWidget(grpExtColors);
     
+    connectFileTypeColorButtons(btnPickColor, btnAddExt, btnDelExt, extEdit);
+}
+
+void SettingsDialog::connectFileTypeColorButtons(QPushButton *btnPickColor, QPushButton *btnAddExt, QPushButton *btnDelExt, QLineEdit *extEdit)
+{
+    const auto &c = TM().colors();
     static QColor lastPickedColor = c.accent;
     connect(btnPickColor, &QPushButton::clicked, this, [&]()
     {
@@ -795,6 +816,41 @@ void SettingsDialog::updateDynamicColors()
 
 void SettingsDialog::load()
 {
+    loadAppearance();
+    loadBehavior();
+
+    // Sprache
+    if (m_languageCombo != nullptr)
+    {
+        const QString lang = Config::appLanguage();
+        int idx = m_languageCombo->findData(lang);
+        m_languageCombo->setCurrentIndex(idx >= 0 ? idx : 0);
+        m_langHint->setVisible(false);
+    }
+  
+    int sb = Config::startupBehavior();
+    if (auto *btn = m_startupGroup->button(sb))
+    {
+        btn->setChecked(true);
+    }
+    m_startupPathEdit->setText(Config::startupPath());
+    m_startupPathEdit->setDisabled(sb != 2);
+
+    m_useThumbnails->setChecked(Config::useThumbnails());
+    m_maxThumbSize->setValue(Config::maxThumbnailSize());
+    m_maxThumbSize->setDisabled(!Config::useThumbnails());
+
+    m_fileTypeColorList->clear();
+    m_fileTypeColorList->addItems(Config::fileTypeColors());
+
+    m_sSlider->setValue(Config::ageBadgeSaturation());
+    m_lSlider->setValue(Config::ageBadgeLightness());
+    m_indicatorCheck->setChecked(Config::showNewIndicator());
+    updateDynamicColors();
+}
+
+void SettingsDialog::loadAppearance()
+{
     m_sysCheck->setChecked(Config::useSystemTheme());
     m_themeBox->setDisabled(Config::useSystemTheme());
     const QString curTheme = Config::selectedTheme();
@@ -810,23 +866,6 @@ void SettingsDialog::load()
         }
     }
 
-    m_showDriveIp->setChecked(Config::showDriveIp());
-    m_driveBlacklist->clear();
-    m_driveBlacklist->addItems(Config::driveBlacklist());
-
-#ifdef SC_PLUGIN_GIT
-    m_gitShowSidebar->setChecked(Config::gitShowSidebar());
-    const QString gitMode = Config::gitRefreshMode();
-    int gitIdx = m_gitRefreshMode->findData(gitMode);
-    m_gitRefreshMode->setCurrentIndex(gitIdx >= 0 ? gitIdx : 0);
-    m_gitRefreshInterval->setValue(Config::gitRefreshIntervalMinutes());
-    m_gitRefreshInterval->setEnabled(gitMode == QStringLiteral("periodic"));
-#endif
-  
-    m_showMillerIp->setChecked(Config::showMillerIp());
-    m_showHidden->setChecked(Config::showHiddenFiles());
-    m_showExtensions->setChecked(Config::showFileExtensions());
-    m_singleClick->setChecked(Config::singleClickOpen());
     if (m_uiFontSize != nullptr)
     {
         m_uiFontSize->setValue(Config::uiFontSize());
@@ -861,35 +900,27 @@ void SettingsDialog::load()
             m_fontCombo->setCurrentFont(qApp->font());
         }
     }
+}
 
-    // Sprache
-    if (m_languageCombo != nullptr)
-    {
-        const QString lang = Config::appLanguage();
-        int idx = m_languageCombo->findData(lang);
-        m_languageCombo->setCurrentIndex(idx >= 0 ? idx : 0);
-        m_langHint->setVisible(false);
-    }
+void SettingsDialog::loadBehavior()
+{
+    m_showDriveIp->setChecked(Config::showDriveIp());
+    m_driveBlacklist->clear();
+    m_driveBlacklist->addItems(Config::driveBlacklist());
+
+#ifdef SC_PLUGIN_GIT
+    m_gitShowSidebar->setChecked(Config::gitShowSidebar());
+    const QString gitMode = Config::gitRefreshMode();
+    int gitIdx = m_gitRefreshMode->findData(gitMode);
+    m_gitRefreshMode->setCurrentIndex(gitIdx >= 0 ? gitIdx : 0);
+    m_gitRefreshInterval->setValue(Config::gitRefreshIntervalMinutes());
+    m_gitRefreshInterval->setEnabled(gitMode == QStringLiteral("periodic"));
+#endif
   
-    int sb = Config::startupBehavior();
-    if (auto *btn = m_startupGroup->button(sb))
-    {
-        btn->setChecked(true);
-    }
-    m_startupPathEdit->setText(Config::startupPath());
-    m_startupPathEdit->setDisabled(sb != 2);
-
-    m_useThumbnails->setChecked(Config::useThumbnails());
-    m_maxThumbSize->setValue(Config::maxThumbnailSize());
-    m_maxThumbSize->setDisabled(!Config::useThumbnails());
-
-    m_fileTypeColorList->clear();
-    m_fileTypeColorList->addItems(Config::fileTypeColors());
-
-    m_sSlider->setValue(Config::ageBadgeSaturation());
-    m_lSlider->setValue(Config::ageBadgeLightness());
-    m_indicatorCheck->setChecked(Config::showNewIndicator());
-    updateDynamicColors();
+    m_showMillerIp->setChecked(Config::showMillerIp());
+    m_showHidden->setChecked(Config::showHiddenFiles());
+    m_showExtensions->setChecked(Config::showFileExtensions());
+    m_singleClick->setChecked(Config::singleClickOpen());
 }
 
 void SettingsDialog::save()

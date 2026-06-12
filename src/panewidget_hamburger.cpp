@@ -8,10 +8,7 @@
 #include <QKeySequence>
 #include "config.h"
 #include "dialogutils.h"
-#include "panecomponents.h"
-#include "scglobal.h"
 #include "thememanager.h"
-#include "thumbnailmanager.h"
 #include <Baloo/Query>
 #include <Baloo/ResultIterator>
 #include <KAboutApplicationDialog>
@@ -351,7 +348,7 @@ void PaneWidget::initHamburgerMenu(QToolButton *hamburgerBtn,
     dlg->open();
   });
 
-  // (Connections were already set up above)
+  // (Verbindungen wurden bereits oben eingerichtet)
 
   hamburgerBtn->setMenu(hamburgerMenu);
 }

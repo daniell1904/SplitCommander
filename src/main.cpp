@@ -53,7 +53,7 @@ static void scMessageHandler(QtMsgType type, const QMessageLogContext &, const Q
     }
 }
 
-int main(int argc, char *argv[])
+static void setupEnvironmentVariables()
 {
     // Qt-interne Portal-Warnungen unterdrücken (harmlos außerhalb KDE-Session)
     qputenv("QT_LOGGING_RULES", "qt.qpa.services=false");
@@ -97,6 +97,54 @@ int main(int argc, char *argv[])
             qputenv("LANG", "C.UTF-8");
         }
     }
+}
+
+static void setupTranslations(QApplication &app)
+{
+    // Systemsprache ermitteln (respektiert LANG/LANGUAGE Umgebungsvariablen)
+    // Gespeicherte Sprache hat Vorrang vor Systemsprache
+    const QString savedLang = Config::appLanguage();
+    if (!savedLang.isEmpty()) {
+        KLocalizedString::setLanguages(QStringList{savedLang});
+    }
+    const QLocale locale = savedLang.isEmpty() ? QLocale::system() : QLocale(savedLang);
+
+    // Qt-eigene Übersetzungen (Buttons, Dialoge etc.)
+    auto *qtTranslator = new QTranslator(&app);
+    if (qtTranslator->load(locale, "qt", "_",
+                           QLibraryInfo::path(QLibraryInfo::TranslationsPath))) {
+        app.installTranslator(qtTranslator);
+    } else {
+        delete qtTranslator;
+    }
+
+    // App-Übersetzungen (sucht in AppDataLocation/translations/ und neben der Binary)
+    auto *appTranslator = new QTranslator(&app);
+    bool loaded = false;
+    QStringList dataDirs = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
+    // Binary-Verzeichnis ebenfalls durchsuchen (deckt build/ und build-release/ ab)
+    dataDirs.prepend(QCoreApplication::applicationDirPath());
+    for (const QString &dir : dataDirs) {
+        if (appTranslator->load(locale, "splitcommander", "_", dir + "/translations")) {
+            loaded = true;
+            break;
+        }
+        // Fallback: .qm direkt im Binary-Verzeichnis (wie build/ sie ablegt)
+        if (appTranslator->load(locale, "splitcommander", "_", dir)) {
+            loaded = true;
+            break;
+        }
+    }
+    if (loaded) {
+        app.installTranslator(appTranslator);
+    } else {
+        delete appTranslator;
+    }
+}
+
+int main(int argc, char *argv[])
+{
+    setupEnvironmentVariables();
 
     qInstallMessageHandler(scMessageHandler);
     QApplication app(argc, argv);
@@ -110,38 +158,7 @@ int main(int argc, char *argv[])
     parser.addHelpOption();
     parser.process(app);
 
-    // Systemsprache ermitteln (respektiert LANG/LANGUAGE Umgebungsvariablen)
-    // Gespeicherte Sprache hat Vorrang vor Systemsprache
-    const QString savedLang = Config::appLanguage();
-    if (!savedLang.isEmpty()) {
-        KLocalizedString::setLanguages(QStringList{savedLang});
-    }
-    const QLocale locale = savedLang.isEmpty() ? QLocale::system() : QLocale(savedLang);
-
-    // Qt-eigene Übersetzungen (Buttons, Dialoge etc.)
-    QTranslator qtTranslator;
-    if (qtTranslator.load(locale, "qt", "_",
-                          QLibraryInfo::path(QLibraryInfo::TranslationsPath)))
-        app.installTranslator(&qtTranslator);
-
-    // App-Übersetzungen (sucht in AppDataLocation/translations/ und neben der Binary)
-    QTranslator appTranslator;
-    QStringList dataDirs =
-        QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
-    // Binary-Verzeichnis ebenfalls durchsuchen (deckt build/ und build-release/ ab)
-    dataDirs.prepend(QCoreApplication::applicationDirPath());
-    for (const QString &dir : dataDirs) {
-        if (appTranslator.load(locale, "splitcommander", "_",
-                               dir + "/translations")) {
-            app.installTranslator(&appTranslator);
-            break;
-        }
-        // Fallback: .qm direkt im Binary-Verzeichnis (wie build/ sie ablegt)
-        if (appTranslator.load(locale, "splitcommander", "_", dir)) {
-            app.installTranslator(&appTranslator);
-            break;
-        }
-    }
+    setupTranslations(app);
 
     // Theme vor MainWindow laden — Sidebar liest Farben beim Aufbau
     // TM().apply() setzt auch die gespeicherte Schriftart

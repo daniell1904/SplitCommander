@@ -187,24 +187,19 @@ SidebarHandle::SidebarHandle(QWidget *sidebar, QWidget *parent)
   });
 }
 
-void SidebarHandle::paintEvent(QPaintEvent *) {
-  QPainter p(this);
-  p.setRenderHint(QPainter::Antialiasing);
-  p.fillRect(rect(), QColor(TM().colors().bgMain));
-
-  const int cx = width() / 2;
-  const int cy = height() / 2;
-
-  if (m_sidebar->isVisible()) {
-    // Weiße Randlinie entfernt für nahtlosen Übergang
-
+void SidebarHandle::paintHandleExpanded(QPainter &p, int cx, int cy)
+{
     p.setPen(QPen(QColor(255, 255, 255, m_hov ? 140 : 50), 1));
-    for (int i = -3; i <= 4; ++i) {
-      const int y = cy + 10 + i * 4;
-      p.drawLine(cx - 2, y, cx + 2, y);
+    for (int i = -3; i <= 4; ++i)
+    {
+        const int y = cy + 10 + i * 4;
+        p.drawLine(cx - 2, y, cx + 2, y);
     }
     QIcon::fromTheme("go-previous").paint(&p, cx - 7, cy - 34 - 7, 14, 14);
-  } else {
+}
+
+void SidebarHandle::paintHandleCollapsed(QPainter &p, int cx, int cy)
+{
     p.save();
     p.translate(cx + 4, 200);
     p.rotate(-90);
@@ -228,30 +223,45 @@ void SidebarHandle::paintEvent(QPaintEvent *) {
     p.restore();
 
     p.setPen(QPen(QColor(255, 255, 255, m_hov ? 140 : 50), 1));
-    for (int i = -3; i <= 4; ++i) {
-      const int y = cy + 10 + i * 4;
-      p.drawLine(cx - 2, y, cx + 2, y);
+    for (int i = -3; i <= 4; ++i)
+    {
+        const int y = cy + 10 + i * 4;
+        p.drawLine(cx - 2, y, cx + 2, y);
     }
     QIcon::fromTheme("go-next").paint(&p, cx - 7, cy + 44 - 7, 14, 14);
 
-    const int iconSize = 16;
-    const int spacing = 8;
+    const int iconSize = 16, spacing = 8;
     const int total = m_icons.size() * (iconSize + spacing) - spacing;
     const int startY = height() - total - 14;
-    for (int i = 0; i < m_icons.size(); ++i) {
-      const int iy = startY + i * (iconSize + spacing);
-      const int ix = cx - iconSize / 2;
-      const bool hov = (m_hovIcon == i);
-      if (hov) {
-        p.setPen(Qt::NoPen);
-        p.setBrush(QColor(TM().colors().bgList));
-        p.drawRoundedRect(ix - 4, iy - 3, iconSize + 8, iconSize + 6, 4, 4);
-      }
-      p.setOpacity(hov ? 1.0 : (m_hov ? 0.7 : 0.4));
-      p.drawPixmap(ix, iy, m_icons[i].pixmap(iconSize, iconSize));
-      p.setOpacity(1.0);
+    for (int i = 0; i < m_icons.size(); ++i)
+    {
+        const int iy = startY + i * (iconSize + spacing);
+        const int ix = cx - iconSize / 2;
+        const bool hov = (m_hovIcon == i);
+        if (hov)
+        {
+            p.setPen(Qt::NoPen);
+            p.setBrush(QColor(TM().colors().bgList));
+            p.drawRoundedRect(ix - 4, iy - 3, iconSize + 8, iconSize + 6, 4, 4);
+        }
+        p.setOpacity(hov ? 1.0 : (m_hov ? 0.7 : 0.4));
+        p.drawPixmap(ix, iy, m_icons[i].pixmap(iconSize, iconSize));
+        p.setOpacity(1.0);
     }
-  }
+}
+
+void SidebarHandle::paintEvent(QPaintEvent *)
+{
+    QPainter p(this);
+    p.setRenderHint(QPainter::Antialiasing);
+    p.fillRect(rect(), QColor(TM().colors().bgMain));
+    const int cx = width() / 2;
+    const int cy = height() / 2;
+
+    if (m_sidebar->isVisible())
+        paintHandleExpanded(p, cx, cy);
+    else
+        paintHandleCollapsed(p, cx, cy);
 }
 
 void SidebarHandle::mousePressEvent(QMouseEvent *e) {
@@ -368,6 +378,91 @@ void SidebarHandle::resizeEvent(QResizeEvent *e) {
 }
 
 // --- FooterWidget ---
+void FooterWidget::buildBarRow()
+{
+    m_barRow = new QFrame();
+    m_barRow->setFixedHeight(CLOSED_H);
+    m_barRow->setStyleSheet(
+        QString("QFrame { border:none; background: "
+                "qlineargradient(x1:0,y1:0,x2:0,y2:1,"
+                "stop:0 rgba(10,13,20,100), stop:0.4 %1, stop:1 %1); }")
+            .arg(TM().colors().bgList));
+    auto *barLay = new QHBoxLayout(m_barRow);
+    barLay->setContentsMargins(8, 0, 8, 0);
+    barLay->setSpacing(4);
+
+    countLbl = new QLabel("0 Elemente");
+    countLbl->setStyleSheet(
+        QString("color:%1;font-size:10px;background:transparent;").arg(TM().colors().textPrimary));
+    selectedLbl = new QLabel();
+    selectedLbl->setStyleSheet(
+        QString("color:%1;font-size:10px;background:transparent;").arg(TM().colors().textAccent));
+    selectedLbl->hide();
+    sizeLbl = new QLabel();
+    sizeLbl->setStyleSheet(
+        QString("color:%1;font-size:10px;background:transparent;").arg(TM().colors().textPrimary));
+
+    barLay->addWidget(countLbl);
+    barLay->addWidget(selectedLbl);
+    barLay->addStretch(1);
+    barLay->addSpacing(90);
+    barLay->addWidget(sizeLbl);
+    m_mainLay->addWidget(m_barRow);
+    m_barRow->setMouseTracking(true);
+    m_barRow->installEventFilter(this);
+}
+
+void FooterWidget::buildContentArea()
+{
+    m_content = new QWidget();
+    m_content->hide();
+    auto *cLay = new QHBoxLayout(m_content);
+    cLay->setContentsMargins(0, 0, 0, 0);
+    cLay->setSpacing(0);
+
+    auto *pvSide = new QWidget();
+    pvSide->setStyleSheet(QString("background:%1; border:none;").arg(TM().colors().bgList));
+    auto *pvLay = new QVBoxLayout(pvSide);
+    pvLay->setContentsMargins(8, 8, 8, 8);
+    pvLay->setSpacing(0);
+    previewIcon = new QLabel();
+    previewIcon->setAlignment(Qt::AlignCenter);
+    previewIcon->setStyleSheet("background:transparent; border:none;");
+    previewIcon->setFrameShape(QFrame::NoFrame);
+    previewIcon->setScaledContents(false);
+    previewIcon->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    pvLay->addStretch();
+    pvLay->addWidget(previewIcon, 0, Qt::AlignCenter);
+    pvLay->addStretch();
+
+    auto *divContainer = new QWidget();
+    auto *divLay = new QVBoxLayout(divContainer);
+    divLay->setContentsMargins(0, 12, 0, 12);
+    auto *div = new QWidget();
+    div->setFixedWidth(1);
+    div->setStyleSheet(QString("background:%1;").arg(TM().colors().separator));
+    divLay->addWidget(div);
+
+    auto *infoSide = new QWidget();
+    infoSide->setStyleSheet(QString("background:%1; border:none;").arg(TM().colors().bgList));
+    auto *infoLay = new QVBoxLayout(infoSide);
+    infoLay->setContentsMargins(8, 8, 8, 8);
+    infoLay->setSpacing(4);
+    previewInfo = new QLabel();
+    previewInfo->setStyleSheet(QString("color:%1; font-size:10px; background:transparent; border:none;").arg(TM().colors().textLight));
+    previewInfo->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+    previewInfo->setWordWrap(true);
+    previewInfo->setFrameShape(QFrame::NoFrame);
+    previewInfo->setTextFormat(Qt::RichText);
+    infoLay->addWidget(previewInfo);
+    infoLay->addStretch();
+
+    cLay->addWidget(pvSide, 1);
+    cLay->addWidget(divContainer);
+    cLay->addWidget(infoSide, 1);
+    m_mainLay->addWidget(m_content, 1);
+}
+
 FooterWidget::FooterWidget(QWidget *parent) : QWidget(parent) {
   setAttribute(Qt::WA_StyledBackground, true);
   setStyleSheet(QString("background:%1;border-top:1px solid %2;")
@@ -378,87 +473,8 @@ FooterWidget::FooterWidget(QWidget *parent) : QWidget(parent) {
   m_mainLay->setContentsMargins(0, 0, 0, 0);
   m_mainLay->setSpacing(0);
 
-  m_barRow = new QFrame();
-  m_barRow->setFixedHeight(CLOSED_H);
-  m_barRow->setStyleSheet(
-      QString("QFrame { border:none; background: "
-              "qlineargradient(x1:0,y1:0,x2:0,y2:1,"
-              "stop:0 rgba(10,13,20,100), stop:0.4 %1, stop:1 %1); }")
-          .arg(TM().colors().bgList));
-  auto *barLay = new QHBoxLayout(m_barRow);
-  barLay->setContentsMargins(8, 0, 8, 0);
-  barLay->setSpacing(4);
-
-  countLbl = new QLabel("0 Elemente");
-  countLbl->setStyleSheet(
-      QString("color:%1;font-size:10px;background:transparent;")
-          .arg(TM().colors().textPrimary));
-  selectedLbl = new QLabel();
-  selectedLbl->setStyleSheet(
-      QString("color:%1;font-size:10px;background:transparent;")
-          .arg(TM().colors().textAccent));
-  selectedLbl->hide();
-  sizeLbl = new QLabel();
-  sizeLbl->setStyleSheet(
-      QString("color:%1;font-size:10px;background:transparent;")
-          .arg(TM().colors().textPrimary));
-
-  barLay->addWidget(countLbl);
-  barLay->addWidget(selectedLbl);
-  barLay->addStretch(1);
-  barLay->addSpacing(90);
-  barLay->addWidget(sizeLbl);
-  m_mainLay->addWidget(m_barRow);
-  m_barRow->setMouseTracking(true);
-  m_barRow->installEventFilter(this);
-
-  m_content = new QWidget();
-  m_content->hide();
-  auto *cLay = new QHBoxLayout(m_content);
-  cLay->setContentsMargins(0, 0, 0, 0);
-  cLay->setSpacing(0);
-
-  auto *pvSide = new QWidget();
-  pvSide->setStyleSheet(QString("background:%1; border:none;").arg(TM().colors().bgList));
-  auto *pvLay = new QVBoxLayout(pvSide);
-  pvLay->setContentsMargins(8, 8, 8, 8);
-  pvLay->setSpacing(0);
-  previewIcon = new QLabel();
-  previewIcon->setAlignment(Qt::AlignCenter);
-  previewIcon->setStyleSheet("background:transparent; border:none;");
-  previewIcon->setFrameShape(QFrame::NoFrame);
-  previewIcon->setScaledContents(false);
-  previewIcon->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  pvLay->addStretch();
-  pvLay->addWidget(previewIcon, 0, Qt::AlignCenter);
-  pvLay->addStretch();
-
-  auto *divContainer = new QWidget();
-  auto *divLay = new QVBoxLayout(divContainer);
-  divLay->setContentsMargins(0, 12, 0, 12);
-  auto *div = new QWidget();
-  div->setFixedWidth(1);
-  div->setStyleSheet(QString("background:%1;").arg(TM().colors().separator));
-  divLay->addWidget(div);
-
-  auto *infoSide = new QWidget();
-  infoSide->setStyleSheet(QString("background:%1; border:none;").arg(TM().colors().bgList));
-  auto *infoLay = new QVBoxLayout(infoSide);
-  infoLay->setContentsMargins(8, 8, 8, 8);
-  infoLay->setSpacing(4);
-  previewInfo = new QLabel();
-  previewInfo->setStyleSheet(QString("color:%1; font-size:10px; background:transparent; border:none;").arg(TM().colors().textLight));
-  previewInfo->setAlignment(Qt::AlignTop | Qt::AlignLeft);
-  previewInfo->setWordWrap(true);
-  previewInfo->setFrameShape(QFrame::NoFrame);
-  previewInfo->setTextFormat(Qt::RichText);
-  infoLay->addWidget(previewInfo);
-  infoLay->addStretch();
-
-  cLay->addWidget(pvSide, 1);
-  cLay->addWidget(divContainer);
-  cLay->addWidget(infoSide, 1);
-  m_mainLay->addWidget(m_content, 1);
+  buildBarRow();
+  buildContentArea();
 }
 
 void FooterWidget::setExpanded(bool on) {
@@ -477,74 +493,101 @@ void FooterWidget::setExpanded(bool on) {
     onHeightChanged();
 }
 
-bool FooterWidget::eventFilter(QObject *obj, QEvent *ev) {
-  if (obj != m_barRow)
-    return false;
-
-  if (ev->type() == QEvent::Paint) {
+bool FooterWidget::handleFooterPaint(QEvent *ev)
+{
+    if (ev->type() != QEvent::Paint)
+        return false;
     QPainter p(m_barRow);
     p.setRenderHint(QPainter::Antialiasing);
     const int cx = m_barRow->width() / 2;
     const int cy = m_barRow->height() / 2;
     p.setPen(QPen(QColor(255, 255, 255, m_arrowHov ? 140 : 50), 1));
-    for (int i = -3; i <= 4; ++i) {
-      const int x = cx + i * 4 - 2;
-      p.drawLine(x, cy - 2, x, cy + 2);
+    for (int i = -3; i <= 4; ++i)
+    {
+        const int x = cx + i * 4 - 2;
+        p.drawLine(x, cy - 2, x, cy + 2);
     }
     p.setPen(QPen(QColor(255, 255, 255, m_arrowHov ? 220 : 100), 1.5,
                   Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    QIcon::fromTheme(m_expanded ? "go-down" : "go-up")
-        .paint(&p, cx + 17, cy - 7, 14, 14);
-  }
-  if (ev->type() == QEvent::MouseButtonPress) {
+    QIcon::fromTheme(m_expanded ? "go-down" : "go-up").paint(&p, cx + 17, cy - 7, 14, 14);
+    return false;
+}
+
+bool FooterWidget::handleFooterMousePress(QEvent *ev)
+{
+    if (ev->type() != QEvent::MouseButtonPress)
+        return false;
     auto *e = static_cast<QMouseEvent *>(ev);
     if (e->button() != Qt::LeftButton)
-      return false;
+        return false;
     m_pressY = e->globalPosition().toPoint().y();
     m_pressH = height();
     m_dragging = false;
     const int cx = m_barRow->width() / 2;
     const int cy = m_barRow->height() / 2;
     m_clickOnArrow = QRect(cx + 16, cy - 8, 20, 16).contains(e->pos());
-  }
-  if (ev->type() == QEvent::MouseMove) {
+    return false;
+}
+
+bool FooterWidget::handleFooterMouseMove(QEvent *ev)
+{
+    if (ev->type() != QEvent::MouseMove)
+        return false;
     auto *e = static_cast<QMouseEvent *>(ev);
-    if (!(e->buttons() & Qt::LeftButton)) {
-      const int cx = m_barRow->width() / 2;
-      const int cy = m_barRow->height() / 2;
-      const bool ah = QRect(cx - 20, cy - 10, 60, 20).contains(e->pos());
-      if (ah != m_arrowHov) {
-        m_arrowHov = ah;
-        m_barRow->update();
-      }
-      return false;
+    if (!(e->buttons() & Qt::LeftButton))
+    {
+        const int cx = m_barRow->width() / 2;
+        const int cy = m_barRow->height() / 2;
+        const bool ah = QRect(cx - 20, cy - 10, 60, 20).contains(e->pos());
+        if (ah != m_arrowHov)
+        {
+            m_arrowHov = ah;
+            m_barRow->update();
+        }
+        return false;
     }
     if (m_clickOnArrow)
-      return false;
+        return false;
     const int dy = m_pressY - e->globalPosition().toPoint().y();
-    if (qAbs(dy) > 3) {
-      m_dragging = true;
-      const int newH = qBound((int)CLOSED_H, m_pressH + dy, 320);
-      if (newH > (int)CLOSED_H + 10 && !m_expanded) {
-        m_expanded = true;
-        m_content->show();
-      }
-      setFixedHeight(newH);
-      m_barRow->update();
-      if (onHeightChanged)
-        onHeightChanged();
+    if (qAbs(dy) > 3)
+    {
+        m_dragging = true;
+        const int newH = qBound((int)CLOSED_H, m_pressH + dy, 320);
+        if (newH > (int)CLOSED_H + 10 && !m_expanded)
+        {
+            m_expanded = true;
+            m_content->show();
+        }
+        setFixedHeight(newH);
+        m_barRow->update();
+        if (onHeightChanged)
+            onHeightChanged();
     }
-  }
-  if (ev->type() == QEvent::MouseButtonRelease) {
+    return false;
+}
+
+bool FooterWidget::handleFooterMouseRelease(QEvent *ev)
+{
+    if (ev->type() != QEvent::MouseButtonRelease)
+        return false;
     auto *e = static_cast<QMouseEvent *>(ev);
     if (e->button() != Qt::LeftButton)
-      return false;
+        return false;
     if (m_clickOnArrow && !m_dragging)
-      setExpanded(!m_expanded);
+        setExpanded(!m_expanded);
     if (m_dragging && height() < (int)CLOSED_H + 20)
-      setExpanded(false);
+        setExpanded(false);
     m_dragging = m_clickOnArrow = false;
-  }
+    return false;
+}
+
+bool FooterWidget::eventFilter(QObject *obj, QEvent *ev) {
+  if (obj != m_barRow)
+    return false;
+  handleFooterPaint(ev);
+  handleFooterMousePress(ev);
+  handleFooterMouseMove(ev);
+  handleFooterMouseRelease(ev);
   return false;
 }
 

@@ -50,7 +50,6 @@
 // --- PaneWidget ---
 
 void PaneWidget::initSearchPanel(QVBoxLayout *rootLay) {
-  // --- Such-Panel ---
   auto *searchPanel = new QWidget();
   searchPanel->setStyleSheet(TM().ssSearchPanel());
   searchPanel->hide();
@@ -58,6 +57,25 @@ void PaneWidget::initSearchPanel(QVBoxLayout *rootLay) {
   spVLay->setContentsMargins(0, 0, 0, 0);
   spVLay->setSpacing(0);
 
+  auto searchByName = std::make_shared<bool>(true);
+  QToolButton *searchCloseBtn = nullptr;
+  buildSearchTopRow(spVLay, searchCloseBtn, searchByName);
+
+  QWidget *spTabRow = nullptr;
+  buildSearchTabRow(spVLay, spTabRow);
+
+  const int idx = rootLay->indexOf(m_vSplit);
+  if (idx >= 0) {
+    rootLay->insertWidget(idx, searchPanel);
+  } else {
+    rootLay->addWidget(searchPanel);
+  }
+
+  buildSearchOverlay();
+  connectSearchSignals(searchPanel, spTabRow, searchCloseBtn, searchByName);
+}
+
+void PaneWidget::buildSearchTopRow(QVBoxLayout *spVLay, QToolButton *&searchCloseBtn, std::shared_ptr<bool> searchByName) {
   auto *spTopRow = new QWidget();
   spTopRow->setFixedHeight(36);
   spTopRow->setStyleSheet(
@@ -91,6 +109,25 @@ void PaneWidget::initSearchPanel(QVBoxLayout *rootLay) {
           .arg(TM().colors().bgBox, TM().colors().borderAlt,
                TM().colors().textPrimary, TM().colors().accent));
 
+  setupSearchFilterMenu(filterBtn, searchByName);
+
+  searchCloseBtn = new QToolButton();
+  searchCloseBtn->setIcon(QIcon::fromTheme("window-close"));
+  searchCloseBtn->setIconSize(QSize(12, 12));
+  searchCloseBtn->setFixedSize(20, 20);
+  searchCloseBtn->setStyleSheet(
+      QString("QToolButton{background:transparent;border:none;color:%1;"
+              "border-radius:10px;}"
+              "QToolButton:hover{background:%1;color:%2;}")
+          .arg(TM().colors().accent, TM().colors().bgMain));
+
+  spLay->addWidget(m_searchEdit, 1);
+  spLay->addWidget(filterBtn);
+  spLay->addWidget(searchCloseBtn);
+  spVLay->addWidget(spTopRow);
+}
+
+void PaneWidget::setupSearchFilterMenu(QToolButton *filterBtn, std::shared_ptr<bool> searchByName) {
   auto *filterMenu = new QMenu(filterBtn);
   filterMenu->setStyleSheet(TM().ssMenu());
   auto *actNames = filterMenu->addAction(tr("Dateinamen"));
@@ -110,28 +147,14 @@ void PaneWidget::initSearchPanel(QVBoxLayout *rootLay) {
       []() { QProcess::startDetached("kcmshell6", {"kcm_baloofile"}); });
   filterBtn->setMenu(filterMenu);
 
-  auto searchByName = std::make_shared<bool>(true);
   connect(actNames, &QAction::toggled, this,
           [searchByName](bool on) { *searchByName = on; });
   connect(actContent, &QAction::toggled, this,
           [searchByName](bool on) { *searchByName = !on; });
+}
 
-  auto *searchCloseBtn = new QToolButton();
-  searchCloseBtn->setIcon(QIcon::fromTheme("window-close"));
-  searchCloseBtn->setIconSize(QSize(12, 12));
-  searchCloseBtn->setFixedSize(20, 20);
-  searchCloseBtn->setStyleSheet(
-      QString("QToolButton{background:transparent;border:none;color:%1;"
-              "border-radius:10px;}"
-              "QToolButton:hover{background:%1;color:%2;}")
-          .arg(TM().colors().accent, TM().colors().bgMain));
-
-  spLay->addWidget(m_searchEdit, 1);
-  spLay->addWidget(filterBtn);
-  spLay->addWidget(searchCloseBtn);
-  spVLay->addWidget(spTopRow);
-
-  auto *spTabRow = new QWidget();
+void PaneWidget::buildSearchTabRow(QVBoxLayout *spVLay, QWidget *&spTabRow) {
+  spTabRow = new QWidget();
   spTabRow->setFixedHeight(28);
   spTabRow->setStyleSheet(
       QString("background:%1;border-bottom:1px solid %2;")
@@ -165,14 +188,9 @@ void PaneWidget::initSearchPanel(QVBoxLayout *rootLay) {
   spTabLay->addWidget(tabOverall);
   spTabLay->addStretch();
   spVLay->addWidget(spTabRow);
-  const int idx = rootLay->indexOf(m_vSplit);
-  if (idx >= 0) {
-    rootLay->insertWidget(idx, searchPanel);
-  } else {
-    rootLay->addWidget(searchPanel);
-  }
+}
 
-  // --- Suchergebnis-Overlay ---
+void PaneWidget::buildSearchOverlay() {
   m_searchOverlay = new QWidget(this);
   m_searchOverlay->hide();
   m_searchOverlay->setStyleSheet(
@@ -224,8 +242,9 @@ void PaneWidget::initSearchPanel(QVBoxLayout *rootLay) {
   m_searchResults->header()->setSectionResizeMode(
       2, QHeaderView::ResizeToContents);
   ovLay->addWidget(m_searchResults, 1);
+}
 
-  // Suchpanel-Verbindungen
+void PaneWidget::connectSearchSignals(QWidget *searchPanel, QWidget *spTabRow, QToolButton *searchCloseBtn, std::shared_ptr<bool> searchByName) {
   connect(m_searchBtn, &QToolButton::toggled, this,
           [searchPanel, spTabRow, this](bool on) {
             searchPanel->setVisible(on);
@@ -264,57 +283,7 @@ void PaneWidget::initSearchPanel(QVBoxLayout *rootLay) {
     m_searchOverlay->raise();
     spTabRow->show();
 
-    if (m_searchWatcher) {
-      m_searchWatcher->cancel();
-      m_searchWatcher->deleteLater();
-      m_searchWatcher = nullptr;
-    }
-
-    Baloo::Query query;
-    query.setSearchString(term);
-    query.setLimit(200);
-
-    auto *watcher = new QFutureWatcher<QStringList>(this);
-    m_searchWatcher = watcher;
-    connect(watcher, &QFutureWatcher<QStringList>::finished, this,
-            [this, watcher]() {
-              if (watcher != m_searchWatcher) {
-                watcher->deleteLater();
-                return;
-              }
-              m_searchWatcher = nullptr;
-              const QStringList paths = watcher->result();
-              watcher->deleteLater();
-              m_searchResults->clear();
-              if (paths.isEmpty()) {
-                auto *empty = new QTreeWidgetItem(m_searchResults);
-                empty->setText(0, tr("Keine Ergebnisse"));
-                return;
-              }
-              for (const QString &path : paths) {
-                const QFileInfo fi(path);
-                const QUrl url = QUrl::fromLocalFile(path);
-                auto *it = new QTreeWidgetItem(m_searchResults);
-                it->setIcon(0, QIcon::fromTheme(KIO::iconNameForUrl(url)));
-                it->setText(0, fi.fileName());
-                it->setText(
-                    1, QString("~/%1").arg(
-                           QDir::home().relativeFilePath(fi.absolutePath())));
-                it->setText(2, fi.lastModified().toString("dd.MM.yy"));
-                it->setData(0, Qt::UserRole, path);
-              }
-              if (m_searchResults->topLevelItemCount() == 0) {
-                auto *empty = new QTreeWidgetItem(m_searchResults);
-                empty->setText(0, tr("Keine Ergebnisse"));
-              }
-            });
-    watcher->setFuture(QtConcurrent::run([query]() mutable -> QStringList {
-      QStringList results;
-      Baloo::ResultIterator it = query.exec();
-      while (it.next())
-        results << it.filePath();
-      return results;
-    }));
+    executeBalooSearch(term);
   });
   connect(m_searchResults, &QTreeWidget::itemClicked, this,
           [this](QTreeWidgetItem *it, int) {
@@ -329,6 +298,60 @@ void PaneWidget::initSearchPanel(QVBoxLayout *rootLay) {
             m_searchOverlay->hide();
             m_searchBtn->setChecked(false);
           });
+}
+
+void PaneWidget::executeBalooSearch(const QString &term) {
+  if (m_searchWatcher) {
+    m_searchWatcher->cancel();
+    m_searchWatcher->deleteLater();
+    m_searchWatcher = nullptr;
+  }
+
+  Baloo::Query query;
+  query.setSearchString(term);
+  query.setLimit(200);
+
+  auto *watcher = new QFutureWatcher<QStringList>(this);
+  m_searchWatcher = watcher;
+  connect(watcher, &QFutureWatcher<QStringList>::finished, this,
+          [this, watcher]() {
+            if (watcher != m_searchWatcher) {
+              watcher->deleteLater();
+              return;
+            }
+            m_searchWatcher = nullptr;
+            const QStringList paths = watcher->result();
+            watcher->deleteLater();
+            m_searchResults->clear();
+            if (paths.isEmpty()) {
+              auto *empty = new QTreeWidgetItem(m_searchResults);
+              empty->setText(0, tr("Keine Ergebnisse"));
+              return;
+            }
+            for (const QString &path : paths) {
+              const QFileInfo fi(path);
+              const QUrl url = QUrl::fromLocalFile(path);
+              auto *it = new QTreeWidgetItem(m_searchResults);
+              it->setIcon(0, QIcon::fromTheme(KIO::iconNameForUrl(url)));
+              it->setText(0, fi.fileName());
+              it->setText(
+                  1, QString("~/%1").arg(
+                         QDir::home().relativeFilePath(fi.absolutePath())));
+              it->setText(2, fi.lastModified().toString("dd.MM.yy"));
+              it->setData(0, Qt::UserRole, path);
+            }
+            if (m_searchResults->topLevelItemCount() == 0) {
+              auto *empty = new QTreeWidgetItem(m_searchResults);
+              empty->setText(0, tr("Keine Ergebnisse"));
+            }
+          });
+  watcher->setFuture(QtConcurrent::run([query]() mutable -> QStringList {
+    QStringList results;
+    Baloo::ResultIterator it = query.exec();
+    while (it.next())
+      results << it.filePath();
+    return results;
+  }));
 }
 
 // --- PaneWidget::initSplitter ---

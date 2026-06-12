@@ -41,7 +41,12 @@ signals:
 
 private:
     void buildUI();
+    void buildSidebar(class QHBoxLayout *root);
+    void buildFooter(class QVBoxLayout *rightSide);
+
     void load();
+    void loadAppearance();
+    void loadBehavior();
     void save();
 
     // Pages & Sections (NASA Rule 4 Compliance)
@@ -55,8 +60,10 @@ private:
 
     [[nodiscard]] QWidget* createAppearancePage();
     void setupThemesSection(QVBoxLayout *lay);
+    void buildThemeCard(int index, const struct ThemeColors &t, class QGridLayout *themeGrid);
     void setupThumbnailsSection(QVBoxLayout *lay);
     void setupFileTypeColorsSection(QVBoxLayout *lay);
+    void connectFileTypeColorButtons(QPushButton *btnPickColor, QPushButton *btnAddExt, QPushButton *btnDelExt, QLineEdit *extEdit);
     void setupAgeBadgesSection(QVBoxLayout *lay);
 
     [[nodiscard]] QWidget* createShortcutsPage();

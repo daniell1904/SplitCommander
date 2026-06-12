@@ -3,12 +3,8 @@
 // Tabs, Pfaden und Close-Event-Handling.
 // ---------------------------------------------------------------------------
 
-#include "mainwindow.h"
+#include "mainwindow.h" // Force IDE re-index
 #include "config.h"
-#ifdef SC_PLUGIN_GIT
-#include "plugins/git/gitmanagerdialog.h"
-#include "plugins/git/gitstatusmanager.h"
-#endif
 #include <QMessageBox>
 #include <KTerminalLauncherJob>
 #include <KDialogJobUiDelegate>
@@ -79,32 +75,24 @@
 
 // --- MainWindow ---
 
-void MainWindow::restoreSession()
+void MainWindow::resolveSessionPaths(int behavior, const QString &configPath, const QString &lastLeft, const QString &lastRight, QString &leftPath, QString &rightPath)
 {
-    Q_ASSERT(m_leftPane != nullptr && m_rightPane != nullptr && m_panesSplitter != nullptr);
-    QString leftPath;
-    QString rightPath;
-    const int behavior = Config::startupBehavior();
-    const QString configPath = Config::startupPath();
-    const QString lastLeft = Config::lastLeftPath();
-    const QString lastRight = Config::lastRightPath();
-
     if (behavior == 0) // Letzte Sitzung
     {
-        leftPath = lastLeft;
+        leftPath  = lastLeft;
         rightPath = lastRight;
     }
     else if (behavior == 1) // Dieser PC
     {
-        leftPath = QStringLiteral("__drives__");
+        leftPath  = QStringLiteral("__drives__");
         rightPath = QStringLiteral("__drives__");
     }
     else if (behavior == 2) // Fester Pfad
     {
-        leftPath = configPath;
+        leftPath  = configPath;
         rightPath = configPath;
     }
-    
+
     // Validierung lokaler Pfade
     if (behavior != 2)
     {
@@ -117,14 +105,17 @@ void MainWindow::restoreSession()
             rightPath = QDir::homePath();
         }
     }
+}
 
+void MainWindow::applySessionNavigation(int behavior, const QString &leftPath, const QString &rightPath)
+{
     auto sUI = Config::group("UI");
-    // Einfache Navigation — Tabs werden nicht restored (zu früh im Init)
     if (behavior == 0)
     {
+        // Tabs aus letzter Sitzung laden
         const QStringList leftTabs  = sUI.readEntry("left/tabs",  QStringList());
         const QStringList rightTabs = sUI.readEntry("right/tabs", QStringList());
-        m_leftPane->navigateTo(leftTabs.isEmpty() ? leftPath : leftTabs.first(), false);
+        m_leftPane->navigateTo(leftTabs.isEmpty()  ? leftPath  : leftTabs.first(),  false);
         m_rightPane->navigateTo(rightTabs.isEmpty() ? rightPath : rightTabs.first(), false);
     }
     else
@@ -134,6 +125,20 @@ void MainWindow::restoreSession()
     }
     m_currentMode = sUI.readEntry("layoutMode", 1);
     applyLayout(m_currentMode);
+}
+
+void MainWindow::restoreSession()
+{
+    Q_ASSERT(m_leftPane != nullptr && m_rightPane != nullptr && m_panesSplitter != nullptr);
+    const int behavior      = Config::startupBehavior();
+    const QString configPath = Config::startupPath();
+    const QString lastLeft   = Config::lastLeftPath();
+    const QString lastRight  = Config::lastRightPath();
+
+    QString leftPath;
+    QString rightPath;
+    resolveSessionPaths(behavior, configPath, lastLeft, lastRight, leftPath, rightPath);
+    applySessionNavigation(behavior, leftPath, rightPath);
 
     connect(m_panesSplitter, &QSplitter::splitterMoved, this, [this](int, int)
     {
@@ -144,13 +149,11 @@ void MainWindow::restoreSession()
 
     m_leftPane->setFocused(true);
     m_rightPane->setFocused(false);
-
     QTimer::singleShot(100, this, [this]()
     {
         m_leftPane->setFocused(true);
         m_rightPane->setFocused(false);
     });
-
     registerShortcuts();
 }
 
@@ -159,8 +162,9 @@ void MainWindow::saveWindowState()
     Q_ASSERT(m_sidebar != nullptr && m_panesSplitter != nullptr && m_leftPane != nullptr && m_rightPane != nullptr);
     auto s = Config::group("UI");
 
-    // Fenster-Geometrie
+    // Fenster-Geometrie und maximierter Zustand
     s.writeEntry("windowGeometry", saveGeometry());
+    s.writeEntry("windowMaximized", isMaximized());
 
     // Sidebar
     s.writeEntry("sidebarVisible", m_sidebar->isVisible());

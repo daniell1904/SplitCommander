@@ -30,26 +30,50 @@ ThemeCreatorDialog::~ThemeCreatorDialog()
 
 void ThemeCreatorDialog::setupUI()
 {
-    const auto &c = m_colors;
+    // Grundlayout und Styling initialisieren
     auto *mainLay = new QVBoxLayout(this);
+    Q_ASSERT(mainLay != nullptr);
     mainLay->setContentsMargins(30, 30, 30, 30);
     mainLay->setSpacing(20);
 
-    // Styling
+    initLayoutsAndHeader(mainLay);
+
+    auto *middleLay = new QHBoxLayout();
+    Q_ASSERT(middleLay != nullptr);
+    middleLay->setSpacing(25);
+
+    setupColorGrid(middleLay);
+    setupLivePreview(middleLay);
+
+    mainLay->addLayout(middleLay, 1);
+    setupBottomControls(mainLay);
+}
+
+void ThemeCreatorDialog::initLayoutsAndHeader(QVBoxLayout *mainLay)
+{
+    Q_ASSERT(mainLay != nullptr);
+    const auto &c = m_colors;
+
+    // Hintergrundfarbe des Dialogs setzen
     setStyleSheet(QString("QDialog { background: %1; color: %2; }").arg(c.bgMain, c.textPrimary));
 
     auto *header = new QLabel(tr("Erstelle dein persönliches Design"));
+    Q_ASSERT(header != nullptr);
     header->setStyleSheet(QString("font-size: 20px; font-weight: bold; color: %1;").arg(c.accent));
     mainLay->addWidget(header);
+}
 
-    // Horizontaler Layout für die Side-by-Side-Anordnung von Anpassungen und Live-Vorschau
-    auto *middleLay = new QHBoxLayout();
-    middleLay->setSpacing(25);
+void ThemeCreatorDialog::setupColorGrid(QHBoxLayout *middleLay)
+{
+    Q_ASSERT(middleLay != nullptr);
+    const auto &c = m_colors;
 
     auto *gridBox = new QGroupBox(tr("Farben anpassen"));
+    Q_ASSERT(gridBox != nullptr);
     gridBox->setStyleSheet(QString("QGroupBox { font-weight: bold; border: 1px solid %1; border-radius: 8px; margin-top: 15px; padding-top: 20px; }")
                            .arg(c.borderAlt));
     auto *chipGrid = new QGridLayout(gridBox);
+    Q_ASSERT(chipGrid != nullptr);
 
     m_fields = {
         {"bgMain", tr("App-Hintergrund"), &m_colors.bgMain},
@@ -73,46 +97,62 @@ void ThemeCreatorDialog::setupUI()
     };
 
     int row = 0, col = 0;
-    for (auto &f : m_fields) {
+    for (auto &f : m_fields)
+    {
         f.btn = new QPushButton(f.label);
-        
-        auto updateBtn = [&f]() {
-            QColor bg( *f.ref );
+        Q_ASSERT(f.btn != nullptr);
+        auto updateBtn = [&f]()
+        {
+            QColor bg(*f.ref);
             QString tc = (bg.lightness() > 140) ? "black" : "white";
             f.btn->setStyleSheet(QString("background: %1; color: %2; border: 1px solid rgba(0,0,0,0.2); "
-                                       "border-radius: 6px; padding: 12px; font-weight: bold;")
-                               .arg(*f.ref, tc));
+                                         "border-radius: 6px; padding: 12px; font-weight: bold;")
+                                 .arg(*f.ref, tc));
         };
         updateBtn();
-        connect(f.btn, &QPushButton::clicked, this, [this, f]() {
-            pickColorForKey(f.key);
-        });
+        connect(f.btn, &QPushButton::clicked, this, [this, f]() { pickColorForKey(f.key); });
         chipGrid->addWidget(f.btn, row, col);
-        col++; if (col > 2) { col = 0; row++; }
+        col++;
+        if (col > 2) { col = 0; row++; }
     }
-    middleLay->addWidget(gridBox, 5); // GridBox bekommt etwas mehr Gewicht
+    // Farb-Grid bekommt etwas mehr Gewicht als die Vorschau
+    middleLay->addWidget(gridBox, 5);
+}
 
-    // Live Vorschau auf der rechten Seite
+void ThemeCreatorDialog::setupLivePreview(QHBoxLayout *middleLay)
+{
+    Q_ASSERT(middleLay != nullptr);
+
+    // Live-Vorschau-Widget erstellen und initialisieren
     m_preview = new ThemePreviewWidget(this);
+    Q_ASSERT(m_preview != nullptr);
     m_preview->updateColors(m_colors);
-    middleLay->addWidget(m_preview, 4); // Vorschau daneben platzieren
+    // Vorschau mit etwas weniger Gewicht daneben platzieren
+    middleLay->addWidget(m_preview, 4);
 
-    // Click-Signal der Live-Vorschau verbinden
     connect(m_preview, &ThemePreviewWidget::colorElementClicked, this, &ThemeCreatorDialog::pickColorForKey);
+}
 
-    mainLay->addLayout(middleLay, 1);
+void ThemeCreatorDialog::setupBottomControls(QVBoxLayout *mainLay)
+{
+    Q_ASSERT(mainLay != nullptr);
+    const auto &c = m_colors;
 
     auto *bottomRow = new QHBoxLayout();
+    Q_ASSERT(bottomRow != nullptr);
+
     m_nameEdit = new QLineEdit();
+    Q_ASSERT(m_nameEdit != nullptr);
     m_nameEdit->setPlaceholderText(tr("Name deines Designs (z.B. My Dark Blue)"));
     m_nameEdit->setStyleSheet(QString("QLineEdit { background: %1; border: 1px solid %2; border-radius: 6px; padding: 10px; color: %3; }")
                                .arg(c.bgInput, c.borderAlt, c.textPrimary));
-    
+
     auto *btnSave = new QPushButton(tr("Design speichern & schließen"));
+    Q_ASSERT(btnSave != nullptr);
     btnSave->setStyleSheet(QString("QPushButton { background: %1; color: %2; border: none; border-radius: 6px; padding: 10px 25px; font-weight: bold; }"
                                    "QPushButton:hover { background: %3; }")
                            .arg(c.accent, c.textLight, c.accentHover));
-    
+
     bottomRow->addWidget(m_nameEdit, 1);
     bottomRow->addWidget(btnSave);
     mainLay->addLayout(bottomRow);

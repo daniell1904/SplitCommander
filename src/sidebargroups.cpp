@@ -128,32 +128,16 @@ void Sidebar::handleNewGroupDialogAccepted(int checkedId, const QString &grpName
     }
 }
 
-void Sidebar::onNewGroupDialog()
+static void sc_buildNewGroupDialogContentButtons(QVBoxLayout *vl, QButtonGroup *&btnGrp)
 {
-    QDialog dlg(this);
-    dlg.setWindowTitle(tr("Neue Gruppe"));
-    dlg.setMinimumWidth(480);
-    dlg.setStyleSheet(TM().ssDialog());
-
-    auto *vl = new QVBoxLayout(&dlg);
-    Q_ASSERT(vl != nullptr);
-    vl->setSpacing(10);
-    vl->setContentsMargins(16, 16, 16, 16);
-    vl->addWidget(new QLabel(tr("Gruppenname:")));
-    auto *nameEdit = new QLineEdit(&dlg);
-    Q_ASSERT(nameEdit != nullptr);
-    nameEdit->setPlaceholderText(tr("Mein Ordner..."));
-    vl->addWidget(nameEdit);
-
-    vl->addWidget(new QLabel(tr("Inhalt:")));
-    auto *btnGrp = new QButtonGroup(&dlg);
+    btnGrp = new QButtonGroup(vl->parentWidget());
     Q_ASSERT(btnGrp != nullptr);
-    auto *emptyBtn = new QPushButton(tr("Leere Gruppe"));
-    auto *homeBtn = new QPushButton(tr("Home-Favoriten"));
+    auto *emptyBtn = new QPushButton(QObject::tr("Leere Gruppe"));
+    auto *homeBtn = new QPushButton(QObject::tr("Home-Favoriten"));
     Q_ASSERT(emptyBtn != nullptr && homeBtn != nullptr);
     
 #ifdef SC_PLUGIN_GIT
-    auto *gitBtn = new QPushButton(tr("Git Repositories"));
+    auto *gitBtn = new QPushButton(QObject::tr("Git Repositories"));
     Q_ASSERT(gitBtn != nullptr);
     for (auto *b : {emptyBtn, homeBtn, gitBtn})
     {
@@ -172,18 +156,16 @@ void Sidebar::onNewGroupDialog()
     btnGrp->addButton(homeBtn, 1);
 #ifdef SC_PLUGIN_GIT
     btnGrp->addButton(gitBtn, 2);
+    auto s = Config::group("CustomGroups");
+    const QStringList existingGroups = s.readEntry("groups", QStringList());
+    for (const QString &gn : existingGroups)
     {
-        auto s = Config::group("CustomGroups");
-        const QStringList existingGroups = s.readEntry("groups", QStringList());
-        for (const QString &gn : existingGroups)
+        KConfigGroup g(s.config(), s.name() + "/group_" + gn);
+        if (g.readEntry("type", QString()) == QStringLiteral("git"))
         {
-            KConfigGroup g(s.config(), s.name() + "/group_" + gn);
-            if (g.readEntry("type", QString()) == QStringLiteral("git"))
-            {
-                gitBtn->setEnabled(false);
-                gitBtn->setToolTip(tr("Es existiert bereits eine Git-Box"));
-                break;
-            }
+            gitBtn->setEnabled(false);
+            gitBtn->setToolTip(QObject::tr("Es existiert bereits eine Git-Box"));
+            break;
         }
     }
 #endif
@@ -191,23 +173,48 @@ void Sidebar::onNewGroupDialog()
     auto *optRow = new QHBoxLayout();
     Q_ASSERT(optRow != nullptr);
     optRow->setSpacing(6);
+    optRow->addWidget(emptyBtn);
+    optRow->addWidget(homeBtn);
 #ifdef SC_PLUGIN_GIT
-    optRow->addWidget(emptyBtn);
-    optRow->addWidget(homeBtn);
     optRow->addWidget(gitBtn);
-#else
-    optRow->addWidget(emptyBtn);
-    optRow->addWidget(homeBtn);
 #endif
     vl->addLayout(optRow);
+}
+
+static void sc_buildNewGroupDialogUI(QDialog *dlg, QLineEdit *&nameEdit, QButtonGroup *&btnGrp)
+{
+    auto *vl = new QVBoxLayout(dlg);
+    Q_ASSERT(vl != nullptr);
+    vl->setSpacing(10);
+    vl->setContentsMargins(16, 16, 16, 16);
+    vl->addWidget(new QLabel(QObject::tr("Gruppenname:")));
+    nameEdit = new QLineEdit(dlg);
+    Q_ASSERT(nameEdit != nullptr);
+    nameEdit->setPlaceholderText(QObject::tr("Mein Ordner..."));
+    vl->addWidget(nameEdit);
+
+    vl->addWidget(new QLabel(QObject::tr("Inhalt:")));
+    sc_buildNewGroupDialogContentButtons(vl, btnGrp);
 
     auto *btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     Q_ASSERT(btns != nullptr);
-    connect(btns, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
-    connect(btns, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
+    QObject::connect(btns, &QDialogButtonBox::accepted, dlg, &QDialog::accept);
+    QObject::connect(btns, &QDialogButtonBox::rejected, dlg, &QDialog::reject);
     vl->addWidget(btns);
 
     nameEdit->setFocus();
+}
+
+void Sidebar::onNewGroupDialog()
+{
+    QDialog dlg(this);
+    dlg.setWindowTitle(tr("Neue Gruppe"));
+    dlg.setMinimumWidth(480);
+    dlg.setStyleSheet(TM().ssDialog());
+
+    QLineEdit *nameEdit = nullptr;
+    QButtonGroup *btnGrp = nullptr;
+    sc_buildNewGroupDialogUI(&dlg, nameEdit, btnGrp);
     dlg.adjustSize();
     if (dlg.exec() == QDialog::Accepted)
     {
@@ -218,6 +225,7 @@ void Sidebar::onNewGroupDialog()
         }
     }
 }
+
 
 void Sidebar::setupGroupWidgetHeader(QWidget *headerRow, QHBoxLayout *hLay, const QString &name, QPushButton *menuBtn, QPushButton *addBtn)
 {
@@ -342,72 +350,88 @@ void Sidebar::setupGroupWidgetConnections(QListWidget *list, std::shared_ptr<QSt
 
     connect(menuBtn, &QPushButton::clicked, this, [this, menuBtn, lbl, sharedName, outerBox, wrapper]()
     {
-        auto *m = new QMenu(this);
-        Q_ASSERT(m != nullptr);
-        m->setAttribute(Qt::WA_DeleteOnClose);
-        m->setStyleSheet(TM().ssMenu());
+        handleGroupMenuClicked(menuBtn, lbl, sharedName, outerBox, wrapper);
+    });
+}
 
-        connect(m->addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Gruppe umbenennen")), &QAction::triggered, this, [this, sharedName, lbl]()
+void Sidebar::handleGroupMenuClicked(QPushButton *menuBtn, QLabel *lbl, std::shared_ptr<QString> sharedName, QWidget *outerBox, QWidget *wrapper)
+{
+    auto *m = new QMenu(this);
+    Q_ASSERT(m != nullptr);
+    m->setAttribute(Qt::WA_DeleteOnClose);
+    m->setStyleSheet(TM().ssMenu());
+
+    connect(m->addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Gruppe umbenennen")), &QAction::triggered, this, [this, sharedName, lbl]()
+    {
+        handleGroupMenuRename(sharedName, lbl);
+    });
+
+    m->addSeparator();
+
+    const bool isPinned = outerBox->property("pinned").toBool();
+    setupGroupMenuPinAction(m, outerBox, sharedName, isPinned);
+
+    m->addSeparator();
+
+    setupGroupMenuMoveActions(m, wrapper, isPinned);
+
+    m->addSeparator();
+    auto *delAct = m->addAction(QIcon::fromTheme(QStringLiteral("edit-delete")), tr("Gruppe löschen"));
+    Q_ASSERT(delAct != nullptr);
+
+    connect(delAct, &QAction::triggered, this, [this, wrapper, sharedName]()
+    {
+        handleGroupMenuDelete(wrapper, sharedName);
+    });
+
+    m->popup(menuBtn->mapToGlobal(QPoint(0, menuBtn->height())));
+}
+
+void Sidebar::setupGroupMenuPinAction(QMenu *m, QWidget *outerBox, std::shared_ptr<QString> sharedName, bool isPinned)
+{
+    connect(m->addAction(QIcon::fromTheme(isPinned ? QStringLiteral("window-unpin") : QStringLiteral("window-pin")),
+                         isPinned ? tr("Lösen") : tr("An Position verankern")), &QAction::triggered, this, [outerBox, sharedName]()
+    {
+        const bool nowPinned = !outerBox->property("pinned").toBool();
+        outerBox->setProperty("pinned", nowPinned);
+        auto gs = Config::group("CustomGroups");
+        gs.writeEntry("pinned_" + *sharedName, nowPinned);
+        gs.config()->sync();
+    });
+}
+
+void Sidebar::setupGroupMenuMoveActions(QMenu *m, QWidget *wrapper, bool isPinned)
+{
+    auto *upAct = m->addAction(QIcon::fromTheme(QStringLiteral("go-up")), tr("Nach oben"));
+    auto *downAct = m->addAction(QIcon::fromTheme(QStringLiteral("go-down")), tr("Nach unten"));
+    Q_ASSERT(upAct != nullptr && downAct != nullptr);
+    if (isPinned)
+    {
+        upAct->setEnabled(false);
+        downAct->setEnabled(false);
+    }
+
+    connect(upAct, &QAction::triggered, this, [this, wrapper]()
+    {
+        Q_ASSERT(m_contentLayout != nullptr);
+        int idx = m_contentLayout->indexOf(wrapper);
+        if (idx > 0)
         {
-            handleGroupMenuRename(sharedName, lbl);
-        });
-
-        m->addSeparator();
-
-        const bool isPinned = outerBox->property("pinned").toBool();
-        connect(m->addAction(QIcon::fromTheme(isPinned ? QStringLiteral("window-unpin") : QStringLiteral("window-pin")),
-                             isPinned ? tr("Lösen") : tr("An Position verankern")), &QAction::triggered, this, [outerBox, sharedName]()
-        {
-            const bool nowPinned = !outerBox->property("pinned").toBool();
-            outerBox->setProperty("pinned", nowPinned);
-            auto gs = Config::group("CustomGroups");
-            gs.writeEntry("pinned_" + *sharedName, nowPinned);
-            gs.config()->sync();
-        });
-
-        m->addSeparator();
-
-        auto *upAct = m->addAction(QIcon::fromTheme(QStringLiteral("go-up")), tr("Nach oben"));
-        auto *downAct = m->addAction(QIcon::fromTheme(QStringLiteral("go-down")), tr("Nach unten"));
-        Q_ASSERT(upAct != nullptr && downAct != nullptr);
-        if (isPinned)
-        {
-            upAct->setEnabled(false);
-            downAct->setEnabled(false);
+            m_contentLayout->removeWidget(wrapper);
+            m_contentLayout->insertWidget(idx - 1, wrapper);
+            saveGroupOrder();
         }
-
-        m->addSeparator();
-        auto *delAct = m->addAction(QIcon::fromTheme(QStringLiteral("edit-delete")), tr("Gruppe löschen"));
-        Q_ASSERT(delAct != nullptr);
-
-        connect(upAct, &QAction::triggered, this, [this, wrapper]()
+    });
+    connect(downAct, &QAction::triggered, this, [this, wrapper]()
+    {
+        Q_ASSERT(m_contentLayout != nullptr);
+        int idx = m_contentLayout->indexOf(wrapper);
+        if (idx >= 0 && idx < m_contentLayout->count() - 2)
         {
-            Q_ASSERT(m_contentLayout != nullptr);
-            int idx = m_contentLayout->indexOf(wrapper);
-            if (idx > 0)
-            {
-                m_contentLayout->removeWidget(wrapper);
-                m_contentLayout->insertWidget(idx - 1, wrapper);
-                saveGroupOrder();
-            }
-        });
-        connect(downAct, &QAction::triggered, this, [this, wrapper]()
-        {
-            Q_ASSERT(m_contentLayout != nullptr);
-            int idx = m_contentLayout->indexOf(wrapper);
-            if (idx >= 0 && idx < m_contentLayout->count() - 2)
-            {
-                m_contentLayout->removeWidget(wrapper);
-                m_contentLayout->insertWidget(idx + 1, wrapper);
-                saveGroupOrder();
-            }
-        });
-        connect(delAct, &QAction::triggered, this, [this, wrapper, sharedName]()
-        {
-            handleGroupMenuDelete(wrapper, sharedName);
-        });
-
-        m->popup(menuBtn->mapToGlobal(QPoint(0, menuBtn->height())));
+            m_contentLayout->removeWidget(wrapper);
+            m_contentLayout->insertWidget(idx + 1, wrapper);
+            saveGroupOrder();
+        }
     });
 }
 
@@ -443,7 +467,53 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
     setupGroupWidgetHeader(headerRow, hLay, name, menuBtn, addBtn);
     vbox->addWidget(headerRow);
 
-    auto *listCont = new QWidget();
+    QWidget *listCont = nullptr;
+    auto *list = buildGroupListAndContainer(listCont);
+    vbox->addWidget(listCont);
+
+    auto *toggleBtn = buildGroupToggleBtn(listCont);
+    vbox->addWidget(toggleBtn, 0, Qt::AlignCenter);
+
+    auto *wrapper = new QWidget();
+    Q_ASSERT(wrapper != nullptr);
+    wrapper->setObjectName(QStringLiteral("groupWrapper"));
+    wrapper->setStyleSheet(QStringLiteral("background:%1;").arg(TM().colors().bgMain));
+    auto *wLay = new QVBoxLayout(wrapper);
+    Q_ASSERT(wLay != nullptr);
+    wLay->setContentsMargins(10, 2, 6, 2);
+    wLay->setSpacing(0);
+    wLay->addWidget(outerBox);
+
+    insertGroupWrapper(wrapper, beforeWidget);
+
+    auto sharedName = std::make_shared<QString>(name);
+    setupGroupWidgetConnections(list, sharedName, toggleBtn, addBtn, menuBtn, lbl, outerBox, wrapper);
+
+    return list;
+}
+
+QPushButton *Sidebar::buildGroupToggleBtn(QWidget *listCont)
+{
+    auto *toggleBtn = new QPushButton();
+    Q_ASSERT(toggleBtn != nullptr);
+    toggleBtn->setCheckable(true);
+    toggleBtn->setFixedHeight(16);
+    toggleBtn->setIcon(QIcon::fromTheme(QStringLiteral("go-up")));
+    toggleBtn->setIconSize(QSize(10, 10));
+    toggleBtn->setStyleSheet(QStringLiteral("QPushButton{background:transparent !important; border:none;}"));
+
+    connect(toggleBtn, &QPushButton::toggled, this, [listCont, toggleBtn](bool on)
+    {
+        listCont->setVisible(!on);
+        toggleBtn->setIcon(QIcon::fromTheme(on ? QStringLiteral("go-down") : QStringLiteral("go-up")));
+    });
+
+    return toggleBtn;
+}
+
+QListWidget *Sidebar::buildGroupListAndContainer(QWidget *&listCont)
+{
+    listCont = new QWidget();
     Q_ASSERT(listCont != nullptr);
     listCont->setStyleSheet(QStringLiteral("background:transparent; border:none;"));
     auto *listLay = new QVBoxLayout(listCont);
@@ -469,33 +539,11 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
 
     listLay->addWidget(list);
     adjustListHeight(list);
-    vbox->addWidget(listCont);
+    return list;
+}
 
-    auto *toggleBtn = new QPushButton();
-    Q_ASSERT(toggleBtn != nullptr);
-    toggleBtn->setCheckable(true);
-    toggleBtn->setFixedHeight(16);
-    toggleBtn->setIcon(QIcon::fromTheme(QStringLiteral("go-up")));
-    toggleBtn->setIconSize(QSize(10, 10));
-    toggleBtn->setStyleSheet(QStringLiteral("QPushButton{background:transparent !important; border:none;}"));
-    vbox->addWidget(toggleBtn, 0, Qt::AlignCenter);
-
-    connect(toggleBtn, &QPushButton::toggled, this, [listCont, toggleBtn](bool on)
-    {
-        listCont->setVisible(!on);
-        toggleBtn->setIcon(QIcon::fromTheme(on ? QStringLiteral("go-down") : QStringLiteral("go-up")));
-    });
-
-    auto *wrapper = new QWidget();
-    Q_ASSERT(wrapper != nullptr);
-    wrapper->setObjectName(QStringLiteral("groupWrapper"));
-    wrapper->setStyleSheet(QStringLiteral("background:%1;").arg(TM().colors().bgMain));
-    auto *wLay = new QVBoxLayout(wrapper);
-    Q_ASSERT(wLay != nullptr);
-    wLay->setContentsMargins(10, 2, 6, 2);
-    wLay->setSpacing(0);
-    wLay->addWidget(outerBox);
-
+void Sidebar::insertGroupWrapper(QWidget *wrapper, QWidget *beforeWidget)
+{
     int insertIdx = -1;
     if (beforeWidget != nullptr)
     {
@@ -524,11 +572,6 @@ QListWidget *Sidebar::createGroupWidget(const QString &name, QWidget *beforeWidg
         }
     }
     m_contentLayout->insertWidget(insertIdx, wrapper);
-
-    auto sharedName = std::make_shared<QString>(name);
-    setupGroupWidgetConnections(list, sharedName, toggleBtn, addBtn, menuBtn, lbl, outerBox, wrapper);
-
-    return list;
 }
 
 #ifdef SC_PLUGIN_GIT
@@ -561,36 +604,7 @@ void Sidebar::setupGitGroupWidgetConnections(QTreeWidget *tree, std::shared_ptr<
 {
     Q_ASSERT(tree != nullptr && sharedName != nullptr && toggleBtn != nullptr && menuBtn != nullptr && lbl != nullptr && wrapper != nullptr);
 
-    auto adjustHeight = [tree]()
-    {
-        const int rowH = tree->sizeHintForRow(0);
-        const int defaultRow = rowH > 0 ? rowH : 24;
-        const int maxH = defaultRow * 5 + 8;
-        int totalH = 0;
-        std::function<int(QTreeWidgetItem*)> count = [&](QTreeWidgetItem *it) -> int
-        {
-            int n = 1;
-            if (it->isExpanded())
-            {
-                for (int i = 0; i < it->childCount(); ++i)
-                {
-                    n += count(it->child(i));
-                }
-            }
-            return n;
-        };
-        for (int i = 0; i < tree->topLevelItemCount(); ++i)
-        {
-            totalH += count(tree->topLevelItem(i)) * defaultRow;
-        }
-        totalH += 8;
-        const int finalH = qBound(defaultRow + 8, totalH, maxH);
-        tree->setMinimumHeight(finalH);
-        tree->setMaximumHeight(finalH);
-        tree->setVerticalScrollBarPolicy(totalH > maxH ? Qt::ScrollBarAsNeeded : Qt::ScrollBarAlwaysOff);
-    };
-
-    connect(tree, &QTreeWidget::itemClicked, this, [this, adjustHeight](QTreeWidgetItem *it, int)
+    connect(tree, &QTreeWidget::itemClicked, this, [this, tree](QTreeWidgetItem *it, int)
     {
         if (it == nullptr)
         {
@@ -599,7 +613,7 @@ void Sidebar::setupGitGroupWidgetConnections(QTreeWidget *tree, std::shared_ptr<
         if (it->parent() == nullptr)
         {
             it->setExpanded(!it->isExpanded());
-            adjustHeight();
+            adjustGitTreeHeight(tree);
             return;
         }
         const QString p = it->data(0, Qt::UserRole).toString();
@@ -608,97 +622,94 @@ void Sidebar::setupGitGroupWidgetConnections(QTreeWidget *tree, std::shared_ptr<
             emit driveClicked(p);
         }
     });
-    connect(tree, &QTreeWidget::itemExpanded, this, adjustHeight);
-    connect(tree, &QTreeWidget::itemCollapsed, this, adjustHeight);
+    connect(tree, &QTreeWidget::itemExpanded, this, [this, tree](){ adjustGitTreeHeight(tree); });
+    connect(tree, &QTreeWidget::itemCollapsed, this, [this, tree](){ adjustGitTreeHeight(tree); });
 
     connect(menuBtn, &QPushButton::clicked, this, [this, menuBtn, lbl, sharedName, wrapper]()
     {
-        auto *m = new QMenu(this);
-        Q_ASSERT(m != nullptr);
-        m->setAttribute(Qt::WA_DeleteOnClose);
-        m->setStyleSheet(TM().ssMenu());
-
-        connect(m->addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Gruppe umbenennen")), &QAction::triggered, this, [this, lbl, sharedName]()
-        {
-            bool ok;
-            QString newName = sc_getText(this, tr("Gruppe umbenennen"), tr("Neuer Name:"), *sharedName);
-            ok = !newName.isNull();
-            if (!ok || newName.trimmed().isEmpty() || newName.trimmed() == *sharedName)
-            {
-                return;
-            }
-            const QString oldName = *sharedName;
-            *sharedName = newName.trimmed();
-            lbl->setText(*sharedName);
-
-            auto gs = Config::group("CustomGroups");
-            QStringList grps = gs.readEntry("groups", QStringList());
-            int idx = grps.indexOf(oldName);
-            if (idx != -1)
-            {
-                grps[idx] = *sharedName;
-                gs.writeEntry("groups", grps);
-            }
-
-            KConfigGroup oldGrp(gs.config(), gs.name() + "/group_" + oldName);
-            KConfigGroup newGrp(gs.config(), gs.name() + "/group_" + *sharedName);
-            newGrp.writeEntry("type", QStringLiteral("git"));
-            oldGrp.deleteGroup();
-            gs.config()->sync();
-        });
-
-        m->addSeparator();
-
-        auto *upAct = m->addAction(QIcon::fromTheme(QStringLiteral("go-up")), tr("Nach oben"));
-        auto *downAct = m->addAction(QIcon::fromTheme(QStringLiteral("go-down")), tr("Nach unten"));
-        Q_ASSERT(upAct != nullptr && downAct != nullptr);
-
-        m->addSeparator();
-        auto *delAct = m->addAction(QIcon::fromTheme(QStringLiteral("edit-delete")), tr("Gruppe löschen"));
-        Q_ASSERT(delAct != nullptr);
-
-        connect(upAct, &QAction::triggered, this, [this, wrapper]()
-        {
-            Q_ASSERT(m_contentLayout != nullptr);
-            int idx = m_contentLayout->indexOf(wrapper);
-            if (idx > 0)
-            {
-                m_contentLayout->removeWidget(wrapper);
-                m_contentLayout->insertWidget(idx - 1, wrapper);
-                saveGroupOrder();
-            }
-        });
-        connect(downAct, &QAction::triggered, this, [this, wrapper]()
-        {
-            Q_ASSERT(m_contentLayout != nullptr);
-            int idx = m_contentLayout->indexOf(wrapper);
-            if (idx >= 0 && idx < m_contentLayout->count() - 2)
-            {
-                m_contentLayout->removeWidget(wrapper);
-                m_contentLayout->insertWidget(idx + 1, wrapper);
-                saveGroupOrder();
-            }
-        });
-        connect(delAct, &QAction::triggered, this, [this, wrapper, sharedName]()
-        {
-            Q_ASSERT(m_contentLayout != nullptr);
-            m_contentLayout->removeWidget(wrapper);
-            delete wrapper;
-            if (m_scrollArea != nullptr && m_scrollArea->widget() != nullptr)
-            {
-                m_scrollArea->widget()->adjustSize();
-            }
-            auto gs = Config::group("CustomGroups");
-            KConfigGroup(gs.config(), gs.name() + "/group_" + *sharedName).deleteGroup();
-            QStringList grps = gs.readEntry("groups", QStringList());
-            grps.removeAll(*sharedName);
-            gs.writeEntry("groups", grps);
-            gs.config()->sync();
-            saveGroupOrder();
-        });
-
-        m->popup(menuBtn->mapToGlobal(QPoint(0, menuBtn->height())));
+        handleGitGroupMenuClicked(menuBtn, lbl, sharedName, wrapper);
     });
+}
+
+void Sidebar::handleGitGroupMenuClicked(QPushButton *menuBtn, QLabel *lbl, std::shared_ptr<QString> sharedName, QWidget *wrapper)
+{
+    auto *m = new QMenu(this);
+    Q_ASSERT(m != nullptr);
+    m->setAttribute(Qt::WA_DeleteOnClose);
+    m->setStyleSheet(TM().ssMenu());
+
+    connect(m->addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Gruppe umbenennen")), &QAction::triggered, this, [this, lbl, sharedName]()
+    {
+        handleGitGroupMenuRename(sharedName, lbl);
+    });
+
+    m->addSeparator();
+
+    auto *upAct = m->addAction(QIcon::fromTheme(QStringLiteral("go-up")), tr("Nach oben"));
+    auto *downAct = m->addAction(QIcon::fromTheme(QStringLiteral("go-down")), tr("Nach unten"));
+    Q_ASSERT(upAct != nullptr && downAct != nullptr);
+
+    m->addSeparator();
+    auto *delAct = m->addAction(QIcon::fromTheme(QStringLiteral("edit-delete")), tr("Gruppe löschen"));
+    Q_ASSERT(delAct != nullptr);
+
+    connect(upAct, &QAction::triggered, this, [this, wrapper]()
+    {
+        Q_ASSERT(m_contentLayout != nullptr);
+        int idx = m_contentLayout->indexOf(wrapper);
+        if (idx > 0)
+        {
+            m_contentLayout->removeWidget(wrapper);
+            m_contentLayout->insertWidget(idx - 1, wrapper);
+            saveGroupOrder();
+        }
+    });
+    connect(downAct, &QAction::triggered, this, [this, wrapper]()
+    {
+        Q_ASSERT(m_contentLayout != nullptr);
+        int idx = m_contentLayout->indexOf(wrapper);
+        if (idx >= 0 && idx < m_contentLayout->count() - 2)
+        {
+            m_contentLayout->removeWidget(wrapper);
+            m_contentLayout->insertWidget(idx + 1, wrapper);
+            saveGroupOrder();
+        }
+    });
+    connect(delAct, &QAction::triggered, this, [this, wrapper, sharedName]()
+    {
+        handleGroupMenuDelete(wrapper, sharedName);
+    });
+
+    m->popup(menuBtn->mapToGlobal(QPoint(0, menuBtn->height())));
+}
+
+void Sidebar::handleGitGroupMenuRename(std::shared_ptr<QString> sharedName, QLabel *lbl)
+{
+    bool ok;
+    QString newName = sc_getText(this, tr("Gruppe umbenennen"), tr("Neuer Name:"), *sharedName);
+    ok = !newName.isNull();
+    if (!ok || newName.trimmed().isEmpty() || newName.trimmed() == *sharedName)
+    {
+        return;
+    }
+    const QString oldName = *sharedName;
+    *sharedName = newName.trimmed();
+    lbl->setText(*sharedName);
+
+    auto gs = Config::group("CustomGroups");
+    QStringList grps = gs.readEntry("groups", QStringList());
+    int idx = grps.indexOf(oldName);
+    if (idx != -1)
+    {
+        grps[idx] = *sharedName;
+        gs.writeEntry("groups", grps);
+    }
+
+    KConfigGroup oldGrp(gs.config(), gs.name() + "/group_" + oldName);
+    KConfigGroup newGrp(gs.config(), gs.name() + "/group_" + *sharedName);
+    newGrp.writeEntry("type", QStringLiteral("git"));
+    oldGrp.deleteGroup();
+    gs.config()->sync();
 }
 
 void Sidebar::createGitGroupWidget(const QString &name)
@@ -728,7 +739,32 @@ void Sidebar::createGitGroupWidget(const QString &name)
     setupGitGroupWidgetHeader(headerRow, hLay, name, menuBtn);
     vbox->addWidget(headerRow);
 
-    auto *listCont = new QWidget();
+    QWidget *listCont = nullptr;
+    auto *tree = buildGitGroupTreeAndContainer(listCont);
+    vbox->addWidget(listCont);
+
+    auto *toggleBtn = buildGroupToggleBtn(listCont);
+    vbox->addWidget(toggleBtn, 0, Qt::AlignCenter);
+
+    auto *wrapper = new QWidget();
+    Q_ASSERT(wrapper != nullptr);
+    wrapper->setObjectName(QStringLiteral("groupWrapper"));
+    wrapper->setStyleSheet(QStringLiteral("background:%1;").arg(TM().colors().bgMain));
+    auto *wLay = new QVBoxLayout(wrapper);
+    Q_ASSERT(wLay != nullptr);
+    wLay->setContentsMargins(10, 2, 6, 2);
+    wLay->setSpacing(0);
+    wLay->addWidget(outerBox);
+
+    auto sharedName = std::make_shared<QString>(name);
+    setupGitGroupWidgetConnections(tree, sharedName, toggleBtn, menuBtn, lbl, wrapper);
+
+    insertGroupWrapper(wrapper, nullptr);
+}
+
+QTreeWidget *Sidebar::buildGitGroupTreeAndContainer(QWidget *&listCont)
+{
+    listCont = new QWidget();
     Q_ASSERT(listCont != nullptr);
     listCont->setStyleSheet(QStringLiteral("background:transparent; border:none;"));
     auto *listLay = new QVBoxLayout(listCont);
@@ -761,50 +797,7 @@ void Sidebar::createGitGroupWidget(const QString &name)
                        "QTreeWidget::item:selected { background:%2; }")
             .arg(TM().colors().bgHover, TM().colors().bgSelect));
     listLay->addWidget(tree);
-    vbox->addWidget(listCont);
-
-    auto *toggleBtn = new QPushButton();
-    Q_ASSERT(toggleBtn != nullptr);
-    toggleBtn->setCheckable(true);
-    toggleBtn->setFixedHeight(16);
-    toggleBtn->setIcon(QIcon::fromTheme(QStringLiteral("go-up")));
-    toggleBtn->setIconSize(QSize(10, 10));
-    toggleBtn->setStyleSheet(QStringLiteral("QPushButton{background:transparent !important; border:none;}"));
-    vbox->addWidget(toggleBtn, 0, Qt::AlignCenter);
-    
-    connect(toggleBtn, &QPushButton::toggled, this, [listCont, toggleBtn](bool collapsed)
-    {
-        listCont->setVisible(!collapsed);
-        toggleBtn->setIcon(QIcon::fromTheme(collapsed ? QStringLiteral("go-down") : QStringLiteral("go-up")));
-    });
-
-    auto *wrapper = new QWidget();
-    Q_ASSERT(wrapper != nullptr);
-    wrapper->setObjectName(QStringLiteral("groupWrapper"));
-    wrapper->setStyleSheet(QStringLiteral("background:%1;").arg(TM().colors().bgMain));
-    auto *wLay = new QVBoxLayout(wrapper);
-    Q_ASSERT(wLay != nullptr);
-    wLay->setContentsMargins(10, 2, 6, 2);
-    wLay->setSpacing(0);
-    wLay->addWidget(outerBox);
-
-    auto sharedName = std::make_shared<QString>(name);
-    setupGitGroupWidgetConnections(tree, sharedName, toggleBtn, menuBtn, lbl, wrapper);
-
-    if (m_contentLayout != nullptr)
-    {
-        int insertIdx = m_contentLayout->count();
-        const int total = m_contentLayout->count();
-        if (total > 0)
-        {
-            auto *lastItem = m_contentLayout->itemAt(total - 1);
-            if (lastItem != nullptr && lastItem->spacerItem() != nullptr)
-            {
-                insertIdx = total - 1;
-            }
-        }
-        m_contentLayout->insertWidget(insertIdx, wrapper);
-    }
+    return tree;
 }
 #endif
 
@@ -859,52 +852,57 @@ void Sidebar::loadCustomGroups()
         }
 
         int cnt = g.readEntry("size", 0);
-        for (int i = 1; i <= cnt; ++i)
-        {
-            KConfigGroup itemG(g.config(), g.name() + "/" + QString::number(i));
-            const QString path = itemG.readEntry("path", QString());
-            const QString itemName = itemG.readEntry("name", QString());
-            const QString customIco = itemG.readEntry("icon", QString());
-            if (path.isEmpty())
-            {
-                continue;
-            }
-
-            QIcon ico;
-            if (!customIco.isEmpty())
-            {
-                ico = QIcon::fromTheme(customIco);
-            }
-            else if (!path.startsWith(QLatin1Char('/')))
-            {
-                const QString scheme = QUrl::fromUserInput(path).scheme().toLower();
-                ico = QIcon::fromTheme(
-                    scheme == QStringLiteral("gdrive") ? QStringLiteral("folder-gdrive") :
-                    scheme == QStringLiteral("smb") ? QStringLiteral("network-workgroup") :
-                    (scheme == QStringLiteral("sftp") || scheme == QStringLiteral("ssh")) ? QStringLiteral("network-connect") :
-                    scheme == QStringLiteral("mtp") ? QStringLiteral("multimedia-player") :
-                    scheme == QStringLiteral("bluetooth") ? QStringLiteral("bluetooth") :
-                    QStringLiteral("network-server"));
-            }
-            else
-            {
-                ico = QIcon::fromTheme(KIO::iconNameForUrl(QUrl::fromLocalFile(path)));
-            }
-            if (ico.isNull())
-            {
-                ico = QIcon::fromTheme(QStringLiteral("folder"));
-            }
-            
-            auto *it = new QListWidgetItem(ico, itemName, list);
-            Q_ASSERT(it != nullptr);
-            it->setData(Qt::UserRole, path);
-            it->setData(Qt::UserRole + 2, customIco);
-        }
+        loadGroupItems(g, list, cnt);
         adjustListHeight(list);
     }
 #ifdef SC_PLUGIN_GIT
     refreshGitSection();
 #endif
+}
+
+void Sidebar::loadGroupItems(const KConfigGroup &g, QListWidget *list, int cnt)
+{
+    for (int i = 1; i <= cnt; ++i)
+    {
+        KConfigGroup itemG(g.config(), g.name() + "/" + QString::number(i));
+        const QString path = itemG.readEntry("path", QString());
+        const QString itemName = itemG.readEntry("name", QString());
+        const QString customIco = itemG.readEntry("icon", QString());
+        if (path.isEmpty())
+        {
+            continue;
+        }
+
+        QIcon ico;
+        if (!customIco.isEmpty())
+        {
+            ico = QIcon::fromTheme(customIco);
+        }
+        else if (!path.startsWith(QLatin1Char('/')))
+        {
+            const QString scheme = QUrl::fromUserInput(path).scheme().toLower();
+            ico = QIcon::fromTheme(
+                scheme == QStringLiteral("gdrive") ? QStringLiteral("folder-gdrive") :
+                scheme == QStringLiteral("smb") ? QStringLiteral("network-workgroup") :
+                (scheme == QStringLiteral("sftp") || scheme == QStringLiteral("ssh")) ? QStringLiteral("network-connect") :
+                scheme == QStringLiteral("mtp") ? QStringLiteral("multimedia-player") :
+                scheme == QStringLiteral("bluetooth") ? QStringLiteral("bluetooth") :
+                QStringLiteral("network-server"));
+        }
+        else
+        {
+            ico = QIcon::fromTheme(KIO::iconNameForUrl(QUrl::fromLocalFile(path)));
+        }
+        if (ico.isNull())
+        {
+            ico = QIcon::fromTheme(QStringLiteral("folder"));
+        }
+        
+        auto *it = new QListWidgetItem(ico, itemName, list);
+        Q_ASSERT(it != nullptr);
+        it->setData(Qt::UserRole, path);
+        it->setData(Qt::UserRole + 2, customIco);
+    }
 }
 
 void Sidebar::addToGroup(const QString &groupName, QListWidget *list, const QString &path)
@@ -922,6 +920,32 @@ void Sidebar::addToGroup(const QString &groupName, QListWidget *list, const QStr
     }
 
     QUrl url(path);
+    const QString scheme = url.scheme().toLower();
+    
+    QString name = determineAddedGroupName(path, url);
+    QIcon ico = determineAddedGroupIcon(path, scheme);
+
+    auto *it = new QListWidgetItem(ico, name, list);
+    Q_ASSERT(it != nullptr);
+    it->setData(Qt::UserRole, path);
+    adjustListHeight(list);
+
+    auto gs = Config::group("CustomGroups");
+    KConfigGroup(gs.config(), gs.name() + "/group_" + groupName).deleteGroup();
+    KConfigGroup gNew(gs.config(), gs.name() + "/group_" + groupName);
+    gNew.writeEntry(QStringLiteral("size"), list->count());
+
+    for (int i = 0; i < list->count(); ++i)
+    {
+        KConfigGroup itemG(gNew.config(), gNew.name() + "/" + QString::number(i + 1));
+        itemG.writeEntry(QStringLiteral("path"), list->item(i)->data(Qt::UserRole).toString());
+        itemG.writeEntry(QStringLiteral("name"), list->item(i)->text());
+    }
+    gs.config()->sync();
+}
+
+QString Sidebar::determineAddedGroupName(const QString &path, const QUrl &url)
+{
     QString name = url.isLocalFile() ? QDir(path).dirName() : url.fileName();
     if (name.isEmpty())
     {
@@ -931,21 +955,25 @@ void Sidebar::addToGroup(const QString &groupName, QListWidget *list, const QStr
     const QString scheme = url.scheme().toLower();
     if (scheme == QStringLiteral("trash"))
     {
-        name = tr("Papierkorb");
+        return tr("Papierkorb");
     }
-    else if (scheme == QStringLiteral("recentdocuments"))
+    if (scheme == QStringLiteral("recentdocuments"))
     {
-        name = tr("Zuletzt verwendet");
+        return tr("Zuletzt verwendet");
     }
-    else if (scheme == QStringLiteral("remote"))
+    if (scheme == QStringLiteral("remote"))
     {
-        name = tr("Netzwerk");
+        return tr("Netzwerk");
     }
-    else if (path == QDir::homePath())
+    if (path == QDir::homePath())
     {
-        name = tr("Persönlicher Ordner");
+        return tr("Persönlicher Ordner");
     }
+    return name;
+}
 
+QIcon Sidebar::determineAddedGroupIcon(const QString &path, const QString &scheme)
+{
     QIcon ico;
     if (scheme == QStringLiteral("trash"))
     {
@@ -977,24 +1005,7 @@ void Sidebar::addToGroup(const QString &groupName, QListWidget *list, const QStr
     {
         ico = QIcon::fromTheme(QStringLiteral("folder"));
     }
-
-    auto *it = new QListWidgetItem(ico, name, list);
-    Q_ASSERT(it != nullptr);
-    it->setData(Qt::UserRole, path);
-    adjustListHeight(list);
-
-    auto gs = Config::group("CustomGroups");
-    KConfigGroup(gs.config(), gs.name() + "/group_" + groupName).deleteGroup();
-    KConfigGroup gNew(gs.config(), gs.name() + "/group_" + groupName);
-    gNew.writeEntry(QStringLiteral("size"), list->count());
-
-    for (int i = 0; i < list->count(); ++i)
-    {
-        KConfigGroup itemG(gNew.config(), gNew.name() + "/" + QString::number(i + 1));
-        itemG.writeEntry(QStringLiteral("path"), list->item(i)->data(Qt::UserRole).toString());
-        itemG.writeEntry(QStringLiteral("name"), list->item(i)->text());
-    }
-    gs.config()->sync();
+    return ico;
 }
 
 void Sidebar::addPlace(const QString &path)
@@ -1139,59 +1150,74 @@ void Sidebar::showTagContextMenu(QListWidgetItem *item, const QPoint &pos)
 
     menu.addAction(QIcon::fromTheme(QStringLiteral("color-picker")), tr("Farbe ändern …"), this, [this, item]()
     {
-        QColorDialog dlg(QColor(item->data(Qt::UserRole).toString()), this);
-        dlg.setWindowTitle(tr("Farbe wählen"));
-        dlg.setOptions(QColorDialog::DontUseNativeDialog);
-        dlg.setStyleSheet(TM().ssDialog());
-        if (dlg.exec() == QDialog::Accepted)
-        {
-            QColor col = dlg.currentColor();
-            if (col.isValid())
-            {
-                item->setData(Qt::UserRole, col.name());
-                QPixmap pix(14, 14);
-                pix.fill(Qt::transparent);
-                QPainter p(&pix);
-                p.setRenderHint(QPainter::Antialiasing);
-                p.setBrush(col);
-                p.setPen(Qt::NoPen);
-                p.drawEllipse(0, 0, 14, 14);
-                p.end();
-                item->setIcon(QIcon(pix));
-                saveTags();
-            }
-        }
+        handleTagColorChange(item);
     });
 
     menu.addAction(QIcon::fromTheme(QStringLiteral("edit-rename")), tr("Umbenennen …"), this, [this, item]()
     {
-        bool ok;
-        QString name = sc_getText(this, tr("Tag umbenennen"), tr("Name:"), item->text());
-        ok = !name.isNull();
-        if (ok && !name.isEmpty())
-        {
-            item->setText(name);
-            saveTags();
-        }
+        handleTagRename(item);
     });
 
     menu.addSeparator();
     menu.addAction(QIcon::fromTheme(QStringLiteral("edit-delete")), tr("Löschen"), this, [this, item]()
     {
-        delete m_tagList->takeItem(m_tagList->row(item));
-        adjustListHeight(m_tagList);
-        if (m_tagsBox != nullptr)
-        {
-            m_tagsBox->updateGeometry();
-        }
-        if (m_tagsWrap != nullptr)
-        {
-            m_tagsWrap->updateGeometry();
-        }
-        saveTags();
+        handleTagDelete(item);
     });
 
     menu.exec(m_tagList->mapToGlobal(pos));
+}
+
+void Sidebar::handleTagColorChange(QListWidgetItem *item)
+{
+    QColorDialog dlg(QColor(item->data(Qt::UserRole).toString()), this);
+    dlg.setWindowTitle(tr("Farbe wählen"));
+    dlg.setOptions(QColorDialog::DontUseNativeDialog);
+    dlg.setStyleSheet(TM().ssDialog());
+    if (dlg.exec() == QDialog::Accepted)
+    {
+        QColor col = dlg.currentColor();
+        if (col.isValid())
+        {
+            item->setData(Qt::UserRole, col.name());
+            QPixmap pix(14, 14);
+            pix.fill(Qt::transparent);
+            QPainter p(&pix);
+            p.setRenderHint(QPainter::Antialiasing);
+            p.setBrush(col);
+            p.setPen(Qt::NoPen);
+            p.drawEllipse(0, 0, 14, 14);
+            p.end();
+            item->setIcon(QIcon(pix));
+            saveTags();
+        }
+    }
+}
+
+void Sidebar::handleTagRename(QListWidgetItem *item)
+{
+    bool ok;
+    QString name = sc_getText(this, tr("Tag umbenennen"), tr("Name:"), item->text());
+    ok = !name.isNull();
+    if (ok && !name.isEmpty())
+    {
+        item->setText(name);
+        saveTags();
+    }
+}
+
+void Sidebar::handleTagDelete(QListWidgetItem *item)
+{
+    delete m_tagList->takeItem(m_tagList->row(item));
+    adjustListHeight(m_tagList);
+    if (m_tagsBox != nullptr)
+    {
+        m_tagsBox->updateGeometry();
+    }
+    if (m_tagsWrap != nullptr)
+    {
+        m_tagsWrap->updateGeometry();
+    }
+    saveTags();
 }
 
 void Sidebar::saveTags()

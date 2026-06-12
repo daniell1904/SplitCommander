@@ -251,8 +251,7 @@ void FilePane::setupModel() {
 }
 
 
-// --- FilePane::setupView ---
-void FilePane::setupView() {
+void FilePane::buildTreeView() {
   m_view = new SCTreeView(this);
   m_view->setRootIsDecorated(false);
   m_view->setItemsExpandable(false);
@@ -288,67 +287,10 @@ void FilePane::setupView() {
       QSize(Config::listIconSize(), Config::listIconSize()));
 
   setupColumns();
+  setupTreeViewAppearance();
+}
 
-  auto *hdr = m_view->header();
-  const QList<FPCol> &visCols = m_proxy->visibleCols();
-  for (int i = 0; i < visCols.size(); ++i) {
-    FPCol col = visCols.at(i);
-    bool isName = (col == FP_NAME);
-    hdr->setSectionResizeMode(i, isName ? QHeaderView::Stretch
-                                        : QHeaderView::Interactive);
-    if (!isName) {
-      for (const auto &d : colDefs())
-        if (d.id == col) {
-          hdr->resizeSection(i, d.defaultWidth);
-          break;
-        }
-    }
-  }
-  hdr->setSectionsClickable(true);
-  hdr->setSortIndicatorShown(true);
-  hdr->setSortIndicator(0, Qt::AscendingOrder);
-  m_sortProxy->sort(KDirModel::Name, Qt::AscendingOrder);
-  // Sort-Indicator auch nach dem ersten Laden setzen
-  connect(m_lister, &KDirLister::completed, this, [hdr]() {
-    if (hdr->sortIndicatorSection() == 0)
-      hdr->setSortIndicator(0, hdr->sortIndicatorOrder());
-  }, Qt::SingleShotConnection);
-  hdr->setStretchLastSection(false);
-  hdr->setDefaultAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-  hdr->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(hdr, &QHeaderView::customContextMenuRequested, this,
-          &FilePane::showHeaderMenu);
-  // Gespeicherte Breiten laden (nicht Name = Stretch)
-  {
-    auto s = Config::group("General");
-    for (int i = 0; i < visCols.size(); ++i) {
-      if (visCols.at(i) == FP_NAME) continue;
-      const int saved = s.readEntry(m_settingsKey + "colW_" + QString::number(visCols.at(i)), 0);
-      if (saved > 0) hdr->resizeSection(i, saved);
-    }
-  }
-  connect(hdr, &QHeaderView::sectionResized, this,
-          [this](int idx, int, int newSize) {
-            const QList<FPCol> &vc = m_proxy->visibleCols();
-            if (idx < 0 || idx >= vc.size() || vc.at(idx) == FP_NAME) return;
-            auto s = Config::group("General");
-            s.writeEntry(m_settingsKey + "colW_" + QString::number(vc.at(idx)), newSize);
-            s.config()->sync();
-          });
-  connect(hdr, &QHeaderView::sectionDoubleClicked, this,
-          [this, hdr](int col) {
-            if (m_proxy->visibleCols().value(col) == FP_NAME) return;
-            QFontMetrics fm(m_view->font());
-            int maxW = hdr->sectionSizeHint(col);
-            const int rows = m_proxy->rowCount(m_view->rootIndex());
-            for (int r = 0; r < qMin(rows, 500); ++r) {
-              const QString t = m_proxy->index(r, col, m_view->rootIndex())
-                                    .data(Qt::DisplayRole).toString();
-              if (!t.isEmpty()) maxW = qMax(maxW, fm.horizontalAdvance(t) + 32);
-            }
-            hdr->resizeSection(col, qMax(maxW, 40));
-          });
-
+void FilePane::setupTreeViewAppearance() {
   m_view->setStyleSheet(
       QString(
           "QTreeView{background:%1;border:none;color:%2;outline:none;font-size:"
@@ -382,8 +324,69 @@ void FilePane::setupView() {
                TM().colors().separator, TM().colors().accent));
   m_view->viewport()->setStyleSheet("background:transparent;");
   m_view->viewport()->setAttribute(Qt::WA_TranslucentBackground);
+}
 
-  // --- Overlay Scrollbars ---
+void FilePane::setupTreeViewHeader() {
+  auto *hdr = m_view->header();
+  const QList<FPCol> &visCols = m_proxy->visibleCols();
+  for (int i = 0; i < visCols.size(); ++i) {
+    FPCol col = visCols.at(i);
+    bool isName = (col == FP_NAME);
+    hdr->setSectionResizeMode(i, isName ? QHeaderView::Stretch
+                                        : QHeaderView::Interactive);
+    if (!isName) {
+      for (const auto &d : colDefs())
+        if (d.id == col) {
+          hdr->resizeSection(i, d.defaultWidth);
+          break;
+        }
+    }
+  }
+  hdr->setSectionsClickable(true);
+  hdr->setSortIndicatorShown(true);
+  hdr->setSortIndicator(0, Qt::AscendingOrder);
+  m_sortProxy->sort(KDirModel::Name, Qt::AscendingOrder);
+  connect(m_lister, &KDirLister::completed, this, [hdr]() {
+    if (hdr->sortIndicatorSection() == 0)
+      hdr->setSortIndicator(0, hdr->sortIndicatorOrder());
+  }, Qt::SingleShotConnection);
+  hdr->setStretchLastSection(false);
+  hdr->setDefaultAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+  hdr->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(hdr, &QHeaderView::customContextMenuRequested, this,
+          &FilePane::showHeaderMenu);
+  {
+    auto s = Config::group("General");
+    for (int i = 0; i < visCols.size(); ++i) {
+      if (visCols.at(i) == FP_NAME) continue;
+      const int saved = s.readEntry(m_settingsKey + "colW_" + QString::number(visCols.at(i)), 0);
+      if (saved > 0) hdr->resizeSection(i, saved);
+    }
+  }
+  connect(hdr, &QHeaderView::sectionResized, this,
+          [this](int idx, int, int newSize) {
+            const QList<FPCol> &vc = m_proxy->visibleCols();
+            if (idx < 0 || idx >= vc.size() || vc.at(idx) == FP_NAME) return;
+            auto s = Config::group("General");
+            s.writeEntry(m_settingsKey + "colW_" + QString::number(vc.at(idx)), newSize);
+            s.config()->sync();
+          });
+  connect(hdr, &QHeaderView::sectionDoubleClicked, this,
+          [this, hdr](int col) {
+            if (m_proxy->visibleCols().value(col) == FP_NAME) return;
+            QFontMetrics fm(m_view->font());
+            int maxW = hdr->sectionSizeHint(col);
+            const int rows = m_proxy->rowCount(m_view->rootIndex());
+            for (int r = 0; r < qMin(rows, 500); ++r) {
+              const QString t = m_proxy->index(r, col, m_view->rootIndex())
+                                    .data(Qt::DisplayRole).toString();
+              if (!t.isEmpty()) maxW = qMax(maxW, fm.horizontalAdvance(t) + 32);
+            }
+            hdr->resizeSection(col, qMax(maxW, 40));
+          });
+}
+
+void FilePane::setupOverlayScrollbars() {
   m_overlayBar = new QScrollBar(Qt::Vertical, this);
   m_overlayBar->setStyleSheet(
       QString("QScrollBar:vertical{background:transparent;width:8px;margin:0px;border:none;}"
@@ -423,8 +426,9 @@ void FilePane::setupView() {
           [this](int, int max) { m_overlayHBar->setVisible(max > 0); });
   connect(m_overlayHBar, &QScrollBar::valueChanged, nativeH,
           &QScrollBar::setValue);
+}
 
-  // --- IconView ---
+void FilePane::buildIconView() {
   m_iconView = new SCListView(this);
   m_iconView->setModel(m_proxy);
   m_iconView->setItemDelegate(new ScaledIconDelegate(m_iconView));
@@ -453,6 +457,13 @@ void FilePane::setupView() {
           .arg(TM().colors().bgList, TM().colors().textPrimary,
                TM().colors().bgHover, TM().colors().bgSelect,
                TM().colors().textLight));
+}
+
+void FilePane::setupView() {
+  buildTreeView();
+  setupTreeViewHeader();
+  setupOverlayScrollbars();
+  buildIconView();
 
   m_stack->addWidget(m_view);
   m_stack->addWidget(m_iconView);
@@ -462,7 +473,14 @@ void FilePane::setupView() {
 
 // --- FilePane::setupConnections ---
 void FilePane::setupConnections() {
-  // --- Signale ---
+  connectTreeViewSignals();
+  connectIconViewSignals();
+  setupDropHandlers();
+  connectSelectionSignals();
+  connectMiscSignals();
+}
+
+void FilePane::connectTreeViewSignals() {
   m_view->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(m_view, &QTreeView::customContextMenuRequested, this,
           &FilePane::showContextMenu);
@@ -472,7 +490,9 @@ void FilePane::setupConnections() {
     if (gs.readEntry("singleClick", false))
       onItemActivated(idx);
   });
+}
 
+void FilePane::connectIconViewSignals() {
   connect(m_iconView, &QListView::clicked, this,
           [this](const QModelIndex &idx) {
             auto gs = Config::group("General");
@@ -483,7 +503,9 @@ void FilePane::setupConnections() {
   connect(m_iconView, &QListView::customContextMenuRequested, this,
           &FilePane::showContextMenu);
   connect(m_iconView, &QListView::activated, this, &FilePane::onItemActivated);
+}
 
+void FilePane::setupDropHandlers() {
   auto resolver = [this](const QModelIndex &idx) -> QUrl {
     QUrl dest = QUrl::fromUserInput(m_currentPath);
     if (idx.isValid() && m_proxy) {
@@ -497,7 +519,9 @@ void FilePane::setupConnections() {
       new DropHandler(m_view, resolver, m_view));
   m_iconView->viewport()->installEventFilter(
       new DropHandler(m_iconView, resolver, m_iconView));
+}
 
+void FilePane::connectSelectionSignals() {
   connect(m_view->selectionModel(), &QItemSelectionModel::currentChanged, this,
           [this](const QModelIndex &cur, const QModelIndex &) {
             KFileItem item = m_proxy->fileItem(cur);
@@ -517,22 +541,20 @@ void FilePane::setupConnections() {
                                          : (item.localPath().isEmpty()
                                                 ? item.url().toString()
                                                 : item.localPath());
-            // Anzahl selektierter Rows (Spalten-unabhängig)
             QSet<int> seenRows;
             for (const auto &idx : selectedIdx)
               seenRows.insert(idx.row());
             emit selectionChanged(seenRows.count(), path);
           });
+}
 
-  // Tag-Änderungen: Model aktualisieren (KDirModel refresht von selbst,
-  // aber Tags-Spalte muss manuell angestoßen werden)
+void FilePane::connectMiscSignals() {
   connect(&TagManager::instance(), &TagManager::fileTagChanged, this,
           [this](const QString &) {
             if (!m_currentTagFilter.isEmpty()) {
               showTaggedFiles(m_currentTagFilter);
               return;
             }
-            // Alle sichtbaren Indizes der Tags-Spalte neu zeichnen
             const QList<FPCol> &visCols = m_proxy->visibleCols();
             int tagColIdx = -1;
             for (int i = 0; i < visCols.size(); ++i)
@@ -550,16 +572,12 @@ void FilePane::setupConnections() {
   connect(&ThumbnailManager::instance(), &ThumbnailManager::thumbnailReady, this, [this](const QString &path) {
       Q_UNUSED(path)
       if (!m_proxy) return;
-      // Wir könnten hier gezielt den Index suchen, aber ein layoutChanged ist sicherer 
-      // und Qt-modelle cachen das Zeichnen sowieso.
       m_proxy->layoutChanged();
   });
 
-  // KNewFileMenu
   m_newFileMenu = new KNewFileMenu(this);
   connect(m_newFileMenu, &KNewFileMenu::fileCreated, this,
           &FilePane::onNewFileCreated);
-
 }
 
 // --- Navigation ---
@@ -584,20 +602,7 @@ void FilePane::setRootPath(const QString &path) {
       m_kioMode = false;
       m_currentUrl = QUrl();
       m_currentPath = url.toLocalFile();
-      m_lister->stop();
-      m_lister->openUrl(url);
-      connect(
-          m_lister, &KDirLister::completed, this,
-          [this, url]() {
-            QModelIndex dirIdx = m_dirModel->indexForUrl(url);
-            if (dirIdx.isValid()) {
-              QModelIndex proxyIdx =
-                  m_proxy->mapFromSource(m_sortProxy->mapFromSource(dirIdx));
-              m_view->setRootIndex(proxyIdx);
-              m_iconView->setRootIndex(proxyIdx);
-            }
-          },
-          Qt::SingleShotConnection);
+      executeLocalPathLoad(url);
       return;
     }
 
@@ -633,9 +638,12 @@ void FilePane::setRootPath(const QString &path) {
   m_proxy->setTagFilter(QString());
 
   QUrl url = QUrl::fromLocalFile(path);
+  executeLocalPathLoad(url);
+}
+
+void FilePane::executeLocalPathLoad(const QUrl &url) {
   m_lister->stop();
   m_lister->openUrl(url);
-  // Root-Index setzen sobald Lister fertig ist
   connect(
       m_lister, &KDirLister::completed, this,
       [this, url]() {
@@ -895,7 +903,25 @@ void FilePane::onItemActivated(const QModelIndex &index) {
     return;
   }
 
-  // remoteViewMap: UDS_NAME → Ziel-URL aus /usr/share/remoteview/*.desktop
+  if (handleRemoteViewItem(item))
+    return;
+
+  // Verzeichnis oder KIO-Navigation → navigieren
+  // Wir prüfen explizit auf isDir(), damit Dateien nicht als Ordner "geöffnet"
+  // werden
+  if (item.isDir()) {
+    emit fileActivated(path);
+    return;
+  }
+
+  // Datei öffnen
+  auto *job = new KIO::OpenUrlJob(item.url());
+  job->setUiDelegate(KIO::createDefaultJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
+  job->start();
+}
+
+bool FilePane::handleRemoteViewItem(const KFileItem &item) {
+  // remoteViewMap: UDS_NAME -> Ziel-URL aus /usr/share/remoteview/*.desktop
   static QHash<QString, QString> remoteViewMap;
   static bool remoteViewLoaded = false;
   if (!remoteViewLoaded) {
@@ -915,35 +941,24 @@ void FilePane::onItemActivated(const QModelIndex &index) {
   const QUrl targetUrl = item.targetUrl();
   if (targetUrl.isValid() && targetUrl != item.url()) {
     emit fileActivated(targetUrl.toString());
-    return;
+    return true;
   }
 
   // Priorität 2: remoteViewMap über UDS_NAME
   const QString udsName = item.text();
   if (remoteViewMap.contains(udsName)) {
     emit fileActivated(remoteViewMap.value(udsName));
-    return;
+    return true;
   }
 
   // Priorität 3: baseName aus URL (z.B. "gdrive-network" → "gdrive")
   const QString urlBaseName = item.url().path().section('/', -1).section('-', 0, 0);
   if (remoteViewMap.contains(urlBaseName)) {
     emit fileActivated(remoteViewMap.value(urlBaseName));
-    return;
+    return true;
   }
 
-  // Verzeichnis oder KIO-Navigation → navigieren
-  // Wir prüfen explizit auf isDir(), damit Dateien nicht als Ordner "geöffnet"
-  // werden
-  if (item.isDir()) {
-    emit fileActivated(path);
-    return;
-  }
-
-  // Datei öffnen
-  auto *job = new KIO::OpenUrlJob(item.url());
-  job->setUiDelegate(KIO::createDefaultJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, this));
-  job->start();
+  return false;
 }
 
 // --- resizeEvent / eventFilter ---
@@ -981,7 +996,7 @@ void FilePane::stopLister() {
 }
 
 // --- showHeaderMenu ---
-void FilePane::onSectionResized(int /*index*/, int, int) {
+void FilePane::onSectionResized(int, int, int) {
   if (m_inSectionResized || !m_view || !m_view->header())
     return;
 

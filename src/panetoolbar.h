@@ -34,4 +34,9 @@ private:
     QToolButton *m_backBtn       = nullptr;
     QToolButton *m_fwdBtn        = nullptr;
     QButtonGroup *m_viewGroup    = nullptr;
+
+    QToolButton *makeToolButton(const QString &icon, const QString &tip, void (PaneToolbar::*sig)());
+    void buildRow1(class QVBoxLayout *vlay);
+    void buildRow2(class QVBoxLayout *vlay);
+    void buildRow3(class QVBoxLayout *vlay);
 };

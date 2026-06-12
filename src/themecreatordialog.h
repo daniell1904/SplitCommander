@@ -31,6 +31,10 @@ private:
     ThemePreviewWidget *m_preview = nullptr;
     
     void setupUI();
+    void initLayoutsAndHeader(class QVBoxLayout *mainLay);
+    void setupColorGrid(class QHBoxLayout *middleLay);
+    void setupLivePreview(class QHBoxLayout *middleLay);
+    void setupBottomControls(class QVBoxLayout *mainLay);
     void pickColorForKey(const QString &key);
     void saveAndClose();
 };

@@ -70,6 +70,15 @@ MillerColumn::MillerColumn(QWidget *parent)
     lay->setContentsMargins(0, 0, 0, 0);
     lay->setSpacing(0);
 
+    initLister();
+    initHeader(lay);
+    initListWidget(lay);
+    setupEventFiltersAndDelegates(lay);
+    connectListSignals();
+}
+
+void MillerColumn::initLister()
+{
     m_lister = new KDirLister(this);
     Q_ASSERT(m_lister != nullptr);
     connect(m_lister, &KDirLister::newItems, this, [this](const KFileItemList &items)
@@ -96,7 +105,11 @@ MillerColumn::MillerColumn(QWidget *parent)
         Q_ASSERT(m_list != nullptr);
         m_list->sortItems();
     });
+}
 
+void MillerColumn::initHeader(QVBoxLayout *lay)
+{
+    Q_ASSERT(lay != nullptr);
     auto *headerWidget = new QWidget();
     Q_ASSERT(headerWidget != nullptr);
     headerWidget->setFixedHeight(Config::millerHeaderHeight());
@@ -131,7 +144,11 @@ MillerColumn::MillerColumn(QWidget *parent)
     
     m_headerLay->addWidget(m_colLabel, 1);
     lay->addWidget(headerWidget);
+}
 
+void MillerColumn::initListWidget(QVBoxLayout *lay)
+{
+    Q_ASSERT(lay != nullptr);
     m_list = new QListWidget();
     Q_ASSERT(m_list != nullptr);
     m_list->setFrameShape(QFrame::NoFrame);
@@ -147,6 +164,12 @@ MillerColumn::MillerColumn(QWidget *parent)
     m_list->setAcceptDrops(true);
     m_list->setDropIndicatorShown(true);
     m_list->setDragDropMode(QAbstractItemView::DragDrop);
+}
+
+void MillerColumn::setupEventFiltersAndDelegates(QVBoxLayout *lay)
+{
+    Q_ASSERT(lay != nullptr);
+    Q_ASSERT(m_list != nullptr);
 
     auto resolver = [this](const QModelIndex &idx) -> QUrl
     {
@@ -188,6 +211,11 @@ MillerColumn::MillerColumn(QWidget *parent)
         topShadow->setGeometry(0, 0, m_list->viewport()->width(), 18);
         topShadow->raise();
     });
+}
+
+void MillerColumn::connectListSignals()
+{
+    Q_ASSERT(m_list != nullptr);
 
     connect(m_list, &QListWidget::itemClicked, this, [this](QListWidgetItem *it)
     {
@@ -379,15 +407,8 @@ void MillerColumn::showContextMenu(const QPoint &pos)
     }
 }
 
-void MillerColumn::handleDrivesContextMenu(QListWidgetItem *it, const QString &itemPath, const QPoint &pos)
+void MillerColumn::addDrivesOpenActions(QMenu &menu, const QString &itemPath)
 {
-    Q_ASSERT(it != nullptr);
-    Q_ASSERT(m_list != nullptr);
-
-    QMenu menu(this);
-    menu.setStyleSheet(TM().ssMenu());
-    const QString udi = it->data(Qt::UserRole + 1).toString();
-
     if (!itemPath.isEmpty() && !itemPath.startsWith(QStringLiteral("solid:")))
     {
         menu.addAction(QIcon::fromTheme(QStringLiteral("folder-open")), tr("Öffnen"), this, [this, itemPath]()
@@ -402,7 +423,11 @@ void MillerColumn::handleDrivesContextMenu(QListWidgetItem *it, const QString &i
         openInMenu->addAction(tr("Rechte Ansicht"), this, [this, itemPath]() { emit openInRight(itemPath); });
         menu.addSeparator();
     }
+}
 
+void MillerColumn::addDrivesNetworkPlacesActions(QMenu &menu, const QString &itemPath, QListWidgetItem *it)
+{
+    Q_ASSERT(it != nullptr);
     auto netCheck = Config::group("NetworkPlaces");
     const QStringList netPlaces = netCheck.readEntry("places", QStringList());
     const QString npath = mw_normalizePath(itemPath);
@@ -457,14 +482,10 @@ void MillerColumn::handleDrivesContextMenu(QListWidgetItem *it, const QString &i
         });
         menu.addSeparator();
     }
+}
 
-    auto *copyMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("edit-copy")), tr("Kopieren"));
-    Q_ASSERT(copyMenu != nullptr);
-    copyMenu->setStyleSheet(TM().ssMenu());
-    copyMenu->addAction(tr("Pfad kopieren"), [itemPath]() { QGuiApplication::clipboard()->setText(itemPath); });
-    copyMenu->addAction(tr("Name kopieren"), [it]() { QGuiApplication::clipboard()->setText(it->text()); });
-    menu.addSeparator();
-
+void MillerColumn::addDrivesDeviceActions(QMenu &menu, const QString &udi)
+{
     if (!udi.isEmpty())
     {
         Solid::Device dev(udi);
@@ -482,6 +503,28 @@ void MillerColumn::handleDrivesContextMenu(QListWidgetItem *it, const QString &i
             menu.addSeparator();
         }
     }
+}
+
+void MillerColumn::handleDrivesContextMenu(QListWidgetItem *it, const QString &itemPath, const QPoint &pos)
+{
+    Q_ASSERT(it != nullptr);
+    Q_ASSERT(m_list != nullptr);
+
+    QMenu menu(this);
+    menu.setStyleSheet(TM().ssMenu());
+    const QString udi = it->data(Qt::UserRole + 1).toString();
+
+    addDrivesOpenActions(menu, itemPath);
+    addDrivesNetworkPlacesActions(menu, itemPath, it);
+
+    auto *copyMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("edit-copy")), tr("Kopieren"));
+    Q_ASSERT(copyMenu != nullptr);
+    copyMenu->setStyleSheet(TM().ssMenu());
+    copyMenu->addAction(tr("Pfad kopieren"), [itemPath]() { QGuiApplication::clipboard()->setText(itemPath); });
+    copyMenu->addAction(tr("Name kopieren"), [it]() { QGuiApplication::clipboard()->setText(it->text()); });
+    menu.addSeparator();
+
+    addDrivesDeviceActions(menu, udi);
 
     menu.addAction(QIcon::fromTheme(QStringLiteral("edit-copy")), tr("Pfad kopieren"), this, [itemPath]()
     {

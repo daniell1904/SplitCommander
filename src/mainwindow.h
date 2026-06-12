@@ -53,15 +53,36 @@ private:
     void initUI();
     void initConnections();
     void restoreSession();
+    void resolveSessionPaths(int behavior, const QString &configPath, const QString &lastLeft, const QString &lastRight, QString &leftPath, QString &rightPath);
+    void applySessionNavigation(int behavior, const QString &leftPath, const QString &rightPath);
     void initTimers();
     void refreshAllDrives();
-    void scheduleDriveRefresh();  // debounced refreshAllDrives
+    void scheduleDriveRefresh();  // Laufwerke entprellt aktualisieren
+
+    // --- UI Hilfsfunktionen ---
+    void buildWindowProperties();
+    void buildSidebar(QHBoxLayout *rootLay, QWidget *central);
+    void buildPanes(QHBoxLayout *rootLay, QWidget *central);
 
     // --- Connections Hilfsfunktionen (NASA Rule 4) ---
     void connectPaneSignals(PaneWidget *pane, PaneWidget *other);
     void connectSidebarSignals();
     void connectSystemNotifications();
     void connectFileWatcher();
+    
+    // Unterfunktionen für connectSidebarSignals
+    void connectSidebarDriveClicks();
+    void mountAndNavigateDrive(const QString &path, bool leftPane);
+    void handleSolidDeviceMount(const QString &path, const std::function<void(const QString&)> &navigate);
+    void connectPaneOpenRequests();
+    void connectSidebarMiscSignals();
+    
+    // Unterfunktionen für connectFileWatcher
+    void connectUnmountRequested();
+    void connectTeardownRequested();
+    void executeDeviceTeardown(const QString &udi);
+    void connectDriveSettingsAndThemes();
+    void connectDeviceNotifierAndWatcher();
 
     // --- Shortcuts Hilfsfunktionen (NASA Rule 4) ---
     struct ShortcutRegistrar
@@ -76,6 +97,9 @@ private:
     void registerTabShortcuts(const ShortcutRegistrar &addAct);
     void registerPaneShortcuts(const ShortcutRegistrar &addAct);
     void registerFileShortcuts(const ShortcutRegistrar &addAct);
+    void registerFileRenameShortcut(const ShortcutRegistrar &addAct);
+    void registerFileDeleteShortcuts(const ShortcutRegistrar &addAct);
+    void registerClipboardShortcuts(const ShortcutRegistrar &addAct);
     void registerViewShortcuts(const ShortcutRegistrar &addAct);
 
     Sidebar    *m_sidebar          = nullptr;

@@ -50,105 +50,36 @@ public:
     }
 
 private:
-    void setupStyles() {
-        // Pure Premium Neutral Dark Mode (Carbon Slate)
-        setStyleSheet(
-            "QWidget { "
-            "    background-color: #121214; " // Sleek neutral carbon slate background
-            "    color: #e4e4e7; "
-            "    font-family: 'Segoe UI', 'Ubuntu', 'Helvetica Neue', sans-serif; "
-            "} "
-            "QLabel { "
-            "    font-size: 14px; "
-            "} "
-            "QPushButton { "
-            "    background-color: #3b82f6; "
-            "    color: #ffffff; "
-            "    border: none; "
-            "    border-radius: 6px; "
-            "    padding: 10px 24px; "
-            "    font-size: 14px; "
-            "    font-weight: bold; "
-            "} "
-            "QPushButton:hover { "
-            "    background-color: #60a5fa; "
-            "} "
-            "QPushButton:pressed { "
-            "    background-color: #2563eb; "
-            "} "
-            "QPushButton#backBtn { "
-            "    background-color: #27272a; "
-            "    color: #e4e4e7; "
-            "    border: 1px solid #3f3f46; "
-            "} "
-            "QPushButton#backBtn:hover { "
-            "    background-color: #3f3f46; "
-            "} "
-            "QPushButton#detailsBtn { "
-            "    background-color: #27272a; "
-            "    color: #a1a1aa; "
-            "    padding: 6px 14px; "
-            "    font-size: 12px; "
-            "} "
-            "QFrame#pluginCard { "
-            "    background-color: #1c1c1e; " // Premium dark card background
-            "    border: 1px solid #2d2d30; "
-            "    border-radius: 8px; "
-            "} "
-            "QFrame#pluginCard:hover { "
-            "    background-color: #252529; "
-            "    border: 1px solid #3b82f6; "
-            "} "
-            "QCheckBox { "
-            "    background: transparent; "
-            "    border: none; "
-            "    padding: 0; "
-            "} "
-            "QCheckBox::indicator { "
-            "    width: 18px; "
-            "    height: 18px; "
-            "    border-radius: 4px; "
-            "    border: 2px solid #52525b; "
-            "    background-color: #09090b; "
-            "} "
-            "QCheckBox::indicator:checked { "
-            "    background-color: #3b82f6; "
-            "    border: 2px solid #60a5fa; "
-            "} "
-            "QProgressBar { "
-            "    border: 1px solid #2d2d30; "
-            "    border-radius: 8px; "
-            "    text-align: center; "
-            "    color: #ffffff; "
-            "    background-color: #09090b; "
-            "    height: 24px; "
-            "    font-weight: bold; "
-            "} "
-            "QProgressBar::chunk { "
-            "    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 #3b82f6, stop:1 #60a5fa); "
-            "    border-radius: 7px; "
-            "} "
-            "QTextEdit { "
-            "    background-color: #09090b; "
-            "    color: #4ade80; " // Vibrant neon-green for compiler log
-            "    font-family: 'Courier New', 'Fira Code', monospace; "
-            "    font-size: 11px; "
-            "    border: 1px solid #2d2d30; "
-            "    border-radius: 6px; "
-            "    padding: 8px; "
-            "} "
-        );
+    QString getBaseStyles() {
+        return "QWidget { background-color: #121214; color: #e4e4e7; font-family: 'Segoe UI', 'Ubuntu', 'Helvetica Neue', sans-serif; } "
+               "QLabel { font-size: 14px; } ";
+    }
+    QString getButtonStyles() {
+        return "QPushButton { background-color: #3b82f6; color: #ffffff; border: none; border-radius: 6px; padding: 10px 24px; font-size: 14px; font-weight: bold; } "
+               "QPushButton:hover { background-color: #60a5fa; } "
+               "QPushButton:pressed { background-color: #2563eb; } "
+               "QPushButton#backBtn { background-color: #27272a; color: #e4e4e7; border: 1px solid #3f3f46; } "
+               "QPushButton#backBtn:hover { background-color: #3f3f46; } "
+               "QPushButton#detailsBtn { background-color: #27272a; color: #a1a1aa; padding: 6px 14px; font-size: 12px; } ";
+    }
+    QString getCardStyles() {
+        return "QFrame#pluginCard { background-color: #1c1c1e; border: 1px solid #2d2d30; border-radius: 8px; } "
+               "QFrame#pluginCard:hover { background-color: #252529; border: 1px solid #3b82f6; } "
+               "QCheckBox { background: transparent; border: none; padding: 0; } "
+               "QCheckBox::indicator { width: 18px; height: 18px; border-radius: 4px; border: 2px solid #52525b; background-color: #09090b; } "
+               "QCheckBox::indicator:checked { background-color: #3b82f6; border: 2px solid #60a5fa; } ";
+    }
+    QString getMiscStyles() {
+        return "QProgressBar { border: 1px solid #2d2d30; border-radius: 8px; text-align: center; color: #ffffff; background-color: #09090b; height: 24px; font-weight: bold; } "
+               "QProgressBar::chunk { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 #3b82f6, stop:1 #60a5fa); border-radius: 7px; } "
+               "QTextEdit { background-color: #09090b; color: #4ade80; font-family: 'Courier New', 'Fira Code', monospace; font-size: 11px; border: 1px solid #2d2d30; border-radius: 6px; padding: 8px; } ";
     }
 
-    void createPageWelcome() {
-        QWidget *page = new QWidget(this);
-        QVBoxLayout *layout = new QVBoxLayout(page);
-        layout->setContentsMargins(40, 30, 40, 30);
-        layout->setSpacing(16);
-        
-        layout->addStretch(1); // Top spacer for breathing room
-        
-        // Render logo
+    void setupStyles() {
+        setStyleSheet(getBaseStyles() + getButtonStyles() + getCardStyles() + getMiscStyles());
+    }
+
+    void buildWelcomeLogo(QWidget *page, QVBoxLayout *layout) {
         QLabel *logoLabel = new QLabel(page);
         logoLabel->setAlignment(Qt::AlignCenter);
         
@@ -177,6 +108,17 @@ private:
         } else {
             logoLabel->setText("<h2>[ SplitCommander ]</h2>");
         }
+        layout->addWidget(logoLabel, 0, Qt::AlignCenter);
+    }
+
+    void createPageWelcome() {
+        QWidget *page = new QWidget(this);
+        QVBoxLayout *layout = new QVBoxLayout(page);
+        layout->setContentsMargins(40, 30, 40, 30);
+        layout->setSpacing(16);
+        layout->addStretch(1);
+        
+        buildWelcomeLogo(page, layout);
         
         QLabel *titleLabel = new QLabel("SplitCommander Setup", page);
         titleLabel->setAlignment(Qt::AlignCenter);
@@ -191,7 +133,9 @@ private:
         descLabel->setAlignment(Qt::AlignCenter);
         descLabel->setStyleSheet("color: #a1a1aa; line-height: 1.5; font-size: 13px;");
         
-        layout->addStretch(1); // Middle spacer to separate content nicely
+        layout->addWidget(titleLabel);
+        layout->addWidget(descLabel);
+        layout->addStretch(1);
         
         QHBoxLayout *btnLayout = new QHBoxLayout();
         btnLayout->addStretch();
@@ -201,13 +145,39 @@ private:
         });
         btnLayout->addWidget(nextBtn);
         
-        layout->addWidget(logoLabel, 0, Qt::AlignCenter);
-        layout->addWidget(titleLabel);
-        layout->addWidget(descLabel);
-        layout->addStretch(2); // Bottom spacer
+        layout->addStretch(2);
         layout->addLayout(btnLayout);
         
         stackedWidget->addWidget(page);
+    }
+
+    QFrame* buildPluginCard(QWidget* page, const QString& title, const QString& desc, QCheckBox*& outCb) {
+        QFrame *card = new QFrame(page);
+        card->setObjectName("pluginCard");
+        QHBoxLayout *lay = new QHBoxLayout(card);
+        lay->setContentsMargins(12, 12, 12, 12);
+        lay->setSpacing(12);
+        
+        outCb = new QCheckBox(card);
+        
+        QLabel *lbl = new QLabel("<b>" + title + "</b><br><font color='#a1a1aa'>" + desc + "</font>", card);
+        lbl->setTextFormat(Qt::RichText);
+        lbl->setStyleSheet("background: transparent; border: none; font-size: 13px;");
+        lbl->setWordWrap(true);
+        
+        lay->addWidget(outCb);
+        lay->addWidget(lbl, 1);
+        return card;
+    }
+
+    void setupCardStyles(QFrame* card, QCheckBox* cb) {
+        connect(cb, &QCheckBox::toggled, this, [card](bool checked) {
+            if (checked) {
+                card->setStyleSheet("QFrame#pluginCard { background-color: #182235; border: 1.5px solid #3b82f6; border-radius: 8px; } ");
+            } else {
+                card->setStyleSheet(""); 
+            }
+        });
     }
 
     void createPagePlugins() {
@@ -215,7 +185,6 @@ private:
         QVBoxLayout *layout = new QVBoxLayout(page);
         layout->setContentsMargins(40, 30, 40, 30);
         layout->setSpacing(14);
-        
         layout->addStretch(1);
         
         QLabel *titleLabel = new QLabel("Optionale Features auswählen", page);
@@ -227,113 +196,29 @@ private:
         QVBoxLayout *cbLayout = new QVBoxLayout();
         cbLayout->setSpacing(10);
         
-        // --- Card 1: Git Manager ---
-        QFrame *cardGit = new QFrame(page);
-        cardGit->setObjectName("pluginCard");
-        QHBoxLayout *layGit = new QHBoxLayout(cardGit);
-        layGit->setContentsMargins(12, 12, 12, 12);
-        layGit->setSpacing(12);
-        
-        cbGit = new QCheckBox(cardGit);
-        
-        QLabel *lblGit = new QLabel("<b>Git Manager</b><br><font color='#a1a1aa'>Verwaltet Git-Repositories direkt in der Sidebar und zeigt den Repository-Status.</font>", cardGit);
-        lblGit->setTextFormat(Qt::RichText);
-        lblGit->setStyleSheet("background: transparent; border: none; font-size: 13px;");
-        lblGit->setWordWrap(true);
-        
-        layGit->addWidget(cbGit);
-        layGit->addWidget(lblGit, 1);
+        QFrame* cardGit = buildPluginCard(page, "Git Manager", "Verwaltet Git-Repositories direkt in der Sidebar und zeigt den Repository-Status.", cbGit);
         cbLayout->addWidget(cardGit);
         
-        // --- Card 2: Paperless-ngx ---
-        QFrame *cardPaperless = new QFrame(page);
-        cardPaperless->setObjectName("pluginCard");
-        QHBoxLayout *layPaperless = new QHBoxLayout(cardPaperless);
-        layPaperless->setContentsMargins(12, 12, 12, 12);
-        layPaperless->setSpacing(12);
-        
-        cbPaperless = new QCheckBox(cardPaperless);
-        
-        QLabel *lblPaperless = new QLabel("<b>Paperless-ngx</b><br><font color='#a1a1aa'>Ermöglicht den direkten Dokumenten-Upload und die Suche im Paperless-System.</font>", cardPaperless);
-        lblPaperless->setTextFormat(Qt::RichText);
-        lblPaperless->setStyleSheet("background: transparent; border: none; font-size: 13px;");
-        lblPaperless->setWordWrap(true);
-        
-        layPaperless->addWidget(cbPaperless);
-        layPaperless->addWidget(lblPaperless, 1);
+        QFrame* cardPaperless = buildPluginCard(page, "Paperless-ngx", "Ermöglicht den direkten Dokumenten-Upload und die Suche im Paperless-System.", cbPaperless);
         cbLayout->addWidget(cardPaperless);
         
-        // --- Card 3: ISO einbinden ---
-        QFrame *cardMountIso = new QFrame(page);
-        cardMountIso->setObjectName("pluginCard");
-        QHBoxLayout *layMountIso = new QHBoxLayout(cardMountIso);
-        layMountIso->setContentsMargins(12, 12, 12, 12);
-        layMountIso->setSpacing(12);
-        
-        cbMountIso = new QCheckBox(cardMountIso);
-        
-        QLabel *lblMountIso = new QLabel("<b>ISO einbinden</b><br><font color='#a1a1aa'>Ermöglicht das Mounten und Unmounten von ISO/IMG-Dateien per Rechtsklick.</font>", cardMountIso);
-        lblMountIso->setTextFormat(Qt::RichText);
-        lblMountIso->setStyleSheet("background: transparent; border: none; font-size: 13px;");
-        lblMountIso->setWordWrap(true);
-        
-        layMountIso->addWidget(cbMountIso);
-        layMountIso->addWidget(lblMountIso, 1);
+        QFrame* cardMountIso = buildPluginCard(page, "ISO einbinden", "Ermöglicht das Mounten und Unmounten von ISO/IMG-Dateien per Rechtsklick.", cbMountIso);
         cbLayout->addWidget(cardMountIso);
         
-        // --- Card 4: Makefile-Aktionen ---
-        QFrame *cardMakefile = new QFrame(page);
-        cardMakefile->setObjectName("pluginCard");
-        QHBoxLayout *layMakefile = new QHBoxLayout(cardMakefile);
-        layMakefile->setContentsMargins(12, 12, 12, 12);
-        layMakefile->setSpacing(12);
-        
-        cbMakefile = new QCheckBox(cardMakefile);
-        
-        QLabel *lblMakefile = new QLabel("<b>Makefile-Aktionen</b><br><font color='#a1a1aa'>Erlaubt das Ausführen von Make-Targets direkt aus dem Dateimanager.</font>", cardMakefile);
-        lblMakefile->setTextFormat(Qt::RichText);
-        lblMakefile->setStyleSheet("background: transparent; border: none; font-size: 13px;");
-        lblMakefile->setWordWrap(true);
-        
-        layMakefile->addWidget(cbMakefile);
-        layMakefile->addWidget(lblMakefile, 1);
+        QFrame* cardMakefile = buildPluginCard(page, "Makefile-Aktionen", "Erlaubt das Ausführen von Make-Targets direkt aus dem Dateimanager.", cbMakefile);
         cbLayout->addWidget(cardMakefile);
         
-        // --- Checkbox toggle signals to dynamically style cards ---
-        auto updateCardStyle = [](QFrame *card, bool checked) {
-            if (checked) {
-                card->setStyleSheet(
-                    "QFrame#pluginCard { "
-                    "    background-color: #182235; "
-                    "    border: 1.5px solid #3b82f6; "
-                    "    border-radius: 8px; "
-                    "} "
-                );
-            } else {
-                card->setStyleSheet(""); // Resets to default CSS stylesheet rule
-            }
-        };
+        setupCardStyles(cardGit, cbGit);
+        setupCardStyles(cardPaperless, cbPaperless);
+        setupCardStyles(cardMountIso, cbMountIso);
+        setupCardStyles(cardMakefile, cbMakefile);
         
-        connect(cbGit, &QCheckBox::toggled, this, [cardGit, updateCardStyle](bool checked) {
-            updateCardStyle(cardGit, checked);
-        });
-        connect(cbPaperless, &QCheckBox::toggled, this, [cardPaperless, updateCardStyle](bool checked) {
-            updateCardStyle(cardPaperless, checked);
-        });
-        connect(cbMountIso, &QCheckBox::toggled, this, [cardMountIso, updateCardStyle](bool checked) {
-            updateCardStyle(cardMountIso, checked);
-        });
-        connect(cbMakefile, &QCheckBox::toggled, this, [cardMakefile, updateCardStyle](bool checked) {
-            updateCardStyle(cardMakefile, checked);
-        });
         layout->addStretch(1);
         
         QHBoxLayout *btnLayout = new QHBoxLayout();
         QPushButton *backBtn = new QPushButton("Zurück", page);
         backBtn->setObjectName("backBtn");
-        connect(backBtn, &QPushButton::clicked, this, [this]() {
-            stackedWidget->setCurrentIndex(0);
-        });
+        connect(backBtn, &QPushButton::clicked, this, [this]() { stackedWidget->setCurrentIndex(0); });
         
         QPushButton *installBtn = new QPushButton("Installieren", page);
         connect(installBtn, &QPushButton::clicked, this, &InstallerWindow::startInstallation);

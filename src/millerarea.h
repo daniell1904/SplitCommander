@@ -44,9 +44,22 @@ private:
     void trimAfter(MillerColumn *col);
 
     void initColumnSignals(MillerColumn *col);
+    void connectEntryClicked(MillerColumn *col);
+    void connectActivationAndHeaders(MillerColumn *col);
+    void connectActionSignals(MillerColumn *col);
+    
     void handleDeviceSetup(Solid::StorageAccess *acc);
     void selectAndNavigateDrive(const QUrl &startUrl, QString &drivePath);
     void buildAndAppendSegments(const QStringList &segments, int startIdx, const QString &targetDir);
+    
+    void clearStrips();
+    void buildStrips(int stripCount);
+    void clearSeparators();
+    void applyColumnVisibility(int n, int stripCount);
+    
+    bool navigateToDrives(const QString &path);
+    QUrl prepareNavigateUrl(const QString &path);
+    void computeNavigateSegments(const QUrl &startUrl, const QString &drivePath, QStringList &segments, int &startIdx);
 
     QList<MillerColumn*>  m_cols;
     MillerColumn         *m_activeCol     = nullptr;

@@ -38,6 +38,16 @@ private slots:
     void showContextMenu(const QPoint &pos);
 
 private:
+    void initLister();
+    void initHeader(class QVBoxLayout *lay);
+    void initListWidget(class QVBoxLayout *lay);
+    void setupEventFiltersAndDelegates(class QVBoxLayout *lay);
+    void connectListSignals();
+
+    void addDrivesOpenActions(class QMenu &menu, const QString &itemPath);
+    void addDrivesNetworkPlacesActions(class QMenu &menu, const QString &itemPath, QListWidgetItem *it);
+    void addDrivesDeviceActions(class QMenu &menu, const QString &udi);
+
     void handleDrivesContextMenu(QListWidgetItem *it, const QString &itemPath, const QPoint &pos);
     void handleDirContextMenu(const QString &itemPath, const QPoint &pos);
 

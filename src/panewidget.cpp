@@ -48,7 +48,6 @@
 #include <QVBoxLayout>
 #include <QtConcurrent>
 
-// --- PaneWidget ---
 PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
     : QWidget(parent), m_settingsKey(settingsKey) {
   setStyleSheet(QString("background:%1;").arg(TM().colors().bgDeep));
@@ -62,42 +61,30 @@ PaneWidget::PaneWidget(const QString &settingsKey, QWidget *parent)
   initSplitter(rootLay);
   initConnections();
   buildFooter(rootLay);
+
+  // Globalen Event-Filter registrieren, um Klicks auf Kind-Widgets zu erkennen
+  if (qApp) {
+    qApp->installEventFilter(this);
+  }
 }
 
-// --- PaneWidget::initTabBar ---
-// UI-Bereich: Toolbar-Zeile (Miller-Toggle, Pfad-Stack, Suche, Hamburger)
-void PaneWidget::initTabBar() {
-  auto *tabBar = new QWidget(this);
-  tabBar->hide();
-  tabBar->setFixedHeight(46);
-  tabBar->setStyleSheet(
-      QString("background:%1; border:none;").arg(TM().colors().bgMain));
-  auto *tabLay = new QHBoxLayout(tabBar);
-  tabLay->setContentsMargins(4, 0, 4, 0);
-  tabLay->setSpacing(2);
+PaneWidget::~PaneWidget() {
+  if (qApp) {
+    qApp->removeEventFilter(this);
+  }
+}
 
-  m_pathStack = new QStackedWidget();
-  m_pathStack->setFixedHeight(26);
-  m_pathStack->setStyleSheet(
-      QString("background-color:%1; border:1px solid %2; border-radius:0px;")
-          .arg(TM().colors().bgBox, TM().colors().borderAlt));
+static void sc_styleToolButton(QToolButton *btn) {
+  btn->setStyleSheet(
+      QString("QToolButton { background:%1; border:none; border-radius:0px; }"
+              "QToolButton:hover { background:%2; }"
+              "QToolButton:checked { background:%3; }"
+              "QToolButton::menu-indicator { image: none; }")
+          .arg(TM().colors().bgBox, TM().colors().bgHover,
+               TM().colors().bgList));
+}
 
-  m_pathEdit = new QLineEdit(QDir::homePath());
-  m_pathEdit->setStyleSheet(
-      QString("QLineEdit{background:transparent; border:none; color:%1; "
-              "font-size:14px; padding:2px 8px; border-radius:0px;}")
-          .arg(TM().colors().textPrimary));
-
-  auto *breadcrumbBtn = new QPushButton(QDir::homePath());
-  breadcrumbBtn->setStyleSheet(
-      QString("QPushButton { background:transparent; border:none; color:%1; "
-              "font-size:15px; font-weight:300; padding:2px 10px; "
-              "border-radius:0px; }")
-          .arg(TM().colors().textAccent));
-  m_pathStack->addWidget(breadcrumbBtn);
-  m_pathStack->addWidget(m_pathEdit);
-  m_pathStack->setCurrentIndex(0);
-
+void PaneWidget::setupPathStackConnections(QPushButton *breadcrumbBtn) {
   connect(breadcrumbBtn, &QPushButton::clicked, this, [this]() {
     m_pathEdit->setText(currentPath());
     m_pathEdit->selectAll();
@@ -144,17 +131,36 @@ void PaneWidget::initTabBar() {
               }
             }
           });
+}
 
-  auto styleBtn = [](QToolButton *btn) {
-    btn->setStyleSheet(
-        QString("QToolButton { background:%1; border:none; border-radius:0px; }"
-                "QToolButton:hover { background:%2; }"
-                "QToolButton:checked { background:%3; }"
-                "QToolButton::menu-indicator { image: none; }")
-            .arg(TM().colors().bgBox, TM().colors().bgHover,
-                 TM().colors().bgList));
-  };
+void PaneWidget::buildPathStack(QHBoxLayout *tabLay) {
+  m_pathStack = new QStackedWidget();
+  m_pathStack->setFixedHeight(26);
+  m_pathStack->setStyleSheet(
+      QString("background-color:%1; border:1px solid %2; border-radius:0px;")
+          .arg(TM().colors().bgBox, TM().colors().borderAlt));
 
+  m_pathEdit = new QLineEdit(QDir::homePath());
+  m_pathEdit->setStyleSheet(
+      QString("QLineEdit{background:transparent; border:none; color:%1; "
+              "font-size:14px; padding:2px 8px; border-radius:0px;}")
+          .arg(TM().colors().textPrimary));
+
+  auto *breadcrumbBtn = new QPushButton(QDir::homePath());
+  breadcrumbBtn->setStyleSheet(
+      QString("QPushButton { background:transparent; border:none; color:%1; "
+              "font-size:15px; font-weight:300; padding:2px 10px; "
+              "border-radius:0px; }")
+          .arg(TM().colors().textAccent));
+  m_pathStack->addWidget(breadcrumbBtn);
+  m_pathStack->addWidget(m_pathEdit);
+  m_pathStack->setCurrentIndex(0);
+
+  setupPathStackConnections(breadcrumbBtn);
+  tabLay->addWidget(m_pathStack, 1);
+}
+
+void PaneWidget::buildActionButtons() {
   m_millerToggle = new QToolButton();
   m_millerToggle->setFixedSize(24, Config::millerHeaderHeight());
   m_millerToggle->setCheckable(true);
@@ -176,7 +182,7 @@ void PaneWidget::initTabBar() {
                             Config::millerHeaderHeight() + 4);
   m_searchBtn->setToolTip(tr("Suchen"));
   m_searchBtn->setCheckable(true);
-  styleBtn(m_searchBtn);
+  sc_styleToolButton(m_searchBtn);
 
   m_hamburgerBtn = new QToolButton();
   m_hamburgerBtn->setIcon(QIcon::fromTheme("application-menu"));
@@ -185,7 +191,7 @@ void PaneWidget::initTabBar() {
                                Config::millerHeaderHeight() + 4);
   m_hamburgerBtn->setToolTip(tr("Menü"));
   m_hamburgerBtn->setPopupMode(QToolButton::InstantPopup);
-  styleBtn(m_hamburgerBtn);
+  sc_styleToolButton(m_hamburgerBtn);
 
   auto *layoutBtn = new QToolButton();
   layoutBtn->setFixedSize(30, 30);
@@ -195,8 +201,22 @@ void PaneWidget::initTabBar() {
   layoutBtn->setStyleSheet(TM().ssToolBtn());
 
   initHamburgerMenu(m_hamburgerBtn, layoutBtn);
+}
 
-  tabLay->addWidget(m_pathStack, 1);
+// --- PaneWidget::initTabBar ---
+// UI-Bereich: Toolbar-Zeile (Miller-Toggle, Pfad-Stack, Suche, Hamburger)
+void PaneWidget::initTabBar() {
+  auto *tabBar = new QWidget(this);
+  tabBar->hide();
+  tabBar->setFixedHeight(46);
+  tabBar->setStyleSheet(
+      QString("background:%1; border:none;").arg(TM().colors().bgMain));
+  auto *tabLay = new QHBoxLayout(tabBar);
+  tabLay->setContentsMargins(4, 0, 4, 0);
+  tabLay->setSpacing(2);
+
+  buildPathStack(tabLay);
+  buildActionButtons();
 }
 
 // Hilfsfunktion: Tab-Button-Style
@@ -218,32 +238,9 @@ static QString tabBtnStyle(const QString &bg, const QString &textColor) {
 
 // --- PaneWidget::initHamburgerMenu ---
 // UI-Bereich: Hamburger-Menü (Einstellungen, Aktionen)
-void PaneWidget::initSplitter(QVBoxLayout *rootLay) {
-  // UI-Bereich: Vertikaler Splitter (Miller-Area oben, Dateiliste unten)
-  m_vSplit = new QSplitter(Qt::Vertical);
-  m_vSplit->setChildrenCollapsible(true);
-  m_vSplit->setHandleWidth(4);
-  m_vSplit->setStyleSheet(QString("QSplitter::handle { background:%1; }"
-                                  "QSplitter::handle:hover { background:%2; }"
-                                  "QSplitter { background:%3; }")
-                              .arg(TM().colors().splitter,
-                                   TM().colors().colActive,
-                                   TM().colors().bgDeep));
-  // m_activeHeader wird nach initSplitter eingefügt — siehe unten
-  rootLay->addWidget(m_vSplit, 1);
-  m_vSplit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  m_vSplit->setMinimumHeight(200);
 
-  // Wrapper: aktiver-Pfad-Header + Miller
-  auto *millerWrapper = new QWidget();
-  millerWrapper->setStyleSheet(
-      QString("background:%1;").arg(TM().colors().bgDeep));
-  auto *millerWrapLay = new QVBoxLayout(millerWrapper);
-  millerWrapLay->setContentsMargins(0, 0, 0, 0);
-  millerWrapLay->setSpacing(0);
 
-  // --- Miller-Header ---
-  // Zeigt immer das tiefste aktive Verzeichnis, mit + Button rechts
+void PaneWidget::buildActiveHeader(QVBoxLayout *millerWrapLay) {
   auto *activeHeader = new QWidget();
   activeHeader->setFixedHeight(Config::millerHeaderHeight() + 4);
   activeHeader->setStyleSheet(
@@ -252,6 +249,26 @@ void PaneWidget::initSplitter(QVBoxLayout *rootLay) {
   activeHeaderLay->setContentsMargins(0, 0, 0, 0);
   activeHeaderLay->setSpacing(0);
 
+  buildActiveHeaderButtons(activeHeaderLay);
+
+  auto *headerFill = new QWidget();
+  headerFill->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  headerFill->setStyleSheet(
+      QString("background:%1;").arg(TM().colors().bgMain));
+  activeHeaderLay->addWidget(headerFill, 1);
+
+  activeHeaderLay->addWidget(m_searchBtn);
+  activeHeaderLay->addWidget(m_hamburgerBtn);
+
+  m_miller = new MillerArea();
+  m_miller->setMinimumHeight(150);
+  m_miller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+  millerWrapLay->addWidget(m_miller, 1);
+  m_activeHeader = activeHeader;
+}
+
+void PaneWidget::buildActiveHeaderButtons(QHBoxLayout *activeHeaderLay) {
   m_activeHeaderBtn = new QPushButton();
   m_activeHeaderBtn->setObjectName("MillerHeader");
   m_activeHeaderBtn->setFlat(true);
@@ -267,18 +284,16 @@ void PaneWidget::initSplitter(QVBoxLayout *rootLay) {
   m_activeHeaderBtn->setStyleSheet(
       tabBtnStyle(TM().colors().bgList, TM().colors().textPrimary));
 
-  // Erster Tab-State
   m_tabs.append(TabState{QStringLiteral("__drives__"), {}, {}});
   m_currentTab = 0;
 
-  // Tab-Strip — weitere Tabs neben dem Header-Button
   m_tabStrip = new QWidget();
   m_tabStrip->setAttribute(Qt::WA_TranslucentBackground);
   m_tabStrip->setStyleSheet(QStringLiteral("background:transparent;"));
   m_tabStripLay = new QHBoxLayout(m_tabStrip);
   m_tabStripLay->setContentsMargins(0, 0, 0, 0);
   m_tabStripLay->setSpacing(1);
-  m_tabStrip->hide(); // sichtbar ab 2 Tabs
+  m_tabStrip->hide();
 
   auto *addTabBtn = new QToolButton();
   addTabBtn->setText(QStringLiteral("+"));
@@ -296,7 +311,6 @@ void PaneWidget::initSplitter(QVBoxLayout *rootLay) {
     addTab(path);
   });
 
-  // Tab 0 (m_activeHeaderBtn) → switchTab(0)
   connect(m_activeHeaderBtn, &QPushButton::clicked, this,
           [this]() { switchTab(0); });
 
@@ -309,27 +323,9 @@ void PaneWidget::initSplitter(QVBoxLayout *rootLay) {
   activeHeaderLay->addSpacing(1);
   activeHeaderLay->addWidget(m_tabStrip, 0);
   activeHeaderLay->addWidget(addTabBtn);
+}
 
-  // Restbereich mit bgMain füllen
-  auto *headerFill = new QWidget();
-  headerFill->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  headerFill->setStyleSheet(
-      QString("background:%1;").arg(TM().colors().bgMain));
-  activeHeaderLay->addWidget(headerFill, 1);
-
-  activeHeaderLay->addWidget(m_searchBtn);
-  activeHeaderLay->addWidget(m_hamburgerBtn);
-
-  // --- Miller-Area ---
-  m_miller = new MillerArea();
-  m_miller->setMinimumHeight(150);
-  m_miller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-  millerWrapLay->addWidget(m_miller, 1);
-  m_vSplit->addWidget(millerWrapper);
-  m_activeHeader = activeHeader;
-
-  // Breadcrumb-Leiste — sichtbar wenn Miller eingeklappt, sonst versteckt
+void PaneWidget::buildMillerBreadcrumbBar(QVBoxLayout *rootLay, int insertIdx) {
   m_breadcrumbBar = new QWidget();
   m_breadcrumbBar->setFixedHeight(Config::millerHeaderHeight());
   m_breadcrumbBar->setObjectName("breadcrumbBar");
@@ -347,15 +343,11 @@ void PaneWidget::initSplitter(QVBoxLayout *rootLay) {
   bcLay->addStretch();
   m_breadcrumbBar->hide();
 
-  // Beide direkt in rootLay vor m_vSplit einfügen
-  const int vSplitIdx = rootLay->indexOf(m_vSplit);
-  rootLay->insertWidget(vSplitIdx, m_activeHeader);
-  rootLay->insertWidget(vSplitIdx + 1, m_breadcrumbBar);
+  rootLay->insertWidget(insertIdx, m_activeHeader);
+  rootLay->insertWidget(insertIdx + 1, m_breadcrumbBar);
+}
 
-  // Aktiven Header aktualisieren wenn Pfad wechselt
-  auto *lowerWidget = new QWidget();
-  lowerWidget->setStyleSheet(
-      QString("background:%1;").arg(TM().colors().bgDeep));
+void PaneWidget::buildLowerFilePane(QWidget *lowerWidget) {
   auto *lowerLay = new QVBoxLayout(lowerWidget);
   lowerLay->setContentsMargins(0, 0, 0, 0);
   lowerLay->setSpacing(0);
@@ -377,24 +369,10 @@ void PaneWidget::initSplitter(QVBoxLayout *rootLay) {
           [updateTimer]() { updateTimer->start(); });
   lowerLay->addWidget(m_toolbar);
   lowerLay->addWidget(m_filePane, 1);
-  m_vSplit->addWidget(lowerWidget);
-  m_vSplit->setSizes({200, 450});
-  m_vSplit->setStretchFactor(0, 0);
-  m_vSplit->setStretchFactor(1, 1);
+}
 
-  // Gespeicherte Position wiederherstellen (pane-spezifischer Key)
-  {
-    auto s = Config::group("UI");
-    const QString key = m_settingsKey + "/vSplitState";
-    const QByteArray state = s.readEntry(key, QByteArray());
-    if (!state.isEmpty())
-      m_vSplit->restoreState(state);
-  }
-
-  // Position beim Verschieben speichern — nur als Backup bei Drag
+void PaneWidget::setupMillerToggleAndSplitter() {
   connect(m_vSplit, &QSplitter::splitterMoved, this, [this](int, int) {
-    // m_millerCollapsed nicht über splitterMoved setzen — nur über Toggle
-    // State wird beim App-Beenden in saveState() gespeichert
     if (m_searchOverlay && m_searchOverlay->isVisible()) {
       const QPoint topLeft = m_vSplit->mapTo(this, QPoint(0, 0));
       m_searchOverlay->setGeometry(topLeft.x(), topLeft.y(), m_vSplit->width(),
@@ -404,7 +382,6 @@ void PaneWidget::initSplitter(QVBoxLayout *rootLay) {
 
   connect(m_millerToggle, &QToolButton::toggled, this, [this](bool checked) {
     if (checked) {
-      // Aufklappen
       auto s = Config::group("UI");
       const QByteArray saved =
           s.readEntry(m_settingsKey + "/vSplitState", QByteArray());
@@ -422,7 +399,6 @@ void PaneWidget::initSplitter(QVBoxLayout *rootLay) {
       m_millerToggle->setToolTip("Miller-Columns ausklappen");
       m_millerCollapsed = false;
     } else {
-      // Einklappen
       if (m_vSplit->sizes().value(0) > 0) {
         auto s = Config::group("UI");
         s.writeEntry(m_settingsKey + "/vSplitState", m_vSplit->saveState());
@@ -430,7 +406,6 @@ void PaneWidget::initSplitter(QVBoxLayout *rootLay) {
       }
       m_vSplit->setSizes({0, 1});
       m_miller->setCollapsed(true);
-      // Breadcrumb-Leiste zeigen
       if (m_breadcrumbBar) {
         updateBreadcrumb(currentPath());
         m_breadcrumbBar->show();
@@ -441,51 +416,74 @@ void PaneWidget::initSplitter(QVBoxLayout *rootLay) {
     }
   });
 
-  // Miller-Toggle-State beim Start setzen
+  auto s = Config::group("UI");
+  if (s.readEntry(m_settingsKey + "/millerCollapsed", false)) {
+    m_millerCollapsed = true;
+    m_millerToggle->blockSignals(true);
+    m_millerToggle->setChecked(false);
+    m_millerToggle->setIcon(QIcon::fromTheme("go-down"));
+    m_millerToggle->setToolTip("Miller-Columns einblenden");
+    m_millerToggle->blockSignals(false);
+    m_vSplit->setSizes({0, 1});
+  }
+}
+
+void PaneWidget::initSplitter(QVBoxLayout *rootLay) {
+  m_vSplit = new QSplitter(Qt::Vertical);
+  m_vSplit->setChildrenCollapsible(true);
+  m_vSplit->setHandleWidth(4);
+  m_vSplit->setStyleSheet(QString("QSplitter::handle { background:%1; }"
+                                  "QSplitter::handle:hover { background:%2; }"
+                                  "QSplitter { background:%3; }")
+                              .arg(TM().colors().splitter,
+                                   TM().colors().colActive,
+                                   TM().colors().bgDeep));
+  rootLay->addWidget(m_vSplit, 1);
+  m_vSplit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  m_vSplit->setMinimumHeight(200);
+
+  auto *millerWrapper = new QWidget();
+  millerWrapper->setStyleSheet(
+      QString("background:%1;").arg(TM().colors().bgDeep));
+  auto *millerWrapLay = new QVBoxLayout(millerWrapper);
+  millerWrapLay->setContentsMargins(0, 0, 0, 0);
+  millerWrapLay->setSpacing(0);
+
+  buildActiveHeader(millerWrapLay);
+  m_vSplit->addWidget(millerWrapper);
+
+  const int vSplitIdx = rootLay->indexOf(m_vSplit);
+  buildMillerBreadcrumbBar(rootLay, vSplitIdx);
+
+  auto *lowerWidget = new QWidget();
+  lowerWidget->setStyleSheet(
+      QString("background:%1;").arg(TM().colors().bgDeep));
+  buildLowerFilePane(lowerWidget);
+
+  m_vSplit->addWidget(lowerWidget);
+  m_vSplit->setSizes({200, 450});
+  m_vSplit->setStretchFactor(0, 0);
+  m_vSplit->setStretchFactor(1, 1);
+
   {
     auto s = Config::group("UI");
-    if (s.readEntry(m_settingsKey + "/millerCollapsed", false)) {
-      m_millerCollapsed = true;
-      m_millerToggle->blockSignals(true);
-      m_millerToggle->setChecked(false);
-      m_millerToggle->setIcon(QIcon::fromTheme("go-down"));
-      m_millerToggle->setToolTip("Miller-Columns einblenden");
-      m_millerToggle->blockSignals(false);
-      m_vSplit->setSizes({0, 1});
-    }
+    const QString key = m_settingsKey + "/vSplitState";
+    const QByteArray state = s.readEntry(key, QByteArray());
+    if (!state.isEmpty())
+      m_vSplit->restoreState(state);
   }
+
+  setupMillerToggleAndSplitter();
   initSearchPanel(rootLay);
 }
 
 // --- PaneWidget::initConnections ---
 // Verbindet Signale: Pfad-Updates, Navigation, Footer, Toolbar
-void PaneWidget::initConnections() {
-  // Verbindungen
+void PaneWidget::connectMillerSignals() {
   connect(m_miller, &MillerArea::pathChanged, this,
           [this](const QString &path) { navigateTo(path, true, false); });
-  // Miller-Header direkt aus Miller-Navigation aktualisieren
   connect(m_miller, &MillerArea::pathChanged, this,
-          [this](const QString &path) {
-            const QString name =
-                (path == QStringLiteral("__drives__") || path.isEmpty())
-                    ? tr("Dieser PC")
-                    : (QUrl(path).fileName().isEmpty() ? path
-                                                       : QUrl(path).fileName());
-            const QIcon icon =
-                (path == QStringLiteral("__drives__") || path.isEmpty())
-                    ? QIcon::fromTheme("computer")
-                    : QIcon::fromTheme("folder");
-            if (m_currentTab == 0 && m_activeHeaderBtn) {
-              m_activeHeaderBtn->setIcon(icon);
-              m_activeHeaderBtn->setText(name);
-            } else if (m_currentTab > 0) {
-              const int btnIdx = m_currentTab - 1;
-              if (btnIdx < m_tabButtons.size()) {
-                m_tabButtons[btnIdx]->setIcon(icon);
-                m_tabButtons[btnIdx]->setText(name);
-              }
-            }
-          });
+          [this](const QString &path) { updateActiveTabLabel(path); });
   connect(m_miller, &MillerArea::kioPathRequested, this,
           [this](const QString &path) { navigateTo(path); });
   connect(m_miller, &MillerArea::openInLeft, this,
@@ -521,6 +519,30 @@ void PaneWidget::initConnections() {
               m_pathEdit->setFocus();
             }
           });
+}
+
+void PaneWidget::updateActiveTabLabel(const QString &path) {
+  const QString name =
+      (path == QStringLiteral("__drives__") || path.isEmpty())
+          ? tr("Dieser PC")
+          : (QUrl(path).fileName().isEmpty() ? path : QUrl(path).fileName());
+  const QIcon icon =
+      (path == QStringLiteral("__drives__") || path.isEmpty())
+          ? QIcon::fromTheme("computer")
+          : QIcon::fromTheme("folder");
+  if (m_currentTab == 0 && m_activeHeaderBtn) {
+    m_activeHeaderBtn->setIcon(icon);
+    m_activeHeaderBtn->setText(name);
+  } else if (m_currentTab > 0) {
+    const int btnIdx = m_currentTab - 1;
+    if (btnIdx < m_tabButtons.size()) {
+      m_tabButtons[btnIdx]->setIcon(icon);
+      m_tabButtons[btnIdx]->setText(name);
+    }
+  }
+}
+
+void PaneWidget::connectFilePaneSignals() {
   connect(m_filePane, &FilePane::selectionChanged, this,
           [this](int count, const QString &path) {
             emit focusRequested();
@@ -542,7 +564,6 @@ void PaneWidget::initConnections() {
   connect(m_filePane, &FilePane::fileActivated, this,
           [this](const QString &path) {
             emit focusRequested();
-            // KIO-URL oder lokales Verzeichnis
             const bool isKio = !path.startsWith("/") && path.contains(":/");
             if (isKio || QFileInfo(path).isDir()) {
               navigateTo(path);
@@ -553,23 +574,15 @@ void PaneWidget::initConnections() {
               job->start();
             }
           });
+}
 
-  // Toolbar-Verbindungen
+void PaneWidget::connectToolbarSignals() {
   connect(m_toolbar, &PaneToolbar::newFolderClicked, this,
           [this]() { emit newFolderRequested(); });
   connect(m_toolbar, &PaneToolbar::deleteClicked, this,
           [this]() { emit filePane() -> deleteRequested(); });
 
-  connect(m_toolbar, &PaneToolbar::emptyTrashClicked, this, [this]() {
-    if (!DialogUtils::question(
-            this, tr("Papierkorb leeren"),
-            tr("Möchten Sie den Papierkorb wirklich leeren?")))
-      return;
-    auto *job = KIO::emptyTrash();
-    job->start();
-    if (job->uiDelegate())
-      job->uiDelegate()->setAutoErrorHandlingEnabled(true);
-  });
+  connect(m_toolbar, &PaneToolbar::emptyTrashClicked, this, [this]() { handleEmptyTrash(); });
 
   connect(m_toolbar, &PaneToolbar::sortClicked, this, [this]() {
     auto *hdr = m_filePane->view()->header();
@@ -596,21 +609,12 @@ void PaneWidget::initConnections() {
   connect(m_toolbar, &PaneToolbar::viewModeChanged, this,
           [this](int mode) { m_filePane->setViewMode(mode); });
 
-  // Toolbar bleibt synchron wenn FilePane den Mode selbst setzt (z.B. beim
-  // Laden)
   connect(m_filePane, &FilePane::viewModeChanged, m_toolbar,
           &PaneToolbar::setViewMode);
 
-  // Gespeicherte Ansicht nach erstem Laden wiederherstellen
   connect(
       m_filePane, &FilePane::directoryLoaded, this,
-      [this]() {
-        const QString key = QStringLiteral("FilePane/") + m_settingsKey +
-                            QStringLiteral("/viewMode");
-        const int savedMode = Config::group("UI").readEntry(key, 0);
-        if (savedMode != 0)
-          m_filePane->setViewMode(savedMode);
-      },
+      [this]() { handleDirectoryLoaded(); },
       Qt::SingleShotConnection);
   connect(m_toolbar, &PaneToolbar::backClicked, this, [this]() {
     if (!m_histBack.isEmpty()) {
@@ -624,6 +628,32 @@ void PaneWidget::initConnections() {
       navigateTo(m_histFwd.pop(), false);
     }
   });
+}
+
+void PaneWidget::handleDirectoryLoaded() {
+  const QString key = QStringLiteral("FilePane/") + m_settingsKey +
+                      QStringLiteral("/viewMode");
+  const int savedMode = Config::group("UI").readEntry(key, 0);
+  if (savedMode != 0)
+    m_filePane->setViewMode(savedMode);
+}
+
+void PaneWidget::handleEmptyTrash() {
+  if (!DialogUtils::question(
+          this, tr("Papierkorb leeren"),
+          tr("Möchten Sie den Papierkorb wirklich leeren?")))
+    return;
+  auto *job = KIO::emptyTrash();
+  job->start();
+  if (job->uiDelegate())
+    job->uiDelegate()->setAutoErrorHandlingEnabled(true);
+}
+
+void PaneWidget::initConnections() {
+  connectMillerSignals();
+  connectFilePaneSignals();
+  connectToolbarSignals();
+
   connect(m_pathEdit, &QLineEdit::returnPressed, this,
           [this]() { navigateTo(m_pathEdit->text()); });
 
@@ -841,6 +871,10 @@ void PaneWidget::openPathEditOverlay() {
 
   urlReq->setFocus();
 
+  setupPathEditOverlayConnections(overlay, urlReq, copyBtn, closeBtn);
+}
+
+void PaneWidget::setupPathEditOverlayConnections(QWidget *overlay, KUrlRequester *urlReq, QToolButton *copyBtn, QToolButton *closeBtn) {
   auto cleanup = [overlay]() { overlay->deleteLater(); };
 
   connect(urlReq, &KUrlRequester::returnPressed, this,
@@ -905,8 +939,20 @@ void PaneWidget::addTab(const QString &path) {
 
   const int btnIdx = m_tabButtons.size();
 
-  // QFrame als Container — trägt border-top-right-radius zuverlässig
-  auto *frame = new QFrame();
+  QFrame *frame = nullptr;
+  QToolButton *btn = nullptr;
+  buildTabButtonUI(label, icon, btnIdx, frame, btn);
+
+  m_tabButtons.append(btn);
+  m_tabStripLay->addWidget(frame);
+
+  m_tabStrip->show();
+
+  switchTab(m_tabs.size() - 1);
+}
+
+void PaneWidget::buildTabButtonUI(const QString &label, const QIcon &icon, int btnIdx, QFrame *&frame, QToolButton *&btn) {
+  frame = new QFrame();
   frame->setFixedHeight(Config::millerHeaderHeight());
   frame->setMinimumWidth(40);
   frame->setMaximumWidth(130);
@@ -919,8 +965,7 @@ void PaneWidget::addTab(const QString &path) {
   fLay->setContentsMargins(0, 0, 0, 0);
   fLay->setSpacing(0);
 
-  // QToolButton respektiert QSS in Qt6/Breeze besser als QPushButton+flat
-  auto *btn = new QToolButton();
+  btn = new QToolButton();
   btn->setObjectName(QStringLiteral("MillerTabBtn"));
   btn->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
   btn->setFixedHeight(Config::millerHeaderHeight());
@@ -956,13 +1001,6 @@ void PaneWidget::addTab(const QString &path) {
 
   fLay->addWidget(btn, 1);
   fLay->addWidget(closeBtn);
-
-  m_tabButtons.append(btn);
-  m_tabStripLay->addWidget(frame);
-
-  m_tabStrip->show();
-
-  switchTab(m_tabs.size() - 1);
 }
 
 void PaneWidget::closeTab(int index) {

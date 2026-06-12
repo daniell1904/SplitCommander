@@ -6,6 +6,8 @@
 #include <QHash>
 #include <QPair>
 #include <QSet>
+#include <Solid/Device>
+#include <Solid/StorageVolume>
 
 struct DriveInfo
 {
@@ -43,8 +45,15 @@ private:
     ~DriveManager() override = default;
 
     void processStorageAccessDevices(QSet<QString> &shownPaths, QSet<QString> &shownUdis);
+    void processStorageAccessDeviceItem(const Solid::Device &device, QSet<QString> &shownPaths, QSet<QString> &shownUdis);
+    bool isStorageAccessDeviceBlacklisted(const Solid::Device &device, bool mounted, const QString &path);
+    QString determineStorageDeviceName(const Solid::Device &device, bool mounted, const QString &path, const Solid::StorageVolume *vol);
+    QString determineStorageDeviceIcon(const Solid::Device &device, bool mounted, const QString &path);
     void processStorageVolumeDevices(const QSet<QString> &shownUdis);
     void processSavedNetworkPlaces(QSet<QString> &shownPaths);
+    void processSavedNetworkPlaceItem(const QString &p, QSet<QString> &shownPaths, class KConfigGroup &netSettings);
+    void determineNetworkPlaceNameAndIcon(const QString &p, const QUrl &pUrl, const QString &scheme, class KConfigGroup &netSettings, QString &savedName, QString &iconName);
+    void setupNetworkPlaceFreeSpace(const QUrl &pUrl, const QString &url, const QString &savedKey, DriveInfo &info, class KConfigGroup &netSettings);
     void processMountedNetworkVolumes(QSet<QString> &shownPaths);
 
     QList<DriveInfo> m_localDrives;

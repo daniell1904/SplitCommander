@@ -47,8 +47,21 @@ void ThemePreviewWidget::setupUI()
     middleLay->setContentsMargins(0, 0, 0, 0);
     middleLay->setSpacing(0);
 
+    buildSidebar(middleLay);
+    buildActivePane(middleLay);
+    buildInactivePane(middleLay);
+
+    containerLay->addWidget(middleWidget, 1);
+
+    buildFooter(containerLay);
+
+    rootLay->addWidget(m_container, 1);
+}
+
+void ThemePreviewWidget::buildSidebar(QHBoxLayout *middleLay)
+{
     // --- SEITENLEISTE ---
-    m_sidebar = new QFrame(middleWidget);
+    m_sidebar = new QFrame(middleLay->widget());
     m_sidebar->setObjectName("mockSidebar");
     m_sidebar->setFixedWidth(190);
     
@@ -74,6 +87,14 @@ void ThemePreviewWidget::setupUI()
 
     sidebarLay->addSpacing(5);
 
+    buildSidebarDriveCard(sidebarLay);
+
+    sidebarLay->addStretch();
+    middleLay->addWidget(m_sidebar);
+}
+
+void ThemePreviewWidget::buildSidebarDriveCard(QVBoxLayout *sidebarLay)
+{
     // Drive Card
     m_sidebarCard = new QFrame(m_sidebar);
     m_sidebarCard->setObjectName("mockSidebarCard");
@@ -86,7 +107,7 @@ void ThemePreviewWidget::setupUI()
     m_sidebarDriveLabel->setStyleSheet("font-size: 11px; font-weight: bold;");
     cardLay->addWidget(m_sidebarDriveLabel);
 
-    // Storage progress bar
+    // Speicher-Fortschrittsbalken
     m_quotaBarBg = new QFrame(m_sidebarCard);
     m_quotaBarBg->setObjectName("mockQuotaBg");
     m_quotaBarBg->setFixedHeight(8);
@@ -109,12 +130,13 @@ void ThemePreviewWidget::setupUI()
     cardLay->addWidget(m_sidebarQuotaLabel);
 
     sidebarLay->addWidget(m_sidebarCard);
-    sidebarLay->addStretch();
-    middleLay->addWidget(m_sidebar);
+}
 
+void ThemePreviewWidget::buildActivePane(QHBoxLayout *middleLay)
+{
     // --- DATEIANSICHTEN ---
     // Linke Pane (Aktiv & Fokussiert)
-    m_activePane = new QFrame(middleWidget);
+    m_activePane = new QFrame(middleLay->widget());
     m_activePane->setObjectName("mockActivePane");
     
     auto *activePaneLay = new QVBoxLayout(m_activePane);
@@ -131,7 +153,7 @@ void ThemePreviewWidget::setupUI()
     m_activeFile1->setStyleSheet("font-size: 11px; padding: 4px;");
     activePaneLay->addWidget(m_activeFile1);
 
-    // Selected file row in active pane
+    // Ausgewählte Datei-Zeile im aktiven Panel
     m_selectedItem = new QFrame(m_activePane);
     m_selectedItem->setObjectName("mockSelectedItem");
     auto *selLay = new QHBoxLayout(m_selectedItem);
@@ -144,9 +166,12 @@ void ThemePreviewWidget::setupUI()
 
     activePaneLay->addStretch();
     middleLay->addWidget(m_activePane, 1);
+}
 
+void ThemePreviewWidget::buildInactivePane(QHBoxLayout *middleLay)
+{
     // Rechte Pane (Inaktiv)
-    m_inactivePane = new QFrame(middleWidget);
+    m_inactivePane = new QFrame(middleLay->widget());
     m_inactivePane->setObjectName("mockInactivePane");
     
     auto *inactivePaneLay = new QVBoxLayout(m_inactivePane);
@@ -170,11 +195,12 @@ void ThemePreviewWidget::setupUI()
 
     inactivePaneLay->addStretch();
     middleLay->addWidget(m_inactivePane, 1);
+}
 
-    containerLay->addWidget(middleWidget, 1);
-
+void ThemePreviewWidget::buildFooter(QVBoxLayout *containerLay)
+{
     // --- FUSSZEILE / WERKZEUGLEISTE ---
-    m_footer = new QFrame(m_container);
+    m_footer = new QFrame(containerLay->widget());
     m_footer->setObjectName("mockFooter");
     m_footer->setFixedHeight(44);
     
@@ -204,150 +230,131 @@ void ThemePreviewWidget::setupUI()
 
     footerLay->addWidget(m_actionButton);
     containerLay->addWidget(m_footer);
-
-    rootLay->addWidget(m_container, 1);
 }
 
 void ThemePreviewWidget::updateColors(const ThemeColors &c)
 {
-    // Dynamisch generiertes QSS (Stylesheet) passend zur aktuellen Palette
     QString qss = QString(
-        // Basis Container
         "#previewContainer {"
         "  background-color: %1;"
         "  border: 2px solid %2;"
         "  border-radius: 8px;"
         "}"
-        
-        // Titel
         "#previewTitleLabel {"
         "  color: %3;"
         "}"
-        
-        // Sidebar
+    ).arg(c.bgMain, c.border, c.accent);
+
+    qss += buildThemeSidebarQSS(c);
+    qss += buildThemePanesQSS(c);
+    qss += buildThemeFooterQSS(c);
+
+    setStyleSheet(qss);
+    update();
+}
+
+QString ThemePreviewWidget::buildThemeSidebarQSS(const ThemeColors &c) const
+{
+    return QString(
         "#mockSidebar {"
-        "  background-color: %4;"
-        "  border-right: 1px solid %5;"
+        "  background-color: %1;"
+        "  border-right: 1px solid %2;"
         "  border-top-left-radius: 6px;"
         "}"
         "#mockSidebarTitle {"
-        "  color: %6;"
+        "  color: %3;"
         "}"
-        
-        // Sidebar Active Item (z.B. Google Drive Hover/Aktiv)
         "#mockSidebarActiveItem {"
-        "  background-color: %7;"
-        "  border: 1px solid %5;"
+        "  background-color: %4;"
+        "  border: 1px solid %2;"
         "  border-radius: 4px;"
         "}"
         "#mockSidebarActiveLabel {"
-        "  color: %8;"
+        "  color: %5;"
         "}"
-        
-        // Sidebar Card
         "#mockSidebarCard {"
-        "  background-color: %9;"
-        "  border: 1px solid %5;"
+        "  background-color: %6;"
+        "  border: 1px solid %2;"
         "  border-radius: 6px;"
         "}"
         "#mockSidebarDriveLabel {"
-        "  color: %10;"
+        "  color: %7;"
         "}"
         "#mockSidebarQuotaLabel {"
-        "  color: %11;"
+        "  color: %8;"
         "}"
-        
-        // Storage Bar
         "#mockQuotaBg {"
-        "  background-color: %12;"
-        "  border: 1px solid %5;"
+        "  background-color: %9;"
+        "  border: 1px solid %2;"
         "  border-radius: 3px;"
         "}"
         "#mockQuotaUsed {"
-        "  background-color: %8;"
+        "  background-color: %5;"
         "  border-radius: 2px;"
         "}"
-        
-        // Active Pane
+    ).arg(c.bgPanel, c.borderAlt, c.textMuted, c.bgHover, c.textAccent,
+          c.bgBox, c.textPrimary, c.textMuted, c.bgInput);
+}
+
+QString ThemePreviewWidget::buildThemePanesQSS(const ThemeColors &c) const
+{
+    return QString(
         "#mockActivePane {"
-        "  background-color: %13;"
-        "  border-right: 1px solid %14;"
-        "  border-left: 2px solid %15;" // Hervorhebung aktive Miller Column / Spalte
+        "  background-color: %1;"
+        "  border-right: 1px solid %2;"
+        "  border-left: 2px solid %3;"
         "}"
         "#mockActivePaneTitle {"
-        "  color: %8;"
+        "  color: %4;"
         "}"
         "#mockActiveFile1 {"
-        "  color: %10;"
+        "  color: %5;"
         "}"
-        
-        // Inactive Pane
         "#mockInactivePane {"
-        "  background-color: %16;"
+        "  background-color: %6;"
         "}"
         "#mockInactivePaneTitle {"
-        "  color: %11;"
+        "  color: %7;"
         "}"
         "#mockInactiveFile1, #mockInactiveFile2 {"
-        "  color: %17;"
+        "  color: %8;"
         "}"
-        
-        // Selected Item
         "#mockSelectedItem {"
-        "  background-color: %18;"
+        "  background-color: %9;"
         "  border-radius: 4px;"
         "}"
         "#mockActiveFile2 {"
-        "  color: %19;"
+        "  color: %10;"
         "}"
-        
-        // Footer & Eingaben
+    ).arg(c.bgList, c.separator, c.colActive, c.textAccent, c.textPrimary,
+          c.bgDeep, c.textMuted, c.textInactive, c.bgSelect, c.textLight);
+}
+
+QString ThemePreviewWidget::buildThemeFooterQSS(const ThemeColors &c) const
+{
+    return QString(
         "#mockFooter {"
-        "  background-color: %4;"
-        "  border-top: 1px solid %5;"
+        "  background-color: %1;"
+        "  border-top: 1px solid %2;"
         "  border-bottom-left-radius: 6px;"
         "  border-bottom-right-radius: 6px;"
         "}"
         "#mockPathEdit {"
-        "  background-color: %12;"
-        "  border: 1px solid %5;"
+        "  background-color: %3;"
+        "  border: 1px solid %2;"
         "  border-radius: 4px;"
         "}"
         "#mockPathLabel {"
-        "  color: %8;"
+        "  color: %4;"
         "}"
-        
-        // Action Button
         "#mockButton {"
-        "  background-color: %8;"
+        "  background-color: %4;"
         "  border-radius: 4px;"
         "}"
         "#mockBtnLabel {"
-        "  color: %19;"
+        "  color: %5;"
         "}"
-    )
-    .arg(c.bgMain,          // 1
-         c.border,          // 2
-         c.accent,          // 3
-         c.bgPanel,         // 4
-         c.borderAlt,       // 5
-         c.textMuted,       // 6
-         c.bgHover,         // 7
-         c.textAccent,      // 8
-         c.bgBox,           // 9
-         c.textPrimary,     // 10
-         c.textMuted,       // 11
-         c.bgInput,         // 12
-         c.bgList,          // 13
-         c.separator,       // 14
-         c.colActive,       // 15
-         c.bgDeep,          // 16
-         c.textInactive,    // 17
-         c.bgSelect,        // 18
-         c.textLight);      // 19
-
-    setStyleSheet(qss);
-    update();
+    ).arg(c.bgPanel, c.borderAlt, c.bgInput, c.textAccent, c.textLight);
 }
 
 void ThemePreviewWidget::mousePressEvent(QMouseEvent *event)
@@ -355,70 +362,79 @@ void ThemePreviewWidget::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton) {
         QWidget *child = childAt(event->pos());
         if (child) {
-            // Textfarben und spezifische Sub-Elemente direkt prüfen
-            if (child == m_sidebarTitle) {
-                emit colorElementClicked("textMuted");
-                return;
-            } else if (child == m_activePaneTitle || child == m_pathLabel) {
-                emit colorElementClicked("textAccent");
-                return;
-            } else if (child == m_inactivePaneTitle) {
-                emit colorElementClicked("textMuted");
-                return;
-            } else if (child == m_activeFile1) {
-                emit colorElementClicked("textPrimary");
-                return;
-            } else if (child == m_activeFile2 || child == m_btnLabel) {
-                emit colorElementClicked("textLight");
-                return;
-            } else if (child == m_inactiveFile1 || child == m_inactiveFile2) {
-                emit colorElementClicked("textInactive");
-                return;
-            } else if (child == m_quotaBarUsed) {
-                emit colorElementClicked("accent");
-                return;
-            }
-
-            // Struktur-Frames durch Traversierung nach oben ermitteln
-            QWidget *curr = child;
-            while (curr && curr != this) {
-                if (curr == m_selectedItem) {
-                    emit colorElementClicked("bgSelect");
-                    return;
-                } else if (curr == m_sidebarActiveItem) {
-                    emit colorElementClicked("bgHover");
-                    return;
-                } else if (curr == m_quotaBarBg) {
-                    emit colorElementClicked("bgInput");
-                    return;
-                } else if (curr == m_sidebarCard) {
-                    emit colorElementClicked("bgBox");
-                    return;
-                } else if (curr == m_actionButton) {
-                    emit colorElementClicked("accent");
-                    return;
-                } else if (curr == m_pathEdit) {
-                    emit colorElementClicked("bgInput");
-                    return;
-                } else if (curr == m_sidebar) {
-                    emit colorElementClicked("bgPanel");
-                    return;
-                } else if (curr == m_activePane) {
-                    emit colorElementClicked("bgList");
-                    return;
-                } else if (curr == m_inactivePane) {
-                    emit colorElementClicked("bgDeep");
-                    return;
-                } else if (curr == m_footer) {
-                    emit colorElementClicked("bgPanel");
-                    return;
-                } else if (curr == m_container) {
-                    emit colorElementClicked("bgMain");
-                    return;
-                }
-                curr = curr->parentWidget();
-            }
+            if (handleTextElementClick(child)) return;
+            if (handleFrameElementClick(child)) return;
         }
     }
     QWidget::mousePressEvent(event);
+}
+
+bool ThemePreviewWidget::handleTextElementClick(QWidget *child)
+{
+    if (child == m_sidebarTitle) {
+        emit colorElementClicked("textMuted");
+        return true;
+    } else if (child == m_activePaneTitle || child == m_pathLabel) {
+        emit colorElementClicked("textAccent");
+        return true;
+    } else if (child == m_inactivePaneTitle) {
+        emit colorElementClicked("textMuted");
+        return true;
+    } else if (child == m_activeFile1) {
+        emit colorElementClicked("textPrimary");
+        return true;
+    } else if (child == m_activeFile2 || child == m_btnLabel) {
+        emit colorElementClicked("textLight");
+        return true;
+    } else if (child == m_inactiveFile1 || child == m_inactiveFile2) {
+        emit colorElementClicked("textInactive");
+        return true;
+    } else if (child == m_quotaBarUsed) {
+        emit colorElementClicked("accent");
+        return true;
+    }
+    return false;
+}
+
+bool ThemePreviewWidget::handleFrameElementClick(QWidget *child)
+{
+    QWidget *curr = child;
+    while (curr && curr != this) {
+        if (curr == m_selectedItem) {
+            emit colorElementClicked("bgSelect");
+            return true;
+        } else if (curr == m_sidebarActiveItem) {
+            emit colorElementClicked("bgHover");
+            return true;
+        } else if (curr == m_quotaBarBg) {
+            emit colorElementClicked("bgInput");
+            return true;
+        } else if (curr == m_sidebarCard) {
+            emit colorElementClicked("bgBox");
+            return true;
+        } else if (curr == m_actionButton) {
+            emit colorElementClicked("accent");
+            return true;
+        } else if (curr == m_pathEdit) {
+            emit colorElementClicked("bgInput");
+            return true;
+        } else if (curr == m_sidebar) {
+            emit colorElementClicked("bgPanel");
+            return true;
+        } else if (curr == m_activePane) {
+            emit colorElementClicked("bgList");
+            return true;
+        } else if (curr == m_inactivePane) {
+            emit colorElementClicked("bgDeep");
+            return true;
+        } else if (curr == m_footer) {
+            emit colorElementClicked("bgPanel");
+            return true;
+        } else if (curr == m_container) {
+            emit colorElementClicked("bgMain");
+            return true;
+        }
+        curr = curr->parentWidget();
+    }
+    return false;
 }

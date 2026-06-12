@@ -63,15 +63,8 @@ void MillerArea::setCollapsed(bool collapsed, const QString &)
     m_rowWidget->setVisible(!collapsed);
 }
 
-void MillerArea::updateVisibleColumns()
+void MillerArea::clearStrips()
 {
-    Q_ASSERT(m_rowLayout != nullptr);
-    Q_ASSERT(m_colLayout != nullptr);
-    Q_ASSERT(m_stripDivider != nullptr);
-
-    const int n = m_cols.size();
-    const int stripCount = qMax(0, n - FULL_COLS);
-
     for (auto *s : m_strips)
     {
         Q_ASSERT(s != nullptr);
@@ -80,7 +73,10 @@ void MillerArea::updateVisibleColumns()
         s->deleteLater();
     }
     m_strips.clear();
+}
 
+void MillerArea::buildStrips(int stripCount)
+{
     for (int i = 0; i < stripCount; ++i)
     {
         Q_ASSERT(m_cols[i] != nullptr);
@@ -113,7 +109,10 @@ void MillerArea::updateVisibleColumns()
             emit headerClicked(targetPath);
         });
     }
+}
 
+void MillerArea::clearSeparators()
+{
     for (auto *sep : m_colSeparators)
     {
         Q_ASSERT(sep != nullptr);
@@ -122,7 +121,10 @@ void MillerArea::updateVisibleColumns()
         sep->deleteLater();
     }
     m_colSeparators.clear();
+}
 
+void MillerArea::applyColumnVisibility(int n, int stripCount)
+{
     m_stripDivider->setVisible(stripCount > 0);
 
     for (int i = 0; i < n; ++i)
@@ -145,6 +147,21 @@ void MillerArea::updateVisibleColumns()
             m_colSeparators.append(sep);
         }
     }
+}
+
+void MillerArea::updateVisibleColumns()
+{
+    Q_ASSERT(m_rowLayout != nullptr);
+    Q_ASSERT(m_colLayout != nullptr);
+    Q_ASSERT(m_stripDivider != nullptr);
+
+    const int n = m_cols.size();
+    const int stripCount = qMax(0, n - FULL_COLS);
+
+    clearStrips();
+    buildStrips(stripCount);
+    clearSeparators();
+    applyColumnVisibility(n, stripCount);
 }
 
 void MillerArea::refreshDrives()
@@ -276,14 +293,8 @@ const QList<MillerColumn*>& MillerArea::cols() const
     return m_cols;
 }
 
-void MillerArea::navigateTo(const QString &path, bool clearForward)
+bool MillerArea::navigateToDrives(const QString &path)
 {
-    Q_UNUSED(clearForward)
-    if (path.isEmpty())
-    {
-        return;
-    }
-
     if (path == QStringLiteral("__drives__"))
     {
         if (!m_cols.isEmpty())
@@ -295,27 +306,23 @@ void MillerArea::navigateTo(const QString &path, bool clearForward)
             m_cols[0]->setActive(true);
             m_activeCol = m_cols[0];
         }
-        return;
+        return true;
     }
+    return false;
+}
 
+QUrl MillerArea::prepareNavigateUrl(const QString &path)
+{
     QUrl startUrl(path);
     if (startUrl.scheme().isEmpty())
     {
         startUrl = QUrl::fromUserInput(path);
     }
-    if (startUrl.isLocalFile() && !QFileInfo::exists(startUrl.toLocalFile()))
-    {
-        return;
-    }
+    return startUrl;
+}
 
-    QString drivePath;
-    if (!m_cols.isEmpty())
-    {
-        selectAndNavigateDrive(startUrl, drivePath);
-        trimAfter(m_cols[0]);
-    }
-
-    QStringList segments;
+void MillerArea::computeNavigateSegments(const QUrl &startUrl, const QString &drivePath, QStringList &segments, int &startIdx)
+{
     QUrl cur = startUrl;
     while (cur.isValid())
     {
@@ -334,8 +341,6 @@ void MillerArea::navigateTo(const QString &path, bool clearForward)
         cur = up;
     }
 
-    const QString targetDir = startUrl.toString();
-    int startIdx = 0;
     if (!drivePath.isEmpty())
     {
         for (int i = 0; i < segments.size(); ++i)
@@ -347,8 +352,39 @@ void MillerArea::navigateTo(const QString &path, bool clearForward)
             }
         }
     }
+}
 
-    buildAndAppendSegments(segments, startIdx, targetDir);
+void MillerArea::navigateTo(const QString &path, bool clearForward)
+{
+    Q_UNUSED(clearForward)
+    if (path.isEmpty())
+    {
+        return;
+    }
+
+    if (navigateToDrives(path))
+    {
+        return;
+    }
+
+    QUrl startUrl = prepareNavigateUrl(path);
+    if (startUrl.isLocalFile() && !QFileInfo::exists(startUrl.toLocalFile()))
+    {
+        return;
+    }
+
+    QString drivePath;
+    if (!m_cols.isEmpty())
+    {
+        selectAndNavigateDrive(startUrl, drivePath);
+        trimAfter(m_cols[0]);
+    }
+
+    QStringList segments;
+    int startIdx = 0;
+    computeNavigateSegments(startUrl, drivePath, segments, startIdx);
+
+    buildAndAppendSegments(segments, startIdx, startUrl.toString());
     updateVisibleColumns();
 }
 
@@ -358,10 +394,8 @@ void MillerArea::setFocused(bool f)
     setStyleSheet(TM().ssPane());
 }
 
-void MillerArea::initColumnSignals(MillerColumn *col)
+void MillerArea::connectEntryClicked(MillerColumn *col)
 {
-    Q_ASSERT(col != nullptr);
-
     connect(col, &MillerColumn::entryClicked, this, [this, col](const QString &path, MillerColumn *src)
     {
         Q_ASSERT(src != nullptr);
@@ -413,7 +447,10 @@ void MillerArea::initColumnSignals(MillerColumn *col)
             job->start();
         }
     });
+}
 
+void MillerArea::connectActivationAndHeaders(MillerColumn *col)
+{
     connect(col, &MillerColumn::activated, this, [this](MillerColumn *src)
     {
         Q_ASSERT(src != nullptr);
@@ -441,7 +478,10 @@ void MillerArea::initColumnSignals(MillerColumn *col)
             emit headerClicked(col->path().isEmpty() ? QStringLiteral("__drives__") : col->path());
         }
     });
+}
 
+void MillerArea::connectActionSignals(MillerColumn *col)
+{
     connect(col, &MillerColumn::teardownRequested, this, &MillerArea::teardownRequested);
     
     connect(col, &MillerColumn::setupRequested, this, [this](const QString &udi)
@@ -467,6 +507,14 @@ void MillerArea::initColumnSignals(MillerColumn *col)
     });
     
     connect(col, &MillerColumn::propertiesRequested, this, &MillerArea::propertiesRequested);
+}
+
+void MillerArea::initColumnSignals(MillerColumn *col)
+{
+    Q_ASSERT(col != nullptr);
+    connectEntryClicked(col);
+    connectActivationAndHeaders(col);
+    connectActionSignals(col);
 }
 
 void MillerArea::handleDeviceSetup(Solid::StorageAccess *acc)

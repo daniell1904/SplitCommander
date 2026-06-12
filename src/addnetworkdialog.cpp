@@ -20,6 +20,26 @@ AddNetworkDialog::AddNetworkDialog(QWidget *parent)
     mainLay->setSpacing(12);
     mainLay->setContentsMargins(16, 16, 16, 16);
 
+    buildUI(mainLay);
+
+    auto *buttons = new QDialogButtonBox(
+        QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
+    Q_ASSERT(buttons != nullptr);
+    buttons->setStyleSheet(QStringLiteral(
+        "QPushButton { background:%1; border:1px solid %2; color:%3; "
+        "padding:5px 16px; border-radius:3px; font-size:11px; min-width:70px; }"
+        "QPushButton:hover { background:%4; }"
+        "QPushButton:default { border-color:%5; color:%5; }")
+        .arg(TM().colors().bgBox, TM().colors().borderAlt,
+             TM().colors().textPrimary, TM().colors().bgHover,
+             TM().colors().accent));
+
+    setupConnections(buttons);
+    mainLay->addWidget(buttons);
+}
+
+void AddNetworkDialog::buildUI(QVBoxLayout *mainLay)
+{
     auto *form = new QFormLayout();
     Q_ASSERT(form != nullptr);
     form->setSpacing(8);
@@ -32,8 +52,15 @@ AddNetworkDialog::AddNetworkDialog(QWidget *parent)
         .arg(TM().colors().bgInput, TM().colors().borderAlt,
              TM().colors().textPrimary, TM().colors().accent);
 
-    const QString labelStyle = QStringLiteral("color:%1; font-size:11px;")
-        .arg(TM().colors().textMuted);
+    buildInputFields(form, inputStyle);
+    buildIconSelector(form);
+
+    mainLay->addLayout(form);
+}
+
+void AddNetworkDialog::buildInputFields(QFormLayout *form, const QString &inputStyle)
+{
+    const QString labelStyle = QStringLiteral("color:%1; font-size:11px;").arg(TM().colors().textMuted);
 
     m_urlEdit = new QLineEdit(this);
     Q_ASSERT(m_urlEdit != nullptr);
@@ -44,6 +71,22 @@ AddNetworkDialog::AddNetworkDialog(QWidget *parent)
     Q_ASSERT(m_nameEdit != nullptr);
     m_nameEdit->setPlaceholderText(tr("Anzeigename"));
     m_nameEdit->setStyleSheet(inputStyle);
+
+    auto *urlLabel  = new QLabel(tr("Adresse:"),  this);
+    Q_ASSERT(urlLabel != nullptr);
+    auto *nameLabel = new QLabel(tr("Name:"),      this);
+    Q_ASSERT(nameLabel != nullptr);
+
+    urlLabel->setStyleSheet(labelStyle);
+    nameLabel->setStyleSheet(labelStyle);
+
+    form->addRow(urlLabel,  m_urlEdit);
+    form->addRow(nameLabel, m_nameEdit);
+}
+
+void AddNetworkDialog::buildIconSelector(QFormLayout *form)
+{
+    const QString labelStyle = QStringLiteral("color:%1; font-size:11px;").arg(TM().colors().textMuted);
 
     m_iconCombo = new QComboBox(this);
     Q_ASSERT(m_iconCombo != nullptr);
@@ -81,83 +124,20 @@ AddNetworkDialog::AddNetworkDialog(QWidget *parent)
     iconRow->addWidget(m_iconCombo, 1);
     iconRow->addWidget(m_iconPreview);
 
-    auto *urlLabel  = new QLabel(tr("Adresse:"),  this);
-    Q_ASSERT(urlLabel != nullptr);
-    auto *nameLabel = new QLabel(tr("Name:"),      this);
-    Q_ASSERT(nameLabel != nullptr);
     auto *iconLabel = new QLabel(tr("Symbol:"),    this);
     Q_ASSERT(iconLabel != nullptr);
-    for (auto *l : {urlLabel, nameLabel, iconLabel})
-    {
-        l->setStyleSheet(labelStyle);
-    }
+    iconLabel->setStyleSheet(labelStyle);
 
-    form->addRow(urlLabel,  m_urlEdit);
-    form->addRow(nameLabel, m_nameEdit);
     form->addRow(iconLabel, iconRow);
-    mainLay->addLayout(form);
+}
 
-    connect(m_urlEdit, &QLineEdit::textChanged, this, [this](const QString &text)
-    {
-        Q_ASSERT(m_nameEdit != nullptr);
-        Q_ASSERT(m_iconCombo != nullptr);
-        if (!m_nameEdit->isModified())
-        {
-            const QUrl urlObj = QUrl::fromUserInput(text);
-            const QString scheme = urlObj.scheme().toLower();
-            QString derived;
-            if (scheme == QStringLiteral("gdrive"))
-            {
-                derived = urlObj.path().section(QLatin1Char('/'), 1, 1);
-            }
-            if (derived.isEmpty())
-            {
-                derived = urlObj.fileName();
-            }
-            if (derived.isEmpty() && !urlObj.host().isEmpty())
-            {
-                derived = urlObj.host();
-            }
-            m_nameEdit->setText(derived);
-            m_nameEdit->setModified(false);
-
-            int idx = 0;
-            if (scheme == QStringLiteral("sftp") || scheme == QStringLiteral("ssh"))
-            {
-                idx = 1;
-            }
-            else if (scheme == QStringLiteral("gdrive"))
-            {
-                idx = 2;
-            }
-            else if (scheme == QStringLiteral("mtp"))
-            {
-                idx = 4;
-            }
-            else if (scheme == QStringLiteral("bluetooth"))
-            {
-                idx = 5;
-            }
-            m_iconCombo->setCurrentIndex(idx);
-        }
-        updateIcon();
-    });
+void AddNetworkDialog::setupConnections(QDialogButtonBox *buttons)
+{
+    connect(m_urlEdit, &QLineEdit::textChanged, this, &AddNetworkDialog::autoDeriveNameAndIcon);
 
     connect(m_iconCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &AddNetworkDialog::updateIcon);
     updateIcon();
-
-    auto *buttons = new QDialogButtonBox(
-        QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
-    Q_ASSERT(buttons != nullptr);
-    buttons->setStyleSheet(QStringLiteral(
-        "QPushButton { background:%1; border:1px solid %2; color:%3; "
-        "padding:5px 16px; border-radius:3px; font-size:11px; min-width:70px; }"
-        "QPushButton:hover { background:%4; }"
-        "QPushButton:default { border-color:%5; color:%5; }")
-        .arg(TM().colors().bgBox, TM().colors().borderAlt,
-             TM().colors().textPrimary, TM().colors().bgHover,
-             TM().colors().accent));
 
     connect(buttons, &QDialogButtonBox::accepted, this, [this]()
     {
@@ -168,7 +148,52 @@ AddNetworkDialog::AddNetworkDialog(QWidget *parent)
         }
     });
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
-    mainLay->addWidget(buttons);
+}
+
+void AddNetworkDialog::autoDeriveNameAndIcon(const QString &text)
+{
+    Q_ASSERT(m_nameEdit != nullptr);
+    Q_ASSERT(m_iconCombo != nullptr);
+    if (!m_nameEdit->isModified())
+    {
+        const QUrl urlObj = QUrl::fromUserInput(text);
+        const QString scheme = urlObj.scheme().toLower();
+        QString derived;
+        if (scheme == QStringLiteral("gdrive"))
+        {
+            derived = urlObj.path().section(QLatin1Char('/'), 1, 1);
+        }
+        if (derived.isEmpty())
+        {
+            derived = urlObj.fileName();
+        }
+        if (derived.isEmpty() && !urlObj.host().isEmpty())
+        {
+            derived = urlObj.host();
+        }
+        m_nameEdit->setText(derived);
+        m_nameEdit->setModified(false);
+
+        int idx = 0;
+        if (scheme == QStringLiteral("sftp") || scheme == QStringLiteral("ssh"))
+        {
+            idx = 1;
+        }
+        else if (scheme == QStringLiteral("gdrive"))
+        {
+            idx = 2;
+        }
+        else if (scheme == QStringLiteral("mtp"))
+        {
+            idx = 4;
+        }
+        else if (scheme == QStringLiteral("bluetooth"))
+        {
+            idx = 5;
+        }
+        m_iconCombo->setCurrentIndex(idx);
+    }
+    updateIcon();
 }
 
 QString AddNetworkDialog::url() const

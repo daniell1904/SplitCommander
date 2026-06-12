@@ -129,47 +129,56 @@ void ThemeManager::setTemporaryColors(const ThemeColors &c)
 
 void ThemeManager::exportDefaultThemes(const QString &destDir)
 {
-    auto exportTheme = [&](const ThemeColors &c) {
-        QString fileName = c.name.toLower().replace(" ", "_") + ".json";
-        QFile file(destDir + "/" + fileName);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-            QJsonObject obj;
-            obj["name"]         = c.name;
-            obj["bgMain"]       = c.bgMain;
-            obj["bgDeep"]       = c.bgDeep;
-            obj["bgBox"]        = c.bgBox;
-            obj["bgList"]       = c.bgList;
-            obj["bgAlternate"]  = c.bgAlternate;
-            obj["bgHover"]      = c.bgHover;
-            obj["bgSelect"]     = c.bgSelect;
-            obj["bgPanel"]      = c.bgPanel;
-            obj["bgTab"]        = c.bgTab;
-            obj["bgInput"]      = c.bgInput;
-            obj["border"]       = c.border;
-            obj["borderAlt"]    = c.borderAlt;
-            obj["separator"]    = c.separator;
-            obj["textPrimary"]  = c.textPrimary;
-            obj["textAccent"]   = c.textAccent;
-            obj["textLight"]    = c.textLight;
-            obj["textMuted"]    = c.textMuted;
-            obj["textInactive"] = c.textInactive;
-            obj["accent"]       = c.accent;
-            obj["accentHover"]  = c.accentHover;
-            obj["splitter"]     = c.splitter;
-            obj["colActive"]    = c.colActive;
+    writeThemeToFile(nordTheme(), destDir);
+    writeThemeToFile(catppuccinTheme(), destDir);
+    writeThemeToFile(gruvboxTheme(), destDir);
+    writeThemeToFile(draculaTheme(), destDir);
+    writeThemeToFile(oneDarkTheme(), destDir);
+    writeThemeToFile(solarizedDarkTheme(), destDir);
 
-            QJsonDocument doc(obj);
-            file.write(doc.toJson());
-        }
-    };
+    exportTemplateTheme(destDir);
+    
+    // Alte, fehlerhafte Anleitung ggf. löschen um Verwirrung zu vermeiden
+    QFile::remove(destDir + "/00_ANLEITUNG_THEME_ERSTELLEN.json");
+}
 
-    exportTheme(nordTheme());
-    exportTheme(catppuccinTheme());
-    exportTheme(gruvboxTheme());
-    exportTheme(draculaTheme());
-    exportTheme(oneDarkTheme());
-    exportTheme(solarizedDarkTheme());
+void ThemeManager::writeThemeToFile(const ThemeColors &c, const QString &destDir) const
+{
+    QString fileName = c.name.toLower().replace(" ", "_") + ".json";
+    QFile file(destDir + "/" + fileName);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        QJsonObject obj;
+        obj["name"]         = c.name;
+        obj["bgMain"]       = c.bgMain;
+        obj["bgDeep"]       = c.bgDeep;
+        obj["bgBox"]        = c.bgBox;
+        obj["bgList"]       = c.bgList;
+        obj["bgAlternate"]  = c.bgAlternate;
+        obj["bgHover"]      = c.bgHover;
+        obj["bgSelect"]     = c.bgSelect;
+        obj["bgPanel"]      = c.bgPanel;
+        obj["bgTab"]        = c.bgTab;
+        obj["bgInput"]      = c.bgInput;
+        obj["border"]       = c.border;
+        obj["borderAlt"]    = c.borderAlt;
+        obj["separator"]    = c.separator;
+        obj["textPrimary"]  = c.textPrimary;
+        obj["textAccent"]   = c.textAccent;
+        obj["textLight"]    = c.textLight;
+        obj["textMuted"]    = c.textMuted;
+        obj["textInactive"] = c.textInactive;
+        obj["accent"]       = c.accent;
+        obj["accentHover"]  = c.accentHover;
+        obj["splitter"]     = c.splitter;
+        obj["colActive"]    = c.colActive;
 
+        QJsonDocument doc(obj);
+        file.write(doc.toJson());
+    }
+}
+
+void ThemeManager::exportTemplateTheme(const QString &destDir) const
+{
     // Saubere Vorlage exportieren (erzwingen)
     QFile guide(destDir + "/00_VORLAGE_THEME_ERSTELLEN.json");
     if (guide.open(QIODevice::WriteOnly)) {
@@ -202,9 +211,6 @@ void ThemeManager::exportDefaultThemes(const QString &destDir)
         guide.write(doc.toJson());
         guide.close();
     }
-    
-    // Alte, fehlerhafte Anleitung ggf. löschen um Verwirrung zu vermeiden
-    QFile::remove(destDir + "/00_ANLEITUNG_THEME_ERSTELLEN.json");
 }
 
 // --- sanitizeColor — Extrahiert Hex-Code falls Kommentare enthalten sind ---
@@ -302,6 +308,36 @@ void ThemeManager::buildAppStyleSheet()
     const ThemeColors &c = m_colors;
     QString ss;
 
+    ss += buildGlobalQSS(c);
+    ss += buildInputQSS(c);
+    ss += buildButtonQSS(c);
+
+    // GroupBox (SettingsDialog)
+    ss += QString("QGroupBox { background:%1; border:1px solid %2; border-radius:6px;"
+                  "  margin-top:14px; padding:10px; color:%3; font-size:11px; font-weight:bold; }"
+                  "QGroupBox::title { subcontrol-origin:margin; left:10px; padding:0 4px; }")
+              .arg(c.bgBox, c.borderAlt, c.textAccent);
+
+    // Checkboxes/Radios (SettingsDialog)
+    ss += QString("QCheckBox { color:%1; font-size:11px; spacing:8px; }"
+                  "QCheckBox::indicator { width:16px; height:16px; border-radius:3px;"
+                  "  border:1px solid %2; background:%3; }"
+                  "QCheckBox::indicator:checked { background:%4; border-color:%5; }")
+              .arg(c.textPrimary, c.bgSelect, c.bgList, c.accent, c.accentHover);
+    ss += QString("QRadioButton { color:%1; spacing:8px; }"
+                  "QRadioButton::indicator { width:14px; height:14px; border-radius:7px;"
+                  "  border:1px solid %2; background:%3; }"
+                  "QRadioButton::indicator:checked { background:%4; border-color:%5; }")
+              .arg(c.textPrimary, c.bgSelect, c.bgList, c.accent, c.accentHover);
+
+    qApp->setStyleSheet(ss);
+
+    applyUiFont();
+}
+
+QString ThemeManager::buildGlobalQSS(const ThemeColors &c) const
+{
+    QString ss;
     // Nur globale Basis — KEIN QWidget background, das überschreibt widget-eigene Styles
     ss += QString("QMainWindow { background-color:%1; }").arg(c.bgMain);
     ss += QString("QDialog { background-color:%1; color:%2; }").arg(c.bgBox, c.textPrimary);
@@ -335,19 +371,26 @@ void ThemeManager::buildAppStyleSheet()
     ss += QString("QHeaderView::section { background-color:%1; color:%2; border:none;"
                   "  border-right:1px solid %3; border-bottom:1px solid %3; padding:4px 8px; font-size:11px; }")
               .arg(c.bgPanel, c.textAccent, c.borderAlt);
+              
+    // Tabs
+    ss += QString("QTabWidget::pane { border:1px solid %1; background:%2; }"
+                  "QTabBar::tab { background:%3; color:%4; padding:8px 18px;"
+                  "  border:1px solid %1; border-bottom:none; border-radius:4px 4px 0 0; margin-right:2px; }"
+                  "QTabBar::tab:selected { background:%5; color:%6; }"
+                  "QTabBar::tab:hover:!selected { background:%7; color:%8; }")
+              .arg(c.borderAlt, c.bgPanel, c.bgBox, c.textMuted,
+                   c.bgList, c.textPrimary, c.bgHover, c.textAccent);
 
+    return ss;
+}
+
+QString ThemeManager::buildInputQSS(const ThemeColors &c) const
+{
+    QString ss;
     // Inputs
     ss += QString("QLineEdit { background:%1; border:1px solid %2; color:%3;"
                   "  padding:4px; border-radius:8px; }")
               .arg(c.bgInput, c.borderAlt, c.textPrimary);
-
-    // Buttons
-    ss += QString("QPushButton { background:%1; color:%2; border:1px solid %3;"
-                  "  padding:5px 12px; border-radius:6px; }"
-                  "QPushButton:hover { background:%4; border-color:%5; }"
-                  "QPushButton:checked { background:%6; border-color:%5; color:%7; }")
-              .arg(c.bgAlternate, c.textPrimary, c.borderAlt,
-                   c.bgSelect, c.accent, c.bgSelect, c.textLight);
 
     // Combo
     const QString arrowColor = c.textMuted;
@@ -361,39 +404,28 @@ void ThemeManager::buildAppStyleSheet()
                   "QComboBox QAbstractItemView { background:%1; color:%3; border:1px solid %2; selection-background-color:%5; }")
               .arg(c.bgInput, c.borderAlt, c.textPrimary, arrowColor, c.bgSelect);
 
-    // Tabs
-    ss += QString("QTabWidget::pane { border:1px solid %1; background:%2; }"
-                  "QTabBar::tab { background:%3; color:%4; padding:8px 18px;"
-                  "  border:1px solid %1; border-bottom:none; border-radius:4px 4px 0 0; margin-right:2px; }"
-                  "QTabBar::tab:selected { background:%5; color:%6; }"
-                  "QTabBar::tab:hover:!selected { background:%7; color:%8; }")
-              .arg(c.borderAlt, c.bgPanel, c.bgBox, c.textMuted,
-                   c.bgList, c.textPrimary, c.bgHover, c.textAccent);
-
-    // GroupBox (SettingsDialog)
-    ss += QString("QGroupBox { background:%1; border:1px solid %2; border-radius:6px;"
-                  "  margin-top:14px; padding:10px; color:%3; font-size:11px; font-weight:bold; }"
-                  "QGroupBox::title { subcontrol-origin:margin; left:10px; padding:0 4px; }")
-              .arg(c.bgBox, c.borderAlt, c.textAccent);
-
-    // Checkboxes/Radios (SettingsDialog)
-    ss += QString("QCheckBox { color:%1; font-size:11px; spacing:8px; }"
-                  "QCheckBox::indicator { width:16px; height:16px; border-radius:3px;"
-                  "  border:1px solid %2; background:%3; }"
-                  "QCheckBox::indicator:checked { background:%4; border-color:%5; }")
-              .arg(c.textPrimary, c.bgSelect, c.bgList, c.accent, c.accentHover);
-    ss += QString("QRadioButton { color:%1; spacing:8px; }"
-                  "QRadioButton::indicator { width:14px; height:14px; border-radius:7px;"
-                  "  border:1px solid %2; background:%3; }"
-                  "QRadioButton::indicator:checked { background:%4; border-color:%5; }")
-              .arg(c.textPrimary, c.bgSelect, c.bgList, c.accent, c.accentHover);
-
     ss += QString("QKeySequenceEdit { background:%1; border:1px solid %2; color:%3;"
                   "  padding:4px; border-radius:4px; }")
               .arg(c.bgInput, c.borderAlt, c.textPrimary);
 
-    qApp->setStyleSheet(ss);
+    return ss;
+}
 
+QString ThemeManager::buildButtonQSS(const ThemeColors &c) const
+{
+    QString ss;
+    // Buttons
+    ss += QString("QPushButton { background:%1; color:%2; border:1px solid %3;"
+                  "  padding:5px 12px; border-radius:6px; }"
+                  "QPushButton:hover { background:%4; border-color:%5; }"
+                  "QPushButton:checked { background:%6; border-color:%5; color:%7; }")
+              .arg(c.bgAlternate, c.textPrimary, c.borderAlt,
+                   c.bgSelect, c.accent, c.bgSelect, c.textLight);
+    return ss;
+}
+
+void ThemeManager::applyUiFont()
+{
     // Gespeicherte Schriftart anwenden (nach setStyleSheet, damit font-family greift)
     const QString savedFont = Config::uiFontFamily();
     if (!savedFont.isEmpty()) {

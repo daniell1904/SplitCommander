@@ -22,8 +22,6 @@
 #include <QFutureWatcher>
 #include "config.h"
 #include "tagmanager.h"
-#include "thumbnailmanager.h"
-#include "thememanager.h"
 #include <KJob>
 
 #include <QAction>
@@ -41,7 +39,6 @@
 #include <QKeyEvent>
 #include <QScrollBar>
 
-#include "drophandler.h"
 #include <QStandardPaths>
 
 #include <QDir>
@@ -91,7 +88,7 @@
 #include "filepane_helpers.h"
 #include "scremoveaction.h"
 
-// Opens terminal in given directory, always in a new window.
+// Öffnet Terminal im angegebenen Verzeichnis, immer in einem neuen Fenster.
 static void openTerminalHere(const QString &dir, QWidget *parent)
 {
     static const QList<QPair<QString,QStringList>> candidates = {
@@ -589,66 +586,7 @@ void FilePane::populateItemMenu(QMenu &menu, const ContextMenuState &ctx,
     if (auto *a = findSubMenu(tr("Komprimieren")))          menu.addAction(a);
 
     // --- Entpacken-Submenü (wie Dolphin via Ark) ---
-    {
-      static const QStringList kArchiveExts = {
-        QStringLiteral("zip"), QStringLiteral("tar"), QStringLiteral("gz"),
-        QStringLiteral("tgz"), QStringLiteral("bz2"), QStringLiteral("tbz2"),
-        QStringLiteral("xz"), QStringLiteral("txz"), QStringLiteral("7z"),
-        QStringLiteral("rar"), QStringLiteral("lzma"), QStringLiteral("lz"),
-        QStringLiteral("lzo"), QStringLiteral("lha"), QStringLiteral("lzh"),
-        QStringLiteral("cab"), QStringLiteral("ar"), QStringLiteral("cpio"),
-        QStringLiteral("iso"), QStringLiteral("deb"), QStringLiteral("rpm"),
-        QStringLiteral("jar"), QStringLiteral("war"), QStringLiteral("Z"),
-      };
-      bool allArchives = !ctx.items.isEmpty();
-      QStringList archivePaths;
-      for (const auto &it : ctx.items) {
-        const QString path = it.localPath();
-        const QString suffix = QFileInfo(path).suffix().toLower();
-        if (!kArchiveExts.contains(suffix)) { allArchives = false; break; }
-        archivePaths << path;
-      }
-      if (allArchives) {
-        auto *extractMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("archive-extract")),
-                                          tr("Entpacken"));
-        const QString workDir = m_currentPath;
-        extractMenu->addAction(QIcon::fromTheme(QStringLiteral("archive-extract")),
-                               tr("Hierher entpacken"), this, [archivePaths, workDir]() {
-          for (const QString &p : archivePaths)
-            QProcess::startDetached(QStringLiteral("ark"),
-                                     {QStringLiteral("--batch"),
-                                      QStringLiteral("--autodestination"),
-                                      QStringLiteral("--destination"), workDir, p});
-        });
-        extractMenu->addAction(QIcon::fromTheme(QStringLiteral("archive-extract")),
-                               tr("Entpacken und Archiv in den Papierkorb verschieben"),
-                               this, [archivePaths, workDir]() {
-          QList<QUrl> trashUrls;
-          for (const QString &p : archivePaths) trashUrls << QUrl::fromLocalFile(p);
-          auto *proc = new QProcess();
-          QStringList args{QStringLiteral("--batch"),
-                           QStringLiteral("--autodestination"),
-                           QStringLiteral("--destination"), workDir};
-          args.append(archivePaths);
-          connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                  [proc, trashUrls](int code, QProcess::ExitStatus) {
-            if (code == 0) KIO::trash(trashUrls);
-            proc->deleteLater();
-          });
-          proc->start(QStringLiteral("ark"), args);
-        });
-        extractMenu->addAction(QIcon::fromTheme(QStringLiteral("archive-extract")),
-                               tr("Entpacken nach ..."), this, [this, archivePaths, workDir]() {
-          const QString dest = QFileDialog::getExistingDirectory(this, tr("Zielordner wählen"), workDir);
-          if (dest.isEmpty()) return;
-          for (const QString &p : archivePaths)
-            QProcess::startDetached(QStringLiteral("ark"),
-                                     {QStringLiteral("--batch"),
-                                      QStringLiteral("--autodestination"),
-                                      QStringLiteral("--destination"), dest, p});
-        });
-      }
-    }
+    buildExtractionMenu(menu, ctx);
 
     if (auto *a = findSubMenu(tr("Aktivitäten")))           menu.addAction(a);
     if (auto *a = findSubMenu(tr("Teilen")))                menu.addAction(a);
@@ -737,6 +675,72 @@ void FilePane::populateItemMenu(QMenu &menu, const ContextMenuState &ctx,
 
     menu.addSeparator();
   }
+
+void FilePane::buildExtractionMenu(QMenu &menu, const ContextMenuState &ctx)
+{
+    static const QStringList kArchiveExts = {
+      QStringLiteral("zip"), QStringLiteral("tar"), QStringLiteral("gz"),
+      QStringLiteral("tgz"), QStringLiteral("bz2"), QStringLiteral("tbz2"),
+      QStringLiteral("xz"), QStringLiteral("txz"), QStringLiteral("7z"),
+      QStringLiteral("rar"), QStringLiteral("lzma"), QStringLiteral("lz"),
+      QStringLiteral("lzo"), QStringLiteral("lha"), QStringLiteral("lzh"),
+      QStringLiteral("cab"), QStringLiteral("ar"), QStringLiteral("cpio"),
+      QStringLiteral("iso"), QStringLiteral("deb"), QStringLiteral("rpm"),
+      QStringLiteral("jar"), QStringLiteral("war"), QStringLiteral("Z"),
+    };
+    bool allArchives = !ctx.items.isEmpty();
+    QStringList archivePaths;
+    for (const auto &it : ctx.items) {
+      const QString path = it.localPath();
+      const QString suffix = QFileInfo(path).suffix().toLower();
+      if (!kArchiveExts.contains(suffix)) { allArchives = false; break; }
+      archivePaths << path;
+    }
+    if (allArchives) {
+      auto *extractMenu = menu.addMenu(QIcon::fromTheme(QStringLiteral("archive-extract")),
+                                        tr("Entpacken"));
+      setupExtractionMenuActions(extractMenu, archivePaths, m_currentPath);
+    }
+}
+
+void FilePane::setupExtractionMenuActions(QMenu* extractMenu, const QStringList& archivePaths, const QString& workDir)
+{
+    extractMenu->addAction(QIcon::fromTheme(QStringLiteral("archive-extract")),
+                           tr("Hierher entpacken"), this, [archivePaths, workDir]() {
+      for (const QString &p : archivePaths)
+        QProcess::startDetached(QStringLiteral("ark"),
+                                 {QStringLiteral("--batch"),
+                                  QStringLiteral("--autodestination"),
+                                  QStringLiteral("--destination"), workDir, p});
+    });
+    extractMenu->addAction(QIcon::fromTheme(QStringLiteral("archive-extract")),
+                           tr("Entpacken und Archiv in den Papierkorb verschieben"),
+                           this, [archivePaths, workDir]() {
+      QList<QUrl> trashUrls;
+      for (const QString &p : archivePaths) trashUrls << QUrl::fromLocalFile(p);
+      auto *proc = new QProcess();
+      QStringList args{QStringLiteral("--batch"),
+                       QStringLiteral("--autodestination"),
+                       QStringLiteral("--destination"), workDir};
+      args.append(archivePaths);
+      connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+              [proc, trashUrls](int code, QProcess::ExitStatus) {
+        if (code == 0) KIO::trash(trashUrls);
+        proc->deleteLater();
+      });
+      proc->start(QStringLiteral("ark"), args);
+    });
+    extractMenu->addAction(QIcon::fromTheme(QStringLiteral("archive-extract")),
+                           tr("Entpacken nach ..."), this, [this, archivePaths, workDir]() {
+      const QString dest = QFileDialog::getExistingDirectory(this, tr("Zielordner wählen"), workDir);
+      if (dest.isEmpty()) return;
+      for (const QString &p : archivePaths)
+        QProcess::startDetached(QStringLiteral("ark"),
+                                 {QStringLiteral("--batch"),
+                                  QStringLiteral("--autodestination"),
+                                  QStringLiteral("--destination"), dest, p});
+    });
+}
 
 
 void FilePane::populateBackgroundMenu(QMenu &menu, const ContextMenuState &ctx,

@@ -99,7 +99,15 @@ private:
     QList<ThemeColors> m_externalThemes;
 
     void exportDefaultThemes(const QString &destDir);
+    void writeThemeToFile(const ThemeColors &c, const QString &destDir) const;
+    void exportTemplateTheme(const QString &destDir) const;
+
     void buildAppStyleSheet();
+    QString buildGlobalQSS(const ThemeColors &c) const;
+    QString buildInputQSS(const ThemeColors &c) const;
+    QString buildButtonQSS(const ThemeColors &c) const;
+    void applyUiFont();
+
     [[nodiscard]] static ThemeColors themeFromJson(const QByteArray &data);
 };
 

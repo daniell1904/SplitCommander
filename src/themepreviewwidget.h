@@ -23,6 +23,18 @@ protected:
 
 private:
     void setupUI();
+    void buildSidebar(class QHBoxLayout *middleLay);
+    void buildSidebarDriveCard(class QVBoxLayout *sidebarLay);
+    void buildActivePane(class QHBoxLayout *middleLay);
+    void buildInactivePane(class QHBoxLayout *middleLay);
+    void buildFooter(class QVBoxLayout *containerLay);
+
+    QString buildThemeSidebarQSS(const ThemeColors &c) const;
+    QString buildThemePanesQSS(const ThemeColors &c) const;
+    QString buildThemeFooterQSS(const ThemeColors &c) const;
+
+    bool handleTextElementClick(QWidget *child);
+    bool handleFrameElementClick(QWidget *child);
 
     // Mock UI subcomponents
     QFrame *m_container = nullptr;

@@ -244,53 +244,36 @@ void MainWindow::registerPaneShortcuts(const ShortcutRegistrar &addAct)
     });
 }
 
-void MainWindow::registerFileShortcuts(const ShortcutRegistrar &addAct)
+void MainWindow::registerFileRenameShortcut(const ShortcutRegistrar &addAct)
 {
     addAct(QStringLiteral("file_rename"), tr("Umbenennen"), QStringLiteral("edit-rename"), Qt::Key_F2, [this]()
     {
         const QList<QUrl> urls = activePane()->selectedUrls();
-        if (urls.isEmpty())
-        {
-            return;
-        }
+        if (urls.isEmpty()) return;
 
         if (urls.size() == 1)
         {
-            // Einzelne Datei: einfacher Inline-Dialog
             const QUrl &src = urls.first();
             const QString oldName = src.fileName();
             bool ok;
             QString newName = DialogUtils::getText(this, tr("Umbenennen"), tr("Neuer Name:"), oldName, &ok);
-            if (!ok || newName.isEmpty() || newName == oldName)
-            {
-                return;
-            }
+            if (!ok || newName.isEmpty() || newName == oldName) return;
             QUrl dest = src.adjusted(QUrl::RemoveFilename);
             dest.setPath(dest.path() + newName);
             KIO::moveAs(src, dest, KIO::DefaultFlags);
         }
         else
         {
-            // Mehrfachauswahl: BatchRenamer
             QStringList paths;
-            for (const QUrl &u : urls)
-            {
-                paths << (u.isLocalFile() ? u.toLocalFile() : u.toString());
-            }
+            for (const QUrl &u : urls) paths << (u.isLocalFile() ? u.toLocalFile() : u.toString());
             BatchRenamer dlg(paths, this);
-            if (dlg.exec() != QDialog::Accepted)
-            {
-                return;
-            }
+            if (dlg.exec() != QDialog::Accepted) return;
             const QStringList newNames = dlg.newNames();
             for (int i = 0; i < urls.size() && i < newNames.size(); ++i)
             {
                 const QString &nn = newNames.at(i);
                 const QString oldName = urls.at(i).fileName();
-                if (nn.isEmpty() || nn == oldName)
-                {
-                    continue;
-                }
+                if (nn.isEmpty() || nn == oldName) continue;
                 QUrl dest = urls.at(i).adjusted(QUrl::RemoveFilename);
                 dest.setPath(dest.path() + nn);
                 auto *job = KIO::moveAs(urls.at(i), dest, KIO::DefaultFlags);
@@ -299,7 +282,10 @@ void MainWindow::registerFileShortcuts(const ShortcutRegistrar &addAct)
             }
         }
     });
+}
 
+void MainWindow::registerFileDeleteShortcuts(const ShortcutRegistrar &addAct)
+{
     auto checkInMiller = [this]() -> bool
     {
         QWidget* fw = focusWidget();
@@ -318,32 +304,26 @@ void MainWindow::registerFileShortcuts(const ShortcutRegistrar &addAct)
 
     addAct(QStringLiteral("file_trash"), tr("In den Papierkorb verschieben"), QStringLiteral("user-trash"), Qt::Key_Delete, [this, checkInMiller]()
     {
-        if (!checkInMiller())
-        {
-            doDelete(activePane(), false);
-        }
+        if (!checkInMiller()) doDelete(activePane(), false);
     });
 
     addAct(QStringLiteral("file_delete"), tr("Löschen"), QStringLiteral("edit-delete"), QKeySequence(Qt::SHIFT | Qt::Key_Delete), [this, checkInMiller]()
     {
-        if (!checkInMiller())
-        {
-            doDelete(activePane(), true);
-        }
+        if (!checkInMiller()) doDelete(activePane(), true);
     });
 
     addAct(QStringLiteral("file_newfolder"), tr("Neuer Ordner"), QStringLiteral("folder-new"), Qt::Key_F7, [this]()
     {
         emit activePane()->newFolderRequested();
     });
+}
 
+void MainWindow::registerClipboardShortcuts(const ShortcutRegistrar &addAct)
+{
     addAct(QStringLiteral("file_copy"), tr("Kopieren (Zwischenablage)"), QStringLiteral("edit-copy"), KStandardShortcut::copy().first(), [this]()
     {
         const QList<QUrl> urls = activePane()->selectedUrls();
-        if (urls.isEmpty())
-        {
-            return;
-        }
+        if (urls.isEmpty()) return;
         auto *mime = new QMimeData();
         Q_ASSERT(mime != nullptr);
         mime->setUrls(urls);
@@ -354,10 +334,7 @@ void MainWindow::registerFileShortcuts(const ShortcutRegistrar &addAct)
     addAct(QStringLiteral("file_move"), tr("Ausschneiden (Zwischenablage)"), QStringLiteral("edit-cut"), KStandardShortcut::cut().first(), [this]()
     {
         const QList<QUrl> urls = activePane()->selectedUrls();
-        if (urls.isEmpty())
-        {
-            return;
-        }
+        if (urls.isEmpty()) return;
         auto *mime = new QMimeData();
         Q_ASSERT(mime != nullptr);
         mime->setUrls(urls);
@@ -368,10 +345,7 @@ void MainWindow::registerFileShortcuts(const ShortcutRegistrar &addAct)
     addAct(QStringLiteral("file_paste"), tr("Einfügen"), QStringLiteral("edit-paste"), KStandardShortcut::paste().first(), [this]()
     {
         const QMimeData *clip = QGuiApplication::clipboard()->mimeData();
-        if (clip == nullptr || !clip->hasUrls())
-        {
-            return;
-        }
+        if (clip == nullptr || !clip->hasUrls()) return;
         const bool isCut = clip->data(QStringLiteral("x-kde-cut-selection")) == "1";
         const QList<QUrl> urls = clip->urls();
         const QUrl destUrl = QUrl::fromLocalFile(activePane()->currentPath());
@@ -396,6 +370,13 @@ void MainWindow::registerFileShortcuts(const ShortcutRegistrar &addAct)
     {
         activePane()->filePane()->view()->selectAll();
     });
+}
+
+void MainWindow::registerFileShortcuts(const ShortcutRegistrar &addAct)
+{
+    registerFileRenameShortcut(addAct);
+    registerFileDeleteShortcuts(addAct);
+    registerClipboardShortcuts(addAct);
 }
 
 void MainWindow::registerViewShortcuts(const ShortcutRegistrar &addAct)

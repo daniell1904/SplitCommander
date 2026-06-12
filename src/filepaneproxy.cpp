@@ -12,12 +12,9 @@
 #include <QtConcurrent>
 #include <QFutureWatcher>
 #include <QDirIterator>
+#include <KJob>
 #include "config.h"
 #include "tagmanager.h"
-#include "thumbnailmanager.h"
-#include "thememanager.h"
-#include <KJob>
-
 #include <QAction>
 #include <QColor>
 #include <QHBoxLayout>
@@ -33,7 +30,6 @@
 #include <QKeyEvent>
 #include <QScrollBar>
 
-#include "drophandler.h"
 #include <QStandardPaths>
 
 #include <QDir>
@@ -376,6 +372,82 @@ QVariant FPColumnsProxy::extraData(const KFileItem &item, FPCol col,
   }
 }
 
+QVariant FPColumnsProxy::resolveNameData(const KFileItem &item, int role) const
+{
+    if (role == Qt::DecorationRole)
+        return QIcon::fromTheme(item.iconName());
+    if (role == Qt::DisplayRole)
+    {
+        if (!item.isDir() && !Config::showFileExtensions())
+            return QFileInfo(item.text()).completeBaseName();
+        return item.text();
+    }
+    return {};
+}
+
+QVariant FPColumnsProxy::resolveSizeData(const KFileItem &item, int role) const
+{
+    if (role == Qt::UserRole)
+        return (qint64)item.size();
+
+    if (role != Qt::DisplayRole)
+        return {};
+
+    if (!item.isDir())
+        return KFormat().formatByteSize(item.size());
+
+    const QString lp = item.localPath();
+    if (lp.isEmpty())
+        return {};
+    if (m_dirSizeCache.contains(lp))
+        return KFormat().formatByteSize(m_dirSizeCache.value(lp));
+    if (!m_dirSizePending.contains(lp))
+    {
+        m_dirSizePending.insert(lp);
+        auto *watcher = new QFutureWatcher<qint64>(const_cast<FPColumnsProxy*>(this));
+        QObject::connect(watcher, &QFutureWatcher<qint64>::finished,
+                         const_cast<FPColumnsProxy*>(this),
+                         [this, lp, watcher]() {
+                            m_dirSizeCache.insert(lp, watcher->result());
+                            m_dirSizePending.remove(lp);
+                            watcher->deleteLater();
+                            emit const_cast<FPColumnsProxy*>(this)->layoutChanged();
+                         });
+        watcher->setFuture(QtConcurrent::run([lp]() -> qint64 {
+            qint64 total = 0;
+            QDirIterator it(lp, QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+            int count = 0;
+            while (it.hasNext() && count < 50000)
+            {
+                it.next();
+                total += it.fileInfo().size();
+                ++count;
+            }
+            return total;
+        }));
+    }
+    return QStringLiteral("…");
+}
+
+QVariant FPColumnsProxy::resolveStandardColData(const KFileItem &item, FPCol col, int role) const
+{
+    if (col == FP_DATUM && role == Qt::DisplayRole)
+    {
+        QDateTime dt = item.time(KFileItem::ModificationTime);
+        return dt.isValid() ? dt.toString(Config::dateFormat()) : QString();
+    }
+    if (col == FP_RECHTE && role == Qt::DisplayRole)
+    {
+        QString lp = item.localPath();
+        return lp.isEmpty() ? item.permissionsString() : fp_fmtRwx(QFileInfo(lp).permissions());
+    }
+    if (col == FP_EIGENTUEMER && role == Qt::DisplayRole)
+        return item.user();
+    if (col == FP_GRUPPE && role == Qt::DisplayRole)
+        return item.group();
+    return {};
+}
+
 QVariant FPColumnsProxy::data(const QModelIndex &index, int role) const {
   if (!index.isValid() || index.column() >= m_visCols.size())
     return {};
@@ -400,74 +472,14 @@ QVariant FPColumnsProxy::data(const QModelIndex &index, int role) const {
   if (kdc < 0)
     return extraData(item, col, role);
 
-  // KDirModel-Spalten direkt aus KFileItem lesen — kein mapToSource nötig
   if (item.isNull())
     return {};
 
-  if (col == FP_NAME) {
-    if (role == Qt::DecorationRole)
-      return QIcon::fromTheme(item.iconName());
-    if (role == Qt::DisplayRole) {
-      if (!item.isDir() && !Config::showFileExtensions())
-        return QFileInfo(item.text()).completeBaseName();
-      return item.text();
-    }
-  }
-  if (col == FP_GROESSE && role == Qt::DisplayRole) {
-    if (item.isDir()) {
-      const QString lp = item.localPath();
-      if (lp.isEmpty()) return {};
-
-      // Cache prüfen
-      if (m_dirSizeCache.contains(lp))
-        return KFormat().formatByteSize(m_dirSizeCache.value(lp));
-
-      // Noch nicht berechnet: async starten
-      if (!m_dirSizePending.contains(lp)) {
-        m_dirSizePending.insert(lp);
-        auto *watcher = new QFutureWatcher<qint64>(const_cast<FPColumnsProxy*>(this));
-        QObject::connect(watcher, &QFutureWatcher<qint64>::finished,
-                         const_cast<FPColumnsProxy*>(this),
-                         [this, lp, watcher]() {
-                           m_dirSizeCache.insert(lp, watcher->result());
-                           m_dirSizePending.remove(lp);
-                           watcher->deleteLater();
-                           emit const_cast<FPColumnsProxy*>(this)->layoutChanged();
-                         });
-        watcher->setFuture(QtConcurrent::run([lp]() -> qint64 {
-          qint64 total = 0;
-          QDirIterator it(lp, QDir::Files | QDir::NoDotAndDotDot,
-                          QDirIterator::Subdirectories);
-          int count = 0;
-          while (it.hasNext() && count < 50000) {
-            it.next();
-            total += it.fileInfo().size();
-            ++count;
-          }
-          return total;
-        }));
-      }
-      return QStringLiteral("…");
-    }
-    return KFormat().formatByteSize(item.size());
-  }
-  if (col == FP_GROESSE && role == Qt::UserRole)
-    return (qint64)item.size();
-  if (col == FP_DATUM && role == Qt::DisplayRole) {
-    QDateTime dt = item.time(KFileItem::ModificationTime);
-    return dt.isValid() ? dt.toString(Config::dateFormat()) : QString();
-  }
-  if (col == FP_RECHTE && role == Qt::DisplayRole) {
-    QString lp = item.localPath();
-    return lp.isEmpty() ? item.permissionsString()
-                        : fp_fmtRwx(QFileInfo(lp).permissions());
-  }
-  if (col == FP_EIGENTUEMER && role == Qt::DisplayRole)
-    return item.user();
-  if (col == FP_GRUPPE && role == Qt::DisplayRole)
-    return item.group();
-
-  return {};
+  if (col == FP_NAME)
+    return resolveNameData(item, role);
+  if (col == FP_GROESSE)
+    return resolveSizeData(item, role);
+  return resolveStandardColData(item, col, role);
 }
 
 QVariant FPColumnsProxy::headerData(int section, Qt::Orientation orientation,

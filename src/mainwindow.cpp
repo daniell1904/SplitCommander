@@ -167,57 +167,54 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     QTimer::singleShot(50, this, &MainWindow::restoreSession);
 }
 
-void MainWindow::initUI()
+void MainWindow::buildWindowProperties()
 {
     setWindowTitle(QStringLiteral("SplitCommander"));
+    auto s = Config::group("UI");
+    const QByteArray geo = s.readEntry("windowGeometry", QByteArray());
+    if (!geo.isEmpty())
     {
-        auto s = Config::group("UI");
-        const QByteArray geo = s.readEntry("windowGeometry", QByteArray());
-        if (!geo.isEmpty())
-        {
-            restoreGeometry(geo);
-        }
-        else
-        {
-            resize(1280, 900);
-        }
+        restoreGeometry(geo);
+    }
+    else
+    {
+        resize(1280, 900);
     }
 
-    auto *central = new QWidget(this);
-    Q_ASSERT(central != nullptr);
-    setCentralWidget(central);
-    auto *rootLay = new QHBoxLayout(central);
-    Q_ASSERT(rootLay != nullptr);
-    rootLay->setContentsMargins(0, 0, 0, 0);
-    rootLay->setSpacing(0);
+    // Maximierten Zustand wiederherstellen
+    if (s.readEntry("windowMaximized", false))
+    {
+        showMaximized();
+    }
+}
 
+void MainWindow::buildSidebar(QHBoxLayout *rootLay, QWidget *central)
+{
     m_sidebar = new Sidebar(this);
     Q_ASSERT(m_sidebar != nullptr);
     m_jobOverlay = new JobOverlay(this);
     Q_ASSERT(m_jobOverlay != nullptr);
-    {
-        auto s = Config::group("UI");
-        const int sidebarW = s.readEntry("sidebarWidth", 250);
-        const bool sidebarVis = s.readEntry("sidebarVisible", true);
-        m_sidebar->setFixedWidth(sidebarW);
-        m_sidebar->setVisible(sidebarVis);
-    }
+    
+    auto s = Config::group("UI");
+    const int sidebarW = s.readEntry("sidebarWidth", 250);
+    const bool sidebarVis = s.readEntry("sidebarVisible", true);
+    m_sidebar->setFixedWidth(sidebarW);
+    m_sidebar->setVisible(sidebarVis);
 
     rootLay->addWidget(m_sidebar);
     auto *sidebarHandle = new SidebarHandle(m_sidebar, central);
     Q_ASSERT(sidebarHandle != nullptr);
+    
+    sidebarHandle->setFixedWidth(sidebarVis ? 10 : 32);
+    if (!sidebarVis)
     {
-        auto s = Config::group("UI");
-        const bool sidebarVis = s.readEntry("sidebarVisible", true);
-        sidebarHandle->setFixedWidth(sidebarVis ? 10 : 32);
-        if (!sidebarVis)
-        {
-            sidebarHandle->setCursor(Qt::PointingHandCursor);
-        }
+        sidebarHandle->setCursor(Qt::PointingHandCursor);
     }
-
     rootLay->addWidget(sidebarHandle);
+}
 
+void MainWindow::buildPanes(QHBoxLayout *rootLay, QWidget *central)
+{
     m_panesSplitter = new PaneSplitter(Qt::Horizontal, central);
     Q_ASSERT(m_panesSplitter != nullptr);
     m_panesSplitter->setHandleWidth(12);
@@ -231,6 +228,23 @@ void MainWindow::initUI()
     m_panesSplitter->addWidget(m_leftPane);
     m_panesSplitter->addWidget(m_rightPane);
     rootLay->addWidget(m_panesSplitter, 1);
+}
+
+void MainWindow::initUI()
+{
+    buildWindowProperties();
+
+    auto *central = new QWidget(this);
+    Q_ASSERT(central != nullptr);
+    setCentralWidget(central);
+    
+    auto *rootLay = new QHBoxLayout(central);
+    Q_ASSERT(rootLay != nullptr);
+    rootLay->setContentsMargins(0, 0, 0, 0);
+    rootLay->setSpacing(0);
+
+    buildSidebar(rootLay, central);
+    buildPanes(rootLay, central);
 }
 
 void MainWindow::initConnections()
@@ -341,95 +355,93 @@ void MainWindow::connectPaneSignals(PaneWidget *pane, PaneWidget *other)
     });
 }
 
-void MainWindow::connectSidebarSignals()
+void MainWindow::handleSolidDeviceMount(const QString &path, const std::function<void(const QString&)> &navigate)
 {
-    Q_ASSERT(m_sidebar != nullptr && m_leftPane != nullptr && m_rightPane != nullptr);
-    auto mountAndNavigate = [this](const QString &path, bool leftPane)
+    Solid::Device dev(path.mid(6));
+    auto *acc = dev.as<Solid::StorageAccess>();
+    if (acc == nullptr) return;
+    if (acc->isAccessible())
     {
-        auto navigate = [this, leftPane](const QString &p)
+        refreshAllDrives();
+        navigate(acc->filePath());
+    }
+    else
+    {
+        connect(acc, &Solid::StorageAccess::setupDone, this, [this, acc, navigate](Solid::ErrorType, QVariant errData, const QString &)
         {
-            if (leftPane)
-            {
-                m_leftPane->navigateTo(p);
-                m_leftPane->setFocused(true);
-                m_rightPane->setFocused(false);
-            }
-            else
-            {
-                m_rightPane->navigateTo(p);
-                m_rightPane->setFocused(true);
-                m_leftPane->setFocused(false);
-            }
-        };
-
-        if (path == QStringLiteral("remote:/"))
-        {
-            PaneWidget *pane = leftPane ? m_leftPane : m_rightPane;
-            Q_ASSERT(pane != nullptr);
-            pane->setViewMode(0);                // Details
-            pane->navigateTo(path, true, false); // false = don't update miller
-            pane->setFocused(true);
-            if (leftPane)
-            {
-                m_rightPane->setFocused(false);
-            }
-            else
-            {
-                m_leftPane->setFocused(false);
-            }
-            return;
-        }
-
-        if (path.startsWith(QStringLiteral("solid:")))
-        {
-            Solid::Device dev(path.mid(6));
-            auto *acc = dev.as<Solid::StorageAccess>();
-            if (acc == nullptr)
-            {
-                return;
-            }
             if (acc->isAccessible())
             {
-                refreshAllDrives();
+                DriveManager::instance()->refreshAll();
                 navigate(acc->filePath());
+                sc_notify(this->tr("Laufwerk bereit"), this->tr("Das Laufwerk wurde erfolgreich eingebunden."), QStringLiteral("media-removable"));
             }
             else
             {
-                connect(acc, &Solid::StorageAccess::setupDone, this, [this, acc, navigate](Solid::ErrorType, QVariant errData, const QString &)
-                {
-                    if (acc->isAccessible())
-                    {
-                        DriveManager::instance()->refreshAll();
-                        navigate(acc->filePath());
-                        sc_notify(this->tr("Laufwerk bereit"), this->tr("Das Laufwerk wurde erfolgreich eingebunden."), QStringLiteral("media-removable"));
-                    }
-                    else
-                    {
-                        sc_notify(this->tr("Fehler beim Einbinden"), this->tr("Das Laufwerk konnte nicht eingebunden werden:\n%1").arg(errData.toString()), QStringLiteral("dialog-warning"));
-                    }
-                }, Qt::SingleShotConnection);
-                acc->setup();
+                sc_notify(this->tr("Fehler beim Einbinden"), this->tr("Das Laufwerk konnte nicht eingebunden werden:\n%1").arg(errData.toString()), QStringLiteral("dialog-warning"));
             }
+        }, Qt::SingleShotConnection);
+        acc->setup();
+    }
+}
+
+void MainWindow::mountAndNavigateDrive(const QString &path, bool leftPane)
+{
+    auto navigate = [this, leftPane](const QString &p)
+    {
+        if (leftPane)
+        {
+            m_leftPane->navigateTo(p);
+            m_leftPane->setFocused(true);
+            m_rightPane->setFocused(false);
         }
         else
         {
-            navigate(path);
+            m_rightPane->navigateTo(p);
+            m_rightPane->setFocused(true);
+            m_leftPane->setFocused(false);
         }
     };
 
-    connect(m_sidebar, &Sidebar::driveClicked, this, [this, mountAndNavigate](const QString &path)
+    if (path == QStringLiteral("remote:/"))
     {
-        mountAndNavigate(path, !m_rightPane->isFocused());
-    });
-    connect(m_sidebar, &Sidebar::driveClickedLeft, this, [mountAndNavigate](const QString &path)
-    {
-        mountAndNavigate(path, true); // immer links
-    });
-    connect(m_sidebar, &Sidebar::driveClickedRight, this, [mountAndNavigate](const QString &path)
-    {
-        mountAndNavigate(path, false); // immer rechts
-    });
+        PaneWidget *pane = leftPane ? m_leftPane : m_rightPane;
+        Q_ASSERT(pane != nullptr);
+        pane->setViewMode(0);                // Details
+        pane->navigateTo(path, true, false); // false = Miller-Spalten nicht aktualisieren
+        pane->setFocused(true);
+        if (leftPane) m_rightPane->setFocused(false);
+        else m_leftPane->setFocused(false);
+        return;
+    }
 
+    if (path.startsWith(QStringLiteral("solid:")))
+    {
+        handleSolidDeviceMount(path, navigate);
+    }
+    else
+    {
+        navigate(path);
+    }
+}
+
+void MainWindow::connectSidebarDriveClicks()
+{
+    connect(m_sidebar, &Sidebar::driveClicked, this, [this](const QString &path)
+    {
+        mountAndNavigateDrive(path, !m_rightPane->isFocused());
+    });
+    connect(m_sidebar, &Sidebar::driveClickedLeft, this, [this](const QString &path)
+    {
+        mountAndNavigateDrive(path, true); // immer links
+    });
+    connect(m_sidebar, &Sidebar::driveClickedRight, this, [this](const QString &path)
+    {
+        mountAndNavigateDrive(path, false); // immer rechts
+    });
+}
+
+void MainWindow::connectPaneOpenRequests()
+{
     for (auto *pane : {m_leftPane, m_rightPane})
     {
         Q_ASSERT(pane != nullptr);
@@ -446,7 +458,10 @@ void MainWindow::connectSidebarSignals()
             m_leftPane->setFocused(false);
         });
     }
+}
 
+void MainWindow::connectSidebarMiscSignals()
+{
     connect(m_sidebar, &Sidebar::addCurrentPathToPlaces, this, [this]()
     {
         m_sidebar->addPlace(m_leftPane->currentPath());
@@ -461,6 +476,14 @@ void MainWindow::connectSidebarSignals()
     connect(m_sidebar, &Sidebar::layoutChangeRequested, this, &MainWindow::applyLayout);
     connect(m_leftPane, &PaneWidget::layoutChangeRequested, this, &MainWindow::applyLayout);
     connect(m_rightPane, &PaneWidget::layoutChangeRequested, this, &MainWindow::applyLayout);
+}
+
+void MainWindow::connectSidebarSignals()
+{
+    Q_ASSERT(m_sidebar != nullptr && m_leftPane != nullptr && m_rightPane != nullptr);
+    connectSidebarDriveClicks();
+    connectPaneOpenRequests();
+    connectSidebarMiscSignals();
 }
 
 void MainWindow::connectSystemNotifications()
@@ -519,9 +542,8 @@ void MainWindow::connectSystemNotifications()
     connect(m_sidebar, &Sidebar::removeFromPlacesRequested, this, doRemoveFromPlaces);
 }
 
-void MainWindow::connectFileWatcher()
+void MainWindow::connectUnmountRequested()
 {
-    Q_ASSERT(m_sidebar != nullptr && m_leftPane != nullptr && m_rightPane != nullptr);
     connect(m_sidebar, &Sidebar::unmountRequested, this, [this](const QString &path)
     {
         const QString normPath = mw_normalizePath(path);
@@ -536,116 +558,23 @@ void MainWindow::connectFileWatcher()
         {
             if (exitCode == 0)
             {
-                if (leftPaneOnMount)
-                {
-                    m_leftPane->navigateTo(QStringLiteral("__drives__"));
-                }
-                if (rightPaneOnMount)
-                {
-                    m_rightPane->navigateTo(QStringLiteral("__drives__"));
-                }
-                if (leftMillerOnMount)
-                {
-                    m_leftPane->miller()->navigateTo(QStringLiteral("__drives__"));
-                }
-                else
-                {
-                    m_leftPane->miller()->refreshDrives();
-                }
-                if (rightMillerOnMount)
-                {
-                    m_rightPane->miller()->navigateTo(QStringLiteral("__drives__"));
-                }
-                else
-                {
-                    m_rightPane->miller()->refreshDrives();
-                }
+                if (leftPaneOnMount) m_leftPane->navigateTo(QStringLiteral("__drives__"));
+                if (rightPaneOnMount) m_rightPane->navigateTo(QStringLiteral("__drives__"));
+                if (leftMillerOnMount) m_leftPane->miller()->navigateTo(QStringLiteral("__drives__"));
+                else m_leftPane->miller()->refreshDrives();
+                if (rightMillerOnMount) m_rightPane->miller()->navigateTo(QStringLiteral("__drives__"));
+                else m_rightPane->miller()->refreshDrives();
             }
             m_sidebar->updateDrives();
             proc->deleteLater();
         });
         proc->start(QStringLiteral("umount"), {path});
     });
+}
 
-    auto doTeardown = [this](const QString &udi)
-    {
-        Solid::Device dev(udi);
-        auto *acc = dev.as<Solid::StorageAccess>();
-        if (acc == nullptr)
-        {
-            return;
-        }
-
-        const QString mountPoint = acc->filePath();
-        const QString normPath = mw_normalizePath(mountPoint);
-
-        const bool leftPaneOnMount = !normPath.isEmpty() && (mw_normalizePath(m_leftPane->currentPath()) == normPath || mw_normalizePath(m_leftPane->currentPath()).startsWith(normPath + QLatin1Char('/')));
-        const bool rightPaneOnMount = !normPath.isEmpty() && (mw_normalizePath(m_rightPane->currentPath()) == normPath || mw_normalizePath(m_rightPane->currentPath()).startsWith(normPath + QLatin1Char('/')));
-        const bool leftMillerOnMount = !normPath.isEmpty() && (mw_normalizePath(m_leftPane->miller()->activePath()) == normPath || mw_normalizePath(m_leftPane->miller()->activePath()).startsWith(normPath + QLatin1Char('/')));
-        const bool rightMillerOnMount = !normPath.isEmpty() && (mw_normalizePath(m_rightPane->miller()->activePath()) == normPath || mw_normalizePath(m_rightPane->miller()->activePath()).startsWith(normPath + QLatin1Char('/')));
-
-        m_leftPane->filePane()->stopLister();
-        m_rightPane->filePane()->stopLister();
-
-        if (leftPaneOnMount)
-        {
-            m_leftPane->navigateTo(QDir::homePath());
-        }
-        if (rightPaneOnMount)
-        {
-            m_rightPane->navigateTo(QDir::homePath());
-        }
-        if (leftMillerOnMount)
-        {
-            m_leftPane->miller()->navigateTo(QStringLiteral("__drives__"));
-        }
-        if (rightMillerOnMount)
-        {
-            m_rightPane->miller()->navigateTo(QStringLiteral("__drives__"));
-        }
-
-        connect(acc, &Solid::StorageAccess::teardownDone, this, [this, leftMillerOnMount, rightMillerOnMount](Solid::ErrorType err, QVariant errData, const QString &)
-        {
-            if (err != Solid::NoError)
-            {
-                sc_notify(tr("Aushängen fehlgeschlagen"), tr("Das Laufwerk konnte nicht ausgehängt werden:\n%1").arg(errData.toString()), QStringLiteral("dialog-warning"));
-            }
-            else
-            {
-                sc_notify(tr("Laufwerk sicher entfernt"), tr("Sie können das Gerät jetzt sicher abziehen."), QStringLiteral("media-eject"));
-            }
-            if (!leftMillerOnMount)
-            {
-                m_leftPane->miller()->refreshDrives();
-            }
-            if (!rightMillerOnMount)
-            {
-                m_rightPane->miller()->refreshDrives();
-            }
-            m_sidebar->updateDrives();
-        }, Qt::SingleShotConnection);
-
-        auto *timer = new QTimer(this);
-        Q_ASSERT(timer != nullptr);
-        timer->setSingleShot(true);
-        timer->setInterval(8000);
-        connect(timer, &QTimer::timeout, this, [this, mountPoint, timer]()
-        {
-            timer->deleteLater();
-            auto *proc = new QProcess(this);
-            Q_ASSERT(proc != nullptr);
-            connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this, proc](int, QProcess::ExitStatus)
-            {
-                refreshAllDrives();
-                proc->deleteLater();
-            });
-            proc->start(QStringLiteral("umount"), {mountPoint});
-        });
-        connect(acc, &Solid::StorageAccess::teardownDone, timer, &QTimer::stop, Qt::SingleShotConnection);
-        timer->start();
-
-        acc->teardown();
-    };
+void MainWindow::connectTeardownRequested()
+{
+    auto doTeardown = [this](const QString &udi) { executeDeviceTeardown(udi); };
 
     connect(m_leftPane->miller(), &MillerArea::teardownRequested, this, doTeardown);
     connect(m_rightPane->miller(), &MillerArea::teardownRequested, this, doTeardown);
@@ -658,20 +587,75 @@ void MainWindow::connectFileWatcher()
         m_leftPane->miller()->refreshDrives();
         m_rightPane->miller()->refreshDrives();
     });
+}
 
+void MainWindow::executeDeviceTeardown(const QString &udi)
+{
+    Solid::Device dev(udi);
+    auto *acc = dev.as<Solid::StorageAccess>();
+    if (acc == nullptr)
+    {
+        return;
+    }
+
+    const QString mountPoint = acc->filePath();
+    const QString normPath = mw_normalizePath(mountPoint);
+
+    const bool leftPaneOnMount = !normPath.isEmpty() && (mw_normalizePath(m_leftPane->currentPath()) == normPath || mw_normalizePath(m_leftPane->currentPath()).startsWith(normPath + QLatin1Char('/')));
+    const bool rightPaneOnMount = !normPath.isEmpty() && (mw_normalizePath(m_rightPane->currentPath()) == normPath || mw_normalizePath(m_rightPane->currentPath()).startsWith(normPath + QLatin1Char('/')));
+    const bool leftMillerOnMount = !normPath.isEmpty() && (mw_normalizePath(m_leftPane->miller()->activePath()) == normPath || mw_normalizePath(m_leftPane->miller()->activePath()).startsWith(normPath + QLatin1Char('/')));
+    const bool rightMillerOnMount = !normPath.isEmpty() && (mw_normalizePath(m_rightPane->miller()->activePath()) == normPath || mw_normalizePath(m_rightPane->miller()->activePath()).startsWith(normPath + QLatin1Char('/')));
+
+    m_leftPane->filePane()->stopLister();
+    m_rightPane->filePane()->stopLister();
+
+    if (leftPaneOnMount) m_leftPane->navigateTo(QDir::homePath());
+    if (rightPaneOnMount) m_rightPane->navigateTo(QDir::homePath());
+    if (leftMillerOnMount) m_leftPane->miller()->navigateTo(QStringLiteral("__drives__"));
+    if (rightMillerOnMount) m_rightPane->miller()->navigateTo(QStringLiteral("__drives__"));
+
+    connect(acc, &Solid::StorageAccess::teardownDone, this, [this, leftMillerOnMount, rightMillerOnMount](Solid::ErrorType err, QVariant errData, const QString &)
+    {
+        if (err != Solid::NoError) sc_notify(tr("Aushängen fehlgeschlagen"), tr("Das Laufwerk konnte nicht ausgehängt werden:\n%1").arg(errData.toString()), QStringLiteral("dialog-warning"));
+        else sc_notify(tr("Laufwerk sicher entfernt"), tr("Sie können das Gerät jetzt sicher abziehen."), QStringLiteral("media-eject"));
+        
+        if (!leftMillerOnMount) m_leftPane->miller()->refreshDrives();
+        if (!rightMillerOnMount) m_rightPane->miller()->refreshDrives();
+        m_sidebar->updateDrives();
+    }, Qt::SingleShotConnection);
+
+    auto *timer = new QTimer(this);
+    Q_ASSERT(timer != nullptr);
+    timer->setSingleShot(true);
+    timer->setInterval(8000);
+    connect(timer, &QTimer::timeout, this, [this, mountPoint, timer]()
+    {
+        timer->deleteLater();
+        auto *proc = new QProcess(this);
+        Q_ASSERT(proc != nullptr);
+        connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this, proc](int, QProcess::ExitStatus)
+        {
+            refreshAllDrives();
+            proc->deleteLater();
+        });
+        proc->start(QStringLiteral("umount"), {mountPoint});
+    });
+    connect(acc, &Solid::StorageAccess::teardownDone, timer, &QTimer::stop, Qt::SingleShotConnection);
+    timer->start();
+
+    acc->teardown();
+}
+
+void MainWindow::connectDriveSettingsAndThemes()
+{
     connect(m_sidebar, &Sidebar::hiddenFilesChanged, this, [this](bool)
     {
         m_leftPane->navigateTo(m_leftPane->currentPath());
         m_rightPane->navigateTo(m_rightPane->currentPath());
-        for (auto *col : m_leftPane->miller()->cols())
-        {
-            col->populateDir(col->path());
-        }
-        for (auto *col : m_rightPane->miller()->cols())
-        {
-            col->populateDir(col->path());
-        }
+        for (auto *col : m_leftPane->miller()->cols()) col->populateDir(col->path());
+        for (auto *col : m_rightPane->miller()->cols()) col->populateDir(col->path());
     });
+    
     connect(m_sidebar, &Sidebar::settingsChanged, this, [this]()
     {
         m_sidebar->applyIconSizes();
@@ -679,25 +663,14 @@ void MainWindow::connectFileWatcher()
         GitStatusManager::instance().reloadConfig();
         m_sidebar->refreshGitSection();
 #endif
-        for (auto *col : m_leftPane->miller()->cols())
-        {
-            col->refreshStyle();
-        }
-        for (auto *col : m_rightPane->miller()->cols())
-        {
-            col->refreshStyle();
-        }
+        for (auto *col : m_leftPane->miller()->cols()) col->refreshStyle();
+        for (auto *col : m_rightPane->miller()->cols()) col->refreshStyle();
     });
+    
     connect(&TM(), &ThemeManager::themeChanged, this, [this]()
     {
-        for (auto *col : m_leftPane->miller()->cols())
-        {
-            col->refreshStyle();
-        }
-        for (auto *col : m_rightPane->miller()->cols())
-        {
-            col->refreshStyle();
-        }
+        for (auto *col : m_leftPane->miller()->cols()) col->refreshStyle();
+        for (auto *col : m_rightPane->miller()->cols()) col->refreshStyle();
 
         m_leftPane->setFocused(activePane() == m_leftPane);
         m_rightPane->setFocused(activePane() == m_rightPane);
@@ -711,6 +684,10 @@ void MainWindow::connectFileWatcher()
             w->update();
         }
     });
+}
+
+void MainWindow::connectDeviceNotifierAndWatcher()
+{
     connect(Solid::DeviceNotifier::instance(), &Solid::DeviceNotifier::deviceAdded, this, [this](const QString &)
     {
         scheduleDriveRefresh();
@@ -738,18 +715,18 @@ void MainWindow::connectFileWatcher()
     {
         m_fsWatcher->addDir(QStringLiteral("/media"), KDirWatch::WatchSubDirs);
     }
-    connect(m_fsWatcher, &KDirWatch::dirty, this, [this](const QString &)
-    {
-        scheduleDriveRefresh();
-    });
-    connect(m_fsWatcher, &KDirWatch::created, this, [this](const QString &)
-    {
-        scheduleDriveRefresh();
-    });
-    connect(m_fsWatcher, &KDirWatch::deleted, this, [this](const QString &)
-    {
-        scheduleDriveRefresh();
-    });
+    connect(m_fsWatcher, &KDirWatch::dirty, this, [this](const QString &) { scheduleDriveRefresh(); });
+    connect(m_fsWatcher, &KDirWatch::created, this, [this](const QString &) { scheduleDriveRefresh(); });
+    connect(m_fsWatcher, &KDirWatch::deleted, this, [this](const QString &) { scheduleDriveRefresh(); });
+}
+
+void MainWindow::connectFileWatcher()
+{
+    Q_ASSERT(m_sidebar != nullptr && m_leftPane != nullptr && m_rightPane != nullptr);
+    connectUnmountRequested();
+    connectTeardownRequested();
+    connectDriveSettingsAndThemes();
+    connectDeviceNotifierAndWatcher();
 }
 
 void MainWindow::initTimers()
@@ -860,7 +837,7 @@ void MainWindow::openSettings(int page)
         m_leftPane->filePane()->view()->setIconSize(QSize(iconSize, iconSize));
         m_rightPane->filePane()->view()->setIconSize(QSize(iconSize, iconSize));
         
-        // Full refresh to apply hidden files, extensions, and behavior changes
+        // Vollständige Aktualisierung um versteckte Dateien, Erweiterungen und Verhalten zu übernehmen
         m_leftPane->navigateTo(m_leftPane->currentPath());
         m_rightPane->navigateTo(m_rightPane->currentPath());
         

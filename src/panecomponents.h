@@ -96,6 +96,9 @@ private:
   int m_hovIcon = -1;
   QPoint m_pressGlobal;
   int m_pressWidth = 0;
+
+  void paintHandleExpanded(QPainter &p, int cx, int cy);
+  void paintHandleCollapsed(QPainter &p, int cx, int cy);
 };
 
 // --- FooterWidget — zusammenklappbare Vorschau-/Info-Leiste am Pane-Rand ---
@@ -126,6 +129,13 @@ private:
   bool m_arrowHov = false;
   int m_pressY = 0;
   int m_pressH = 0;
+
+  void buildBarRow();
+  void buildContentArea();
+  bool handleFooterPaint(QEvent *ev);
+  bool handleFooterMousePress(QEvent *ev);
+  bool handleFooterMouseMove(QEvent *ev);
+  bool handleFooterMouseRelease(QEvent *ev);
 };
 
 // --- MillerItemDelegate — Age-Badge Indikator in Miller-Spalten ---

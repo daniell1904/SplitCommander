@@ -40,7 +40,7 @@
     req.setRawHeader("Accept", "application/json");
     if (Config::paperlessSslIgnore())
     {
-        req.setRawHeader("ssl-verify", "false"); // handled via NAM sslErrors signal
+        req.setRawHeader("ssl-verify", "false"); // SSL-Fehler werden über das NAM-sslErrors-Signal behandelt
     }
     return req;
 }
@@ -65,6 +65,13 @@ PaperlessUploadDialog::PaperlessUploadDialog(const QStringList &files, QWidget *
     setMinimumWidth(480);
     setStyleSheet(tm.ssDialog());
 
+    buildUI(files);
+    loadMeta();
+}
+
+void PaperlessUploadDialog::buildUI(const QStringList &files)
+{
+    const ThemeManager &tm = TM();
     const QString inputSS = QString(
         "background:%1; color:%2; border:1px solid %3; border-radius:3px; "
         "padding:2px 8px; font-size:13px; min-height:22px;")
@@ -77,7 +84,28 @@ PaperlessUploadDialog::PaperlessUploadDialog(const QStringList &files, QWidget *
     lay->setSpacing(8);
     lay->setContentsMargins(16, 16, 16, 16);
 
-    // Dateiliste
+    buildFileList(lay, files, labelSS, tm.colors().textMuted, tm.colors().bgInput, tm.colors().borderAlt);
+    buildTitleField(lay, files, labelSS, inputSS);
+    buildTagsList(lay, labelSS, tm.colors().bgInput, tm.colors().textPrimary, tm.colors().borderAlt);
+    buildCorrespondentCombo(lay, labelSS, inputSS);
+
+    const QString primSS = QString(
+        "QPushButton { border-radius:3px; padding:4px 16px; font-size:12px; "
+        "font-weight:bold; min-height:26px; background:%1; color:%2; border:none; }"
+        "QPushButton:hover { background:%3; }")
+        .arg(tm.colors().accent, tm.colors().textLight, tm.colors().accentHover);
+    const QString normSS = QString(
+        "QPushButton { border-radius:3px; padding:4px 16px; font-size:12px; "
+        "font-weight:bold; min-height:26px; background:%1; color:%2; border:1px solid %3; }"
+        "QPushButton:hover { background:%4; }")
+        .arg(tm.colors().bgPanel, tm.colors().textPrimary,
+             tm.colors().borderAlt, tm.colors().bgHover);
+
+    buildActionButtons(lay, primSS, normSS);
+}
+
+void PaperlessUploadDialog::buildFileList(QVBoxLayout *lay, const QStringList &files, const QString &labelSS, const QString &textMuted, const QString &bgInput, const QString &borderAlt)
+{
     auto *filesLbl = new QLabel(tr("Dateien:"), this);
     Q_ASSERT(filesLbl != nullptr);
     filesLbl->setStyleSheet(labelSS);
@@ -87,11 +115,13 @@ PaperlessUploadDialog::PaperlessUploadDialog(const QStringList &files, QWidget *
     filesList->setStyleSheet(QString(
         "color:%1; font-size:11px; padding:4px; background:%2; "
         "border:1px solid %3; border-radius:3px;")
-        .arg(tm.colors().textMuted, tm.colors().bgInput, tm.colors().borderAlt));
+        .arg(textMuted, bgInput, borderAlt));
     filesList->setWordWrap(true);
     lay->addWidget(filesList);
+}
 
-    // Titel
+void PaperlessUploadDialog::buildTitleField(QVBoxLayout *lay, const QStringList &files, const QString &labelSS, const QString &inputSS)
+{
     auto *titleLbl = new QLabel(tr("Titel (optional):"), this);
     Q_ASSERT(titleLbl != nullptr);
     titleLbl->setStyleSheet(labelSS);
@@ -108,8 +138,10 @@ PaperlessUploadDialog::PaperlessUploadDialog(const QStringList &files, QWidget *
         m_titleEdit->setPlaceholderText(tr("Wird aus Dateiname ermittelt"));
     }
     lay->addWidget(m_titleEdit);
+}
 
-    // Tags
+void PaperlessUploadDialog::buildTagsList(QVBoxLayout *lay, const QString &labelSS, const QString &bgInput, const QString &textPrimary, const QString &borderAlt)
+{
     auto *tagsLbl = new QLabel(tr("Tags:"), this);
     Q_ASSERT(tagsLbl != nullptr);
     tagsLbl->setStyleSheet(labelSS);
@@ -118,14 +150,16 @@ PaperlessUploadDialog::PaperlessUploadDialog(const QStringList &files, QWidget *
     Q_ASSERT(m_tagsList != nullptr);
     m_tagsList->setStyleSheet(QString(
         "background:%1; color:%2; border:1px solid %3; border-radius:3px;")
-        .arg(tm.colors().bgInput, tm.colors().textPrimary, tm.colors().borderAlt));
+        .arg(bgInput, textPrimary, borderAlt));
     m_tagsList->setMaximumHeight(120);
     m_tagsList->setSelectionMode(QAbstractItemView::MultiSelection);
     m_tagsList->addItem(tr("Wird geladen…"));
     m_tagsList->setEnabled(false);
     lay->addWidget(m_tagsList);
+}
 
-    // Korrespondent
+void PaperlessUploadDialog::buildCorrespondentCombo(QVBoxLayout *lay, const QString &labelSS, const QString &inputSS)
+{
     auto *corrLbl = new QLabel(tr("Korrespondent:"), this);
     Q_ASSERT(corrLbl != nullptr);
     corrLbl->setStyleSheet(labelSS);
@@ -136,20 +170,10 @@ PaperlessUploadDialog::PaperlessUploadDialog(const QStringList &files, QWidget *
     m_corrCombo->addItem(tr("Wird geladen…"));
     m_corrCombo->setEnabled(false);
     lay->addWidget(m_corrCombo);
+}
 
-    // Buttons
-    const QString primSS = QString(
-        "QPushButton { border-radius:3px; padding:4px 16px; font-size:12px; "
-        "font-weight:bold; min-height:26px; background:%1; color:%2; border:none; }"
-        "QPushButton:hover { background:%3; }")
-        .arg(tm.colors().accent, tm.colors().textLight, tm.colors().accentHover);
-    const QString normSS = QString(
-        "QPushButton { border-radius:3px; padding:4px 16px; font-size:12px; "
-        "font-weight:bold; min-height:26px; background:%1; color:%2; border:1px solid %3; }"
-        "QPushButton:hover { background:%4; }")
-        .arg(tm.colors().bgPanel, tm.colors().textPrimary,
-             tm.colors().borderAlt, tm.colors().bgHover);
-
+void PaperlessUploadDialog::buildActionButtons(QVBoxLayout *lay, const QString &primSS, const QString &normSS)
+{
     auto *btnRow = new QHBoxLayout();
     Q_ASSERT(btnRow != nullptr);
     auto *okBtn = new QPushButton(tr("Hochladen"), this);
@@ -166,8 +190,6 @@ PaperlessUploadDialog::PaperlessUploadDialog(const QStringList &files, QWidget *
 
     connect(okBtn,     &QPushButton::clicked, this, &QDialog::accept);
     connect(cancelBtn, &QPushButton::clicked, this, &QDialog::reject);
-
-    loadMeta();
 }
 
 void PaperlessUploadDialog::loadMeta()
@@ -266,75 +288,91 @@ void PaperlessManagerDialog::uploadFiles(const QStringList &files, QWidget *pare
 
     for (const QString &filePath : files)
     {
-        QFile *file = new QFile(filePath);
-        Q_ASSERT(file != nullptr);
-        if (!file->open(QIODevice::ReadOnly))
+        auto *multiPart = createUploadMultiPart(filePath, titleText, tags, correspondent);
+        if (!multiPart)
         {
-            delete file;
             --(*pending);
             continue;
         }
 
-        auto *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
-        Q_ASSERT(multiPart != nullptr);
-
-        // Datei-Part
-        QHttpPart docPart;
-        const QString mime = QMimeDatabase().mimeTypeForFile(filePath).name();
-        docPart.setHeader(QNetworkRequest::ContentTypeHeader, mime);
-        docPart.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"document\"; filename=\"%1\"").arg(QFileInfo(filePath).fileName()));
-        docPart.setBodyDevice(file);
-        file->setParent(multiPart);
-        multiPart->append(docPart);
-
-        // Titel
-        const QString t = titleText.isEmpty() ? QFileInfo(filePath).completeBaseName() : titleText;
-        QHttpPart titlePart;
-        titlePart.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"title\""));
-        titlePart.setBody(t.toUtf8());
-        multiPart->append(titlePart);
-
-        // Tags
-        for (int tagId : tags)
-        {
-            QHttpPart tagPart;
-            tagPart.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"tags\""));
-            tagPart.setBody(QByteArray::number(tagId));
-            multiPart->append(tagPart);
-        }
-
-        // Korrespondent
-        if (correspondent > 0)
-        {
-            QHttpPart corrPart;
-            corrPart.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"correspondent\""));
-            corrPart.setBody(QByteArray::number(correspondent));
-            multiPart->append(corrPart);
-        }
-
-        QNetworkRequest req(QUrl(Config::paperlessUrl() + QStringLiteral("/api/documents/post_document/")));
-        req.setRawHeader("Authorization", QByteArray("Token ") + Config::paperlessToken().toUtf8());
-
-        auto *reply = nam->post(req, multiPart);
-        Q_ASSERT(reply != nullptr);
-        multiPart->setParent(reply);
-        ignoreSsl(reply);
-
-        connect(reply, &QNetworkReply::finished, parent, [reply, pending, parent, filePath]()
-        {
-            reply->deleteLater();
-            --(*pending);
-            if (reply->error() != QNetworkReply::NoError)
-            {
-                QMessageBox::warning(parent, tr("Paperless Upload"), tr("Fehler beim Hochladen von %1:\n%2").arg(QFileInfo(filePath).fileName(), reply->errorString()));
-            }
-            if (*pending == 0)
-            {
-                delete pending;
-                QMessageBox::information(parent, tr("Paperless"), tr("Upload abgeschlossen."));
-            }
-        });
+        sendUploadRequest(nam, multiPart, filePath, pending, parent);
     }
+}
+
+QHttpMultiPart* PaperlessManagerDialog::createUploadMultiPart(const QString &filePath, const QString &titleText, const QList<int> &tags, int correspondent)
+{
+    QFile *file = new QFile(filePath);
+    Q_ASSERT(file != nullptr);
+    if (!file->open(QIODevice::ReadOnly))
+    {
+        delete file;
+        return nullptr;
+    }
+
+    auto *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+    Q_ASSERT(multiPart != nullptr);
+
+    // Datei-Part
+    QHttpPart docPart;
+    const QString mime = QMimeDatabase().mimeTypeForFile(filePath).name();
+    docPart.setHeader(QNetworkRequest::ContentTypeHeader, mime);
+    docPart.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"document\"; filename=\"%1\"").arg(QFileInfo(filePath).fileName()));
+    docPart.setBodyDevice(file);
+    file->setParent(multiPart);
+    multiPart->append(docPart);
+
+    // Titel
+    const QString t = titleText.isEmpty() ? QFileInfo(filePath).completeBaseName() : titleText;
+    QHttpPart titlePart;
+    titlePart.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"title\""));
+    titlePart.setBody(t.toUtf8());
+    multiPart->append(titlePart);
+
+    // Tags
+    for (int tagId : tags)
+    {
+        QHttpPart tagPart;
+        tagPart.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"tags\""));
+        tagPart.setBody(QByteArray::number(tagId));
+        multiPart->append(tagPart);
+    }
+
+    // Korrespondent
+    if (correspondent > 0)
+    {
+        QHttpPart corrPart;
+        corrPart.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"correspondent\""));
+        corrPart.setBody(QByteArray::number(correspondent));
+        multiPart->append(corrPart);
+    }
+
+    return multiPart;
+}
+
+void PaperlessManagerDialog::sendUploadRequest(QNetworkAccessManager *nam, QHttpMultiPart *multiPart, const QString &filePath, int *pending, QWidget *parent)
+{
+    QNetworkRequest req(QUrl(Config::paperlessUrl() + QStringLiteral("/api/documents/post_document/")));
+    req.setRawHeader("Authorization", QByteArray("Token ") + Config::paperlessToken().toUtf8());
+
+    auto *reply = nam->post(req, multiPart);
+    Q_ASSERT(reply != nullptr);
+    multiPart->setParent(reply);
+    ignoreSsl(reply);
+
+    connect(reply, &QNetworkReply::finished, parent, [reply, pending, parent, filePath]()
+    {
+        reply->deleteLater();
+        --(*pending);
+        if (reply->error() != QNetworkReply::NoError)
+        {
+            QMessageBox::warning(parent, tr("Paperless Upload"), tr("Fehler beim Hochladen von %1:\n%2").arg(QFileInfo(filePath).fileName(), reply->errorString()));
+        }
+        if (*pending == 0)
+        {
+            delete pending;
+            QMessageBox::information(parent, tr("Paperless"), tr("Upload abgeschlossen."));
+        }
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -403,6 +441,16 @@ void PaperlessManagerDialog::setupConnectionSection(QVBoxLayout *root, const QSt
     cfgLay->setSpacing(6);
     cfgLay->setContentsMargins(8, 8, 8, 8);
 
+    buildUrlAndTokenFields(cfgLay, inputSS, normBtnSS);
+    buildConnectionSettingsFooter(cfgLay, normBtnSS);
+
+    root->addWidget(cfgBox);
+}
+
+void PaperlessManagerDialog::buildUrlAndTokenFields(QFormLayout *cfgLay, const QString &inputSS, const QString &normBtnSS)
+{
+    QWidget *cfgBox = cfgLay->parentWidget();
+    
     m_urlEdit = new QLineEdit(cfgBox);
     Q_ASSERT(m_urlEdit != nullptr);
     m_urlEdit->setStyleSheet(inputSS);
@@ -417,6 +465,7 @@ void PaperlessManagerDialog::setupConnectionSection(QVBoxLayout *root, const QSt
     m_tokenEdit->setStyleSheet(inputSS);
     m_tokenEdit->setEchoMode(QLineEdit::Password);
     m_tokenEdit->setText(Config::paperlessToken());
+    
     m_tokenVisibleBtn = new QPushButton(cfgBox);
     Q_ASSERT(m_tokenVisibleBtn != nullptr);
     m_tokenVisibleBtn->setIcon(QIcon::fromTheme(QStringLiteral("password-show-on")));
@@ -424,10 +473,22 @@ void PaperlessManagerDialog::setupConnectionSection(QVBoxLayout *root, const QSt
     m_tokenVisibleBtn->setCheckable(true);
     m_tokenVisibleBtn->setMinimumHeight(28);
     m_tokenVisibleBtn->setToolTip(tr("Token anzeigen"));
+    
     tokenRow->addWidget(m_tokenEdit, 1);
     tokenRow->addWidget(m_tokenVisibleBtn);
     cfgLay->addRow(tr("API-Token:"), tokenRow);
 
+    connect(m_tokenVisibleBtn, &QPushButton::toggled, this, [this](bool visible)
+    {
+        m_tokenEdit->setEchoMode(visible ? QLineEdit::Normal : QLineEdit::Password);
+        m_tokenVisibleBtn->setIcon(QIcon::fromTheme(visible ? QStringLiteral("password-show-off") : QStringLiteral("password-show-on")));
+    });
+}
+
+void PaperlessManagerDialog::buildConnectionSettingsFooter(QFormLayout *cfgLay, const QString &normBtnSS)
+{
+    QWidget *cfgBox = cfgLay->parentWidget();
+    
     m_sslIgnoreCheck = new QCheckBox(tr("SSL-Zertifikat nicht prüfen (für selbstsignierte Zertifikate)"), cfgBox);
     Q_ASSERT(m_sslIgnoreCheck != nullptr);
     m_sslIgnoreCheck->setStyleSheet(QStringLiteral("color:%1; font-size:12px;").arg(TM().colors().textPrimary));
@@ -440,13 +501,6 @@ void PaperlessManagerDialog::setupConnectionSection(QVBoxLayout *root, const QSt
     saveBtn->setStyleSheet(normBtnSS);
     cfgLay->addRow(QString(), saveBtn);
 
-    root->addWidget(cfgBox);
-
-    connect(m_tokenVisibleBtn, &QPushButton::toggled, this, [this](bool visible)
-    {
-        m_tokenEdit->setEchoMode(visible ? QLineEdit::Normal : QLineEdit::Password);
-        m_tokenVisibleBtn->setIcon(QIcon::fromTheme(visible ? QStringLiteral("password-show-off") : QStringLiteral("password-show-on")));
-    });
     connect(saveBtn, &QPushButton::clicked, this, &PaperlessManagerDialog::saveSettings);
 }
 
@@ -536,7 +590,7 @@ void PaperlessManagerDialog::setupProgressStatusSection(QVBoxLayout *root, const
     m_progress = new QProgressBar(this);
     Q_ASSERT(m_progress != nullptr);
     m_progress->setVisible(false);
-    m_progress->setMaximum(0); // Indeterminate
+    m_progress->setMaximum(0); // Unbestimmter Fortschritt
     m_progress->setStyleSheet(QString(
         "QProgressBar { border:1px solid %1; border-radius:3px; background:%2; "
         "max-height:6px; } "
@@ -679,7 +733,7 @@ void PaperlessManagerDialog::saveSettings()
 {
     Config::setPaperlessUrl(m_urlEdit->text().trimmed().remove('/').isEmpty() ? QString() : m_urlEdit->text().trimmed());
 
-    // Trailing slash entfernen
+    // Abschließenden Schrägstrich entfernen
     QString url = m_urlEdit->text().trimmed();
     if (url.endsWith('/'))
     {

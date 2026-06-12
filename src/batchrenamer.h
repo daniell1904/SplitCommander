@@ -22,4 +22,7 @@ private:
     QLineEdit *m_prefixEdit = nullptr;
     QLineEdit *m_suffixEdit = nullptr;
     QListWidget *m_previewList = nullptr;
+
+    void setupFormFields(class QGridLayout *formLay);
+    void setupButtons(class QVBoxLayout *lay);
 };

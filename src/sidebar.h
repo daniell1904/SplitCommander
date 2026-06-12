@@ -38,6 +38,7 @@ public slots:
     QStringList groupNames() const;
     void addPathToGroup(const QString &groupName, const QString &path);
     void addNetworkPlace(const QString &path, const QString &name);
+    void removeNetworkPlace(const QString &path);
     void setupTags();
 
 signals:
@@ -62,9 +63,15 @@ private:
     // --- UI-Aufbau ---
     void buildLogo(QVBoxLayout *parent);
     void buildDrivesSection(QVBoxLayout *parent);
+    void buildNewGroupFixedSection(QVBoxLayout *parent);
+    void buildDrivesHeader(QVBoxLayout *vbox, QLabel *&lbl, QPushButton *&menuBtn);
+    void buildDrivesLists(QVBoxLayout *vbox, QWidget *&listCont);
+    void buildDrivesToggle(QVBoxLayout *vbox, QWidget *listCont);
     void buildGroupsSection(QVBoxLayout *parent);
     void buildTagsSection(QVBoxLayout *parent);
-    void buildNewGroupFixedSection(QVBoxLayout *parent);
+    void buildTagsHeader(QVBoxLayout *vbox, QPushButton *&addBtn);
+    void buildTagsList(QVBoxLayout *vbox, QWidget *&listCont);
+    void connectTagsAddButton(QPushButton *addBtn);
     void showDriveContextMenu(QListWidgetItem *item, const QPoint &pos);
     void buildFooter(QVBoxLayout *parent);
 
@@ -73,6 +80,8 @@ private:
     void setupLayoutMenuModes(class QButtonGroup *grp, QDialog *popup, int current);
     void setupDrivesList(QVBoxLayout *listLay);
     void setupNetList(QVBoxLayout *netWLay);
+    void buildNetListContextMenuOpenActions(QMenu &menu, const QString &path);
+    void buildNetListContextMenuActionPlaces(QMenu &menu, const QString &path);
     void showNetListContextMenu(const QPoint &pos);
     void showDrivesMenu(QPushButton *menuBtn, QLabel *lbl);
     void handleDrivesMenuAction(const QString &actionName, QPushButton *menuBtn, QLabel *lbl);
@@ -96,25 +105,46 @@ private:
     void handleNewGroupDialogAccepted(int checkedId, const QString &grpName, class QButtonGroup *btnGrp);
     void setupGroupWidgetHeader(QWidget *headerRow, QHBoxLayout *hLay, const QString &name, QPushButton *menuBtn, QPushButton *addBtn);
     void setupGroupWidgetConnections(QListWidget *list, std::shared_ptr<QString> sharedName, QPushButton *toggleBtn, QPushButton *addBtn, QPushButton *menuBtn, QLabel *lbl, QWidget *outerBox, QWidget *wrapper);
+    void handleGroupMenuClicked(QPushButton *menuBtn, QLabel *lbl, std::shared_ptr<QString> sharedName, QWidget *outerBox, QWidget *wrapper);
     void handleGroupMenuRename(std::shared_ptr<QString> sharedName, QLabel *lbl);
     void handleGroupMenuDelete(QWidget *wrapper, std::shared_ptr<QString> sharedName);
+    void setupGroupMenuMoveActions(QMenu *m, QWidget *wrapper, bool isPinned);
+    void setupGroupMenuPinAction(QMenu *m, QWidget *outerBox, std::shared_ptr<QString> sharedName, bool isPinned);
+    QListWidget *buildGroupListAndContainer(QWidget *&listCont);
+    QPushButton *buildGroupToggleBtn(QWidget *listCont);
+    void insertGroupWrapper(QWidget *wrapper, QWidget *beforeWidget);
+    void renameInCustomGroups(const QString &path, const QString &newName);
+    void loadGroupItems(const class KConfigGroup &g, QListWidget *list, int cnt);
+    QString determineAddedGroupName(const QString &path, const QUrl &url);
+    QIcon determineAddedGroupIcon(const QString &path, const QString &scheme);
 #ifdef SC_PLUGIN_GIT
     void setupGitGroupWidgetHeader(QWidget *headerRow, QHBoxLayout *hLay, const QString &name, QPushButton *menuBtn);
     void setupGitGroupWidgetConnections(QTreeWidget *tree, std::shared_ptr<QString> sharedName, QPushButton *toggleBtn, QPushButton *menuBtn, QLabel *lbl, QWidget *wrapper);
+    void handleGitGroupMenuClicked(QPushButton *menuBtn, QLabel *lbl, std::shared_ptr<QString> sharedName, QWidget *wrapper);
+    void handleGitGroupMenuRename(std::shared_ptr<QString> sharedName, QLabel *lbl);
+    void adjustGitTreeHeight(QTreeWidget *tree);
+    QTreeWidget *buildGitGroupTreeAndContainer(QWidget *&listCont);
 #endif
 
     // --- Laufwerke ---
     void setupDriveContextMenu();
     void loadUserPlaces();
     void saveToUserPlaces(const QString &url, const QString &name);
+    void processUserPlaceXmlBookmark(const QString &href, const QString &title);
     void connectDriveList();
+    void populateLocalDrivesList(class DriveManager *dm);
+    void populateNetworkDrivesList(class DriveManager *dm, bool &hasNet);
 
     // --- Orte / Kontextmenü ---
     void showPlaceContextMenu(QListWidgetItem *item, QListWidget *list, const QPoint &pos, const QString &groupName = {});
+    bool isNetworkPlaceAlreadySaved(const QString &path);
 
     // --- Tags ---
     void addTagItem(const QString &name, const QString &color, const QString &fontFamily = {});
     void showTagContextMenu(QListWidgetItem *item, const QPoint &pos);
+    void handleTagColorChange(QListWidgetItem *item);
+    void handleTagRename(QListWidgetItem *item);
+    void handleTagDelete(QListWidgetItem *item);
     void saveTags();
 
     // --- Hilfsfunktionen ---

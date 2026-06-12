@@ -91,7 +91,7 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
                            : QColor(TM().colors().textMuted);
 
   if (col == FP_NAME) {
-    // New-File-Indicator
+    // Neu-Datei-Indikator
     if (Config::showNewIndicator()) {
 
       qint64 ageSecs = idx.data(Qt::UserRole + 2).toLongLong();
@@ -102,7 +102,7 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
     }
     QPixmap pm;
     QString path;
-    const KFileItem item = idx.data(Qt::UserRole + 1).value<KFileItem>(); // We will add this role
+    const KFileItem item = idx.data(Qt::UserRole + 1).value<KFileItem>(); // Diese Rolle wird in FilePane gesetzt
     if (!item.isNull()) path = item.localPath();
 
     bool hasThumb = false;

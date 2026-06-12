@@ -31,6 +31,13 @@ public:
     }
 
 private:
+    void paintBackground(QPainter *p, const QStyleOptionViewItem &opt, const QModelIndex &idx) const;
+    void paintIcon(QPainter *p, const QRect &r, const QIcon &icon) const;
+    void paintStorageBar(QPainter *p, const QRect &r, const QModelIndex &idx, const QString &name, const QString &path) const;
+    void paintRemoteSubtitle(QPainter *p, const QRect &r, const QString &name, const QString &path) const;
+    void paintUnmountedLocal(QPainter *p, const QRect &r, const QString &name, const QString &path) const;
+    QString buildIpString(const QString& path, bool isKioPath) const;
+
     bool m_showBars;
     double m_animProgress = 0.0;
     HoverFader *m_fader = nullptr;

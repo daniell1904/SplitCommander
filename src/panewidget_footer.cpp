@@ -3,13 +3,7 @@
 // ---------------------------------------------------------------------------
 
 #include "panewidget.h"
-#include "mainwindow.h"
-#include <QShortcut>
-#include <QKeySequence>
-#include "config.h"
-#include "dialogutils.h"
 #include "panecomponents.h"
-#include "scglobal.h"
 #include "thememanager.h"
 #include "thumbnailmanager.h"
 #include <Baloo/Query>
@@ -33,6 +27,7 @@
 #include <KTerminalLauncherJob>
 #include <QActionGroup>
 #include <QApplication>
+#include <QEvent>
 #include <QClipboard>
 #include <QDir>
 #include <QDirIterator>
@@ -103,102 +98,103 @@ void PaneWidget::refreshFooterForDirectory(int selectedCount) {
 }
 
 void PaneWidget::refreshFooterForLocalPath(const QString &path) {
-  const QUrl url = QUrl::fromLocalFile(path);
-  const QFileInfo fi(path);
-  if (!fi.exists())
-    return;
- 
-  if (fi.isDir()) {
-    m_footerCount->setText(tr("Ordner"));
-    m_footerSize->setText(tr("…"));
-    if (m_footerSelected)
-      m_footerSelected->hide();
- 
-    auto *watcher = new QFutureWatcher<quint64>(this);
-    connect(watcher, &QFutureWatcher<quint64>::finished, this,
-            [this, watcher]() {
-              const quint64 sz = watcher->result();
-              watcher->deleteLater();
-              if (!m_footerSize)
-                return;
-              m_footerSize->setText(
-                  QString(" | %1").arg(KFormat().formatByteSize(sz)));
-            });
-    watcher->setFuture(QtConcurrent::run([path]() -> quint64 {
-      quint64 total = 0;
-      QDirIterator it(path, QDir::Files, QDirIterator::Subdirectories);
-      while (it.hasNext()) {
-        it.next();
-        total += it.fileInfo().size();
-      }
-      return total;
-    }));
-  } else {
-    m_footerCount->setText(fi.fileName());
-    m_footerSize->setText(
-        QString(" | %1").arg(KFormat().formatByteSize(fi.size())));
-    if (m_footerSelected) {
-      m_footerSelected->show();
-    }
-  }
- 
-  if (!m_previewIcon || !m_previewInfo)
-    return;
-  const int footerH = m_footerBar->height();
-  int iconSize = qBound(120, footerH - 40, 1024);
-  m_previewIcon->setFixedSize(iconSize, iconSize);
+    const QFileInfo fi(path);
+    if (!fi.exists())
+        return;
 
-  QPixmap thumb = ThumbnailManager::instance().thumbnail(path, 512);
-  if (!thumb.isNull()) {
-    m_lastPreviewPixmap = thumb;
-    m_previewIcon->setPixmap(thumb.scaled(iconSize, iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-  } else {
-    m_lastPreviewPixmap = QIcon::fromTheme(KIO::iconNameForUrl(url)).pixmap(512, 512);
-    m_previewIcon->setPixmap(m_lastPreviewPixmap.scaled(iconSize, iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    ThumbnailManager::instance().requestThumbnail(path, 512);
-  }
- 
-  QString info = QString("<table cellpadding='1' cellspacing='0' "
-                         "style='color:%1;font-size:11px;'>")
-                     .arg(TM().colors().textPrimary);
-  auto addRow = [&info](const QString &label, const QString &val) {
-    info +=
-        QString(
-            "<tr><td style='padding-right:20px;white-space:nowrap;'>%1</td><td "
-            "style='white-space:nowrap;'>%2</td></tr>")
-            .arg(label, val);
-  };
-  addRow(tr("Name"), fi.fileName().toHtmlEscaped());
-  addRow(tr("Typ"), fi.isDir() ? tr("Ordner")
-                    : fi.suffix().isEmpty()
-                        ? tr("Datei")
-                        : fi.suffix().toUpper() + tr("-Datei"));
-  addRow(tr("Erstellt"), fi.birthTime().toString("yyyy-MM-dd  hh:mm"));
-  addRow(tr("Geändert"), fi.lastModified().toString("yyyy-MM-dd  hh:mm"));
-  const qint64 days = fi.lastModified().daysTo(QDateTime::currentDateTime());
-  addRow(tr("Alter"), days == 0    ? tr("Heute")
-                      : days == 1  ? tr("Gestern")
-                      : days < 30  ? tr("%1 t").arg(days)
-                      : days < 365 ? tr("%1 m").arg(days / 30)
-                                   : tr("%1 j").arg(days / 365));
-  if (!fi.isDir())
-    addRow(tr("Größe:"), KFormat().formatByteSize(fi.size()));
- 
-  const QFile::Permissions p = fi.permissions();
-  QString perm;
-  perm += fi.isDir() ? "d" : "-";
-  perm += (p & QFile::ReadOwner) ? "r" : "-";
-  perm += (p & QFile::WriteOwner) ? "w" : "-";
-  perm += (p & QFile::ExeOwner) ? "x" : "-";
-  perm += (p & QFile::ReadGroup) ? "r" : "-";
-  perm += (p & QFile::WriteGroup) ? "w" : "-";
-  perm += (p & QFile::ExeGroup) ? "x" : "-";
-  perm += (p & QFile::ReadOther) ? "r" : "-";
-  perm += (p & QFile::WriteOther) ? "w" : "-";
-  perm += (p & QFile::ExeOther) ? "x" : "-";
-  addRow(tr("Attribute"), perm);
-  info += "</table>";
-  m_previewInfo->setText(info);
+    if (fi.isDir()) {
+        m_footerCount->setText(tr("Ordner"));
+        m_footerSize->setText(tr("…"));
+        if (m_footerSelected)
+            m_footerSelected->hide();
+
+        auto *watcher = new QFutureWatcher<quint64>(this);
+        connect(watcher, &QFutureWatcher<quint64>::finished, this,
+                [this, watcher]() {
+                    const quint64 sz = watcher->result();
+                    watcher->deleteLater();
+                    if (!m_footerSize)
+                        return;
+                    m_footerSize->setText(
+                        QString(" | %1").arg(KFormat().formatByteSize(sz)));
+                });
+        watcher->setFuture(QtConcurrent::run([path]() -> quint64 {
+            quint64 total = 0;
+            QDirIterator it(path, QDir::Files, QDirIterator::Subdirectories);
+            while (it.hasNext()) {
+                it.next();
+                total += it.fileInfo().size();
+            }
+            return total;
+        }));
+    } else {
+        m_footerCount->setText(fi.fileName());
+        m_footerSize->setText(
+            QString(" | %1").arg(KFormat().formatByteSize(fi.size())));
+        if (m_footerSelected)
+            m_footerSelected->show();
+    }
+
+    refreshFooterPreviewAndInfo(path, fi);
+}
+
+void PaneWidget::refreshFooterPreviewAndInfo(const QString &path, const QFileInfo &fi) {
+    if (!m_previewIcon || !m_previewInfo)
+        return;
+    const QUrl url = QUrl::fromLocalFile(path);
+    const int iconSize = qBound(120, m_footerBar->height() - 40, 1024);
+    m_previewIcon->setFixedSize(iconSize, iconSize);
+
+    QPixmap thumb = ThumbnailManager::instance().thumbnail(path, 512);
+    if (!thumb.isNull()) {
+        m_lastPreviewPixmap = thumb;
+        m_previewIcon->setPixmap(thumb.scaled(iconSize, iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    } else {
+        m_lastPreviewPixmap = QIcon::fromTheme(KIO::iconNameForUrl(url)).pixmap(512, 512);
+        m_previewIcon->setPixmap(m_lastPreviewPixmap.scaled(iconSize, iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        ThumbnailManager::instance().requestThumbnail(path, 512);
+    }
+
+    QString info = QString("<table cellpadding='1' cellspacing='0' style='color:%1;font-size:11px;'>")
+                       .arg(TM().colors().textPrimary);
+    auto addRow = [&info](const QString &label, const QString &val) {
+        info += QString("<tr><td style='padding-right:20px;white-space:nowrap;'>%1</td><td "
+                        "style='white-space:nowrap;'>%2</td></tr>")
+                    .arg(label, val);
+    };
+    addRow(tr("Name"), fi.fileName().toHtmlEscaped());
+    addRow(tr("Typ"), fi.isDir() ? tr("Ordner")
+                      : fi.suffix().isEmpty() ? tr("Datei")
+                                              : fi.suffix().toUpper() + tr("-Datei"));
+    addRow(tr("Erstellt"), fi.birthTime().toString("yyyy-MM-dd  hh:mm"));
+    addRow(tr("Geändert"), fi.lastModified().toString("yyyy-MM-dd  hh:mm"));
+    const qint64 days = fi.lastModified().daysTo(QDateTime::currentDateTime());
+    addRow(tr("Alter"), days == 0   ? tr("Heute")
+                        : days == 1 ? tr("Gestern")
+                        : days < 30 ? tr("%1 t").arg(days)
+                        : days < 365 ? tr("%1 m").arg(days / 30)
+                                     : tr("%1 j").arg(days / 365));
+    if (!fi.isDir())
+        addRow(tr("Größe:"), KFormat().formatByteSize(fi.size()));
+    addRow(tr("Attribute"), buildPermissionsString(fi));
+    info += "</table>";
+    m_previewInfo->setText(info);
+}
+
+QString PaneWidget::buildPermissionsString(const QFileInfo &fi) {
+    const QFile::Permissions p = fi.permissions();
+    QString perm;
+    perm += fi.isDir() ? "d" : "-";
+    perm += (p & QFile::ReadOwner)  ? "r" : "-";
+    perm += (p & QFile::WriteOwner) ? "w" : "-";
+    perm += (p & QFile::ExeOwner)   ? "x" : "-";
+    perm += (p & QFile::ReadGroup)  ? "r" : "-";
+    perm += (p & QFile::WriteGroup) ? "w" : "-";
+    perm += (p & QFile::ExeGroup)   ? "x" : "-";
+    perm += (p & QFile::ReadOther)  ? "r" : "-";
+    perm += (p & QFile::WriteOther) ? "w" : "-";
+    perm += (p & QFile::ExeOther)   ? "x" : "-";
+    return perm;
 }
 
 void PaneWidget::refreshFooterForRemotePath(const QString &path,
@@ -234,6 +230,14 @@ void PaneWidget::refreshFooter(const QString &path, int selectedCount) {
 }
 
 bool PaneWidget::eventFilter(QObject *obj, QEvent *ev) {
+  // Wenn ein Mausklick auf dieses Pane oder eines seiner Kind-Widgets erfolgt, Fokus anfordern
+  if (ev->type() == QEvent::MouseButtonPress) {
+    if (auto *w = qobject_cast<QWidget *>(obj)) {
+      if (w == this || isAncestorOf(w)) {
+        emit focusRequested();
+      }
+    }
+  }
   return QWidget::eventFilter(obj, ev);
 }
 

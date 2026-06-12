@@ -13,6 +13,8 @@ class QComboBox;
 class QPushButton;
 class QWidget;
 class QVBoxLayout;
+class QFormLayout;
+class QGridLayout;
 
 class GitManagerDialog : public QDialog
 {
@@ -37,8 +39,19 @@ private:
     void doCommitPush();
     void doPull();
     void doDiscard();
+    void doCreateTag();
+    void doCheckoutBranch();
+    void doMergeBranch();
+    void doRevertCommit();
 
-    // Section builders (NASA Rule 4 Compliance)
+    // Aktions-Hilfsfunktionen
+    QDialog* createCheckoutDialog(const QStringList &branches, QComboBox *&branchCombo, QLineEdit *&newBranchEdit, QCheckBox *&forceCheck);
+    QString promptForPushRemote(const QStringList &remotes);
+    void performCommitAndPush(const QString &msg, const QString &relTag, const QString &relTitle, const QString &relBody, bool relLatest, bool relPrerelease, const QString &pushRemote, bool forcePush);
+    QStringList injectGitCredentials(const QStringList &args);
+    void executeGitProcess(const QStringList &finalArgs, const QStringList &originalArgs);
+
+    // Abschnitts-Builder (NASA Regel 4 Compliance)
     void setupRepoSelectionSection(QVBoxLayout *root, const QString &normBtnSS, const QString &inputSS, const QString &labelSS);
     void setupBranchStatusSection(QVBoxLayout *root, const QString &labelSS, const QString &accentColor);
     void setupCommitMessageSection(QVBoxLayout *root, const QString &labelSS, const QString &inputSS);
@@ -49,10 +62,26 @@ private:
     void setupConnectionSettingsSection(QVBoxLayout *root, const QString &inputSS, const QString &normBtnSS, const QString &textAccent, const QString &borderAlt);
     void setupLogOutputSection(QVBoxLayout *root, const QString &labelSS, const QString &bgDeep, const QString &textPrimary, const QString &borderAlt);
 
-    // Multi-Repo helpers
+    // Multi-Repo-Hilfsfunktionen
     void loadRepoToFields(int index);
     void saveCurrentFieldsToRepo();
     void rebuildRepoCombo();
+
+    // Refaktorierungs-Helfer
+    void buildFooter(QVBoxLayout *root, const QString &normBtnSS);
+    void connectRepoSelectionButtons(QPushButton *btnNewRepo, QPushButton *btnDelRepo);
+    void buildAdvancedButtons(QGridLayout *advLay, const QString &normBtnSS);
+    void connectAdvancedButtons(QPushButton *btnLog, QPushButton *btnDiff, QPushButton *btnTag, QPushButton *btnBranch, QPushButton *btnMerge, QPushButton *btnRevert, QPushButton *btnStash, QPushButton *btnStashPop);
+    
+    // Extrahierte Verbindungseinstellungen
+    void buildLocalDirField(QFormLayout *form, const QString &inputSS, const QString &normBtnSS);
+    void buildRemoteUrlField(QFormLayout *form, const QString &inputSS);
+    void buildCredentialsFields(QFormLayout *form, const QString &inputSS);
+    void buildAuthActionButtons(QVBoxLayout *root, const QString &normBtnSS, const QString &borderAlt);
+
+    void connectConnectionSettingsButtons(QPushButton *btnSaveConfig, QPushButton *btnTestAuth, QPushButton *btnClone);
+    void connectCloneButton(QPushButton *btnClone);
+    void connectConnectionFieldsToSave();
 
     QString m_gitPath;
     QLabel        *m_gitBranchLabel  = nullptr;
@@ -60,7 +89,7 @@ private:
     QLineEdit     *m_gitCommitMsg    = nullptr;
     QListWidget   *m_gitStatusList   = nullptr;
 
-    // Repo config
+    // Repo-Konfiguration
     QComboBox     *m_repoCombo       = nullptr;
     QList<Config::GitRepo> m_repos;
     int            m_currentRepo     = -1;

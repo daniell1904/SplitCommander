@@ -17,6 +17,12 @@ public:
     [[nodiscard]] QString iconName() const;
 
 private:
+    void buildUI(class QVBoxLayout *mainLay);
+    void buildInputFields(class QFormLayout *form, const QString &inputStyle);
+    void buildIconSelector(class QFormLayout *form);
+
+    void setupConnections(class QDialogButtonBox *buttons);
+    void autoDeriveNameAndIcon(const QString &text);
     void updateIcon();
 
     QLineEdit   *m_urlEdit = nullptr;
