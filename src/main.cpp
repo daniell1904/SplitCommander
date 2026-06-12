@@ -118,32 +118,24 @@ static void setupTranslations(QApplication &app)
         delete qtTranslator;
     }
 
-    // App-Übersetzungen (sucht in AppDataLocation/translations/ und neben der Binary)
+    // App-Übersetzungen
+    // 1. Festcodierter Installationspfad (über CMake eingebrannt — funktioniert immer)
+    // 2. Fallback: Verzeichnisse neben der Binary (für build/ und build-release/)
     auto *appTranslator = new QTranslator(&app);
     bool loaded = false;
-    QStringList dataDirs = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
-    // Binary-Verzeichnis ebenfalls durchsuchen (deckt build/ und build-release/ ab)
-    dataDirs.prepend(QCoreApplication::applicationDirPath());
-    for (const QString &dir : dataDirs) {
-        if (appTranslator->load(locale, "splitcommander", "_", dir + "/translations")) {
-            loaded = true;
-            break;
-        }
-        // Fallback für kleingeschriebene Installationspfade (splitcommander statt SplitCommander)
-        QString lowerDir = dir;
-        if (lowerDir.contains("SplitCommander")) {
-            lowerDir.replace("SplitCommander", "splitcommander");
-            if (appTranslator->load(locale, "splitcommander", "_", lowerDir + "/translations")) {
-                loaded = true;
-                break;
-            }
-        }
-        // Fallback: .qm direkt im Binary-Verzeichnis (wie build/ sie ablegt)
-        if (appTranslator->load(locale, "splitcommander", "_", dir)) {
-            loaded = true;
-            break;
-        }
+
+#ifdef SC_TRANSLATIONS_DIR
+    // Installationspfad direkt aus CMake — case-safe, unabhängig vom App-Namen
+    loaded = appTranslator->load(locale, "splitcommander", "_", QStringLiteral(SC_TRANSLATIONS_DIR));
+#endif
+
+    if (!loaded) {
+        // Fallback für Entwicklung: .qm neben der Binary suchen (build/ und build-release/)
+        const QString binDir = QCoreApplication::applicationDirPath();
+        loaded = appTranslator->load(locale, "splitcommander", "_", binDir + "/translations")
+              || appTranslator->load(locale, "splitcommander", "_", binDir);
     }
+
     if (loaded) {
         app.installTranslator(appTranslator);
     } else {

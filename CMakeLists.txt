@@ -100,6 +100,7 @@ target_link_libraries(splitcommander
 
 target_compile_definitions(splitcommander PRIVATE
     SC_VERSION="${PROJECT_VERSION}"
+    SC_TRANSLATIONS_DIR="${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/splitcommander/translations"
     QT_USE_QSTRINGBUILDER
     $<$<BOOL:${SC_PLUGIN_GIT}>:SC_PLUGIN_GIT>
     $<$<BOOL:${SC_PLUGIN_PAPERLESS}>:SC_PLUGIN_PAPERLESS>
