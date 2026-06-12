@@ -1,65 +1,64 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
+<?xml version='1.0' encoding='utf-8'?>
 <TS version="2.1" language="ar_AR" sourcelanguage="de_DE">
 <context>
     <name>AddNetworkDialog</name>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="13"/>
+        <location filename="../src/addnetworkdialog.cpp" line="14" />
         <source>SMB Laufwerke verbinden</source>
         <translation>توصيل محركات SMB</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="40"/>
+        <location filename="../src/addnetworkdialog.cpp" line="72" />
         <source>Anzeigename</source>
         <translation>اسم العرض</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="55"/>
+        <location filename="../src/addnetworkdialog.cpp" line="103" />
         <source>Freigegebener Ordner (SMB)</source>
         <translation>مجلد مشترك (SMB)</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="56"/>
+        <location filename="../src/addnetworkdialog.cpp" line="104" />
         <source>SSH / SFTP</source>
         <translation>SSH / SFTP</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="57"/>
+        <location filename="../src/addnetworkdialog.cpp" line="105" />
         <source>Google Drive</source>
-        <translation>Google Drive</translation>
+        <translation>جوجل درايف</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="58"/>
+        <location filename="../src/addnetworkdialog.cpp" line="106" />
         <source>Netzwerkserver</source>
         <translation>خادم الشبكة</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="59"/>
+        <location filename="../src/addnetworkdialog.cpp" line="107" />
         <source>MTP-Gerät</source>
         <translation>جهاز MTP</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="60"/>
+        <location filename="../src/addnetworkdialog.cpp" line="108" />
         <source>Bluetooth</source>
-        <translation>Bluetooth</translation>
+        <translation>بلوتوث</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="61"/>
+        <location filename="../src/addnetworkdialog.cpp" line="109" />
         <source>Netzwerkordner</source>
         <translation>مجلد الشبكة</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="75"/>
+        <location filename="../src/addnetworkdialog.cpp" line="75" />
         <source>Adresse:</source>
         <translation>العنوان:</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="76"/>
+        <location filename="../src/addnetworkdialog.cpp" line="77" />
         <source>Name:</source>
         <translation>الاسم:</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="77"/>
+        <location filename="../src/addnetworkdialog.cpp" line="127" />
         <source>Symbol:</source>
         <translation>الأيقونة:</translation>
     </message>
@@ -68,811 +67,720 @@
     <name>AgeBadgeDialog</name>
     <message>
         <source>Altersbadges</source>
-        <translation type="vanished">Altersbadges</translation>
+        <translation>شارات العمر</translation>
     </message>
     <message>
         <source>Dateialter / relatives Datum</source>
-        <translation type="vanished">Dateialter / relatives Datum</translation>
+        <translation>عمر الملف / التاريخ النسبي</translation>
     </message>
     <message>
         <source>Zurücksetzen</source>
-        <translation type="vanished">إعادة تعيين</translation>
+        <translation>إعادة تعيين</translation>
     </message>
     <message>
         <source>Neue Dateien hervorheben (&lt; 2 Tage)</source>
-        <translation type="vanished">Neue Dateien hervorheben (&lt; 2 Tage)</translation>
+        <translation>قم بتمييز الملفات الجديدة (أقل من يومين)</translation>
     </message>
     <message>
         <source>Abbrechen</source>
-        <translation type="vanished">إلغاء</translation>
+        <translation>إلغاء</translation>
     </message>
     <message>
         <source>Übernehmen</source>
-        <translation type="vanished">تطبيق</translation>
+        <translation>تطبيق</translation>
     </message>
 </context>
 <context>
     <name>BatchRenamer</name>
     <message>
-        <location filename="../src/batchrenamer.cpp" line="11"/>
+        <location filename="../src/batchrenamer.cpp" line="14" />
         <source>Batch Rename - %1 Dateien</source>
-        <translation>Batch Rename - %1 Dateien</translation>
+        <translation>إعادة تسمية الدفعة - %1 ملف</translation>
     </message>
 </context>
 <context>
     <name>FilePane</name>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="280"/>
+        <location filename="../src/filepane_menus.cpp" line="277" />
         <source>An ursprünglichem Ort wiederherstellen</source>
-        <translation>An ursprünglichem Ort wiederherstellen</translation>
+        <translation>استعادة إلى الموقع الأصلي</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="303"/>
-        <location filename="../src/filepane_menus.cpp" line="570"/>
+        <location filename="../src/filepane_menus.cpp" line="300" />
+        <location filename="../src/filepane_menus.cpp" line="567" />
         <source>Löschen</source>
         <translation>حذف</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="312"/>
-        <location filename="../src/filepane_menus.cpp" line="463"/>
-        <location filename="../src/filepane_menus.cpp" line="773"/>
+        <location filename="../src/filepane_menus.cpp" line="309" />
+        <location filename="../src/filepane_menus.cpp" line="460" />
+        <location filename="../src/filepane_menus.cpp" line="777" />
         <source>Sortieren nach</source>
         <translation>ترتيب حسب</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="330"/>
-        <location filename="../src/filepane_menus.cpp" line="520"/>
-        <location filename="../src/filepane_menus.cpp" line="812"/>
+        <location filename="../src/filepane_menus.cpp" line="327" />
+        <location filename="../src/filepane_menus.cpp" line="517" />
+        <location filename="../src/filepane_menus.cpp" line="816" />
         <source>Ansichtsmodus ändern</source>
-        <translation>Ansichtsmodus ändern</translation>
+        <translation>تغيير وضع العرض</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="337"/>
-        <location filename="../src/filepane_menus.cpp" line="527"/>
-        <location filename="../src/filepane_menus.cpp" line="819"/>
+        <location filename="../src/filepane_menus.cpp" line="334" />
+        <location filename="../src/filepane_menus.cpp" line="524" />
+        <location filename="../src/filepane_menus.cpp" line="823" />
         <source>Details</source>
         <translation>تفاصيل</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="338"/>
-        <location filename="../src/filepane_menus.cpp" line="528"/>
-        <location filename="../src/filepane_menus.cpp" line="820"/>
+        <location filename="../src/filepane_menus.cpp" line="335" />
+        <location filename="../src/filepane_menus.cpp" line="525" />
+        <location filename="../src/filepane_menus.cpp" line="824" />
         <source>Symbole</source>
         <translation>أيقونات</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="342"/>
+        <location filename="../src/filepane_menus.cpp" line="339" />
         <source>Papierkorb leeren</source>
         <translation>إفراغ سلة المحذوفات</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="394"/>
+        <location filename="../src/filepane_menus.cpp" line="391" />
         <source>Zu Paperless hochladen</source>
         <translation>تحميل إلى بلا أوراق</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="409"/>
+        <location filename="../src/filepane_menus.cpp" line="406" />
         <source>ISO aushängen</source>
         <translation>قم بإلغاء تحميل ISO</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="415"/>
+        <location filename="../src/filepane_menus.cpp" line="412" />
         <source>ISO einbinden</source>
         <translation>تشمل ايزو</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="468"/>
-        <location filename="../src/filepane_menus.cpp" line="483"/>
+        <location filename="../src/filepane_menus.cpp" line="465" />
+        <location filename="../src/filepane_menus.cpp" line="480" />
         <source>Name</source>
         <translation>الاسم</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="469"/>
+        <location filename="../src/filepane_menus.cpp" line="466" />
         <source>Größe</source>
         <translation>الحجم</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="470"/>
+        <location filename="../src/filepane_menus.cpp" line="467" />
         <source>Geändert</source>
         <translation>معدّل</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="471"/>
+        <location filename="../src/filepane_menus.cpp" line="468" />
         <source>Erstellt</source>
         <translation>تاريخ الإنشاء</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="472"/>
+        <location filename="../src/filepane_menus.cpp" line="469" />
         <source>Letzter Zugriff</source>
-        <translation>Letzter Zugriff</translation>
+        <translation>تم الوصول إليه مؤخرًا</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="473"/>
+        <location filename="../src/filepane_menus.cpp" line="470" />
         <source>Typ</source>
         <translation>النوع</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="474"/>
+        <location filename="../src/filepane_menus.cpp" line="471" />
         <source>Bewertung</source>
-        <translation>Bewertung</translation>
+        <translation>تصنيف</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="492"/>
-        <location filename="../src/filepane_menus.cpp" line="789"/>
+        <location filename="../src/filepane_menus.cpp" line="489" />
+        <location filename="../src/filepane_menus.cpp" line="793" />
         <source>A-Z</source>
-        <translation>A-Z</translation>
+        <translation>من الألف إلى الياء</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="494"/>
-        <location filename="../src/filepane_menus.cpp" line="791"/>
+        <location filename="../src/filepane_menus.cpp" line="491" />
+        <location filename="../src/filepane_menus.cpp" line="795" />
         <source>Z-A</source>
         <translation>Z-A</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="508"/>
-        <location filename="../src/filepane_menus.cpp" line="804"/>
+        <location filename="../src/filepane_menus.cpp" line="505" />
+        <location filename="../src/filepane_menus.cpp" line="808" />
         <source>Ordner zuerst</source>
         <translation>المجلدات أولاً</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="515"/>
+        <location filename="../src/filepane_menus.cpp" line="512" />
         <source>Versteckte Dateien zuletzt</source>
-        <translation>Versteckte Dateien zuletzt</translation>
+        <translation>الملفات المخفية أخيرا</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="569"/>
-        <location filename="../src/filepane_menus.cpp" line="588"/>
-        <location filename="../src/filepane_menus.cpp" line="848"/>
-        <location filename="../src/filepane_menus.cpp" line="869"/>
+        <location filename="../src/filepane_menus.cpp" line="566" />
+        <location filename="../src/filepane_menus.cpp" line="585" />
+        <location filename="../src/filepane_menus.cpp" line="852" />
+        <location filename="../src/filepane_menus.cpp" line="873" />
         <source>Stichwörter zuweisen</source>
-        <translation>Stichwörter zuweisen</translation>
+        <translation>تعيين الكلمات الرئيسية</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="569"/>
-        <location filename="../src/filepane_menus.cpp" line="589"/>
-        <location filename="../src/filepane_menus.cpp" line="848"/>
-        <location filename="../src/filepane_menus.cpp" line="871"/>
+        <location filename="../src/filepane_menus.cpp" line="566" />
+        <location filename="../src/filepane_menus.cpp" line="586" />
+        <location filename="../src/filepane_menus.cpp" line="852" />
+        <location filename="../src/filepane_menus.cpp" line="875" />
         <source>Komprimieren</source>
-        <translation>Komprimieren</translation>
+        <translation>ضغط</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="569"/>
-        <location filename="../src/filepane_menus.cpp" line="653"/>
-        <location filename="../src/filepane_menus.cpp" line="848"/>
-        <location filename="../src/filepane_menus.cpp" line="873"/>
+        <location filename="../src/filepane_menus.cpp" line="566" />
+        <location filename="../src/filepane_menus.cpp" line="591" />
+        <location filename="../src/filepane_menus.cpp" line="852" />
+        <location filename="../src/filepane_menus.cpp" line="877" />
         <source>Aktivitäten</source>
-        <translation>Aktivitäten</translation>
+        <translation>أنشطة</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="570"/>
+        <location filename="../src/filepane_menus.cpp" line="567" />
         <source>In den Papierkorb verschieben</source>
         <translation>نقل إلى سلة المحذوفات</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="570"/>
+        <location filename="../src/filepane_menus.cpp" line="567" />
         <source>Umbenennen</source>
         <translation>إعادة تسمية</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="571"/>
+        <location filename="../src/filepane_menus.cpp" line="568" />
         <source>Kopieren</source>
         <translation>نسخ</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="571"/>
+        <location filename="../src/filepane_menus.cpp" line="568" />
         <source>Ausschneiden</source>
         <translation>قص</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="571"/>
+        <location filename="../src/filepane_menus.cpp" line="568" />
         <source>Einfügen</source>
         <translation>لصق</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="572"/>
-        <location filename="../src/filepane_menus.cpp" line="613"/>
-        <location filename="../src/filepane_menus.cpp" line="849"/>
+        <location filename="../src/filepane_menus.cpp" line="569" />
+        <location filename="../src/filepane_menus.cpp" line="701" />
+        <location filename="../src/filepane_menus.cpp" line="853" />
         <source>Entpacken</source>
-        <translation>استخراج</translation>
+        <translation>Extract</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="572"/>
-        <location filename="../src/filepane_menus.cpp" line="654"/>
-        <location filename="../src/filepane_menus.cpp" line="849"/>
+        <location filename="../src/filepane_menus.cpp" line="569" />
+        <location filename="../src/filepane_menus.cpp" line="592" />
+        <location filename="../src/filepane_menus.cpp" line="853" />
         <source>Teilen</source>
-        <translation>Teilen</translation>
+        <translation>يشارك</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="572"/>
-        <location filename="../src/filepane_menus.cpp" line="849"/>
+        <location filename="../src/filepane_menus.cpp" line="569" />
+        <location filename="../src/filepane_menus.cpp" line="853" />
         <source>Extract</source>
         <translation>Extract</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="572"/>
-        <location filename="../src/filepane_menus.cpp" line="849"/>
+        <location filename="../src/filepane_menus.cpp" line="569" />
+        <location filename="../src/filepane_menus.cpp" line="853" />
         <source>Share</source>
-        <translation>Share</translation>
+        <translation>يشارك</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="616"/>
+        <location filename="../src/filepane_menus.cpp" line="709" />
         <source>Hierher entpacken</source>
         <translation>استخراج هنا</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="624"/>
+        <location filename="../src/filepane_menus.cpp" line="717" />
         <source>Entpacken und Archiv in den Papierkorb verschieben</source>
-        <translation>Entpacken und Archiv in den Papierkorb verschieben</translation>
+        <translation>استخراج ونقل الأرشيف إلى سلة المهملات</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="641"/>
+        <location filename="../src/filepane_menus.cpp" line="734" />
         <source>Entpacken nach ...</source>
-        <translation>Entpacken nach ...</translation>
+        <translation>استخراج إلى...</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="642"/>
+        <location filename="../src/filepane_menus.cpp" line="735" />
         <source>Zielordner wählen</source>
-        <translation>Zielordner wählen</translation>
+        <translation>اختر المجلد الهدف</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="658"/>
+        <location filename="../src/filepane_menus.cpp" line="596" />
         <source>Tag setzen</source>
-        <translation>Tag setzen</translation>
+        <translation>تعيين العلامة</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="707"/>
+        <location filename="../src/filepane_menus.cpp" line="645" />
         <source>Prüfsumme</source>
         <translation>المجموع الاختباري</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="732"/>
+        <location filename="../src/filepane_menus.cpp" line="670" />
         <source>%1 kopiert</source>
         <translation>تم نسخ %1</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="884"/>
+        <location filename="../src/filepane_menus.cpp" line="888" />
         <source>Make</source>
         <translation>يصنع</translation>
     </message>
     <message>
         <source>Öffnen</source>
-        <translation type="vanished">فتح</translation>
+        <translation>فتح</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="360"/>
-        <location filename="../src/filepane_menus.cpp" line="754"/>
+        <location filename="../src/filepane_menus.cpp" line="357" />
+        <location filename="../src/filepane_menus.cpp" line="758" />
         <source>Neu erstellen</source>
         <translation>إنشاء جديد</translation>
     </message>
     <message>
         <source>Adresse kopieren</source>
-        <translation type="vanished">Adresse kopieren</translation>
+        <translation>انسخ العنوان</translation>
     </message>
     <message>
         <source>Hier duplizieren</source>
-        <translation type="vanished">Hier duplizieren</translation>
+        <translation>مكررة هنا</translation>
     </message>
     <message>
         <source>Dupliziere Datei...</source>
-        <translation type="vanished">Dupliziere Datei...</translation>
+        <translation>ملف مكرر...</translation>
     </message>
     <message>
         <source>Favoriten</source>
-        <translation type="vanished">المفضلة</translation>
+        <translation>المفضلة</translation>
     </message>
     <message>
         <source>Hinzufügen zu</source>
-        <translation type="vanished">Hinzufügen zu</translation>
+        <translation>اضف إليه</translation>
     </message>
     <message>
         <source>Laufwerke</source>
-        <translation type="vanished">محركات الأقراص</translation>
+        <translation>محركات الأقراص</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="560"/>
-        <location filename="../src/filepane_menus.cpp" line="840"/>
+        <location filename="../src/filepane_menus.cpp" line="557" />
+        <location filename="../src/filepane_menus.cpp" line="844" />
         <source>Terminal hier öffnen</source>
         <translation>فتح الطرفية هنا</translation>
     </message>
     <message>
         <source>Diaschau starten</source>
-        <translation type="vanished">Diaschau starten</translation>
+        <translation>ابدأ عرض الشرائح</translation>
     </message>
     <message>
         <source>Tag</source>
-        <translation type="vanished">Tag</translation>
+        <translation>علامة</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="683"/>
+        <location filename="../src/filepane_menus.cpp" line="621" />
         <source>Tag entfernen</source>
-        <translation>Tag entfernen</translation>
+        <translation>إزالة العلامة</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="554"/>
-        <location filename="../src/filepane_menus.cpp" line="837"/>
+        <location filename="../src/filepane_menus.cpp" line="551" />
+        <location filename="../src/filepane_menus.cpp" line="841" />
         <source>Aktionen</source>
-        <translation>Aktionen</translation>
+        <translation>الإجراءات</translation>
     </message>
     <message>
         <source>In neuen Ordner verschieben ...</source>
-        <translation type="vanished">In neuen Ordner verschieben ...</translation>
+        <translation>الانتقال إلى المجلد الجديد...</translation>
     </message>
     <message>
         <source>In neuen Ordner verschieben</source>
-        <translation type="vanished">In neuen Ordner verschieben</translation>
+        <translation>الانتقال إلى المجلد الجديد</translation>
     </message>
     <message>
         <source>Ordnername:</source>
-        <translation type="vanished">Ordnername:</translation>
+        <translation>اسم المجلد:</translation>
     </message>
     <message>
         <source>Neuer Ordner</source>
-        <translation type="vanished">مجلد جديد</translation>
+        <translation>مجلد جديد</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="258"/>
+        <location filename="../src/filepane_menus.cpp" line="255" />
         <source>Eigenschaften</source>
         <translation>الخصائص</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="444"/>
+        <location filename="../src/filepane_menus.cpp" line="441" />
         <source>Zu Laufwerken hinzufügen</source>
-        <translation>Zu Laufwerken hinzufügen</translation>
+        <translation>أضف إلى محركات الأقراص</translation>
     </message>
 </context>
 <context>
     <name>GitManagerDialog</name>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="125"/>
         <source>Git Manager</source>
         <translation>Git Manager</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="180"/>
         <source>Repository:</source>
         <translation>Repository:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="184"/>
         <source>Neu</source>
         <translation>جديد</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="188"/>
         <source>Entfernen</source>
         <translation>إزالة</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="200"/>
         <source>Geänderte Dateien:</source>
-        <translation>Geänderte Dateien:</translation>
+        <translation>الملفات التي تم تغييرها:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="202"/>
         <source>Branch: …</source>
         <translation>Branch: …</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="218"/>
         <source>Beschreibung der Änderungen:</source>
-        <translation>Beschreibung der Änderungen:</translation>
+        <translation>وصف التغييرات:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="223"/>
         <source>z.B. Fehler in der Suche behoben...</source>
-        <translation>z.B. Fehler in der Suche behoben...</translation>
+        <translation>على سبيل المثال إصلاح الخلل في البحث...</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="231"/>
         <source>Commit &amp;&amp; Push</source>
-        <translation>Commit &amp;&amp; Push</translation>
+        <translation>الالتزام &amp;&amp; الدفع</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="234"/>
         <source>Speichert deine Änderungen und lädt sie zu GitHub hoch.</source>
-        <translation>Speichert deine Änderungen und lädt sie zu GitHub hoch.</translation>
+        <translation>يحفظ تغييراتك ويحملها على GitHub.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="236"/>
         <source>Fetch</source>
-        <translation>Fetch</translation>
+        <translation>أحضر</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="239"/>
         <source>Prüft ob es neue Änderungen auf GitHub gibt, ohne sie herunterzuladen.</source>
-        <translation>Prüft ob es neue Änderungen auf GitHub gibt, ohne sie herunterzuladen.</translation>
+        <translation>التحقق من التغييرات الجديدة على GitHub دون تنزيلها.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="241"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="775"/>
         <source>Pull</source>
         <translation>Pull</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="244"/>
         <source>Holt die neuesten Änderungen von GitHub.</source>
-        <translation>Holt die neuesten Änderungen von GitHub.</translation>
+        <translation>جلب أحدث التغييرات من GitHub.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="246"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="788"/>
         <source>Änderungen verwerfen</source>
         <translation>تجاهل التغييرات</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="249"/>
         <source>Setzt alle lokalen Änderungen auf den Stand von GitHub zurück.</source>
-        <translation>Setzt alle lokalen Änderungen auf den Stand von GitHub zurück.</translation>
+        <translation>يعيد تعيين جميع التغييرات المحلية على الحالة على GitHub.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="258"/>
         <source>Optionen für Commit &amp;&amp; Push</source>
-        <translation>Optionen für Commit &amp;&amp; Push</translation>
+        <translation>خيارات الالتزام والدفع</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="268"/>
         <source>Tags mit hochladen</source>
-        <translation>Tags mit hochladen</translation>
+        <translation>تحميل العلامات</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="269"/>
         <source>Release auf GitHub erstellen</source>
-        <translation>Release auf GitHub erstellen</translation>
+        <translation>إنشاء إصدار على جيثب</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="270"/>
         <source>Force with lease</source>
         <translation>القوة مع الإيجار</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="271"/>
         <source>Pusht auch wenn der Remote-Branch voraus ist — aber nur wenn sich der Remote seit dem letzten Fetch nicht verändert hat.</source>
         <translation>يتم الدفع حتى إذا كان الفرع البعيد في المقدمة - ولكن فقط إذا لم يتغير جهاز التحكم عن بعد منذ عملية الجلب الأخيرة.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="283"/>
         <source>Optionen für Pull</source>
-        <translation>Optionen für Pull</translation>
+        <translation>خيارات السحب</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="288"/>
         <source>Rebase statt Merge</source>
-        <translation>Rebase statt Merge</translation>
+        <translation>إعادة التأسيس بدلاً من الدمج</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="290"/>
         <source>git pull --rebase — hält den Verlauf sauber.</source>
-        <translation>git pull --rebase — hält den Verlauf sauber.</translation>
+        <translation>git pull --rebase - يحافظ على السجل نظيفًا.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="302"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="470"/>
         <source>▶  Erweiterte Funktionen</source>
         <translation>▶  وظائف متقدمة</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="328"/>
         <source>Verlauf (Log)</source>
-        <translation>Verlauf (Log)</translation>
+        <translation>التاريخ (السجل)</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="329"/>
         <source>Zeigt die letzten 20 Commits.</source>
-        <translation>Zeigt die letzten 20 Commits.</translation>
+        <translation>يعرض آخر 20 التزامًا.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="331"/>
         <source>Diff</source>
         <translation>Diff</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="332"/>
         <source>Zeigt welche Zeilen du geändert hast.</source>
-        <translation>Zeigt welche Zeilen du geändert hast.</translation>
+        <translation>يظهر الخطوط التي قمت بتغييرها.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="334"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="490"/>
         <source>Tag erstellen</source>
-        <translation>Tag erstellen</translation>
+        <translation>إنشاء علامة</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="335"/>
         <source>Markiert den aktuellen Stand als Version, z.B. v1.0.</source>
-        <translation>Markiert den aktuellen Stand als Version, z.B. v1.0.</translation>
+        <translation>يضع علامة على الحالة الحالية كإصدار، على سبيل المثال. v1.0.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="337"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="505"/>
         <source>Branch wechseln / erstellen</source>
-        <translation>Branch wechseln / erstellen</translation>
+        <translation>التبديل / إنشاء فرع</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="338"/>
         <source>Wechselt zu einem anderen Zweig oder erstellt einen neuen.</source>
-        <translation>Wechselt zu einem anderen Zweig oder erstellt einen neuen.</translation>
+        <translation>التبديل إلى فرع آخر أو إنشاء فرع جديد.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="340"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="568"/>
         <source>Merge</source>
         <translation>Merge</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="341"/>
         <source>Führt einen anderen Branch in den aktuellen zusammen.</source>
-        <translation>Führt einen anderen Branch in den aktuellen zusammen.</translation>
+        <translation>دمج فرع آخر في الفرع الحالي.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="343"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="583"/>
         <source>Revert</source>
         <translation>Revert</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="344"/>
         <source>Macht einen bestimmten Commit rückgängig — History bleibt erhalten.</source>
-        <translation>Macht einen bestimmten Commit rückgängig — History bleibt erhalten.</translation>
+        <translation>التراجع عن التزام محدد — يتم الحفاظ على التاريخ.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="346"/>
         <source>Stash (Parken)</source>
-        <translation>Stash (Parken)</translation>
+        <translation>خبأ</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="347"/>
         <source>Legt deine Änderungen zur Seite ohne sie zu speichern.</source>
-        <translation>Legt deine Änderungen zur Seite ohne sie zu speichern.</translation>
+        <translation>يضع تغييراتك جانبًا دون حفظها.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="349"/>
         <source>Stash anwenden</source>
-        <translation>Stash anwenden</translation>
+        <translation>تطبيق مخبأ</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="350"/>
         <source>Holt die zuletzt geparkten Änderungen zurück.</source>
-        <translation>Holt die zuletzt geparkten Änderungen zurück.</translation>
+        <translation>يسترد آخر التغييرات المخفية.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="370"/>
         <source>▶  Verbindungseinstellungen</source>
         <translation>▶  إعدادات الاتصال</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="384"/>
         <source>z.B. SplitCommander</source>
         <translation>z.B. SplitCommander</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="385"/>
         <source>Name:</source>
         <translation>الاسم:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="389"/>
         <source>Durchsuchen...</source>
         <translation>استعراض...</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="395"/>
         <source>Projekt-Ordner:</source>
-        <translation>Projekt-Ordner:</translation>
+        <translation>مجلد المشروع:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="400"/>
         <source>GitHub URL:</source>
-        <translation>GitHub URL:</translation>
+        <translation>عنوان URL على جيثب:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="404"/>
         <source>GitHub Benutzername:</source>
-        <translation>GitHub Benutzername:</translation>
+        <translation>اسم مستخدم جيثب:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="414"/>
         <source>Token anzeigen</source>
         <translation>إظهار الرموز</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="415"/>
         <source>Token generieren...</source>
-        <translation>Token generieren...</translation>
+        <translation>توليد رمز...</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="422"/>
         <source>Token / Passwort:</source>
-        <translation>Token / Passwort:</translation>
+        <translation>الرمز المميز/كلمة المرور:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="430"/>
         <source>Repository klonen</source>
         <translation>استنساخ المستودع</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="434"/>
         <source>Klont das eingetragene Remote-Repository in den Projekt-Ordner.</source>
-        <translation>Klont das eingetragene Remote-Repository in den Projekt-Ordner.</translation>
+        <translation>يقوم باستنساخ المستودع البعيد الذي تم تكوينه في مجلد المشروع.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="435"/>
         <source>Klonen:</source>
-        <translation>Klonen:</translation>
+        <translation>استنساخ:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="445"/>
         <source>Ausgabe:</source>
         <translation>المخرجات:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="460"/>
         <source>Schließen</source>
         <translation>إغلاق</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="469"/>
         <source>▼  Erweiterte Funktionen</source>
         <translation>▼  وظائف متقدمة</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="491"/>
         <source>Tag-Name (z.B. v1.0.0):</source>
-        <translation>Tag-Name (z.B. v1.0.0):</translation>
+        <translation>اسم العلامة (على سبيل المثال، v1.0.0):</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="516"/>
         <source>Vorhandenen Branch auschecken:</source>
         <translation>تحقق من فرع موجود:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="524"/>
         <source>Oder neuen Branch erstellen:</source>
         <translation>أو إنشاء فرع جديد:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="529"/>
         <source>Neuer Branch-Name (leer lassen zum Auschecken)</source>
         <translation>اسم الفرع الجديد (اتركه فارغا للتحقق)</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="532"/>
         <source>Force (lokale Änderungen verwerfen)</source>
         <translation>القوة (تجاهل التغييرات المحلية)</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="537"/>
         <source>Ausführen</source>
         <translation>تنفيذ</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="538"/>
         <source>Abbrechen</source>
-        <translation type="unfinished">إلغاء</translation>
+        <translation>إلغاء</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="569"/>
         <source>Branch der zusammengeführt werden soll:</source>
         <translation>الفرع المراد دمجه:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="584"/>
         <source>Commit rückgängig machen:</source>
         <translation>التراجع عن الالتزام:</translation>
     </message>
     <message>
         <source>Branch</source>
-        <translation type="vanished">Branch</translation>
+        <translation>Branch</translation>
     </message>
     <message>
         <source>Name des Branch:</source>
-        <translation type="vanished">Name des Branch:</translation>
+        <translation>اسم الفرع:</translation>
     </message>
     <message>
         <source>Branch-Name der zusammengeführt werden soll:</source>
-        <translation type="vanished">Branch-Name der zusammengeführt werden soll:</translation>
+        <translation>اسم الفرع المراد دمجه:</translation>
     </message>
     <message>
         <source>Commit-Hash (z.B. a1b2c3d):</source>
-        <translation type="vanished">Commit-Hash (z.B. a1b2c3d):</translation>
+        <translation>تنفيذ التجزئة (على سبيل المثال a1b2c3d):</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="600"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="700"/>
         <source>Hinweis</source>
         <translation>ملاحظة</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="601"/>
         <source>Bitte GitHub URL und Projekt-Ordner eintragen.</source>
-        <translation>Bitte GitHub URL und Projekt-Ordner eintragen.</translation>
+        <translation>الرجاء إدخال عنوان URL لـ GitHub ومجلد المشروع.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="619"/>
         <source>Projekt-Ordner wählen</source>
-        <translation>Projekt-Ordner wählen</translation>
+        <translation>اختر مجلد المشروع</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="633"/>
         <source>Neues Repo</source>
-        <translation>Neues Repo</translation>
+        <translation>الريبو الجديد</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="664"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="952"/>
         <source>(unbenannt)</source>
-        <translation>(unbenannt)</translation>
+        <translation>(غير مسمى)</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="701"/>
         <source>Bitte gib eine Beschreibung ein.</source>
-        <translation>Bitte gib eine Beschreibung ein.</translation>
+        <translation>الرجاء إدخال الوصف.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="728"/>
         <source>Push</source>
         <translation>يدفع</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="729"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="776"/>
         <source>Remote auswählen:</source>
         <translation>حدد البعيد:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="789"/>
         <source>Alle lokalen Änderungen werden unwiderruflich gelöscht und auf den Stand von GitHub zurückgesetzt.
 
 Fortfahren?</source>
-        <translation>Alle lokalen Änderungen werden unwiderruflich gelöscht und auf den Stand von GitHub zurückgesetzt.
+        <translation>سيتم حذف جميع التغييرات المحلية نهائيًا وإعادة تعيينها إلى الحالة على GitHub.
 
-Fortfahren?</translation>
+يكمل؟</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="817"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="918"/>
         <source>Kein Repository</source>
-        <translation>Kein Repository</translation>
+        <translation>لا يوجد مستودع</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="858"/>
         <source>Fehler</source>
-        <translation>Fehler</translation>
+        <translation>خطأ</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="858"/>
         <source>Kein GitHub Token hinterlegt!</source>
-        <translation>Kein GitHub Token hinterlegt!</translation>
+        <translation>لا يوجد رمز GitHub مخزن!</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="917"/>
         <source>Branch: %1</source>
         <translation>Branch: %1</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="933"/>
         <source>✓ Keine ungespeicherten Änderungen</source>
-        <translation>✓ Keine ungespeicherten Änderungen</translation>
+        <translation>✓ لا توجد تغييرات غير محفوظة</translation>
     </message>
 </context>
 <context>
     <name>JobOverlay</name>
     <message>
-        <location filename="../src/joboverlay.cpp" line="52"/>
+        <location filename="../src/joboverlay.cpp" line="62" />
         <source>Initialisierung...</source>
-        <translation>Initialisierung...</translation>
+        <translation>البداية...</translation>
     </message>
     <message>
-        <location filename="../src/joboverlay.cpp" line="73"/>
+        <location filename="../src/joboverlay.cpp" line="86" />
         <source>Fortschritt: %1%</source>
         <translation>Fortschritt: %1%</translation>
     </message>
     <message>
-        <location filename="../src/joboverlay.cpp" line="79"/>
+        <location filename="../src/joboverlay.cpp" line="96" />
         <source>Fehler: %1</source>
         <translation>Fehler: %1</translation>
     </message>
     <message>
-        <location filename="../src/joboverlay.cpp" line="82"/>
+        <location filename="../src/joboverlay.cpp" line="101" />
         <source>Fertig!</source>
         <translation>Fertig!</translation>
     </message>
@@ -880,987 +788,1014 @@ Fortfahren?</translation>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/mainwindow.cpp" line="148"/>
-        <source>Löschen...</source>
-        <translation>Löschen...</translation>
+        <location filename="../src/mainwindow.cpp" line="95" />
+        <source>Vorgang erfolgreich abgeschlossen.</source>
+        <translation>تم اكتمال العملية بنجاح.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="239"/>
-        <location filename="../src/mainwindow.cpp" line="239"/>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="278"/>
+        <location filename="../src/mainwindow.cpp" line="99" />
+        <source>Fehler bei: %1</source>
+        <translation>خطأ في: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="158" />
+        <source>Löschen...</source>
+        <translation>يمسح...</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="308" />
+        <location filename="../src/mainwindow.cpp" line="308" />
+        <location filename="../src/mainwindow_shortcuts.cpp" line="315" />
         <source>Neuer Ordner</source>
         <translation>مجلد جديد</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="239"/>
+        <location filename="../src/mainwindow.cpp" line="308" />
         <source>Ordnername:</source>
-        <translation>Ordnername:</translation>
+        <translation>اسم المجلد:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="248"/>
+        <location filename="../src/mainwindow.cpp" line="322" />
         <source>Fehler</source>
-        <translation>Fehler</translation>
+        <translation>خطأ</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="248"/>
+        <location filename="../src/mainwindow.cpp" line="322" />
         <source>Ordner konnte nicht erstellt werden.</source>
-        <translation>Ordner konnte nicht erstellt werden.</translation>
+        <translation>لا يمكن إنشاء المجلد.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="497"/>
-        <source>Aushängen fehlgeschlagen</source>
-        <translation>Aushängen fehlgeschlagen</translation>
+        <location filename="../src/mainwindow.cpp" line="376" />
+        <source>Laufwerk bereit</source>
+        <translation>القرص جاهز</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="498"/>
-        <source>Das Laufwerk konnte nicht ausgehängt werden:
+        <location filename="../src/mainwindow.cpp" line="376" />
+        <source>Das Laufwerk wurde erfolgreich eingebunden.</source>
+        <translation>تم تثبيت القرص بنجاح.</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="380" />
+        <source>Fehler beim Einbinden</source>
+        <translation>خطأ في التثبيت</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="380" />
+        <source>Das Laufwerk konnte nicht eingebunden werden:
 %1</source>
-        <translation>Das Laufwerk konnte nicht ausgehängt werden:
+        <translation>تعذر تثبيت القرص:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="104"/>
+        <location filename="../src/mainwindow.cpp" line="619" />
+        <source>Aushängen fehlgeschlagen</source>
+        <translation>فشل إلغاء التثبيت</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="619" />
+        <source>Das Laufwerk konnte nicht ausgehängt werden:
+%1</source>
+        <translation>لا يمكن إلغاء تحميل محرك الأقراص:
+%1</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="620" />
+        <source>Laufwerk sicher entfernt</source>
+        <translation>تم إزالة القرص بأمان</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="620" />
+        <source>Sie können das Gerät jetzt sicher abziehen.</source>
+        <translation>يمكنك الآن فصل الجهاز بأمان.</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="95" />
         <source>SplitCommander</source>
         <translation>SplitCommander</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="127"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="145" />
         <source>Zurück</source>
         <translation>للخلف</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="135"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="155" />
         <source>Vorwärts</source>
-        <translation>Vorwärts</translation>
+        <translation>إلى الأمام</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="143"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="165" />
         <source>Übergeordneter Ordner</source>
-        <translation>Übergeordneter Ordner</translation>
+        <translation>المجلد الأصل</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="157"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="186" />
         <source>Home-Verzeichnis</source>
-        <translation>Home-Verzeichnis</translation>
+        <translation>الدليل الرئيسي</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="161"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="190" />
         <source>Neu laden</source>
-        <translation>Neu laden</translation>
+        <translation>إعادة تحميل</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="170"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="201" />
         <source>Neuer Tab</source>
         <translation>علامة تبويب جديدة</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="172"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="205" />
         <source>Tab schließen</source>
         <translation>إغلاق علامة التبويب</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="176"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="212" />
         <source>Tab %1</source>
         <translation>علامة التبويب %1</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="181"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="409" />
         <source>Einstellungen</source>
         <translation>الإعدادات</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="187"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="415" />
         <source>GitHub Manager</source>
         <translation>GitHub Manager</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="194"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="224" />
         <source>Linke Pane fokussieren</source>
-        <translation>Linke Pane fokussieren</translation>
+        <translation>التركيز على الجزء الأيسر</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="199"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="229" />
         <source>Rechte Pane fokussieren</source>
-        <translation>Rechte Pane fokussieren</translation>
+        <translation>التركيز على الجزء الأيمن</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="204"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="234" />
         <source>Panes tauschen</source>
-        <translation>Panes tauschen</translation>
+        <translation>تبديل الأجزاء</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="211"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="241" />
         <source>Pfade synchronisieren</source>
-        <translation>Pfade synchronisieren</translation>
+        <translation>مزامنة المسارات</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="217"/>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="228"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="249" />
+        <location filename="../src/mainwindow_shortcuts.cpp" line="259" />
         <source>Umbenennen</source>
         <translation>إعادة تسمية</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="228"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="259" />
         <source>Neuer Name:</source>
-        <translation>Neuer Name:</translation>
+        <translation>الاسم الجديد:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="256"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="305" />
         <source>In den Papierkorb verschieben</source>
         <translation>نقل إلى سلة المحذوفات</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="267"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="310" />
         <source>Löschen</source>
         <translation>حذف</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="280"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="323" />
         <source>Kopieren (Zwischenablage)</source>
-        <translation>Kopieren (Zwischenablage)</translation>
+        <translation>نسخ (الحافظة)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="290"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="334" />
         <source>Ausschneiden (Zwischenablage)</source>
-        <translation>Ausschneiden (Zwischenablage)</translation>
+        <translation>قص (الحافظة)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="302"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="384" />
         <source>Versteckte Dateien umschalten</source>
-        <translation>Versteckte Dateien umschalten</translation>
+        <translation>تبديل الملفات المخفية</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="314"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="400" />
         <source>Layout wechseln</source>
-        <translation>Layout wechseln</translation>
+        <translation>تغيير التخطيط</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="324"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="345" />
         <source>Einfügen</source>
         <translation>لصق</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="336"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="357" />
         <source>Verschiebe Dateien...</source>
-        <translation>Verschiebe Dateien...</translation>
+        <translation>نقل الملفات...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="272"/>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="341"/>
+        <location filename="../src/mainwindow.cpp" line="354" />
+        <location filename="../src/mainwindow_shortcuts.cpp" line="365" />
         <source>Kopiere Dateien...</source>
-        <translation>Kopiere Dateien...</translation>
+        <translation>نسخ الملفات...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="346"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="369" />
         <source>Alles auswählen</source>
-        <translation>Alles auswählen</translation>
+        <translation>حدد الكل</translation>
     </message>
 </context>
 <context>
     <name>MillerColumn</name>
     <message>
-        <location filename="../src/millercolumn.cpp" line="196"/>
-        <location filename="../src/millercolumn.cpp" line="306"/>
+        <location filename="../src/millercolumn.cpp" line="414" />
+        <location filename="../src/millercolumn.cpp" line="544" />
         <source>Öffnen</source>
         <translation>فتح</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="199"/>
-        <location filename="../src/millercolumn.cpp" line="310"/>
+        <location filename="../src/millercolumn.cpp" line="419" />
+        <location filename="../src/millercolumn.cpp" line="549" />
         <source>Öffnen in</source>
-        <translation>Öffnen in</translation>
+        <translation>فتح في</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="202"/>
-        <location filename="../src/millercolumn.cpp" line="312"/>
+        <location filename="../src/millercolumn.cpp" line="422" />
+        <location filename="../src/millercolumn.cpp" line="552" />
         <source>Linke Ansicht</source>
-        <translation>Linke Ansicht</translation>
+        <translation>عرض اليسار</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="205"/>
-        <location filename="../src/millercolumn.cpp" line="315"/>
+        <location filename="../src/millercolumn.cpp" line="423" />
+        <location filename="../src/millercolumn.cpp" line="553" />
         <source>Rechte Ansicht</source>
-        <translation>Rechte Ansicht</translation>
+        <translation>الرأي الصحيح</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="225"/>
-        <location filename="../src/millercolumn.cpp" line="229"/>
+        <location filename="../src/millercolumn.cpp" line="446" />
+        <location filename="../src/millercolumn.cpp" line="449" />
         <source>Umbenennen</source>
         <translation>إعادة تسمية</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="229"/>
+        <location filename="../src/millercolumn.cpp" line="449" />
         <source>Anzeigename:</source>
-        <translation>Anzeigename:</translation>
+        <translation>اسم العرض:</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="246"/>
+        <location filename="../src/millercolumn.cpp" line="464" />
         <source>Aus Laufwerken entfernen</source>
-        <translation>Aus Laufwerken entfernen</translation>
+        <translation>إزالة من محركات الأقراص</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="272"/>
+        <location filename="../src/millercolumn.cpp" line="520" />
         <source>Kopieren</source>
         <translation>نسخ</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="274"/>
-        <location filename="../src/millercolumn.cpp" line="299"/>
-        <location filename="../src/millercolumn.cpp" line="329"/>
+        <location filename="../src/millercolumn.cpp" line="523" />
+        <location filename="../src/millercolumn.cpp" line="529" />
+        <location filename="../src/millercolumn.cpp" line="567" />
         <source>Pfad kopieren</source>
-        <translation>Pfad kopieren</translation>
+        <translation>نسخ المسار</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="277"/>
+        <location filename="../src/millercolumn.cpp" line="524" />
         <source>Name kopieren</source>
-        <translation>Name kopieren</translation>
+        <translation>انسخ الاسم</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="288"/>
+        <location filename="../src/millercolumn.cpp" line="497" />
         <source>Aushängen</source>
         <translation>إلغاء التحميل</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="293"/>
+        <location filename="../src/millercolumn.cpp" line="501" />
         <source>Einhängen</source>
         <translation>تحميل</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="321"/>
+        <location filename="../src/millercolumn.cpp" line="556" />
         <source>Im Terminal öffnen</source>
-        <translation>Im Terminal öffnen</translation>
+        <translation>فتح في المحطة</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="335"/>
+        <location filename="../src/millercolumn.cpp" line="574" />
         <source>Eigenschaften</source>
         <translation>الخصائص</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="347"/>
-        <location filename="../src/millercolumn.cpp" line="403"/>
+        <location filename="../src/millercolumn.cpp" line="273" />
+        <location filename="../src/millercolumn.cpp" line="336" />
         <source>Dieser PC</source>
-        <translation>Dieser PC</translation>
+        <translation>هذا الكمبيوتر</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="407"/>
+        <location filename="../src/millercolumn.cpp" line="344" />
         <source>Google Drive</source>
-        <translation>Google Drive</translation>
+        <translation>جوجل درايف</translation>
     </message>
 </context>
 <context>
     <name>PaneToolbar</name>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="41"/>
+        <location filename="../src/panetoolbar.cpp" line="50" />
         <source>Sortieren</source>
-        <translation>Sortieren</translation>
+        <translation>نوع</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="42"/>
+        <location filename="../src/panetoolbar.cpp" line="52" />
         <source>Neu</source>
         <translation>جديد</translation>
     </message>
     <message>
         <source>Kopieren</source>
-        <translation type="vanished">نسخ</translation>
+        <translation>نسخ</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="44"/>
+        <location filename="../src/panetoolbar.cpp" line="55" />
         <source>Papierkorb leeren</source>
         <translation>إفراغ سلة المحذوفات</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="77"/>
+        <location filename="../src/panetoolbar.cpp" line="99" />
         <source>Zurück</source>
         <translation>للخلف</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="80"/>
+        <location filename="../src/panetoolbar.cpp" line="103" />
         <source>Vorwärts</source>
-        <translation>Vorwärts</translation>
+        <translation>إلى الأمام</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="83"/>
+        <location filename="../src/panetoolbar.cpp" line="106" />
         <source>Hoch</source>
-        <translation>Hoch</translation>
+        <translation>أعلى</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="90"/>
+        <location filename="../src/panetoolbar.cpp" line="114" />
         <source>Ordner zuerst</source>
         <translation>المجلدات أولاً</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="134"/>
+        <location filename="../src/panetoolbar.cpp" line="125" />
+        <source>Details</source>
+        <translation>تفاصيل</translation>
+    </message>
+    <message>
+        <location filename="../src/panetoolbar.cpp" line="126" />
+        <source>Kompakt</source>
+        <translation>Compact</translation>
+    </message>
+    <message>
+        <location filename="../src/panetoolbar.cpp" line="127" />
+        <source>Symbole</source>
+        <translation>أيقونات</translation>
+    </message>
+    <message>
+        <location filename="../src/panetoolbar.cpp" line="158" />
         <source>Dieser PC</source>
-        <translation>Dieser PC</translation>
+        <translation>هذا الكمبيوتر</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="149"/>
+        <location filename="../src/panetoolbar.cpp" line="173" />
         <source>%1 Elemente</source>
-        <translation>%1 Elemente</translation>
+        <translation>%1 عنصر</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="159"/>
+        <location filename="../src/panetoolbar.cpp" line="183" />
         <source> | %1 ausgewählt</source>
-        <translation> | %1 ausgewählt</translation>
+        <translation>| تم تحديد %1</translation>
     </message>
 </context>
 <context>
     <name>PaneWidget</name>
     <message>
-        <location filename="../src/panewidget.cpp" line="127"/>
-        <location filename="../src/panewidget.cpp" line="266"/>
-        <location filename="../src/panewidget.cpp" line="471"/>
-        <location filename="../src/panewidget.cpp" line="513"/>
-        <location filename="../src/panewidget.cpp" line="632"/>
-        <location filename="../src/panewidget.cpp" line="721"/>
-        <location filename="../src/panewidget.cpp" line="766"/>
-        <location filename="../src/panewidget.cpp" line="899"/>
+        <location filename="../src/panewidget.cpp" line="114" />
+        <location filename="../src/panewidget.cpp" line="283" />
+        <location filename="../src/panewidget.cpp" line="511" />
+        <location filename="../src/panewidget.cpp" line="527" />
+        <location filename="../src/panewidget.cpp" line="662" />
+        <location filename="../src/panewidget.cpp" line="751" />
+        <location filename="../src/panewidget.cpp" line="796" />
+        <location filename="../src/panewidget.cpp" line="933" />
         <source>Dieser PC</source>
-        <translation>Dieser PC</translation>
+        <translation>هذا الكمبيوتر</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="164"/>
+        <location filename="../src/panewidget.cpp" line="170" />
         <source>Miller-Columns ein-/ausklappen</source>
-        <translation>Miller-Columns ein-/ausklappen</translation>
+        <translation>تبديل أعمدة ميلر</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="177"/>
+        <location filename="../src/panewidget.cpp" line="183" />
         <source>Suchen</source>
-        <translation>Suchen</translation>
+        <translation>يبحث</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="194"/>
+        <location filename="../src/panewidget.cpp" line="200" />
         <source>Layout wählen</source>
-        <translation>Layout wählen</translation>
+        <translation>اختر التخطيط</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="286"/>
+        <location filename="../src/panewidget.cpp" line="301" />
         <source>Neuer Tab (Strg+T)</source>
         <translation>علامة تبويب جديدة (Ctrl+T)</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="829"/>
+        <location filename="../src/panewidget.cpp" line="859" />
         <source>Pfad kopieren</source>
-        <translation type="unfinished">Pfad kopieren</translation>
+        <translation>نسخ المسار</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="835"/>
+        <location filename="../src/panewidget.cpp" line="865" />
         <source>Schließen</source>
-        <translation type="unfinished">إغلاق</translation>
+        <translation>إغلاق</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="953"/>
+        <location filename="../src/panewidget.cpp" line="998" />
         <source>Tab schließen</source>
         <translation>إغلاق علامة التبويب</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="186"/>
+        <location filename="../src/panewidget.cpp" line="192" />
         <source>Menü</source>
-        <translation>Menü</translation>
+        <translation>قائمة طعام</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="80"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="77" />
         <source>Neu erstellen</source>
         <translation>إنشاء جديد</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="83"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="80" />
         <source>Ordner …</source>
-        <translation>Ordner …</translation>
+        <translation>مجلد…</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="85"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="82" />
         <source>Textdatei …</source>
-        <translation>Textdatei …</translation>
+        <translation>ملف نصي…</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="87"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="84" />
         <source>HTML-Datei …</source>
-        <translation>HTML-Datei …</translation>
+        <translation>ملف HTML…</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="89"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="86" />
         <source>Leere Datei …</source>
-        <translation>Leere Datei …</translation>
+        <translation>ملف فارغ…</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="93"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="90" />
         <source>Verknüpfung zu Datei oder Ordner …</source>
-        <translation>Verknüpfung zu Datei oder Ordner …</translation>
+        <translation>رابط الملف أو المجلد...</translation>
     </message>
     <message>
         <source>Versteckte Dateien anzeigen</source>
-        <translation type="vanished">إظهار الملفات المخفية</translation>
+        <translation>إظهار الملفات المخفية</translation>
     </message>
     <message>
         <source>Einfachklick zum Öffnen</source>
-        <translation type="vanished">Einfachklick zum Öffnen</translation>
+        <translation>Einfachklick zum Öffnen</translation>
     </message>
     <message>
         <source>Dateiendungen anzeigen</source>
-        <translation type="vanished">Dateiendungen anzeigen</translation>
+        <translation>تاريخ البيانات</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="98"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="95" />
         <source>Terminal</source>
         <translation>Terminal</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="102"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="99" />
         <source>Im Terminal öffnen</source>
-        <translation>Im Terminal öffnen</translation>
+        <translation>فتح في المحطة</translation>
     </message>
     <message>
         <source>Einrichten</source>
-        <translation type="vanished">Einrichten</translation>
+        <translation>Einrichten</translation>
     </message>
     <message>
         <source>Fenster-Farbschema</source>
-        <translation type="vanished">Fenster-Farbschema</translation>
+        <translation>Fenster-Farbschema</translation>
     </message>
     <message>
         <source>KDE Global Theme verwenden</source>
-        <translation type="vanished">KDE Global Theme verwenden</translation>
+        <translation>KDE Global Theme verwenden</translation>
     </message>
     <message>
         <source>Übernimmt Farben und Stil des aktiven KDE Global Themes.</source>
-        <translation type="vanished">Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
+        <translation>Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
     </message>
     <message>
         <source>Designs neu laden</source>
-        <translation type="vanished">Designs neu laden</translation>
+        <translation>Designs neu laden</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="327"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="324" />
         <source>Abbrechen</source>
         <translation>إلغاء</translation>
     </message>
     <message>
         <source>Übernehmen</source>
-        <translation type="vanished">تطبيق</translation>
+        <translation>تطبيق</translation>
     </message>
     <message>
         <source>Neustart erforderlich</source>
-        <translation type="vanished">Neustart erforderlich</translation>
+        <translation>Neustart erforderlich</translation>
     </message>
     <message>
         <source>Das Theme wird nach einem Neustart angewendet.</source>
-        <translation type="vanished">Das Theme wird nach einem Neustart angewendet.</translation>
+        <translation>Das Theme wird nach einem Neustart angewendet.</translation>
     </message>
     <message>
         <source>Tastaturkurzbefehle festlegen …</source>
-        <translation type="vanished">Tastaturkurzbefehle festlegen …</translation>
+        <translation>Tastaturkurzbefehle festlegen …</translation>
     </message>
     <message>
         <source>Terminal wählen…</source>
-        <translation type="vanished">Terminal wählen…</translation>
+        <translation>Terminal wählen…</translation>
     </message>
     <message>
         <source>Altersbadges</source>
-        <translation type="vanished">Altersbadges</translation>
+        <translation>شارات العمر</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="120"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="117" />
         <source>Über SplitCommander</source>
         <translation>حول SplitCommander</translation>
     </message>
     <message>
         <source>&lt;b&gt;SplitCommander&lt;/b&gt; &amp;nbsp;&lt;small&gt;v%1&lt;/small&gt;&lt;br&gt;</source>
-        <translation type="vanished">&lt;b&gt;SplitCommander&lt;/b&gt; &amp;nbsp;&lt;small&gt;v%1&lt;/small&gt;&lt;br&gt;</translation>
+        <translation>&lt;b&gt;SplitCommander&lt;/b&gt; &amp;nbsp;&lt;small&gt;v%1&lt;/small&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;small&gt;Ein nativer KDE-Dateimanager.&lt;/small&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Stack:&lt;/b&gt; Qt6 · KF6 · C++20&lt;br&gt;&lt;b&gt;Autor:&lt;/b&gt; D. Lange</source>
-        <translation type="vanished">&lt;small&gt;Ein nativer KDE-Dateimanager.&lt;/small&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Stack:&lt;/b&gt; Qt6 · KF6 · C++20&lt;br&gt;&lt;b&gt;Autor:&lt;/b&gt; D. Lange</translation>
+        <translation>&lt;small&gt;Ein nativer KDE-Dateimanager.&lt;/small&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Stack:&lt;/b&gt; Qt6 · KF6 · C++20&lt;br&gt;&lt;b&gt;Autor:&lt;/b&gt; D. Lange</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="66"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="63" />
         <source>GitHub</source>
         <translation>GitHub</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="72"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="69" />
         <source>Paperless Manager</source>
         <translation>مديري بلا أوراق</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="112"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="109" />
         <source>Einrichten ...</source>
-        <translation>Einrichten ...</translation>
+        <translation>تكوين...</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="123"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="120" />
         <source>SplitCommander</source>
         <translation>SplitCommander</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="125"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="122" />
         <source>Nativer Dual-Pane-Dateimanager für Linux mit KDE Plasma.
 Miller-Column-Interface mit KIO-Integration für lokale und Remote-Dateisysteme.</source>
-        <translation>Nativer Dual-Pane-Dateimanager für Linux mit KDE Plasma.
-Miller-Column-Interface mit KIO-Integration für lokale und Remote-Dateisysteme.</translation>
+        <translation>مدير ملفات أصلي مزدوج الجزء لنظام التشغيل Linux مع KDE Plasma.
+واجهة عمود Miller مع تكامل KIO لأنظمة الملفات المحلية والبعيدة.</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="128"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="125" />
         <source>© 2025–2026 D. Lange</source>
         <translation>© 2025–2026 D. Lange</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="129"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="126" />
         <source>Unterstützt Google Drive, SFTP, SMB, MTP und weitere KIO-Protokolle.
 Inspiriert von OneCommander.</source>
-        <translation>Unterstützt Google Drive, SFTP, SMB, MTP und weitere KIO-Protokolle.
-Inspiriert von OneCommander.</translation>
+        <translation>يدعم Google Drive وSFTP وSMB وMTP وبروتوكولات KIO الأخرى.
+مستوحاة من OneCommander.</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="135"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="132" />
         <source>Entwickler und Maintainer</source>
         <translation>المطور والمشرف</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="142"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="139" />
         <source>Cross-Platform Application Framework</source>
         <translation>Cross-Platform Application Framework</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="146"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="143" />
         <source>KDE-Bibliotheken (KF6)</source>
         <translation>مكتبات KDE (KF6)</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="150"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="147" />
         <source>KDE Ein-/Ausgabe-Framework für lokale und Remote-Dateisysteme</source>
-        <translation>KDE Ein-/Ausgabe-Framework für lokale und Remote-Dateisysteme</translation>
+        <translation>إطار عمل KDE I/O لأنظمة الملفات المحلية والبعيدة</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="154"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="151" />
         <source>Hardware-Erkennung und Geräte-Integration</source>
-        <translation>Hardware-Erkennung und Geräte-Integration</translation>
+        <translation>الكشف عن الأجهزة وتكامل الأجهزة</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="161"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="158" />
         <source>Repository-Verwaltung und Git-Sidebar-Integration</source>
-        <translation>Repository-Verwaltung und Git-Sidebar-Integration</translation>
+        <translation>إدارة المستودعات وتكامل الشريط الجانبي لـ Git</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="167"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="164" />
         <source>Dokumente hochladen und durchsuchen</source>
         <translation>تحميل الوثائق والبحث فيها</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="203"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="200" />
         <source>Klassisch</source>
-        <translation>Klassisch</translation>
+        <translation>كلاسيكي</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="203"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="200" />
         <source>Einzeln</source>
-        <translation>Einzeln</translation>
+        <translation>فردي</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="204"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="201" />
         <source>Standard</source>
-        <translation>Standard</translation>
+        <translation>قياسي</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="204"/>
-        <location filename="../src/panewidget_hamburger.cpp" line="205"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="201" />
+        <location filename="../src/panewidget_hamburger.cpp" line="202" />
         <source>Dual</source>
-        <translation>Dual</translation>
+        <translation>مزدوج</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="205"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="202" />
         <source>Spalten</source>
-        <translation>Spalten</translation>
+        <translation>أعمدة</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="263"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="260" />
         <source>Neue Textdatei</source>
-        <translation>Neue Textdatei</translation>
+        <translation>ملف نصي جديد</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="263"/>
-        <location filename="../src/panewidget_hamburger.cpp" line="278"/>
-        <location filename="../src/panewidget_hamburger.cpp" line="294"/>
-        <location filename="../src/panewidget_hamburger.cpp" line="343"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="260" />
+        <location filename="../src/panewidget_hamburger.cpp" line="275" />
+        <location filename="../src/panewidget_hamburger.cpp" line="291" />
+        <location filename="../src/panewidget_hamburger.cpp" line="340" />
         <source>Name:</source>
         <translation>الاسم:</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="264"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="261" />
         <source>Neue Datei.txt</source>
-        <translation>Neue Datei.txt</translation>
+        <translation>ملف جديد.txt</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="277"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="274" />
         <source>Neue HTML-Datei</source>
-        <translation>Neue HTML-Datei</translation>
+        <translation>ملف HTML جديد</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="278"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="275" />
         <source>index.html</source>
         <translation>index.html</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="294"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="291" />
         <source>Leere Datei</source>
-        <translation>Leere Datei</translation>
+        <translation>ملف فارغ</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="295"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="292" />
         <source>Neue Datei</source>
         <translation>ملف جديد</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="311"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="308" />
         <source>Ziel wählen</source>
-        <translation>Ziel wählen</translation>
+        <translation>اختر الوجهة</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="328"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="325" />
         <source>Auswählen</source>
-        <translation>Auswählen</translation>
+        <translation>يختار</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="342"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="339" />
         <source>Verknüpfungsname</source>
-        <translation>Verknüpfungsname</translation>
+        <translation>اسم الرابط</translation>
     </message>
     <message>
         <source>Ziel waehlen</source>
-        <translation type="vanished">Ziel waehlen</translation>
+        <translation>Ziel waehlen</translation>
     </message>
     <message>
         <source>Verknuepfungsname</source>
-        <translation type="vanished">Verknuepfungsname</translation>
+        <translation>Verknuepfungsname</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="343"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="340" />
         <source>Link</source>
         <translation>Link</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="71"/>
+        <location filename="../src/panewidget_search.cpp" line="89" />
         <source>Suchen ...</source>
-        <translation>Suchen ...</translation>
+        <translation>يبحث...</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="80"/>
+        <location filename="../src/panewidget_search.cpp" line="98" />
         <source>Filtern</source>
-        <translation>Filtern</translation>
+        <translation>فلتر</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="96"/>
+        <location filename="../src/panewidget_search.cpp" line="133" />
         <source>Dateinamen</source>
-        <translation>Dateinamen</translation>
+        <translation>أسماء الملفات</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="97"/>
+        <location filename="../src/panewidget_search.cpp" line="134" />
         <source>Dateiinhalt</source>
-        <translation>Dateiinhalt</translation>
+        <translation>محتوى الملف</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="106"/>
+        <location filename="../src/panewidget_search.cpp" line="143" />
         <source>KFind öffnen</source>
-        <translation>KFind öffnen</translation>
+        <translation>افتح كفايند</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="109"/>
+        <location filename="../src/panewidget_search.cpp" line="146" />
         <source>Sucheinstellungen</source>
-        <translation>Sucheinstellungen</translation>
+        <translation>إعدادات البحث</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="157"/>
+        <location filename="../src/panewidget_search.cpp" line="180" />
         <source>Ab hier</source>
-        <translation>Ab hier</translation>
+        <translation>من هنا</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="158"/>
+        <location filename="../src/panewidget_search.cpp" line="181" />
         <source>Überall</source>
-        <translation>Überall</translation>
+        <translation>في كل مكان</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="291"/>
-        <location filename="../src/panewidget_search.cpp" line="308"/>
+        <location filename="../src/panewidget_search.cpp" line="328" />
+        <location filename="../src/panewidget_search.cpp" line="345" />
         <source>Keine Ergebnisse</source>
         <translation>لا توجد نتائج</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="186"/>
-        <location filename="../src/panewidget_footer.cpp" line="171"/>
+        <location filename="../src/panewidget_search.cpp" line="204" />
+        <location filename="../src/panewidget_footer.cpp" line="165" />
         <source>Name</source>
         <translation>الاسم</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="186"/>
+        <location filename="../src/panewidget_search.cpp" line="204" />
         <source>Pfad</source>
         <translation>المسار</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="186"/>
-        <location filename="../src/panewidget_footer.cpp" line="177"/>
+        <location filename="../src/panewidget_search.cpp" line="204" />
+        <location filename="../src/panewidget_footer.cpp" line="170" />
         <source>Geändert</source>
         <translation>معدّل</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="258"/>
+        <location filename="../src/panewidget_search.cpp" line="277" />
         <source>Suche läuft...</source>
-        <translation>Suche läuft...</translation>
+        <translation>جاري البحث...</translation>
     </message>
     <message>
         <source>Neuer Ordner</source>
-        <translation type="vanished">مجلد جديد</translation>
+        <translation>مجلد جديد</translation>
     </message>
     <message>
         <source>Ordnername:</source>
-        <translation type="vanished">Ordnername:</translation>
+        <translation>اسم المجلد:</translation>
     </message>
     <message>
         <source>Fehler</source>
-        <translation type="vanished">Fehler</translation>
+        <translation>خطأ</translation>
     </message>
     <message>
         <source>Ordner konnte nicht erstellt werden.</source>
-        <translation type="vanished">Ordner konnte nicht erstellt werden.</translation>
+        <translation>Ordner konnte nicht erstellt werden.</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="565"/>
+        <location filename="../src/panewidget.cpp" line="643" />
         <source>Papierkorb leeren</source>
         <translation>إفراغ سلة المحذوفات</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="566"/>
+        <location filename="../src/panewidget.cpp" line="644" />
         <source>Möchten Sie den Papierkorb wirklich leeren?</source>
-        <translation>Möchten Sie den Papierkorb wirklich leeren?</translation>
+        <translation>هل أنت متأكد أنك تريد إفراغ سلة المهملات؟</translation>
     </message>
     <message>
         <source>Kopiere Dateien...</source>
-        <translation type="vanished">Kopiere Dateien...</translation>
+        <translation>Kopiere Dateien...</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="87"/>
+        <location filename="../src/panewidget_footer.cpp" line="82" />
         <source>%1 Elemente</source>
-        <translation>%1 Elemente</translation>
+        <translation>%1 عنصر</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="91"/>
+        <location filename="../src/panewidget_footer.cpp" line="86" />
         <source>%1 ausgewählt</source>
-        <translation>%1 ausgewählt</translation>
+        <translation>تم تحديد %1</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="112"/>
-        <location filename="../src/panewidget_footer.cpp" line="172"/>
+        <location filename="../src/panewidget_footer.cpp" line="106" />
+        <location filename="../src/panewidget_footer.cpp" line="166" />
         <source>Ordner</source>
         <translation>مجلد</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="113"/>
+        <location filename="../src/panewidget_footer.cpp" line="107" />
         <source>…</source>
         <translation>…</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="172"/>
+        <location filename="../src/panewidget_footer.cpp" line="166" />
         <source>Typ</source>
         <translation>النوع</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="174"/>
+        <location filename="../src/panewidget_footer.cpp" line="167" />
         <source>Datei</source>
         <translation>ملف</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="175"/>
+        <location filename="../src/panewidget_footer.cpp" line="168" />
         <source>-Datei</source>
-        <translation>-Datei</translation>
+        <translation>-ملف</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="176"/>
+        <location filename="../src/panewidget_footer.cpp" line="169" />
         <source>Erstellt</source>
         <translation>تاريخ الإنشاء</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="179"/>
+        <location filename="../src/panewidget_footer.cpp" line="172" />
         <source>Alter</source>
-        <translation>Alter</translation>
+        <translation>عمر</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="179"/>
+        <location filename="../src/panewidget_footer.cpp" line="172" />
         <source>Heute</source>
-        <translation>Heute</translation>
+        <translation>اليوم</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="180"/>
+        <location filename="../src/panewidget_footer.cpp" line="173" />
         <source>Gestern</source>
-        <translation>Gestern</translation>
+        <translation>أمس</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="181"/>
+        <location filename="../src/panewidget_footer.cpp" line="174" />
         <source>%1 t</source>
-        <translation>%1 t</translation>
+        <translation>%1 د</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="182"/>
+        <location filename="../src/panewidget_footer.cpp" line="175" />
         <source>%1 m</source>
         <translation>%1 m</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="183"/>
+        <location filename="../src/panewidget_footer.cpp" line="176" />
         <source>%1 j</source>
-        <translation>%1 j</translation>
+        <translation>%1 ص</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="185"/>
+        <location filename="../src/panewidget_footer.cpp" line="178" />
         <source>Größe:</source>
-        <translation>Größe:</translation>
+        <translation>مقاس:</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="199"/>
+        <location filename="../src/panewidget_footer.cpp" line="179" />
         <source>Attribute</source>
-        <translation>Attribute</translation>
+        <translation>صفات</translation>
     </message>
 </context>
 <context>
     <name>PaperlessManagerDialog</name>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="218"/>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="295"/>
         <source>Paperless</source>
         <translation>بلا ورق</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="219"/>
         <source>Bitte zuerst URL und Token im Paperless Manager konfigurieren.</source>
         <translation>يرجى تكوين عنوان URL والرمز المميز في Paperless Manager أولاً.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="288"/>
         <source>Paperless Upload</source>
         <translation>تحميل بلا ورق</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="289"/>
         <source>Fehler beim Hochladen von %1:
 %2</source>
         <translation>حدث خطأ أثناء تحميل %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="296"/>
         <source>Upload abgeschlossen.</source>
         <translation>اكتمل التحميل.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="311"/>
         <source>Paperless Manager</source>
         <translation>مديري بلا أوراق</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="349"/>
         <source>Verbindung</source>
         <translation>اتصال</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="363"/>
         <source>URL:</source>
         <translation>عنوان URL:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="375"/>
         <source>Token anzeigen</source>
         <translation>إظهار الرموز</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="378"/>
         <source>API-Token:</source>
         <translation>رمز واجهة برمجة التطبيقات:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="380"/>
         <source>SSL-Zertifikat nicht prüfen (für selbstsignierte Zertifikate)</source>
         <translation>لا تتحقق من شهادة SSL (للشهادات الموقعة ذاتيًا)</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="385"/>
         <source>Speichern</source>
         <translation>يحفظ</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="396"/>
         <source>Dokumente suchen…</source>
         <translation>بحث في المستندات...</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="399"/>
         <source>Suchen</source>
-        <translation type="unfinished">Suchen</translation>
+        <translation>يبحث</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="403"/>
         <source>Hochladen</source>
         <translation>رفع</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="410"/>
         <source>Aktualisieren</source>
         <translation>تحديث</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="419"/>
         <source>Dokumente:</source>
         <translation>وثائق:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="454"/>
         <source>Im Browser öffnen</source>
         <translation>فتح في المتصفح</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="457"/>
         <source>Schließen</source>
-        <translation type="unfinished">إغلاق</translation>
+        <translation>إغلاق</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="485"/>
         <source>Dateien für Paperless auswählen</source>
         <translation>حدد الملفات لـ Paperless</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="506"/>
         <source>Bitte URL und Token konfigurieren.</source>
         <translation>يرجى تكوين عنوان URL والرمز المميز.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="511"/>
         <source>Lädt…</source>
         <translation>تحميل…</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="525"/>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="568"/>
         <source>Fehler: %1</source>
-        <translation type="unfinished">Fehler: %1</translation>
+        <translation>الخطأ: %1</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="550"/>
         <source>%1 Dokument(e) — %2 angezeigt</source>
         <translation>%1 مستند (مستندات) — تم عرض %2</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="558"/>
         <source>Lade %1 herunter…</source>
         <translation>تنزيل %1...</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="581"/>
         <source>%1 geöffnet.</source>
         <translation>تم فتح %1.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="583"/>
         <source>Konnte Datei nicht schreiben.</source>
         <translation>لا يمكن كتابة الملف.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="599"/>
         <source>Einstellungen gespeichert.</source>
         <translation>تم حفظ الإعدادات.</translation>
     </message>
@@ -1868,53 +1803,42 @@ Inspiriert von OneCommander.</translation>
 <context>
     <name>PaperlessUploadDialog</name>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="64"/>
         <source>Zu Paperless hochladen</source>
         <translation>تحميل إلى بلا أوراق</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="80"/>
         <source>Dateien:</source>
         <translation>الملفات:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="92"/>
         <source>Titel (optional):</source>
         <translation>العنوان (اختياري):</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="100"/>
         <source>Wird aus Dateiname ermittelt</source>
         <translation>يتم تحديده من اسم الملف</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="104"/>
         <source>Tags:</source>
         <translation>العلامات:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="113"/>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="123"/>
         <source>Wird geladen…</source>
         <translation>جاري التحميل…</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="118"/>
         <source>Korrespondent:</source>
         <translation>المراسل:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="141"/>
         <source>Hochladen</source>
         <translation>رفع</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="144"/>
         <source>Abbrechen</source>
-        <translation type="unfinished">إلغاء</translation>
+        <translation>إلغاء</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="186"/>
         <source>— keiner —</source>
         <translation>- لا أحد -</translation>
     </message>
@@ -1923,831 +1847,918 @@ Inspiriert von OneCommander.</translation>
     <name>QObject</name>
     <message>
         <source>Löschen</source>
-        <translation type="vanished">حذف</translation>
+        <translation>حذف</translation>
     </message>
     <message>
         <source>In den Papierkorb verschieben</source>
-        <translation type="vanished">نقل إلى سلة المحذوفات</translation>
+        <translation>نقل إلى سلة المحذوفات</translation>
     </message>
     <message>
         <source>System</source>
-        <translation type="vanished">System</translation>
+        <translation>System</translation>
     </message>
     <message>
         <source>Keine Ergebnisse</source>
-        <translation type="vanished">لا توجد نتائج</translation>
+        <translation>لا توجد نتائج</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="125"/>
+        <location filename="../src/sidebar.cpp" line="160" />
         <source>Eintrag bearbeiten</source>
-        <translation>Eintrag bearbeiten</translation>
+        <translation>تحرير الإدخال</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="157"/>
+        <location filename="../src/sidebar.cpp" line="134" />
         <source>Name:</source>
         <translation>الاسم:</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="161"/>
+        <location filename="../src/sidebar.cpp" line="139" />
         <source>Adresse:</source>
         <translation>العنوان:</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="201"/>
+        <location filename="../src/sidebar.cpp" line="214" />
         <source>Bearbeiten...</source>
-        <translation>Bearbeiten...</translation>
+        <translation>يحرر...</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="215"/>
+        <location filename="../src/sidebar.cpp" line="227" />
         <source>In Terminal öffnen</source>
-        <translation>فتح في الطرفية</translation>
+        <translation>فتح في المحطة</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="223"/>
+        <location filename="../src/sidebar.cpp" line="236" />
         <source>Pfad kopieren</source>
-        <translation>Pfad kopieren</translation>
+        <translation>نسخ المسار</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="230"/>
+        <location filename="../src/sidebar.cpp" line="244" />
         <source>Aus Gruppe entfernen</source>
-        <translation>Aus Gruppe entfernen</translation>
+        <translation>إزالة من المجموعة</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="236"/>
+        <location filename="../src/sidebar.cpp" line="248" />
         <source>Eigenschaften</source>
         <translation>الخصائص</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="35"/>
         <source>GitHub Release erstellen</source>
-        <translation>GitHub Release erstellen</translation>
+        <translation>إنشاء إصدار جيثب</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="57"/>
         <source>Tag-Name (z.B. v1.0.0):</source>
-        <translation>Tag-Name (z.B. v1.0.0):</translation>
+        <translation>اسم العلامة (على سبيل المثال، v1.0.0):</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="63"/>
         <source>Release-Titel:</source>
-        <translation>Release-Titel:</translation>
+        <translation>عنوان الإصدار:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="66"/>
         <source>z.B. Version 1.0.0</source>
-        <translation>z.B. Version 1.0.0</translation>
+        <translation>على سبيل المثال الإصدار 1.0.0</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="69"/>
         <source>Beschreibung / Changelog:</source>
-        <translation>Beschreibung / Changelog:</translation>
+        <translation>الوصف / سجل التغيير:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="76"/>
         <source>Was ist neu in dieser Version?</source>
-        <translation>Was ist neu in dieser Version?</translation>
+        <translation>ما الجديد في هذا الإصدار؟</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="79"/>
-        <source>Als &quot;Latest&quot; markieren</source>
+        <source>Als "Latest" markieren</source>
         <translation>Als &amp;quot;Latest&amp;quot; markieren</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="84"/>
         <source>Pre-release</source>
         <translation>إصدار أولي</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="100"/>
         <source>Release erstellen</source>
         <translation>إنشاء إصدار</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="102"/>
         <source>Abbrechen</source>
         <translation>إلغاء</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="474"/>
         <source>▼  Verbindungseinstellungen</source>
         <translation>▼  إعدادات الاتصال</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="475"/>
         <source>▶  Verbindungseinstellungen</source>
         <translation>▶  إعدادات الاتصال</translation>
     </message>
     <message>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="61"/>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="76"/>
         <source>ISO einbinden</source>
         <translation>تشمل ايزو</translation>
     </message>
     <message>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="62"/>
         <source>Konnte Datei nicht öffnen: %1</source>
         <translation>تعذر فتح الملف: %1</translation>
     </message>
     <message>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="77"/>
         <source>Fehler: %1</source>
-        <translation type="unfinished">Fehler: %1</translation>
+        <translation>الخطأ: %1</translation>
     </message>
     <message>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="112"/>
         <source>ISO aushängen</source>
         <translation>قم بإلغاء تحميل ISO</translation>
     </message>
     <message>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="113"/>
         <source>Gerät nicht gefunden.</source>
         <translation>لم يتم العثور على الجهاز.</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="135" />
+        <source>Leere Gruppe</source>
+        <translation>مجموعة فارغة</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="136" />
+        <source>Home-Favoriten</source>
+        <translation>المفضلة للمنزل</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="140" />
+        <source>Git Repositories</source>
+        <translation>مستودعات جيت</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="167" />
+        <source>Es existiert bereits eine Git-Box</source>
+        <translation>يوجد مربع Git بالفعل</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="190" />
+        <source>Gruppenname:</source>
+        <translation>اسم المجموعة:</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="193" />
+        <source>Mein Ordner...</source>
+        <translation>المجلد الخاص بي...</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="196" />
+        <source>Inhalt:</source>
+        <translation>محتوى:</translation>
     </message>
 </context>
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="80"/>
+        <location filename="../src/settingsdialog.cpp" line="62" />
+        <source>1 Std</source>
+        <translation>ساعة واحدة</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="63" />
+        <source>1 Tag</source>
+        <translation>يوم واحد</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="64" />
+        <source>7 Tage</source>
+        <translation>٧ أيام</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="65" />
+        <source>1 Monat</source>
+        <translation>شهر واحد</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="66" />
+        <source>1 Jahr</source>
+        <translation>سنة واحدة</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="67" />
+        <source>&gt;1 Jahr</source>
+        <translation>أكثر من سنة</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="108" />
         <source>Einstellungen</source>
         <translation>الإعدادات</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="128"/>
+        <location filename="../src/settingsdialog.cpp" line="182" />
         <source>Allgemein</source>
         <translation>عام</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="129"/>
-        <location filename="../src/settingsdialog.cpp" line="422"/>
+        <location filename="../src/settingsdialog.cpp" line="183" />
+        <location filename="../src/settingsdialog.cpp" line="551" />
         <source>Erscheinungsbild</source>
         <translation>المظهر</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="130"/>
+        <location filename="../src/settingsdialog.cpp" line="184" />
         <source>Kurzbefehle</source>
-        <translation>Kurzbefehle</translation>
+        <translation>الاختصارات</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="149"/>
+        <location filename="../src/settingsdialog.cpp" line="195" />
         <source>Übernehmen &amp; Neustarten</source>
-        <translation>Übernehmen &amp; Neustarten</translation>
+        <translation>تطبيق وإعادة التشغيل</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="150"/>
+        <location filename="../src/settingsdialog.cpp" line="197" />
         <source>Schließen</source>
         <translation>إغلاق</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="184"/>
+        <location filename="../src/settingsdialog.cpp" line="234" />
         <source>Allgemeine Einstellungen</source>
-        <translation>Allgemeine Einstellungen</translation>
+        <translation>الإعدادات العامة</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="189"/>
+        <location filename="../src/settingsdialog.cpp" line="256" />
         <source>Sprache</source>
         <translation>لغة</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="196"/>
+        <location filename="../src/settingsdialog.cpp" line="270" />
         <source>Systemsprache</source>
         <translation>لغة النظام</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="223"/>
+        <location filename="../src/settingsdialog.cpp" line="299" />
         <source>Neustart erforderlich, um die Sprache zu wechseln.</source>
         <translation>إعادة التشغيل المطلوبة لتغيير اللغة.</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="229"/>
+        <location filename="../src/settingsdialog.cpp" line="307" />
         <source>Sprache:</source>
         <translation>لغة:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="234"/>
+        <location filename="../src/settingsdialog.cpp" line="316" />
         <source>Start-Verhalten</source>
-        <translation>Start-Verhalten</translation>
+        <translation>سلوك بدء التشغيل</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="238"/>
+        <location filename="../src/settingsdialog.cpp" line="323" />
         <source>Mit letzter Sitzung starten (Letzte Pfade)</source>
-        <translation>Mit letzter Sitzung starten (Letzte Pfade)</translation>
+        <translation>ابدأ بالجلسة الأخيرة (المسارات الأخيرة)</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="239"/>
+        <location filename="../src/settingsdialog.cpp" line="324" />
         <source>Immer in der Laufwerks-Übersicht (Dieser PC) starten</source>
-        <translation>Immer in der Laufwerks-Übersicht (Dieser PC) starten</translation>
+        <translation>ابدأ دائمًا في النظرة العامة على محرك الأقراص (هذا الكمبيوتر)</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="240"/>
+        <location filename="../src/settingsdialog.cpp" line="325" />
         <source>Immer in folgendem Pfad starten:</source>
-        <translation>Immer in folgendem Pfad starten:</translation>
+        <translation>ابدأ دائمًا بالمسار التالي:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="254"/>
+        <location filename="../src/settingsdialog.cpp" line="340" />
         <source>Durchsuchen...</source>
         <translation>استعراض...</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="262"/>
+        <location filename="../src/settingsdialog.cpp" line="350" />
         <source>Start-Verzeichnis wählen</source>
-        <translation>Start-Verzeichnis wählen</translation>
+        <translation>حدد دليل بدء التشغيل</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="271"/>
+        <location filename="../src/settingsdialog.cpp" line="366" />
         <source>Verhalten &amp; Dateiliste</source>
-        <translation>Verhalten &amp; Dateiliste</translation>
+        <translation>السلوك وقائمة الملفات</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="274"/>
+        <location filename="../src/settingsdialog.cpp" line="371" />
         <source>Versteckte Dateien anzeigen</source>
         <translation>إظهار الملفات المخفية</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="275"/>
+        <location filename="../src/settingsdialog.cpp" line="372" />
         <source>Dateiendungen anzeigen</source>
-        <translation>Dateiendungen anzeigen</translation>
+        <translation>إظهار امتدادات الملفات</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="276"/>
+        <location filename="../src/settingsdialog.cpp" line="373" />
         <source>Einfachklick zum Öffnen verwenden</source>
-        <translation>Einfachklick zum Öffnen verwenden</translation>
+        <translation>استخدم نقرة واحدة لفتح</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="277"/>
+        <location filename="../src/settingsdialog.cpp" line="374" />
         <source>IP-Adresse in Miller-Spalten anzeigen</source>
-        <translation>IP-Adresse in Miller-Spalten anzeigen</translation>
+        <translation>إظهار عنوان IP في أعمدة ميلر</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="286"/>
+        <location filename="../src/settingsdialog.cpp" line="386" />
         <source>Laufwerke</source>
         <translation>محركات الأقراص</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="289"/>
+        <location filename="../src/settingsdialog.cpp" line="391" />
         <source>IP-Adresse für Netzlaufwerke anzeigen</source>
-        <translation>IP-Adresse für Netzlaufwerke anzeigen</translation>
+        <translation>إظهار عنوان IP لمحركات أقراص الشبكة</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="295"/>
+        <location filename="../src/settingsdialog.cpp" line="396" />
         <source>Git</source>
         <translation>Git</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="298"/>
+        <location filename="../src/settingsdialog.cpp" line="401" />
         <source>Git-Box in Sidebar anzeigen</source>
-        <translation>Git-Box in Sidebar anzeigen</translation>
+        <translation>إظهار مربع Git في الشريط الجانبي</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="302"/>
+        <location filename="../src/settingsdialog.cpp" line="405" />
         <source>Aktualisierung:</source>
-        <translation>Aktualisierung:</translation>
+        <translation>ينعش:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="304"/>
+        <location filename="../src/settingsdialog.cpp" line="408" />
         <source>Bei Änderungen</source>
         <translation>عند التغيير</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="305"/>
+        <location filename="../src/settingsdialog.cpp" line="409" />
         <source>Periodisch</source>
         <translation>دوري</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="306"/>
+        <location filename="../src/settingsdialog.cpp" line="410" />
         <source>Manuell</source>
         <translation>يدوي</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="311"/>
+        <location filename="../src/settingsdialog.cpp" line="415" />
         <source>Intervall (Min):</source>
-        <translation>Intervall (Min):</translation>
+        <translation>الفاصل الزمني (دقيقة):</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="328"/>
+        <location filename="../src/settingsdialog.cpp" line="436" />
         <source>Darstellung</source>
         <translation>تصوير</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="333"/>
+        <location filename="../src/settingsdialog.cpp" line="444" />
         <source> pt</source>
         <translation>نقطة</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="334"/>
+        <location filename="../src/settingsdialog.cpp" line="445" />
         <source>Steuert Schriftgröße, Icon-Größe und Zeilenhöhe</source>
         <translation>يتحكم في حجم الخط وحجم الرمز وارتفاع الخط</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="338"/>
+        <location filename="../src/settingsdialog.cpp" line="450" />
         <source>App-weite Schriftart</source>
         <translation>الخط على مستوى التطبيق</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="342"/>
+        <location filename="../src/settingsdialog.cpp" line="455" />
         <source>Icon-Größe und Zeilenhöhen werden automatisch angepasst</source>
         <translation>يتم ضبط حجم الأيقونة وارتفاع الخط تلقائيًا</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="359"/>
+        <location filename="../src/settingsdialog.cpp" line="475" />
         <source>Schriftart:</source>
         <translation>الخط:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="360"/>
+        <location filename="../src/settingsdialog.cpp" line="476" />
         <source>Schriftgröße:</source>
         <translation>حجم الخط:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="362"/>
+        <location filename="../src/settingsdialog.cpp" line="478" />
         <source>Abstände:</source>
         <translation>المسافات:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="366"/>
+        <location filename="../src/settingsdialog.cpp" line="486" />
         <source>Pfad-Filter (Blacklist)</source>
-        <translation>Pfad-Filter (Blacklist)</translation>
+        <translation>مرشح المسار (القائمة السوداء)</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="368"/>
+        <location filename="../src/settingsdialog.cpp" line="490" />
         <source>Diese Verzeichnisse werden in der Sidebar und den Laufwerkslisten versteckt.</source>
-        <translation>Diese Verzeichnisse werden in der Sidebar und den Laufwerkslisten versteckt.</translation>
+        <translation>سيتم إخفاء هذه الدلائل في الشريط الجانبي وقوائم محركات الأقراص.</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="380"/>
+        <location filename="../src/settingsdialog.cpp" line="505" />
         <source>Neuer Pfad...</source>
-        <translation>Neuer Pfad...</translation>
+        <translation>مسار جديد...</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="383"/>
-        <location filename="../src/settingsdialog.cpp" line="509"/>
+        <location filename="../src/settingsdialog.cpp" line="508" />
+        <location filename="../src/settingsdialog.cpp" line="703" />
         <source>Hinzufügen</source>
-        <translation>Hinzufügen</translation>
+        <translation>يضيف</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="384"/>
-        <location filename="../src/settingsdialog.cpp" line="512"/>
+        <location filename="../src/settingsdialog.cpp" line="510" />
+        <location filename="../src/settingsdialog.cpp" line="707" />
         <source>Entfernen</source>
         <translation>إزالة</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="427"/>
+        <location filename="../src/settingsdialog.cpp" line="571" />
         <source>Design &amp; Farben</source>
-        <translation>Design &amp; Farben</translation>
+        <translation>التصميم والألوان</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="430"/>
+        <location filename="../src/settingsdialog.cpp" line="576" />
         <source>KDE Global Theme verwenden</source>
-        <translation>KDE Global Theme verwenden</translation>
+        <translation>استخدم سمة KDE العالمية</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="431"/>
+        <location filename="../src/settingsdialog.cpp" line="577" />
         <source>Übernimmt Farben und Stil des aktiven KDE Global Themes.</source>
-        <translation>Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
+        <translation>يطبق الألوان والنمط الخاص بسمة KDE العالمية النشطة.</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="471"/>
+        <location filename="../src/settingsdialog.cpp" line="653" />
         <source>Vorschaubilder (Thumbnails)</source>
-        <translation>Vorschaubilder (Thumbnails)</translation>
+        <translation>الصور المصغرة</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="473"/>
+        <location filename="../src/settingsdialog.cpp" line="657" />
         <source>Vorschaubilder anzeigen</source>
-        <translation>Vorschaubilder anzeigen</translation>
+        <translation>عرض الصور المصغرة</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="475"/>
+        <location filename="../src/settingsdialog.cpp" line="659" />
         <source>Maximale Dateigröße (MB):</source>
-        <translation>Maximale Dateigröße (MB):</translation>
+        <translation>الحد الأقصى لحجم الملف (ميجابايت):</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="487"/>
+        <location filename="../src/settingsdialog.cpp" line="676" />
         <source>Dateityp-Farben (Hervorhebung)</source>
-        <translation>Dateityp-Farben (Hervorhebung)</translation>
+        <translation>ألوان نوع الملف (تمييز)</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="506"/>
+        <location filename="../src/settingsdialog.cpp" line="699" />
         <source>Farbe wählen...</source>
-        <translation>Farbe wählen...</translation>
+        <translation>اختر اللون...</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="524"/>
+        <location filename="../src/settingsdialog.cpp" line="727" />
         <source>Farbe für Dateityp wählen</source>
-        <translation>Farbe für Dateityp wählen</translation>
+        <translation>اختر اللون لنوع الملف</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="747"/>
+        <location filename="../src/settingsdialog.cpp" line="1022" />
         <source>Fehler</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>خطأ</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="747"/>
+        <location filename="../src/settingsdialog.cpp" line="1022" />
         <source>Neustart fehlgeschlagen: %1</source>
         <translation>فشلت إعادة التشغيل: %1</translation>
     </message>
     <message>
         <source>Icon-Größen &amp; Zeilenhöhen</source>
-        <translation type="vanished">Icon-Größen &amp; Zeilenhöhen</translation>
+        <translation>Icon-Größen &amp; Zeilenhöhen</translation>
     </message>
     <message>
         <source>Erweiterte Höhen-Optionen anzeigen</source>
-        <translation type="vanished">Erweiterte Höhen-Optionen anzeigen</translation>
+        <translation>Erweiterte Höhen-Optionen anzeigen</translation>
     </message>
     <message>
         <source>Sidebar Icon:</source>
-        <translation type="vanished">Sidebar Icon:</translation>
+        <translation>Sidebar Icon:</translation>
     </message>
     <message>
         <source>Laufwerke Icon:</source>
-        <translation type="vanished">Laufwerke Icon:</translation>
+        <translation>Laufwerke Icon:</translation>
     </message>
     <message>
         <source>Dateilisten Icon:</source>
-        <translation type="vanished">Dateilisten Icon:</translation>
+        <translation>Dateilisten Icon:</translation>
     </message>
     <message>
         <source>Sidebar Höhe:</source>
-        <translation type="vanished">Sidebar Höhe:</translation>
+        <translation>Sidebar Höhe:</translation>
     </message>
     <message>
         <source>Laufwerke Höhe:</source>
-        <translation type="vanished">Laufwerke Höhe:</translation>
+        <translation>Laufwerke Höhe:</translation>
     </message>
     <message>
         <source>Miller Header Höhe:</source>
-        <translation type="vanished">Miller Header Höhe:</translation>
+        <translation>Miller Header Höhe:</translation>
     </message>
     <message>
         <source>Passwort erforderlich</source>
-        <translation type="vanished">Passwort erforderlich</translation>
+        <translation>Passwort erforderlich</translation>
     </message>
     <message>
         <source>Passwort für erweiterte Optionen:</source>
-        <translation type="vanished">Passwort für erweiterte Optionen:</translation>
+        <translation>Passwort für erweiterte Optionen:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="555"/>
+        <location filename="../src/settingsdialog.cpp" line="755" />
         <source>Alters-Plaketten</source>
-        <translation>Alters-Plaketten</translation>
+        <translation>شارات العمر</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="566"/>
+        <location filename="../src/settingsdialog.cpp" line="777" />
         <source>Sättigung:</source>
-        <translation>Sättigung:</translation>
+        <translation>التشبع:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="567"/>
+        <location filename="../src/settingsdialog.cpp" line="778" />
         <source>Helligkeit:</source>
-        <translation>Helligkeit:</translation>
+        <translation>خفة:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="570"/>
+        <location filename="../src/settingsdialog.cpp" line="781" />
         <source>Neue Dateien hervorheben (&lt; 2 Tage)</source>
-        <translation>Neue Dateien hervorheben (&lt; 2 Tage)</translation>
+        <translation>قم بتمييز الملفات الجديدة (أقل من يومين)</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="740"/>
+        <location filename="../src/settingsdialog.cpp" line="1013" />
         <source>Neustart erforderlich</source>
-        <translation>Neustart erforderlich</translation>
+        <translation>إعادة التشغيل مطلوبة</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="741"/>
+        <location filename="../src/settingsdialog.cpp" line="1013" />
         <source>Einige Änderungen erfordern einen Neustart. Jetzt neu starten?</source>
-        <translation>Einige Änderungen erfordern einen Neustart. Jetzt neu starten?</translation>
+        <translation>تتطلب بعض التغييرات إعادة التشغيل. هل تريد إعادة التشغيل الآن؟</translation>
     </message>
 </context>
 <context>
     <name>Sidebar</name>
     <message>
-        <location filename="../src/sidebar.cpp" line="355"/>
+        <location filename="../src/sidebar.cpp" line="379" />
         <source>Layout wählen</source>
-        <translation type="unfinished">Layout wählen</translation>
+        <translation>اختر التخطيط</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="391"/>
+        <location filename="../src/sidebar.cpp" line="437" />
         <source>Klassisch</source>
-        <translation type="unfinished">Klassisch</translation>
+        <translation>كلاسيكي</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="391"/>
+        <location filename="../src/sidebar.cpp" line="437" />
         <source>Einzeln</source>
-        <translation type="unfinished">Einzeln</translation>
+        <translation>فردي</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="392"/>
+        <location filename="../src/sidebar.cpp" line="438" />
         <source>Standard</source>
-        <translation type="unfinished">Standard</translation>
+        <translation>قياسي</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="392"/>
-        <location filename="../src/sidebar.cpp" line="393"/>
+        <location filename="../src/sidebar.cpp" line="438" />
+        <location filename="../src/sidebar.cpp" line="439" />
         <source>Dual</source>
-        <translation type="unfinished">Dual</translation>
+        <translation>مزدوج</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="393"/>
+        <location filename="../src/sidebar.cpp" line="439" />
         <source>Spalten</source>
-        <translation type="unfinished">Spalten</translation>
+        <translation>أعمدة</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="470"/>
         <source>LAUFWERKE</source>
         <translation>LAUFWERKE</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="580"/>
-        <location filename="../src/sidebar.cpp" line="1468"/>
+        <location filename="../src/sidebar.cpp" line="746" />
+        <location filename="../src/sidebar.cpp" line="1892" />
         <source>Öffnen</source>
         <translation>فتح</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="583"/>
-        <location filename="../src/sidebar.cpp" line="1471"/>
-        <location filename="../src/sidebar.cpp" line="1685"/>
+        <location filename="../src/sidebar.cpp" line="747" />
+        <location filename="../src/sidebar.cpp" line="1896" />
+        <location filename="../src/sidebar.cpp" line="1941" />
         <source>Öffnen in</source>
-        <translation>Öffnen in</translation>
+        <translation>فتح في</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="585"/>
-        <location filename="../src/sidebar.cpp" line="1473"/>
-        <location filename="../src/sidebar.cpp" line="1687"/>
+        <location filename="../src/sidebar.cpp" line="750" />
+        <location filename="../src/sidebar.cpp" line="1899" />
+        <location filename="../src/sidebar.cpp" line="1944" />
         <source>Linke Pane</source>
-        <translation>Linke Pane</translation>
+        <translation>الجزء الأيسر</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="587"/>
-        <location filename="../src/sidebar.cpp" line="1475"/>
-        <location filename="../src/sidebar.cpp" line="1689"/>
+        <location filename="../src/sidebar.cpp" line="751" />
+        <location filename="../src/sidebar.cpp" line="1900" />
+        <location filename="../src/sidebar.cpp" line="1945" />
         <source>Rechte Pane</source>
-        <translation>Rechte Pane</translation>
+        <translation>الجزء الأيمن</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="607"/>
-        <location filename="../src/sidebar.cpp" line="610"/>
-        <location filename="../src/sidebar.cpp" line="1563"/>
-        <location filename="../src/sidebar.cpp" line="1566"/>
+        <location filename="../src/sidebar.cpp" line="798" />
+        <location filename="../src/sidebar.cpp" line="801" />
+        <location filename="../src/sidebar.cpp" line="1806" />
+        <location filename="../src/sidebar.cpp" line="1809" />
         <source>Umbenennen</source>
         <translation>إعادة تسمية</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="610"/>
-        <location filename="../src/sidebar.cpp" line="1569"/>
+        <location filename="../src/sidebar.cpp" line="801" />
+        <location filename="../src/sidebar.cpp" line="1813" />
         <source>Anzeigename:</source>
-        <translation>Anzeigename:</translation>
+        <translation>اسم العرض:</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="637"/>
+        <location filename="../src/sidebar.cpp" line="808" />
         <source>Zu Laufwerken hinzufügen</source>
-        <translation>Zu Laufwerken hinzufügen</translation>
+        <translation>أضف إلى محركات الأقراص</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="664"/>
-        <location filename="../src/sidebar.cpp" line="1584"/>
+        <location filename="../src/sidebar.cpp" line="760" />
+        <location filename="../src/sidebar.cpp" line="1828" />
         <source>Aus Laufwerken entfernen</source>
-        <translation>Aus Laufwerken entfernen</translation>
+        <translation>إزالة من محركات الأقراص</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="726"/>
+        <location filename="../src/sidebar.cpp" line="767" />
         <source>Trennen</source>
         <translation>قطع الاتصال</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="731"/>
-        <location filename="../src/sidebar.cpp" line="1612"/>
+        <location filename="../src/sidebar.cpp" line="817" />
+        <location filename="../src/sidebar.cpp" line="1918" />
         <source>Pfad kopieren</source>
-        <translation>Pfad kopieren</translation>
+        <translation>نسخ المسار</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="741"/>
+        <location filename="../src/sidebar.cpp" line="885" />
         <source>Box umbenennen …</source>
-        <translation>Box umbenennen …</translation>
+        <translation>إعادة تسمية المربع...</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="743"/>
+        <location filename="../src/sidebar.cpp" line="833" />
         <source>Box umbenennen</source>
-        <translation>Box umbenennen</translation>
+        <translation>إعادة تسمية المربع</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="744"/>
-        <location filename="../src/sidebargroups.cpp" line="873"/>
+        <location filename="../src/sidebar.cpp" line="550" />
+        <source>Laufwerke</source>
+        <translation>الأقراص</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebar.cpp" line="833" />
+        <location filename="../src/sidebargroups.cpp" line="1217" />
         <source>Name:</source>
         <translation>الاسم:</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="755"/>
+        <location filename="../src/sidebar.cpp" line="892" />
         <source>Alles aktualisieren</source>
-        <translation>Alles aktualisieren</translation>
+        <translation>تحديث الكل</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="760"/>
+        <location filename="../src/sidebar.cpp" line="899" />
         <source>Netzwerklaufwerk verbinden</source>
-        <translation>Netzwerklaufwerk verbinden</translation>
+        <translation>قم بتوصيل محرك أقراص الشبكة</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="763"/>
+        <location filename="../src/sidebar.cpp" line="904" />
         <source>SMB Laufwerke verbinden</source>
         <translation>توصيل محركات SMB</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="861"/>
+        <location filename="../src/sidebar.cpp" line="979" />
         <source>+ Neue Gruppe</source>
-        <translation>+ Neue Gruppe</translation>
+        <translation>+ مجموعة جديدة</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1072"/>
         <source>TAGS</source>
         <translation>العلامات</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1125"/>
+        <location filename="../src/sidebar.cpp" line="1250" />
         <source>Neuer Tag</source>
-        <translation>Neuer Tag</translation>
+        <translation>علامة جديدة</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1125"/>
+        <location filename="../src/sidebar.cpp" line="1250" />
         <source>Tag-Name:</source>
-        <translation>Tag-Name:</translation>
+        <translation>اسم العلامة:</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1130"/>
-        <location filename="../src/sidebargroups.cpp" line="857"/>
+        <location filename="../src/sidebar.cpp" line="1257" />
+        <location filename="../src/sidebargroups.cpp" line="1191" />
         <source>Farbe wählen</source>
-        <translation>Farbe wählen</translation>
+        <translation>اختر اللون</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1171"/>
+        <location filename="../src/sidebar.cpp" line="1356" />
         <source>Über</source>
-        <translation>Über</translation>
+        <translation>عن</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1172"/>
+        <location filename="../src/sidebar.cpp" line="1357" />
         <source>Suchen</source>
-        <translation>Suchen</translation>
+        <translation>يبحث</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1173"/>
+        <location filename="../src/sidebar.cpp" line="1358" />
         <source>Drucken</source>
-        <translation>Drucken</translation>
+        <translation>مطبعة</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1174"/>
+        <location filename="../src/sidebar.cpp" line="1359" />
         <source>Nachricht</source>
-        <translation>Nachricht</translation>
+        <translation>رسالة</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1482"/>
-        <location filename="../src/sidebar.cpp" line="1534"/>
+        <location filename="../src/sidebar.cpp" line="1726" />
+        <location filename="../src/sidebar.cpp" line="1752" />
         <source>Aushängen</source>
         <translation>إلغاء التحميل</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1490"/>
+        <location filename="../src/sidebar.cpp" line="1761" />
         <source>Auswerfen</source>
         <translation>إخراج</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1538"/>
+        <location filename="../src/sidebar.cpp" line="1733" />
         <source>Einhängen</source>
         <translation>تحميل</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1610"/>
+        <location filename="../src/sidebar.cpp" line="1201" />
+        <source>Tags</source>
+        <translation>Tags</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebar.cpp" line="1915" />
         <source>Kopieren</source>
         <translation>نسخ</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1615"/>
+        <location filename="../src/sidebar.cpp" line="1919" />
         <source>Name kopieren</source>
-        <translation>Name kopieren</translation>
+        <translation>انسخ الاسم</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1622"/>
+        <location filename="../src/sidebar.cpp" line="1854" />
         <source>Verknüpfung erstellen</source>
-        <translation>Verknüpfung erstellen</translation>
+        <translation>إنشاء رابط</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1643"/>
+        <location filename="../src/sidebar.cpp" line="1870" />
         <source>Eigenschaften</source>
         <translation>الخصائص</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="69"/>
+        <location filename="../src/sidebargroups.cpp" line="211" />
         <source>Neue Gruppe</source>
         <translation>مجموعة جديدة</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="76"/>
         <source>Gruppenname:</source>
-        <translation>Gruppenname:</translation>
+        <translation>اسم المجموعة:</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="78"/>
         <source>Mein Ordner...</source>
-        <translation>Mein Ordner...</translation>
+        <translation>المجلد الخاص بي...</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="81"/>
         <source>Inhalt:</source>
-        <translation>Inhalt:</translation>
+        <translation>محتوى:</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="83"/>
         <source>Leere Gruppe</source>
         <translation>مجموعة فارغة</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="84"/>
         <source>Home-Favoriten</source>
-        <translation>Home-Favoriten</translation>
+        <translation>المفضلة للمنزل</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="86"/>
         <source>Git Repositories</source>
-        <translation>Git Repositories</translation>
+        <translation>مستودعات جيت</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="107"/>
         <source>Es existiert bereits eine Git-Box</source>
-        <translation>Es existiert bereits eine Git-Box</translation>
+        <translation>يوجد مربع Git بالفعل</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="343"/>
-        <location filename="../src/sidebargroups.cpp" line="346"/>
-        <location filename="../src/sidebargroups.cpp" line="566"/>
-        <location filename="../src/sidebargroups.cpp" line="569"/>
+        <location filename="../src/sidebargroups.cpp" line="277" />
+        <location filename="../src/sidebargroups.cpp" line="370" />
+        <location filename="../src/sidebargroups.cpp" line="653" />
+        <location filename="../src/sidebargroups.cpp" line="701" />
         <source>Gruppe umbenennen</source>
-        <translation>Gruppe umbenennen</translation>
+        <translation>إعادة تسمية المجموعة</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="346"/>
-        <location filename="../src/sidebargroups.cpp" line="569"/>
+        <location filename="../src/sidebargroups.cpp" line="277" />
+        <location filename="../src/sidebargroups.cpp" line="701" />
         <source>Neuer Name:</source>
-        <translation>Neuer Name:</translation>
+        <translation>الاسم الجديد:</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="380"/>
+        <location filename="../src/sidebargroups.cpp" line="399" />
         <source>Lösen</source>
         <translation>إلغاء التثبيت</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="380"/>
+        <location filename="../src/sidebargroups.cpp" line="399" />
         <source>An Position verankern</source>
-        <translation>An Position verankern</translation>
+        <translation>موضع الدبوس</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="392"/>
-        <location filename="../src/sidebargroups.cpp" line="590"/>
+        <location filename="../src/sidebargroups.cpp" line="411" />
+        <location filename="../src/sidebargroups.cpp" line="660" />
         <source>Nach oben</source>
         <translation>للأعلى</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="393"/>
-        <location filename="../src/sidebargroups.cpp" line="591"/>
+        <location filename="../src/sidebargroups.cpp" line="412" />
+        <location filename="../src/sidebargroups.cpp" line="661" />
         <source>Nach unten</source>
         <translation>للأسفل</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="397"/>
-        <location filename="../src/sidebargroups.cpp" line="594"/>
+        <location filename="../src/sidebargroups.cpp" line="385" />
+        <location filename="../src/sidebargroups.cpp" line="665" />
         <source>Gruppe löschen</source>
         <translation>حذف المجموعة</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="720"/>
+        <location filename="../src/sidebargroups.cpp" line="238" />
+        <location filename="../src/sidebargroups.cpp" line="592" />
+        <source>Orte</source>
+        <translation>الأماكن</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="239" />
+        <location filename="../src/sidebargroups.cpp" line="593" />
+        <source>Favoriten</source>
+        <translation>المفضلة</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="240" />
+        <location filename="../src/sidebargroups.cpp" line="594" />
+        <source>Repos</source>
+        <translation>المستودعات</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="241" />
+        <location filename="../src/sidebargroups.cpp" line="595" />
+        <source>Repo</source>
+        <translation>المستودع</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="972" />
         <source>Papierkorb</source>
         <translation>سلة المحذوفات</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="721"/>
+        <location filename="../src/sidebargroups.cpp" line="976" />
         <source>Zuletzt verwendet</source>
-        <translation>Zuletzt verwendet</translation>
+        <translation>استخدمت مؤخرا</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="722"/>
+        <location filename="../src/sidebargroups.cpp" line="980" />
         <source>Netzwerk</source>
         <translation>الشبكة</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="723"/>
+        <location filename="../src/sidebargroups.cpp" line="984" />
         <source>Persönlicher Ordner</source>
-        <translation>Persönlicher Ordner</translation>
+        <translation>المجلد الرئيسي</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="854"/>
+        <location filename="../src/sidebargroups.cpp" line="1126" />
+        <source>Wichtig</source>
+        <translation>هام</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="1127" />
+        <source>Arbeit</source>
+        <translation>العمل</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="1128" />
+        <source>Schule</source>
+        <translation>المدرسة</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="1169" />
         <source>Farbe ändern …</source>
-        <translation>Farbe ändern …</translation>
+        <translation>تغيير اللون…</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="870"/>
+        <location filename="../src/sidebargroups.cpp" line="1174" />
         <source>Umbenennen …</source>
-        <translation>Umbenennen …</translation>
+        <translation>إعادة تسمية…</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="873"/>
+        <location filename="../src/sidebargroups.cpp" line="1217" />
         <source>Tag umbenennen</source>
-        <translation>Tag umbenennen</translation>
+        <translation>إعادة تسمية العلامة</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="878"/>
+        <location filename="../src/sidebargroups.cpp" line="1180" />
         <source>Löschen</source>
         <translation>حذف</translation>
     </message>
@@ -2755,1335 +2766,1307 @@ Inspiriert von OneCommander.</translation>
 <context>
     <name>SidebarHandle</name>
     <message>
-        <location filename="../src/panecomponents.cpp" line="180"/>
+        <location filename="../src/panecomponents.cpp" line="180" />
         <source>Layout wählen</source>
-        <translation type="unfinished">Layout wählen</translation>
+        <translation>اختر التخطيط</translation>
     </message>
 </context>
 <context>
     <name>SplitCommander</name>
     <message>
         <source>Altersbadges</source>
-        <translation type="vanished">Altersbadges</translation>
+        <translation>شارات العمر</translation>
     </message>
     <message>
         <source>Dateialter / relatives Datum</source>
-        <translation type="vanished">Dateialter / relatives Datum</translation>
+        <translation>عمر الملف / التاريخ النسبي</translation>
     </message>
     <message>
         <source>Zurücksetzen</source>
-        <translation type="vanished">إعادة تعيين</translation>
+        <translation>إعادة تعيين</translation>
     </message>
     <message>
         <source>Neue Dateien hervorheben (&lt; 2 Tage)</source>
-        <translation type="vanished">Neue Dateien hervorheben (&lt; 2 Tage)</translation>
+        <translation>قم بتمييز الملفات الجديدة (أقل من يومين)</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="96"/>
-        <location filename="../src/sidebargroups.cpp" line="46"/>
+        <location filename="../src/sidebar.cpp" line="90" />
+        <location filename="../src/sidebargroups.cpp" line="45" />
         <source>OK</source>
         <translation>موافق</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="99"/>
-        <location filename="../src/sidebargroups.cpp" line="47"/>
+        <location filename="../src/sidebar.cpp" line="91" />
+        <location filename="../src/sidebargroups.cpp" line="46" />
         <source>Abbrechen</source>
         <translation>إلغاء</translation>
     </message>
     <message>
         <source>Übernehmen</source>
-        <translation type="vanished">تطبيق</translation>
+        <translation>تطبيق</translation>
     </message>
     <message>
         <source>Batch Rename - %1 Dateien</source>
-        <translation type="vanished">Batch Rename - %1 Dateien</translation>
+        <translation>إعادة تسمية الدفعة - %1 ملف</translation>
     </message>
     <message>
         <source>An ursprünglichem Ort wiederherstellen</source>
-        <translation type="vanished">An ursprünglichem Ort wiederherstellen</translation>
+        <translation>استعادة إلى الموقع الأصلي</translation>
     </message>
     <message>
         <source>Löschen</source>
-        <translation type="vanished">حذف</translation>
+        <translation>حذف</translation>
     </message>
     <message>
         <source>Sortieren nach</source>
-        <translation type="vanished">ترتيب حسب</translation>
+        <translation>ترتيب حسب</translation>
     </message>
     <message>
         <source>Ansichtsmodus ändern</source>
-        <translation type="vanished">Ansichtsmodus ändern</translation>
+        <translation>تغيير وضع العرض</translation>
     </message>
     <message>
         <source>Details</source>
-        <translation type="vanished">تفاصيل</translation>
+        <translation>تفاصيل</translation>
     </message>
     <message>
         <source>Symbole</source>
-        <translation type="vanished">أيقونات</translation>
+        <translation>أيقونات</translation>
     </message>
     <message>
         <source>Papierkorb leeren</source>
-        <translation type="vanished">إفراغ سلة المحذوفات</translation>
+        <translation>إفراغ سلة المحذوفات</translation>
     </message>
     <message>
         <source>Öffnen</source>
-        <translation type="vanished">فتح</translation>
+        <translation>فتح</translation>
     </message>
     <message>
         <source>Neu erstellen</source>
-        <translation type="vanished">إنشاء جديد</translation>
+        <translation>إنشاء جديد</translation>
     </message>
     <message>
         <source>Adresse kopieren</source>
-        <translation type="vanished">Adresse kopieren</translation>
+        <translation>انسخ العنوان</translation>
     </message>
     <message>
         <source>Hier duplizieren</source>
-        <translation type="vanished">Hier duplizieren</translation>
+        <translation>مكررة هنا</translation>
     </message>
     <message>
         <source>Dupliziere Datei...</source>
-        <translation type="vanished">Dupliziere Datei...</translation>
+        <translation>ملف مكرر...</translation>
     </message>
     <message>
         <source>Favoriten</source>
-        <translation type="vanished">المفضلة</translation>
+        <translation>المفضلة</translation>
     </message>
     <message>
         <source>Hinzufügen zu</source>
-        <translation type="vanished">Hinzufügen zu</translation>
+        <translation>اضف إليه</translation>
     </message>
     <message>
         <source>Laufwerke</source>
-        <translation type="vanished">محركات الأقراص</translation>
+        <translation>محركات الأقراص</translation>
     </message>
     <message>
         <source>Terminal hier öffnen</source>
-        <translation type="vanished">فتح الطرفية هنا</translation>
+        <translation>فتح الطرفية هنا</translation>
     </message>
     <message>
         <source>Diaschau starten</source>
-        <translation type="vanished">Diaschau starten</translation>
+        <translation>ابدأ عرض الشرائح</translation>
     </message>
     <message>
         <source>Tag</source>
-        <translation type="vanished">Tag</translation>
+        <translation>علامة</translation>
     </message>
     <message>
         <source>Tag entfernen</source>
-        <translation type="vanished">Tag entfernen</translation>
+        <translation>إزالة العلامة</translation>
     </message>
     <message>
         <source>Aktionen</source>
-        <translation type="vanished">Aktionen</translation>
+        <translation>الإجراءات</translation>
     </message>
     <message>
         <source>In neuen Ordner verschieben ...</source>
-        <translation type="vanished">In neuen Ordner verschieben ...</translation>
+        <translation>الانتقال إلى المجلد الجديد...</translation>
     </message>
     <message>
         <source>In neuen Ordner verschieben</source>
-        <translation type="vanished">In neuen Ordner verschieben</translation>
+        <translation>الانتقال إلى المجلد الجديد</translation>
     </message>
     <message>
         <source>Ordnername:</source>
-        <translation type="vanished">Ordnername:</translation>
+        <translation>اسم المجلد:</translation>
     </message>
     <message>
         <source>Neuer Ordner</source>
-        <translation type="vanished">مجلد جديد</translation>
+        <translation>مجلد جديد</translation>
     </message>
     <message>
         <source>Eigenschaften</source>
-        <translation type="vanished">الخصائص</translation>
+        <translation>الخصائص</translation>
     </message>
     <message>
         <source>Zu Laufwerken hinzufügen</source>
-        <translation type="vanished">Zu Laufwerken hinzufügen</translation>
+        <translation>أضف إلى محركات الأقراص</translation>
     </message>
     <message>
         <source>Initialisierung...</source>
-        <translation type="vanished">Initialisierung...</translation>
+        <translation>البداية...</translation>
     </message>
     <message>
         <source>Fortschritt: %1%</source>
-        <translation type="vanished">Fortschritt: %1%</translation>
+        <translation>Fortschritt: %1%</translation>
     </message>
     <message>
         <source>Fehler: %1</source>
-        <translation type="vanished">Fehler: %1</translation>
+        <translation>Fehler: %1</translation>
     </message>
     <message>
         <source>Fertig!</source>
-        <translation type="vanished">Fertig!</translation>
+        <translation>Fertig!</translation>
     </message>
     <message>
         <source>Löschen...</source>
-        <translation type="vanished">Löschen...</translation>
+        <translation>Löschen...</translation>
     </message>
     <message>
         <source>Fehler</source>
-        <translation type="vanished">Fehler</translation>
+        <translation>خطأ</translation>
     </message>
     <message>
         <source>Ordner konnte nicht erstellt werden.</source>
-        <translation type="vanished">Ordner konnte nicht erstellt werden.</translation>
+        <translation>Ordner konnte nicht erstellt werden.</translation>
     </message>
     <message>
         <source>SplitCommander</source>
-        <translation type="vanished">SplitCommander</translation>
+        <translation>SplitCommander</translation>
     </message>
     <message>
         <source>Zurück</source>
-        <translation type="vanished">للخلف</translation>
+        <translation>للخلف</translation>
     </message>
     <message>
         <source>Vorwärts</source>
-        <translation type="vanished">Vorwärts</translation>
+        <translation>Vorwärts</translation>
     </message>
     <message>
         <source>Übergeordneter Ordner</source>
-        <translation type="vanished">Übergeordneter Ordner</translation>
+        <translation>المجلد الأصل</translation>
     </message>
     <message>
         <source>Home-Verzeichnis</source>
-        <translation type="vanished">Home-Verzeichnis</translation>
+        <translation>Home-Verzeichnis</translation>
     </message>
     <message>
         <source>Neu laden</source>
-        <translation type="vanished">Neu laden</translation>
+        <translation>Neu laden</translation>
     </message>
     <message>
         <source>Linke Pane fokussieren</source>
-        <translation type="vanished">Linke Pane fokussieren</translation>
+        <translation>Linke Pane fokussieren</translation>
     </message>
     <message>
         <source>Rechte Pane fokussieren</source>
-        <translation type="vanished">Rechte Pane fokussieren</translation>
+        <translation>Rechte Pane fokussieren</translation>
     </message>
     <message>
         <source>Panes tauschen</source>
-        <translation type="vanished">Panes tauschen</translation>
+        <translation>Panes tauschen</translation>
     </message>
     <message>
         <source>Pfade synchronisieren</source>
-        <translation type="vanished">Pfade synchronisieren</translation>
+        <translation>Pfade synchronisieren</translation>
     </message>
     <message>
         <source>Umbenennen</source>
-        <translation type="vanished">إعادة تسمية</translation>
+        <translation>إعادة تسمية</translation>
     </message>
     <message>
         <source>Neuer Name:</source>
-        <translation type="vanished">Neuer Name:</translation>
+        <translation>الاسم الجديد:</translation>
     </message>
     <message>
         <source>In den Papierkorb verschieben</source>
-        <translation type="vanished">نقل إلى سلة المحذوفات</translation>
+        <translation>نقل إلى سلة المحذوفات</translation>
     </message>
     <message>
         <source>Kopieren (Zwischenablage)</source>
-        <translation type="vanished">Kopieren (Zwischenablage)</translation>
+        <translation>Kopieren (Zwischenablage)</translation>
     </message>
     <message>
         <source>Ausschneiden (Zwischenablage)</source>
-        <translation type="vanished">Ausschneiden (Zwischenablage)</translation>
+        <translation>Ausschneiden (Zwischenablage)</translation>
     </message>
     <message>
         <source>Versteckte Dateien umschalten</source>
-        <translation type="vanished">Versteckte Dateien umschalten</translation>
+        <translation>Versteckte Dateien umschalten</translation>
     </message>
     <message>
         <source>Layout wechseln</source>
-        <translation type="vanished">Layout wechseln</translation>
+        <translation>Layout wechseln</translation>
     </message>
     <message>
         <source>Einfügen</source>
-        <translation type="vanished">لصق</translation>
+        <translation>لصق</translation>
     </message>
     <message>
         <source>Verschiebe Dateien...</source>
-        <translation type="vanished">Verschiebe Dateien...</translation>
+        <translation>Verschiebe Dateien...</translation>
     </message>
     <message>
         <source>Kopiere Dateien...</source>
-        <translation type="vanished">Kopiere Dateien...</translation>
+        <translation>Kopiere Dateien...</translation>
     </message>
     <message>
         <source>Alles auswählen</source>
-        <translation type="vanished">Alles auswählen</translation>
+        <translation>Alles auswählen</translation>
     </message>
     <message>
         <source>Öffnen in</source>
-        <translation type="vanished">Öffnen in</translation>
+        <translation>Öffnen in</translation>
     </message>
     <message>
         <source>Linke Ansicht</source>
-        <translation type="vanished">Linke Ansicht</translation>
+        <translation>Linke Ansicht</translation>
     </message>
     <message>
         <source>Rechte Ansicht</source>
-        <translation type="vanished">Rechte Ansicht</translation>
+        <translation>Rechte Ansicht</translation>
     </message>
     <message>
         <source>Anzeigename:</source>
-        <translation type="vanished">Anzeigename:</translation>
+        <translation>Anzeigename:</translation>
     </message>
     <message>
         <source>Aus Laufwerken entfernen</source>
-        <translation type="vanished">Aus Laufwerken entfernen</translation>
+        <translation>Aus Laufwerken entfernen</translation>
     </message>
     <message>
         <source>Kopieren</source>
-        <translation type="vanished">نسخ</translation>
+        <translation>نسخ</translation>
     </message>
     <message>
         <source>Pfad kopieren</source>
-        <translation type="vanished">Pfad kopieren</translation>
+        <translation>Pfad kopieren</translation>
     </message>
     <message>
         <source>Name kopieren</source>
-        <translation type="vanished">Name kopieren</translation>
+        <translation>Name kopieren</translation>
     </message>
     <message>
         <source>Aushängen</source>
-        <translation type="vanished">إلغاء التحميل</translation>
+        <translation>إلغاء التحميل</translation>
     </message>
     <message>
         <source>Einhängen</source>
-        <translation type="vanished">تحميل</translation>
+        <translation>تحميل</translation>
     </message>
     <message>
         <source>Im Terminal öffnen</source>
-        <translation type="vanished">Im Terminal öffnen</translation>
+        <translation>فتح في المحطة</translation>
     </message>
     <message>
         <source>Dieser PC</source>
-        <translation type="vanished">Dieser PC</translation>
+        <translation>Dieser PC</translation>
     </message>
     <message>
         <source>Sortieren</source>
-        <translation type="vanished">Sortieren</translation>
+        <translation>Sortieren</translation>
     </message>
     <message>
         <source>Neu</source>
-        <translation type="vanished">جديد</translation>
+        <translation>جديد</translation>
     </message>
     <message>
         <source>Hoch</source>
-        <translation type="vanished">Hoch</translation>
+        <translation>Hoch</translation>
     </message>
     <message>
         <source>Ordner zuerst</source>
-        <translation type="vanished">المجلدات أولاً</translation>
+        <translation>المجلدات أولاً</translation>
     </message>
     <message>
         <source>%1 Elemente</source>
-        <translation type="vanished">%1 Elemente</translation>
+        <translation>%1 Elemente</translation>
     </message>
     <message>
         <source> | %1 ausgewählt</source>
-        <translation type="vanished"> | %1 ausgewählt</translation>
+        <translation> | %1 ausgewählt</translation>
     </message>
     <message>
         <source>Miller-Columns ein-/ausklappen</source>
-        <translation type="vanished">Miller-Columns ein-/ausklappen</translation>
+        <translation>Miller-Columns ein-/ausklappen</translation>
     </message>
     <message>
         <source>Suchen</source>
-        <translation type="vanished">Suchen</translation>
+        <translation>Suchen</translation>
     </message>
     <message>
         <source>Layout wählen</source>
-        <translation type="vanished">Layout wählen</translation>
+        <translation>اختر التخطيط</translation>
     </message>
     <message>
         <source>Menü</source>
-        <translation type="vanished">Menü</translation>
+        <translation>Menü</translation>
     </message>
     <message>
         <source>Ordner …</source>
-        <translation type="vanished">Ordner …</translation>
+        <translation>Ordner …</translation>
     </message>
     <message>
         <source>Textdatei …</source>
-        <translation type="vanished">Textdatei …</translation>
+        <translation>Textdatei …</translation>
     </message>
     <message>
         <source>HTML-Datei …</source>
-        <translation type="vanished">HTML-Datei …</translation>
+        <translation>HTML-Datei …</translation>
     </message>
     <message>
         <source>Leere Datei …</source>
-        <translation type="vanished">Leere Datei …</translation>
+        <translation>Leere Datei …</translation>
     </message>
     <message>
         <source>Verknüpfung zu Datei oder Ordner …</source>
-        <translation type="vanished">Verknüpfung zu Datei oder Ordner …</translation>
+        <translation>Verknüpfung zu Datei oder Ordner …</translation>
     </message>
     <message>
         <source>Versteckte Dateien anzeigen</source>
-        <translation type="vanished">إظهار الملفات المخفية</translation>
+        <translation>إظهار الملفات المخفية</translation>
     </message>
     <message>
         <source>Einfachklick zum Öffnen</source>
-        <translation type="vanished">Einfachklick zum Öffnen</translation>
+        <translation>Einfachklick zum Öffnen</translation>
     </message>
     <message>
         <source>Dateiendungen anzeigen</source>
-        <translation type="vanished">Dateiendungen anzeigen</translation>
+        <translation>تاريخ البيانات</translation>
     </message>
     <message>
         <source>Terminal</source>
-        <translation type="vanished">Terminal</translation>
+        <translation>Terminal</translation>
     </message>
     <message>
         <source>In Terminal öffnen</source>
-        <translation type="vanished">فتح في الطرفية</translation>
+        <translation>فتح في المحطة</translation>
     </message>
     <message>
         <source>Einrichten</source>
-        <translation type="vanished">Einrichten</translation>
+        <translation>Einrichten</translation>
     </message>
     <message>
         <source>Fenster-Farbschema</source>
-        <translation type="vanished">Fenster-Farbschema</translation>
+        <translation>Fenster-Farbschema</translation>
     </message>
     <message>
         <source>KDE Global Theme verwenden</source>
-        <translation type="vanished">KDE Global Theme verwenden</translation>
+        <translation>KDE Global Theme verwenden</translation>
     </message>
     <message>
         <source>Übernimmt Farben und Stil des aktiven KDE Global Themes.</source>
-        <translation type="vanished">Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
+        <translation>Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
     </message>
     <message>
         <source>Designs neu laden</source>
-        <translation type="vanished">Designs neu laden</translation>
+        <translation>Designs neu laden</translation>
     </message>
     <message>
         <source>Neustart erforderlich</source>
-        <translation type="vanished">Neustart erforderlich</translation>
+        <translation>Neustart erforderlich</translation>
     </message>
     <message>
         <source>Das Theme wird nach einem Neustart angewendet.</source>
-        <translation type="vanished">Das Theme wird nach einem Neustart angewendet.</translation>
+        <translation>Das Theme wird nach einem Neustart angewendet.</translation>
     </message>
     <message>
         <source>Tastaturkurzbefehle festlegen …</source>
-        <translation type="vanished">Tastaturkurzbefehle festlegen …</translation>
+        <translation>Tastaturkurzbefehle festlegen …</translation>
     </message>
     <message>
         <source>Terminal wählen…</source>
-        <translation type="vanished">Terminal wählen…</translation>
+        <translation>Terminal wählen…</translation>
     </message>
     <message>
         <source>Über SplitCommander</source>
-        <translation type="vanished">حول SplitCommander</translation>
+        <translation>حول SplitCommander</translation>
     </message>
     <message>
         <source>Klassisch</source>
-        <translation type="vanished">Klassisch</translation>
+        <translation>كلاسيكي</translation>
     </message>
     <message>
         <source>Einzeln</source>
-        <translation type="vanished">Einzeln</translation>
+        <translation>فردي</translation>
     </message>
     <message>
         <source>Standard</source>
-        <translation type="vanished">Standard</translation>
+        <translation>قياسي</translation>
     </message>
     <message>
         <source>Dual</source>
-        <translation type="vanished">Dual</translation>
+        <translation>مزدوج</translation>
     </message>
     <message>
         <source>Spalten</source>
-        <translation type="vanished">Spalten</translation>
+        <translation>أعمدة</translation>
     </message>
     <message>
         <source>Neue Textdatei</source>
-        <translation type="vanished">Neue Textdatei</translation>
+        <translation>Neue Textdatei</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="vanished">الاسم:</translation>
+        <translation>الاسم:</translation>
     </message>
     <message>
         <source>Neue Datei.txt</source>
-        <translation type="vanished">Neue Datei.txt</translation>
+        <translation>Neue Datei.txt</translation>
     </message>
     <message>
         <source>Neue HTML-Datei</source>
-        <translation type="vanished">Neue HTML-Datei</translation>
+        <translation>Neue HTML-Datei</translation>
     </message>
     <message>
         <source>index.html</source>
-        <translation type="vanished">index.html</translation>
+        <translation>index.html</translation>
     </message>
     <message>
         <source>Leere Datei</source>
-        <translation type="vanished">Leere Datei</translation>
+        <translation>Leere Datei</translation>
     </message>
     <message>
         <source>Neue Datei</source>
-        <translation type="vanished">ملف جديد</translation>
+        <translation>ملف جديد</translation>
     </message>
     <message>
         <source>Ziel waehlen</source>
-        <translation type="vanished">Ziel waehlen</translation>
+        <translation>Ziel waehlen</translation>
     </message>
     <message>
         <source>Verknuepfungsname</source>
-        <translation type="vanished">Verknuepfungsname</translation>
+        <translation>Verknuepfungsname</translation>
     </message>
     <message>
         <source>Link</source>
-        <translation type="vanished">Link</translation>
+        <translation>Link</translation>
     </message>
     <message>
         <source>Suchen ...</source>
-        <translation type="vanished">Suchen ...</translation>
+        <translation>Suchen ...</translation>
     </message>
     <message>
         <source>Filtern</source>
-        <translation type="vanished">Filtern</translation>
+        <translation>Filtern</translation>
     </message>
     <message>
         <source>Dateinamen</source>
-        <translation type="vanished">Dateinamen</translation>
+        <translation>Dateinamen</translation>
     </message>
     <message>
         <source>Dateiinhalt</source>
-        <translation type="vanished">Dateiinhalt</translation>
+        <translation>Dateiinhalt</translation>
     </message>
     <message>
         <source>KFind öffnen</source>
-        <translation type="vanished">KFind öffnen</translation>
+        <translation>KFind öffnen</translation>
     </message>
     <message>
         <source>Sucheinstellungen</source>
-        <translation type="vanished">Sucheinstellungen</translation>
+        <translation>Sucheinstellungen</translation>
     </message>
     <message>
         <source>Ab hier</source>
-        <translation type="vanished">Ab hier</translation>
+        <translation>Ab hier</translation>
     </message>
     <message>
         <source>Überall</source>
-        <translation type="vanished">Überall</translation>
+        <translation>Überall</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="144"/>
-        <location filename="../src/previewpanel.cpp" line="181"/>
-        <location filename="../src/previewpanel.cpp" line="198"/>
+        <location filename="../src/filepane.cpp" line="143" />
         <source>Name</source>
         <translation>الاسم</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="154"/>
+        <location filename="../src/filepane.cpp" line="153" />
         <source>Pfad</source>
         <translation>المسار</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="147"/>
-        <location filename="../src/previewpanel.cpp" line="148"/>
-        <location filename="../src/previewpanel.cpp" line="171"/>
-        <location filename="../src/previewpanel.cpp" line="185"/>
+        <location filename="../src/filepane.cpp" line="146" />
         <source>Geändert</source>
         <translation>معدّل</translation>
     </message>
     <message>
         <source>Suche läuft...</source>
-        <translation type="vanished">Suche läuft...</translation>
+        <translation>Suche läuft...</translation>
     </message>
     <message>
         <source>Möchten Sie den Papierkorb wirklich leeren?</source>
-        <translation type="vanished">Möchten Sie den Papierkorb wirklich leeren?</translation>
+        <translation>Möchten Sie den Papierkorb wirklich leeren?</translation>
     </message>
     <message>
         <source>%1 ausgewählt</source>
-        <translation type="vanished">%1 ausgewählt</translation>
+        <translation>%1 ausgewählt</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="126"/>
         <source>Graustufen 8-bit</source>
         <translation>Graustufen 8-bit</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="127"/>
         <source>Graustufen 16-bit</source>
         <translation>Graustufen 16-bit</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="129"/>
         <source>RGB 24-bit</source>
         <translation>RGB 24-bit</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="131"/>
         <source>RGBA 32-bit</source>
         <translation>RGBA 32-bit</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="132"/>
         <source>%1-bit</source>
         <translation>%1-bit</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="139"/>
         <source>Aufl.</source>
         <translation>Aufl.</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="140"/>
         <source>Format</source>
         <translation>Format</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="141"/>
         <source>Tiefe</source>
         <translation>Tiefe</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="143"/>
         <source>DPI</source>
         <translation>DPI</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="146"/>
         <source>Maße</source>
         <translation>Maße</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="182"/>
         <source>Ordner</source>
         <translation>مجلد</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="200"/>
         <source>Protokoll</source>
         <translation>Protokoll</translation>
     </message>
     <message>
         <source>…</source>
-        <translation type="vanished">…</translation>
+        <translation>…</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="136"/>
-        <location filename="../src/previewpanel.cpp" line="168"/>
         <source>Datei</source>
         <translation>ملف</translation>
     </message>
     <message>
         <source>-Datei</source>
-        <translation type="vanished">-Datei</translation>
+        <translation>-Datei</translation>
     </message>
     <message>
         <source>Heute</source>
-        <translation type="vanished">Heute</translation>
+        <translation>Heute</translation>
     </message>
     <message>
         <source>Gestern</source>
-        <translation type="vanished">Gestern</translation>
+        <translation>Gestern</translation>
     </message>
     <message>
         <source>%1 t</source>
-        <translation type="vanished">%1 t</translation>
+        <translation>%1 t</translation>
     </message>
     <message>
         <source>%1 m</source>
-        <translation type="vanished">%1 m</translation>
+        <translation>%1 m</translation>
     </message>
     <message>
         <source>%1 j</source>
-        <translation type="vanished">%1 j</translation>
+        <translation>%1 j</translation>
     </message>
     <message>
         <source>System</source>
-        <translation type="vanished">System</translation>
+        <translation>System</translation>
     </message>
     <message>
         <source>Keine Ergebnisse</source>
-        <translation type="vanished">لا توجد نتائج</translation>
+        <translation>لا توجد نتائج</translation>
     </message>
     <message>
         <source>Eintrag bearbeiten</source>
-        <translation type="vanished">Eintrag bearbeiten</translation>
+        <translation>Eintrag bearbeiten</translation>
     </message>
     <message>
         <source>Adresse:</source>
-        <translation type="vanished">العنوان:</translation>
+        <translation>العنوان:</translation>
     </message>
     <message>
         <source>Bearbeiten...</source>
-        <translation type="vanished">Bearbeiten...</translation>
+        <translation>Bearbeiten...</translation>
     </message>
     <message>
         <source>Aus Gruppe entfernen</source>
-        <translation type="vanished">Aus Gruppe entfernen</translation>
+        <translation>Aus Gruppe entfernen</translation>
     </message>
     <message>
         <source>LAUFWERKE</source>
-        <translation type="vanished">LAUFWERKE</translation>
+        <translation>LAUFWERKE</translation>
     </message>
     <message>
         <source>Linke Pane</source>
-        <translation type="vanished">Linke Pane</translation>
+        <translation>Linke Pane</translation>
     </message>
     <message>
         <source>Rechte Pane</source>
-        <translation type="vanished">Rechte Pane</translation>
+        <translation>Rechte Pane</translation>
     </message>
     <message>
         <source>Trennen</source>
-        <translation type="vanished">قطع الاتصال</translation>
+        <translation>قطع الاتصال</translation>
     </message>
     <message>
         <source>Box umbenennen …</source>
-        <translation type="vanished">Box umbenennen …</translation>
+        <translation>Box umbenennen …</translation>
     </message>
     <message>
         <source>Box umbenennen</source>
-        <translation type="vanished">Box umbenennen</translation>
+        <translation>Box umbenennen</translation>
     </message>
     <message>
         <source>Alles aktualisieren</source>
-        <translation type="vanished">Alles aktualisieren</translation>
+        <translation>Alles aktualisieren</translation>
     </message>
     <message>
         <source>Netzwerklaufwerk verbinden</source>
-        <translation type="vanished">Netzwerklaufwerk verbinden</translation>
+        <translation>Netzwerklaufwerk verbinden</translation>
     </message>
     <message>
         <source>+ Neue Gruppe</source>
-        <translation type="vanished">+ Neue Gruppe</translation>
+        <translation>+ Neue Gruppe</translation>
     </message>
     <message>
         <source>TAGS</source>
-        <translation type="vanished">العلامات</translation>
+        <translation>العلامات</translation>
     </message>
     <message>
         <source>Neuer Tag</source>
-        <translation type="vanished">Neuer Tag</translation>
+        <translation>Neuer Tag</translation>
     </message>
     <message>
         <source>Tag-Name:</source>
-        <translation type="vanished">Tag-Name:</translation>
+        <translation>Tag-Name:</translation>
     </message>
     <message>
         <source>Farbe wählen</source>
-        <translation type="vanished">Farbe wählen</translation>
+        <translation>Farbe wählen</translation>
     </message>
     <message>
         <source>Über</source>
-        <translation type="vanished">Über</translation>
+        <translation>Über</translation>
     </message>
     <message>
         <source>Drucken</source>
-        <translation type="vanished">Drucken</translation>
+        <translation>Drucken</translation>
     </message>
     <message>
         <source>Nachricht</source>
-        <translation type="vanished">Nachricht</translation>
+        <translation>Nachricht</translation>
     </message>
     <message>
         <source>Auswerfen</source>
-        <translation type="vanished">إخراج</translation>
+        <translation>إخراج</translation>
     </message>
     <message>
         <source>Verknüpfung erstellen</source>
-        <translation type="vanished">Verknüpfung erstellen</translation>
+        <translation>إنشاء رابط</translation>
     </message>
     <message>
         <source>Neue Gruppe</source>
-        <translation type="vanished">مجموعة جديدة</translation>
+        <translation>مجموعة جديدة</translation>
     </message>
     <message>
         <source>Gruppenname:</source>
-        <translation type="vanished">Gruppenname:</translation>
+        <translation>اسم المجموعة:</translation>
     </message>
     <message>
         <source>Mein Ordner...</source>
-        <translation type="vanished">Mein Ordner...</translation>
+        <translation>المجلد الخاص بي...</translation>
     </message>
     <message>
         <source>Inhalt:</source>
-        <translation type="vanished">Inhalt:</translation>
+        <translation>محتوى:</translation>
     </message>
     <message>
         <source>Leere Gruppe</source>
-        <translation type="vanished">مجموعة فارغة</translation>
+        <translation>مجموعة فارغة</translation>
     </message>
     <message>
         <source>Home-Favoriten</source>
-        <translation type="vanished">Home-Favoriten</translation>
+        <translation>المفضلة للمنزل</translation>
     </message>
     <message>
         <source>Gruppe umbenennen</source>
-        <translation type="vanished">Gruppe umbenennen</translation>
+        <translation>إعادة تسمية المجموعة</translation>
     </message>
     <message>
         <source>Lösen</source>
-        <translation type="vanished">إلغاء التثبيت</translation>
+        <translation>إلغاء التثبيت</translation>
     </message>
     <message>
         <source>An Position verankern</source>
-        <translation type="vanished">An Position verankern</translation>
+        <translation>موضع الدبوس</translation>
     </message>
     <message>
         <source>Nach oben</source>
-        <translation type="vanished">للأعلى</translation>
+        <translation>للأعلى</translation>
     </message>
     <message>
         <source>Nach unten</source>
-        <translation type="vanished">للأسفل</translation>
+        <translation>للأسفل</translation>
     </message>
     <message>
         <source>Gruppe löschen</source>
-        <translation type="vanished">حذف المجموعة</translation>
+        <translation>حذف المجموعة</translation>
     </message>
     <message>
         <source>Papierkorb</source>
-        <translation type="vanished">سلة المحذوفات</translation>
+        <translation>سلة المحذوفات</translation>
     </message>
     <message>
         <source>Zuletzt verwendet</source>
-        <translation type="vanished">Zuletzt verwendet</translation>
+        <translation>استخدمت مؤخرا</translation>
     </message>
     <message>
         <source>Netzwerk</source>
-        <translation type="vanished">الشبكة</translation>
+        <translation>الشبكة</translation>
     </message>
     <message>
         <source>Persönlicher Ordner</source>
-        <translation type="vanished">Persönlicher Ordner</translation>
+        <translation>المجلد الرئيسي</translation>
     </message>
     <message>
         <source>Farbe ändern …</source>
-        <translation type="vanished">Farbe ändern …</translation>
+        <translation>تغيير اللون…</translation>
     </message>
     <message>
         <source>Umbenennen …</source>
-        <translation type="vanished">Umbenennen …</translation>
+        <translation>إعادة تسمية…</translation>
     </message>
     <message>
         <source>Tag umbenennen</source>
-        <translation type="vanished">Tag umbenennen</translation>
+        <translation>إعادة تسمية العلامة</translation>
     </message>
     <message>
         <source>Theme auswählen</source>
-        <translation type="vanished">Theme auswählen</translation>
+        <translation>Theme auswählen</translation>
     </message>
     <message>
         <source>System-Theme</source>
-        <translation type="vanished">System-Theme</translation>
+        <translation>System-Theme</translation>
     </message>
     <message>
         <source>Eigenes Theme</source>
-        <translation type="vanished">Eigenes Theme</translation>
+        <translation>Eigenes Theme</translation>
     </message>
     <message>
         <source>Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</source>
-        <translation type="vanished">Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</translation>
+        <translation>Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="145"/>
-        <location filename="../src/previewpanel.cpp" line="137"/>
-        <location filename="../src/previewpanel.cpp" line="169"/>
-        <location filename="../src/previewpanel.cpp" line="182"/>
-        <location filename="../src/previewpanel.cpp" line="199"/>
+        <location filename="../src/filepane.cpp" line="144" />
         <source>Typ</source>
         <translation>النوع</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="146"/>
+        <location filename="../src/filepane.cpp" line="145" />
         <source>Alter</source>
-        <translation>Alter</translation>
+        <translation>عمر</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="148"/>
-        <location filename="../src/previewpanel.cpp" line="172"/>
-        <location filename="../src/previewpanel.cpp" line="186"/>
+        <location filename="../src/filepane.cpp" line="147" />
         <source>Erstellt</source>
         <translation>تاريخ الإنشاء</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="149"/>
+        <location filename="../src/filepane.cpp" line="148" />
         <source>Letzter Zugriff</source>
-        <translation>Letzter Zugriff</translation>
+        <translation>تم الوصول إليه مؤخرًا</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="150"/>
-        <location filename="../src/previewpanel.cpp" line="138"/>
-        <location filename="../src/previewpanel.cpp" line="170"/>
-        <location filename="../src/previewpanel.cpp" line="184"/>
+        <location filename="../src/filepane.cpp" line="149" />
         <source>Größe</source>
         <translation>الحجم</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="151"/>
+        <location filename="../src/filepane.cpp" line="150" />
         <source>Rechte</source>
-        <translation>Rechte</translation>
+        <translation>الأذونات</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="152"/>
-        <location filename="../src/filepane.cpp" line="153"/>
-        <location filename="../src/filepane.cpp" line="154"/>
-        <location filename="../src/filepane.cpp" line="155"/>
+        <location filename="../src/filepane.cpp" line="151" />
+        <location filename="../src/filepane.cpp" line="152" />
+        <location filename="../src/filepane.cpp" line="153" />
+        <location filename="../src/filepane.cpp" line="154" />
         <source>Weitere</source>
-        <translation>Weitere</translation>
+        <translation>آحرون</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="152"/>
+        <location filename="../src/filepane.cpp" line="151" />
         <source>Eigentümer</source>
-        <translation>Eigentümer</translation>
+        <translation>مالك</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="153"/>
+        <location filename="../src/filepane.cpp" line="152" />
         <source>Benutzergruppe</source>
-        <translation>Benutzergruppe</translation>
+        <translation>مجموعة</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="155"/>
+        <location filename="../src/filepane.cpp" line="154" />
         <source>Dateierweiterung</source>
-        <translation>Dateierweiterung</translation>
+        <translation>امتداد الملف</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="156"/>
+        <location filename="../src/filepane.cpp" line="155" />
         <source>Tags</source>
         <translation>Tags</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="157"/>
-        <location filename="../src/filepane.cpp" line="158"/>
-        <location filename="../src/filepane.cpp" line="159"/>
-        <location filename="../src/filepane.cpp" line="160"/>
-        <location filename="../src/filepane.cpp" line="161"/>
+        <location filename="../src/filepane.cpp" line="156" />
+        <location filename="../src/filepane.cpp" line="157" />
+        <location filename="../src/filepane.cpp" line="158" />
+        <location filename="../src/filepane.cpp" line="159" />
+        <location filename="../src/filepane.cpp" line="160" />
         <source>Bild</source>
-        <translation>Bild</translation>
+        <translation>صورة</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="157"/>
+        <location filename="../src/filepane.cpp" line="156" />
         <source>Datum der Aufnahme</source>
-        <translation>Datum der Aufnahme</translation>
+        <translation>تاريخ الالتقاط</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="158"/>
+        <location filename="../src/filepane.cpp" line="157" />
         <source>Abmessungen</source>
-        <translation>Abmessungen</translation>
+        <translation>أبعاد</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="159"/>
+        <location filename="../src/filepane.cpp" line="158" />
         <source>Breite</source>
-        <translation>Breite</translation>
+        <translation>عرض</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="160"/>
+        <location filename="../src/filepane.cpp" line="159" />
         <source>Höhe</source>
-        <translation>Höhe</translation>
+        <translation>ارتفاع</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="161"/>
+        <location filename="../src/filepane.cpp" line="160" />
         <source>Ausrichtung</source>
-        <translation>Ausrichtung</translation>
+        <translation>توجيه</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="162"/>
-        <location filename="../src/filepane.cpp" line="163"/>
-        <location filename="../src/filepane.cpp" line="164"/>
-        <location filename="../src/filepane.cpp" line="165"/>
-        <location filename="../src/filepane.cpp" line="166"/>
-        <location filename="../src/filepane.cpp" line="167"/>
+        <location filename="../src/filepane.cpp" line="161" />
+        <location filename="../src/filepane.cpp" line="162" />
+        <location filename="../src/filepane.cpp" line="163" />
+        <location filename="../src/filepane.cpp" line="164" />
+        <location filename="../src/filepane.cpp" line="165" />
+        <location filename="../src/filepane.cpp" line="166" />
         <source>Audio</source>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="162"/>
+        <location filename="../src/filepane.cpp" line="161" />
         <source>Künstler</source>
-        <translation>Künstler</translation>
+        <translation>فنان</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="163"/>
+        <location filename="../src/filepane.cpp" line="162" />
         <source>Genre</source>
         <translation>Genre</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="164"/>
+        <location filename="../src/filepane.cpp" line="163" />
         <source>Album</source>
         <translation>Album</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="165"/>
-        <location filename="../src/filepane.cpp" line="170"/>
+        <location filename="../src/filepane.cpp" line="164" />
+        <location filename="../src/filepane.cpp" line="169" />
         <source>Dauer</source>
-        <translation>Dauer</translation>
+        <translation>مدة</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="166"/>
+        <location filename="../src/filepane.cpp" line="165" />
         <source>Bitrate</source>
         <translation>Bitrate</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="167"/>
+        <location filename="../src/filepane.cpp" line="166" />
         <source>Stück</source>
-        <translation>Stück</translation>
+        <translation>مسار</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="168"/>
-        <location filename="../src/filepane.cpp" line="169"/>
-        <location filename="../src/filepane.cpp" line="170"/>
+        <location filename="../src/filepane.cpp" line="167" />
+        <location filename="../src/filepane.cpp" line="168" />
+        <location filename="../src/filepane.cpp" line="169" />
         <source>Video</source>
         <translation>Video</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="168"/>
+        <location filename="../src/filepane.cpp" line="167" />
         <source>Seitenverhältnis</source>
-        <translation>Seitenverhältnis</translation>
+        <translation>نسبة الارتفاع</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="169"/>
+        <location filename="../src/filepane.cpp" line="168" />
         <source>Bildwiederholrate</source>
-        <translation>Bildwiederholrate</translation>
+        <translation>معدل الإطار</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="171"/>
-        <location filename="../src/filepane.cpp" line="172"/>
-        <location filename="../src/filepane.cpp" line="173"/>
-        <location filename="../src/filepane.cpp" line="174"/>
-        <location filename="../src/filepane.cpp" line="175"/>
-        <location filename="../src/filepane.cpp" line="176"/>
+        <location filename="../src/filepane.cpp" line="170" />
+        <location filename="../src/filepane.cpp" line="171" />
+        <location filename="../src/filepane.cpp" line="172" />
+        <location filename="../src/filepane.cpp" line="173" />
+        <location filename="../src/filepane.cpp" line="174" />
+        <location filename="../src/filepane.cpp" line="175" />
         <source>Dokument</source>
         <translation>Dokument</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="171"/>
+        <location filename="../src/filepane.cpp" line="170" />
         <source>Titel</source>
-        <translation>Titel</translation>
+        <translation>عنوان</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="172"/>
+        <location filename="../src/filepane.cpp" line="171" />
         <source>Autor</source>
-        <translation>Autor</translation>
+        <translation>مؤلف</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="173"/>
+        <location filename="../src/filepane.cpp" line="172" />
         <source>Herausgeber</source>
-        <translation>Herausgeber</translation>
+        <translation>الناشر</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="174"/>
+        <location filename="../src/filepane.cpp" line="173" />
         <source>Seitenanzahl</source>
-        <translation>Seitenanzahl</translation>
+        <translation>الصفحات</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="175"/>
+        <location filename="../src/filepane.cpp" line="174" />
         <source>Wortanzahl</source>
-        <translation>Wortanzahl</translation>
+        <translation>كلمات</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="176"/>
+        <location filename="../src/filepane.cpp" line="175" />
         <source>Zeilenanzahl</source>
-        <translation>Zeilenanzahl</translation>
+        <translation>خطوط</translation>
     </message>
     <message>
         <source>Kopiere diese Datei, um ein eigenes Theme zu erstellen!</source>
-        <translation type="vanished">Kopiere diese Datei, um ein eigenes Theme zu erstellen!</translation>
+        <translation>Kopiere diese Datei, um ein eigenes Theme zu erstellen!</translation>
     </message>
     <message>
-        <source>Ändere den &apos;name&apos;, damit es als neues Theme im Menü erscheint.</source>
-        <translation type="vanished">Ändere den &amp;apos;name&amp;apos;, damit es als neues Theme im Menü erscheint.</translation>
+        <source>Ändere den 'name', damit es als neues Theme im Menü erscheint.</source>
+        <translation>Ändere den &amp;apos;name&amp;apos;, damit es als neues Theme im Menü erscheint.</translation>
     </message>
     <message>
         <source>Mein neues Design</source>
-        <translation type="vanished">Mein neues Design</translation>
+        <translation>Mein neues Design</translation>
     </message>
     <message>
         <source>#1e1e2e (Sidebar &amp; App-Hintergrund)</source>
-        <translation type="vanished">#1e1e2e (Sidebar &amp; App-Hintergrund)</translation>
+        <translation>#1e1e2e (Sidebar &amp; App-Hintergrund)</translation>
     </message>
     <message>
         <source>#11111b (Hintergrund der Dateilisten)</source>
-        <translation type="vanished">#11111b (Hintergrund der Dateilisten)</translation>
+        <translation>#11111b (Hintergrund der Dateilisten)</translation>
     </message>
     <message>
         <source>#313244 (Hintergrund der Karten/Favoriten)</source>
-        <translation type="vanished">#313244 (Hintergrund der Karten/Favoriten)</translation>
+        <translation>#313244 (Hintergrund der Karten/Favoriten)</translation>
     </message>
     <message>
         <source>#cdd6f4 (Haupt-Schriftfarbe)</source>
-        <translation type="vanished">#cdd6f4 (Haupt-Schriftfarbe)</translation>
+        <translation>#cdd6f4 (Haupt-Schriftfarbe)</translation>
     </message>
     <message>
         <source>#cba6f7 (Farbe für Pfade und Highlights)</source>
-        <translation type="vanished">#cba6f7 (Farbe für Pfade und Highlights)</translation>
+        <translation>#cba6f7 (Farbe für Pfade und Highlights)</translation>
     </message>
     <message>
         <source>#f5c2e7 (Buttons und Markierungen)</source>
-        <translation type="vanished">#f5c2e7 (Buttons und Markierungen)</translation>
+        <translation>#f5c2e7 (Buttons und Markierungen)</translation>
     </message>
     <message>
         <source>#313244 (Rahmenlinien)</source>
-        <translation type="vanished">#313244 (Rahmenlinien)</translation>
+        <translation>#313244 (Rahmenlinien)</translation>
     </message>
 </context>
 <context>
     <name>ThemeCreatorDialog</name>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="15"/>
+        <location filename="../src/themecreatordialog.cpp" line="15" />
         <source>SplitCommander - Design Designer</source>
-        <translation>SplitCommander - Design Designer</translation>
+        <translation>SplitCommander - مصمم السمات</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="41"/>
+        <location filename="../src/themecreatordialog.cpp" line="60" />
         <source>Erstelle dein persönliches Design</source>
-        <translation>Erstelle dein persönliches Design</translation>
+        <translation>قم بإنشاء المظهر المخصص الخاص بك</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="49"/>
+        <location filename="../src/themecreatordialog.cpp" line="71" />
         <source>Farben anpassen</source>
-        <translation>Farben anpassen</translation>
+        <translation>تخصيص الألوان</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="55"/>
+        <location filename="../src/themecreatordialog.cpp" line="79" />
         <source>App-Hintergrund</source>
-        <translation>App-Hintergrund</translation>
+        <translation>خلفية التطبيق</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="56"/>
+        <location filename="../src/themecreatordialog.cpp" line="80" />
         <source>Dateiliste</source>
-        <translation>Dateiliste</translation>
+        <translation>قائمة الملفات</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="57"/>
+        <location filename="../src/themecreatordialog.cpp" line="81" />
         <source>Eingabefelder</source>
-        <translation>Eingabefelder</translation>
+        <translation>حقول الإدخال</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="58"/>
+        <location filename="../src/themecreatordialog.cpp" line="82" />
         <source>Karten/Favoriten</source>
-        <translation>Karten/Favoriten</translation>
+        <translation>البطاقات/المفضلة</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="59"/>
+        <location filename="../src/themecreatordialog.cpp" line="83" />
         <source>Sidebar/Panel</source>
         <translation>Sidebar/Panel</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="60"/>
+        <location filename="../src/themecreatordialog.cpp" line="84" />
         <source>Akzentfarbe</source>
-        <translation>Akzentfarbe</translation>
+        <translation>لون مميز</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="61"/>
+        <location filename="../src/themecreatordialog.cpp" line="85" />
         <source>Akzent-Hover</source>
-        <translation>Akzent-Hover</translation>
+        <translation>تحوم اللكنة</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="62"/>
+        <location filename="../src/themecreatordialog.cpp" line="86" />
         <source>Selektion/Markierung</source>
-        <translation>Selektion/Markierung</translation>
+        <translation>التحديد/التمييز</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="63"/>
+        <location filename="../src/themecreatordialog.cpp" line="87" />
         <source>Hover-Effekt</source>
-        <translation>Hover-Effekt</translation>
+        <translation>تأثير التحويم</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="64"/>
+        <location filename="../src/themecreatordialog.cpp" line="88" />
         <source>Rahmen (Standard)</source>
-        <translation>Rahmen (Standard)</translation>
+        <translation>الحدود (قياسية)</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="65"/>
+        <location filename="../src/themecreatordialog.cpp" line="89" />
         <source>Rahmen (Alternativ)</source>
-        <translation>Rahmen (Alternativ)</translation>
+        <translation>الحدود (بديل)</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="66"/>
+        <location filename="../src/themecreatordialog.cpp" line="90" />
         <source>Splitter/Trenner</source>
-        <translation>Splitter/Trenner</translation>
+        <translation>الفاصل/الفاصل</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="67"/>
+        <location filename="../src/themecreatordialog.cpp" line="91" />
         <source>Haupttext</source>
-        <translation>Haupttext</translation>
+        <translation>النص الأساسي</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="68"/>
+        <location filename="../src/themecreatordialog.cpp" line="92" />
         <source>Text (Kontrast/Hell)</source>
-        <translation>Text (Kontrast/Hell)</translation>
+        <translation>النص (التباين/الضوء)</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="69"/>
+        <location filename="../src/themecreatordialog.cpp" line="93" />
         <source>Text (Akzent)</source>
-        <translation>Text (Akzent)</translation>
+        <translation>النص (لكنة)</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="70"/>
+        <location filename="../src/themecreatordialog.cpp" line="94" />
         <source>Text (Dezent)</source>
-        <translation>Text (Dezent)</translation>
+        <translation>نص (دقيق)</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="71"/>
+        <location filename="../src/themecreatordialog.cpp" line="95" />
         <source>Inaktive Elemente</source>
-        <translation>Inaktive Elemente</translation>
+        <translation>العناصر غير النشطة</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="72"/>
+        <location filename="../src/themecreatordialog.cpp" line="96" />
         <source>Horiz. Trenner</source>
-        <translation>Horiz. Trenner</translation>
+        <translation>هوريز. فاصل</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="107"/>
+        <location filename="../src/themecreatordialog.cpp" line="146" />
         <source>Name deines Designs (z.B. My Dark Blue)</source>
-        <translation>Name deines Designs (z.B. My Dark Blue)</translation>
+        <translation>اسم المظهر الخاص بك (على سبيل المثال، My Dark Blue)</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="111"/>
+        <location filename="../src/themecreatordialog.cpp" line="150" />
         <source>Design speichern &amp; schließen</source>
-        <translation>Design speichern &amp; schließen</translation>
+        <translation>حفظ الموضوع وإغلاقه</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="127"/>
+        <location filename="../src/themecreatordialog.cpp" line="167" />
         <source>Farbe für %1 wählen</source>
-        <translation>Farbe für %1 wählen</translation>
+        <translation>اختر لونًا لـ %1</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="155"/>
+        <location filename="../src/themecreatordialog.cpp" line="195" />
         <source>Ungültiger Name</source>
-        <translation>Ungültiger Name</translation>
+        <translation>اسم غير صالح</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="155"/>
+        <location filename="../src/themecreatordialog.cpp" line="195" />
         <source>Bitte gib einen eindeutigen Namen für dein Design ein.</source>
-        <translation>Bitte gib einen eindeutigen Namen für dein Design ein.</translation>
+        <translation>الرجاء إدخال اسم فريد للموضوع الخاص بك.</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="166"/>
+        <location filename="../src/themecreatordialog.cpp" line="206" />
         <source>Gespeichert</source>
-        <translation>Gespeichert</translation>
+        <translation>أنقذ</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="166"/>
-        <source>Dein Design &apos;%1&apos; wurde erfolgreich gespeichert und angewendet!</source>
+        <location filename="../src/themecreatordialog.cpp" line="206" />
+        <source>Dein Design '%1' wurde erfolgreich gespeichert und angewendet!</source>
         <translation>Dein Design &amp;apos;%1&amp;apos; wurde erfolgreich gespeichert und angewendet!</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="169"/>
+        <location filename="../src/themecreatordialog.cpp" line="209" />
         <source>Fehler</source>
-        <translation>Fehler</translation>
+        <translation>خطأ</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="169"/>
+        <location filename="../src/themecreatordialog.cpp" line="209" />
         <source>Konnte das Design nicht speichern.</source>
-        <translation>Konnte das Design nicht speichern.</translation>
+        <translation>لا يمكن حفظ الموضوع.</translation>
     </message>
 </context>
 <context>
     <name>ThemeDialog</name>
     <message>
         <source>Theme auswählen</source>
-        <translation type="vanished">Theme auswählen</translation>
+        <translation>Theme auswählen</translation>
     </message>
     <message>
         <source>System-Theme</source>
-        <translation type="vanished">System-Theme</translation>
+        <translation>System-Theme</translation>
     </message>
     <message>
         <source>KDE Global Theme verwenden</source>
-        <translation type="vanished">KDE Global Theme verwenden</translation>
+        <translation>KDE Global Theme verwenden</translation>
     </message>
     <message>
         <source>Übernimmt Farben und Stil des aktiven KDE Global Themes.</source>
-        <translation type="vanished">Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
+        <translation>Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
     </message>
     <message>
         <source>Eigenes Theme</source>
-        <translation type="vanished">Eigenes Theme</translation>
+        <translation>Eigenes Theme</translation>
     </message>
     <message>
         <source>Abbrechen</source>
-        <translation type="vanished">إلغاء</translation>
+        <translation>إلغاء</translation>
     </message>
     <message>
         <source>Übernehmen</source>
-        <translation type="vanished">تطبيق</translation>
+        <translation>تطبيق</translation>
     </message>
     <message>
         <source>Neustart erforderlich</source>
-        <translation type="vanished">Neustart erforderlich</translation>
+        <translation>Neustart erforderlich</translation>
     </message>
     <message>
         <source>Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</source>
-        <translation type="vanished">Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</translation>
+        <translation>Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</translation>
     </message>
 </context>
 <context>
     <name>ThemePreviewWidget</name>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="27"/>
+        <location filename="../src/themepreviewwidget.cpp" line="27" />
         <source>Live-Vorschau (SplitCommander Mockup)</source>
-        <translation>Live-Vorschau (SplitCommander Mockup)</translation>
+        <translation>المعاينة المباشرة (نموذج SplitCommander)</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="59"/>
+        <location filename="../src/themepreviewwidget.cpp" line="72" />
         <source>FAVORITEN</source>
-        <translation>FAVORITEN</translation>
+        <translation>المفضلة</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="69"/>
+        <location filename="../src/themepreviewwidget.cpp" line="82" />
         <source>☁️ Google Drive</source>
         <translation>☁️ Google Drive</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="84"/>
+        <location filename="../src/themepreviewwidget.cpp" line="105" />
         <source>💾 SATA-SSD (/)</source>
         <translation>💾 SATA-SSD (/)</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="106"/>
+        <location filename="../src/themepreviewwidget.cpp" line="127" />
         <source>240 GB frei von 512 GB</source>
-        <translation>240 GB frei von 512 GB</translation>
+        <translation>240 جيجا مجانا من 512 جيجا</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="124"/>
+        <location filename="../src/themepreviewwidget.cpp" line="146" />
         <source>📁 /home/user/Dokumente</source>
         <translation>📁 /home/user/Dokumente</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="129"/>
+        <location filename="../src/themepreviewwidget.cpp" line="151" />
         <source>📄 bericht_2026.pdf</source>
         <translation>📄 bericht_2026.pdf</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="139"/>
+        <location filename="../src/themepreviewwidget.cpp" line="161" />
         <source>📁 SplitCommander Project</source>
         <translation>📁 SplitCommander Project</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="156"/>
+        <location filename="../src/themepreviewwidget.cpp" line="181" />
         <source>📁 /run/media/usb</source>
         <translation>📁 /run/media/usb</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="161"/>
+        <location filename="../src/themepreviewwidget.cpp" line="186" />
         <source>🖼️ urlaub_foto.png</source>
         <translation>🖼️ urlaub_foto.png</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="166"/>
+        <location filename="../src/themepreviewwidget.cpp" line="191" />
         <source>📄 notizen.txt</source>
         <translation>📄 notizen.txt</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="189"/>
+        <location filename="../src/themepreviewwidget.cpp" line="215" />
         <source>gdrive://google18/Dokumente/</source>
         <translation>gdrive://google18/Dokumente/</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="200"/>
+        <location filename="../src/themepreviewwidget.cpp" line="226" />
         <source>Neuer Ordner</source>
         <translation>مجلد جديد</translation>
     </message>

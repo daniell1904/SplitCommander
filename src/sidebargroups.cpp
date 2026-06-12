@@ -234,7 +234,13 @@ void Sidebar::setupGroupWidgetHeader(QWidget *headerRow, QHBoxLayout *hLay, cons
     hLay->setContentsMargins(12, 10, 8, 6);
     hLay->setSpacing(4);
 
-    auto *lbl = new QLabel(name);
+    QString displayName = name;
+    if (name == QStringLiteral("Orte")) displayName = tr("Orte");
+    else if (name == QStringLiteral("Favoriten")) displayName = tr("Favoriten");
+    else if (name == QStringLiteral("Repos")) displayName = tr("Repos");
+    else if (name == QStringLiteral("Repo")) displayName = tr("Repo");
+
+    auto *lbl = new QLabel(displayName);
     Q_ASSERT(lbl != nullptr);
     lbl->setStyleSheet(QStringLiteral("font-size:14px;font-weight:normal;background:transparent;color:%1;").arg(TM().colors().textAccent));
     hLay->addWidget(lbl, 1);
@@ -582,7 +588,13 @@ void Sidebar::setupGitGroupWidgetHeader(QWidget *headerRow, QHBoxLayout *hLay, c
     hLay->setContentsMargins(12, 10, 8, 6);
     hLay->setSpacing(4);
 
-    auto *lbl = new QLabel(name);
+    QString displayName = name;
+    if (name == QStringLiteral("Orte")) displayName = tr("Orte");
+    else if (name == QStringLiteral("Favoriten")) displayName = tr("Favoriten");
+    else if (name == QStringLiteral("Repos")) displayName = tr("Repos");
+    else if (name == QStringLiteral("Repo")) displayName = tr("Repo");
+
+    auto *lbl = new QLabel(displayName);
     Q_ASSERT(lbl != nullptr);
     lbl->setStyleSheet(QStringLiteral("font-size:14px;font-weight:normal;background:transparent;color:%1;").arg(TM().colors().textAccent));
     hLay->addWidget(lbl, 1);
@@ -898,7 +910,9 @@ void Sidebar::loadGroupItems(const KConfigGroup &g, QListWidget *list, int cnt)
             ico = QIcon::fromTheme(QStringLiteral("folder"));
         }
         
-        auto *it = new QListWidgetItem(ico, itemName, list);
+        QString displayName = itemName;
+
+        auto *it = new QListWidgetItem(ico, displayName, list);
         Q_ASSERT(it != nullptr);
         it->setData(Qt::UserRole, path);
         it->setData(Qt::UserRole + 2, customIco);
@@ -1108,7 +1122,11 @@ void Sidebar::setupTags()
     m_tagList->clear();
     for (const auto &t : TagManager::instance().tags())
     {
-        addTagItem(t.first, t.second, QString());
+        QString tagName = t.first;
+        if (tagName == QStringLiteral("Wichtig")) tagName = tr("Wichtig");
+        else if (tagName == QStringLiteral("Arbeit")) tagName = tr("Arbeit");
+        else if (tagName == QStringLiteral("Schule")) tagName = tr("Schule");
+        addTagItem(tagName, t.second, QString());
     }
 
     adjustListHeight(m_tagList);

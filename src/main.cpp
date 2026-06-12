@@ -129,6 +129,15 @@ static void setupTranslations(QApplication &app)
             loaded = true;
             break;
         }
+        // Fallback für kleingeschriebene Installationspfade (splitcommander statt SplitCommander)
+        QString lowerDir = dir;
+        if (lowerDir.contains("SplitCommander")) {
+            lowerDir.replace("SplitCommander", "splitcommander");
+            if (appTranslator->load(locale, "splitcommander", "_", lowerDir + "/translations")) {
+                loaded = true;
+                break;
+            }
+        }
         // Fallback: .qm direkt im Binary-Verzeichnis (wie build/ sie ablegt)
         if (appTranslator->load(locale, "splitcommander", "_", dir)) {
             loaded = true;

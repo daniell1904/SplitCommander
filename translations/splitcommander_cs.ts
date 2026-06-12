@@ -1,65 +1,64 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
+<?xml version='1.0' encoding='utf-8'?>
 <TS version="2.1" language="cs_CZ" sourcelanguage="de_DE">
 <context>
     <name>AddNetworkDialog</name>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="13"/>
+        <location filename="../src/addnetworkdialog.cpp" line="14" />
         <source>SMB Laufwerke verbinden</source>
         <translation>Připojit disky SMB</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="40"/>
+        <location filename="../src/addnetworkdialog.cpp" line="72" />
         <source>Anzeigename</source>
         <translation>Zobrazovaný název</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="55"/>
+        <location filename="../src/addnetworkdialog.cpp" line="103" />
         <source>Freigegebener Ordner (SMB)</source>
         <translation>Sdílená složka (SMB)</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="56"/>
+        <location filename="../src/addnetworkdialog.cpp" line="104" />
         <source>SSH / SFTP</source>
         <translation>SSH / SFTP</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="57"/>
+        <location filename="../src/addnetworkdialog.cpp" line="105" />
         <source>Google Drive</source>
         <translation>Google Drive</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="58"/>
+        <location filename="../src/addnetworkdialog.cpp" line="106" />
         <source>Netzwerkserver</source>
         <translation>Síťový server</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="59"/>
+        <location filename="../src/addnetworkdialog.cpp" line="107" />
         <source>MTP-Gerät</source>
         <translation>Zařízení MTP</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="60"/>
+        <location filename="../src/addnetworkdialog.cpp" line="108" />
         <source>Bluetooth</source>
         <translation>Bluetooth</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="61"/>
+        <location filename="../src/addnetworkdialog.cpp" line="109" />
         <source>Netzwerkordner</source>
         <translation>Síťová složka</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="75"/>
+        <location filename="../src/addnetworkdialog.cpp" line="75" />
         <source>Adresse:</source>
         <translation>Adresa:</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="76"/>
+        <location filename="../src/addnetworkdialog.cpp" line="77" />
         <source>Name:</source>
         <translation>Název:</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="77"/>
+        <location filename="../src/addnetworkdialog.cpp" line="127" />
         <source>Symbol:</source>
         <translation>Ikona:</translation>
     </message>
@@ -68,811 +67,720 @@
     <name>AgeBadgeDialog</name>
     <message>
         <source>Altersbadges</source>
-        <translation type="vanished">Altersbadges</translation>
+        <translation>Věkové odznaky</translation>
     </message>
     <message>
         <source>Dateialter / relatives Datum</source>
-        <translation type="vanished">Dateialter / relatives Datum</translation>
+        <translation>Stáří souboru / relativní datum</translation>
     </message>
     <message>
         <source>Zurücksetzen</source>
-        <translation type="vanished">Obnovit výchozí</translation>
+        <translation>Obnovit výchozí</translation>
     </message>
     <message>
         <source>Neue Dateien hervorheben (&lt; 2 Tage)</source>
-        <translation type="vanished">Neue Dateien hervorheben (&lt; 2 Tage)</translation>
+        <translation>Zvýraznit nové soubory (&lt; 2 dny)</translation>
     </message>
     <message>
         <source>Abbrechen</source>
-        <translation type="vanished">Zrušit</translation>
+        <translation>Zrušit</translation>
     </message>
     <message>
         <source>Übernehmen</source>
-        <translation type="vanished">Použít</translation>
+        <translation>Použít</translation>
     </message>
 </context>
 <context>
     <name>BatchRenamer</name>
     <message>
-        <location filename="../src/batchrenamer.cpp" line="11"/>
+        <location filename="../src/batchrenamer.cpp" line="14" />
         <source>Batch Rename - %1 Dateien</source>
-        <translation>Batch Rename - %1 Dateien</translation>
+        <translation>Dávkové přejmenování – %1 souborů</translation>
     </message>
 </context>
 <context>
     <name>FilePane</name>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="280"/>
+        <location filename="../src/filepane_menus.cpp" line="277" />
         <source>An ursprünglichem Ort wiederherstellen</source>
-        <translation>An ursprünglichem Ort wiederherstellen</translation>
+        <translation>Obnovit na původní místo</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="303"/>
-        <location filename="../src/filepane_menus.cpp" line="570"/>
+        <location filename="../src/filepane_menus.cpp" line="300" />
+        <location filename="../src/filepane_menus.cpp" line="567" />
         <source>Löschen</source>
         <translation>Smazat</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="312"/>
-        <location filename="../src/filepane_menus.cpp" line="463"/>
-        <location filename="../src/filepane_menus.cpp" line="773"/>
+        <location filename="../src/filepane_menus.cpp" line="309" />
+        <location filename="../src/filepane_menus.cpp" line="460" />
+        <location filename="../src/filepane_menus.cpp" line="777" />
         <source>Sortieren nach</source>
         <translation>Seřadit podle</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="330"/>
-        <location filename="../src/filepane_menus.cpp" line="520"/>
-        <location filename="../src/filepane_menus.cpp" line="812"/>
+        <location filename="../src/filepane_menus.cpp" line="327" />
+        <location filename="../src/filepane_menus.cpp" line="517" />
+        <location filename="../src/filepane_menus.cpp" line="816" />
         <source>Ansichtsmodus ändern</source>
-        <translation>Ansichtsmodus ändern</translation>
+        <translation>Změnit režim zobrazení</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="337"/>
-        <location filename="../src/filepane_menus.cpp" line="527"/>
-        <location filename="../src/filepane_menus.cpp" line="819"/>
+        <location filename="../src/filepane_menus.cpp" line="334" />
+        <location filename="../src/filepane_menus.cpp" line="524" />
+        <location filename="../src/filepane_menus.cpp" line="823" />
         <source>Details</source>
         <translation>Podrobnosti</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="338"/>
-        <location filename="../src/filepane_menus.cpp" line="528"/>
-        <location filename="../src/filepane_menus.cpp" line="820"/>
+        <location filename="../src/filepane_menus.cpp" line="335" />
+        <location filename="../src/filepane_menus.cpp" line="525" />
+        <location filename="../src/filepane_menus.cpp" line="824" />
         <source>Symbole</source>
         <translation>Ikony</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="342"/>
+        <location filename="../src/filepane_menus.cpp" line="339" />
         <source>Papierkorb leeren</source>
         <translation>Vyprázdnit koš</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="394"/>
+        <location filename="../src/filepane_menus.cpp" line="391" />
         <source>Zu Paperless hochladen</source>
         <translation>Nahrát do služby Paperless</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="409"/>
+        <location filename="../src/filepane_menus.cpp" line="406" />
         <source>ISO aushängen</source>
         <translation>Odpojit ISO</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="415"/>
+        <location filename="../src/filepane_menus.cpp" line="412" />
         <source>ISO einbinden</source>
         <translation>Zahrnout ISO</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="468"/>
-        <location filename="../src/filepane_menus.cpp" line="483"/>
+        <location filename="../src/filepane_menus.cpp" line="465" />
+        <location filename="../src/filepane_menus.cpp" line="480" />
         <source>Name</source>
         <translation>Název</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="469"/>
+        <location filename="../src/filepane_menus.cpp" line="466" />
         <source>Größe</source>
         <translation>Velikost</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="470"/>
+        <location filename="../src/filepane_menus.cpp" line="467" />
         <source>Geändert</source>
         <translation>Změněno</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="471"/>
+        <location filename="../src/filepane_menus.cpp" line="468" />
         <source>Erstellt</source>
         <translation>Vytvořeno</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="472"/>
+        <location filename="../src/filepane_menus.cpp" line="469" />
         <source>Letzter Zugriff</source>
-        <translation>Letzter Zugriff</translation>
+        <translation>Poslední přístup</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="473"/>
+        <location filename="../src/filepane_menus.cpp" line="470" />
         <source>Typ</source>
-        <translation>Typ</translation>
+        <translation>Type</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="474"/>
+        <location filename="../src/filepane_menus.cpp" line="471" />
         <source>Bewertung</source>
-        <translation>Bewertung</translation>
+        <translation>Hodnocení</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="492"/>
-        <location filename="../src/filepane_menus.cpp" line="789"/>
+        <location filename="../src/filepane_menus.cpp" line="489" />
+        <location filename="../src/filepane_menus.cpp" line="793" />
         <source>A-Z</source>
         <translation>A-Z</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="494"/>
-        <location filename="../src/filepane_menus.cpp" line="791"/>
+        <location filename="../src/filepane_menus.cpp" line="491" />
+        <location filename="../src/filepane_menus.cpp" line="795" />
         <source>Z-A</source>
         <translation>Z-A</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="508"/>
-        <location filename="../src/filepane_menus.cpp" line="804"/>
+        <location filename="../src/filepane_menus.cpp" line="505" />
+        <location filename="../src/filepane_menus.cpp" line="808" />
         <source>Ordner zuerst</source>
         <translation>Složky nejdříve</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="515"/>
+        <location filename="../src/filepane_menus.cpp" line="512" />
         <source>Versteckte Dateien zuletzt</source>
-        <translation>Versteckte Dateien zuletzt</translation>
+        <translation>Skryté soubory jako poslední</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="569"/>
-        <location filename="../src/filepane_menus.cpp" line="588"/>
-        <location filename="../src/filepane_menus.cpp" line="848"/>
-        <location filename="../src/filepane_menus.cpp" line="869"/>
+        <location filename="../src/filepane_menus.cpp" line="566" />
+        <location filename="../src/filepane_menus.cpp" line="585" />
+        <location filename="../src/filepane_menus.cpp" line="852" />
+        <location filename="../src/filepane_menus.cpp" line="873" />
         <source>Stichwörter zuweisen</source>
-        <translation>Stichwörter zuweisen</translation>
+        <translation>Přiřaďte klíčová slova</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="569"/>
-        <location filename="../src/filepane_menus.cpp" line="589"/>
-        <location filename="../src/filepane_menus.cpp" line="848"/>
-        <location filename="../src/filepane_menus.cpp" line="871"/>
+        <location filename="../src/filepane_menus.cpp" line="566" />
+        <location filename="../src/filepane_menus.cpp" line="586" />
+        <location filename="../src/filepane_menus.cpp" line="852" />
+        <location filename="../src/filepane_menus.cpp" line="875" />
         <source>Komprimieren</source>
-        <translation>Komprimieren</translation>
+        <translation>Komprimovat</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="569"/>
-        <location filename="../src/filepane_menus.cpp" line="653"/>
-        <location filename="../src/filepane_menus.cpp" line="848"/>
-        <location filename="../src/filepane_menus.cpp" line="873"/>
+        <location filename="../src/filepane_menus.cpp" line="566" />
+        <location filename="../src/filepane_menus.cpp" line="591" />
+        <location filename="../src/filepane_menus.cpp" line="852" />
+        <location filename="../src/filepane_menus.cpp" line="877" />
         <source>Aktivitäten</source>
-        <translation>Aktivitäten</translation>
+        <translation>Činnosti</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="570"/>
+        <location filename="../src/filepane_menus.cpp" line="567" />
         <source>In den Papierkorb verschieben</source>
         <translation>Přesunout do koše</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="570"/>
+        <location filename="../src/filepane_menus.cpp" line="567" />
         <source>Umbenennen</source>
         <translation>Přejmenovat</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="571"/>
+        <location filename="../src/filepane_menus.cpp" line="568" />
         <source>Kopieren</source>
         <translation>Kopírovat</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="571"/>
+        <location filename="../src/filepane_menus.cpp" line="568" />
         <source>Ausschneiden</source>
         <translation>Vyjmout</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="571"/>
+        <location filename="../src/filepane_menus.cpp" line="568" />
         <source>Einfügen</source>
         <translation>Vložit</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="572"/>
-        <location filename="../src/filepane_menus.cpp" line="613"/>
-        <location filename="../src/filepane_menus.cpp" line="849"/>
+        <location filename="../src/filepane_menus.cpp" line="569" />
+        <location filename="../src/filepane_menus.cpp" line="701" />
+        <location filename="../src/filepane_menus.cpp" line="853" />
         <source>Entpacken</source>
-        <translation>Rozbalit</translation>
+        <translation>Extract</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="572"/>
-        <location filename="../src/filepane_menus.cpp" line="654"/>
-        <location filename="../src/filepane_menus.cpp" line="849"/>
+        <location filename="../src/filepane_menus.cpp" line="569" />
+        <location filename="../src/filepane_menus.cpp" line="592" />
+        <location filename="../src/filepane_menus.cpp" line="853" />
         <source>Teilen</source>
-        <translation>Teilen</translation>
+        <translation>Podíl</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="572"/>
-        <location filename="../src/filepane_menus.cpp" line="849"/>
+        <location filename="../src/filepane_menus.cpp" line="569" />
+        <location filename="../src/filepane_menus.cpp" line="853" />
         <source>Extract</source>
         <translation>Extract</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="572"/>
-        <location filename="../src/filepane_menus.cpp" line="849"/>
+        <location filename="../src/filepane_menus.cpp" line="569" />
+        <location filename="../src/filepane_menus.cpp" line="853" />
         <source>Share</source>
-        <translation>Share</translation>
+        <translation>Podíl</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="616"/>
+        <location filename="../src/filepane_menus.cpp" line="709" />
         <source>Hierher entpacken</source>
         <translation>Rozbalit sem</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="624"/>
+        <location filename="../src/filepane_menus.cpp" line="717" />
         <source>Entpacken und Archiv in den Papierkorb verschieben</source>
-        <translation>Entpacken und Archiv in den Papierkorb verschieben</translation>
+        <translation>Rozbalte a přesuňte archiv do koše</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="641"/>
+        <location filename="../src/filepane_menus.cpp" line="734" />
         <source>Entpacken nach ...</source>
-        <translation>Entpacken nach ...</translation>
+        <translation>Extrahovat do...</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="642"/>
+        <location filename="../src/filepane_menus.cpp" line="735" />
         <source>Zielordner wählen</source>
-        <translation>Zielordner wählen</translation>
+        <translation>Vyberte cílovou složku</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="658"/>
+        <location filename="../src/filepane_menus.cpp" line="596" />
         <source>Tag setzen</source>
-        <translation>Tag setzen</translation>
+        <translation>Nastavit značku</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="707"/>
+        <location filename="../src/filepane_menus.cpp" line="645" />
         <source>Prüfsumme</source>
         <translation>Kontrolní součet</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="732"/>
+        <location filename="../src/filepane_menus.cpp" line="670" />
         <source>%1 kopiert</source>
         <translation>%1 zkopírováno</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="884"/>
+        <location filename="../src/filepane_menus.cpp" line="888" />
         <source>Make</source>
         <translation>Make</translation>
     </message>
     <message>
         <source>Öffnen</source>
-        <translation type="vanished">Otevřít</translation>
+        <translation>Otevřít</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="360"/>
-        <location filename="../src/filepane_menus.cpp" line="754"/>
+        <location filename="../src/filepane_menus.cpp" line="357" />
+        <location filename="../src/filepane_menus.cpp" line="758" />
         <source>Neu erstellen</source>
         <translation>Vytvořit nový</translation>
     </message>
     <message>
         <source>Adresse kopieren</source>
-        <translation type="vanished">Adresse kopieren</translation>
+        <translation>Zkopírujte adresu</translation>
     </message>
     <message>
         <source>Hier duplizieren</source>
-        <translation type="vanished">Hier duplizieren</translation>
+        <translation>Duplikovat zde</translation>
     </message>
     <message>
         <source>Dupliziere Datei...</source>
-        <translation type="vanished">Dupliziere Datei...</translation>
+        <translation>Duplicitní soubor...</translation>
     </message>
     <message>
         <source>Favoriten</source>
-        <translation type="vanished">Oblíbené</translation>
+        <translation>Oblíbené</translation>
     </message>
     <message>
         <source>Hinzufügen zu</source>
-        <translation type="vanished">Hinzufügen zu</translation>
+        <translation>Přidat do</translation>
     </message>
     <message>
         <source>Laufwerke</source>
-        <translation type="vanished">Disky</translation>
+        <translation>Disky</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="560"/>
-        <location filename="../src/filepane_menus.cpp" line="840"/>
+        <location filename="../src/filepane_menus.cpp" line="557" />
+        <location filename="../src/filepane_menus.cpp" line="844" />
         <source>Terminal hier öffnen</source>
         <translation>Otevřít terminál zde</translation>
     </message>
     <message>
         <source>Diaschau starten</source>
-        <translation type="vanished">Diaschau starten</translation>
+        <translation>Spusťte prezentaci</translation>
     </message>
     <message>
         <source>Tag</source>
-        <translation type="vanished">Tag</translation>
+        <translation>Tag</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="683"/>
+        <location filename="../src/filepane_menus.cpp" line="621" />
         <source>Tag entfernen</source>
-        <translation>Tag entfernen</translation>
+        <translation>Odebrat značku</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="554"/>
-        <location filename="../src/filepane_menus.cpp" line="837"/>
+        <location filename="../src/filepane_menus.cpp" line="551" />
+        <location filename="../src/filepane_menus.cpp" line="841" />
         <source>Aktionen</source>
-        <translation>Aktionen</translation>
+        <translation>Akce</translation>
     </message>
     <message>
         <source>In neuen Ordner verschieben ...</source>
-        <translation type="vanished">In neuen Ordner verschieben ...</translation>
+        <translation>Přesunout do nové složky...</translation>
     </message>
     <message>
         <source>In neuen Ordner verschieben</source>
-        <translation type="vanished">In neuen Ordner verschieben</translation>
+        <translation>Přesunout do nové složky</translation>
     </message>
     <message>
         <source>Ordnername:</source>
-        <translation type="vanished">Ordnername:</translation>
+        <translation>Název složky:</translation>
     </message>
     <message>
         <source>Neuer Ordner</source>
-        <translation type="vanished">Nová složka</translation>
+        <translation>Nová složka</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="258"/>
+        <location filename="../src/filepane_menus.cpp" line="255" />
         <source>Eigenschaften</source>
         <translation>Vlastnosti</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="444"/>
+        <location filename="../src/filepane_menus.cpp" line="441" />
         <source>Zu Laufwerken hinzufügen</source>
-        <translation>Zu Laufwerken hinzufügen</translation>
+        <translation>Přidat k diskům</translation>
     </message>
 </context>
 <context>
     <name>GitManagerDialog</name>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="125"/>
         <source>Git Manager</source>
         <translation>Git Manager</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="180"/>
         <source>Repository:</source>
         <translation>Repository:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="184"/>
         <source>Neu</source>
         <translation>Nový</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="188"/>
         <source>Entfernen</source>
         <translation>Odebrat</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="200"/>
         <source>Geänderte Dateien:</source>
-        <translation>Geänderte Dateien:</translation>
+        <translation>Změněné soubory:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="202"/>
         <source>Branch: …</source>
         <translation>Branch: …</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="218"/>
         <source>Beschreibung der Änderungen:</source>
-        <translation>Beschreibung der Änderungen:</translation>
+        <translation>Popis změn:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="223"/>
         <source>z.B. Fehler in der Suche behoben...</source>
-        <translation>z.B. Fehler in der Suche behoben...</translation>
+        <translation>např. Opravena chyba ve vyhledávání...</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="231"/>
         <source>Commit &amp;&amp; Push</source>
         <translation>Commit &amp;&amp; Push</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="234"/>
         <source>Speichert deine Änderungen und lädt sie zu GitHub hoch.</source>
-        <translation>Speichert deine Änderungen und lädt sie zu GitHub hoch.</translation>
+        <translation>Uloží vaše změny a nahraje je na GitHub.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="236"/>
         <source>Fetch</source>
         <translation>Fetch</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="239"/>
         <source>Prüft ob es neue Änderungen auf GitHub gibt, ohne sie herunterzuladen.</source>
-        <translation>Prüft ob es neue Änderungen auf GitHub gibt, ohne sie herunterzuladen.</translation>
+        <translation>Kontroluje nové změny na GitHubu bez jejich stahování.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="241"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="775"/>
         <source>Pull</source>
         <translation>Pull</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="244"/>
         <source>Holt die neuesten Änderungen von GitHub.</source>
-        <translation>Holt die neuesten Änderungen von GitHub.</translation>
+        <translation>Načítá nejnovější změny z GitHubu.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="246"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="788"/>
         <source>Änderungen verwerfen</source>
         <translation>Zahodit změny</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="249"/>
         <source>Setzt alle lokalen Änderungen auf den Stand von GitHub zurück.</source>
-        <translation>Setzt alle lokalen Änderungen auf den Stand von GitHub zurück.</translation>
+        <translation>Resetuje všechny místní změny do stavu na GitHubu.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="258"/>
         <source>Optionen für Commit &amp;&amp; Push</source>
-        <translation>Optionen für Commit &amp;&amp; Push</translation>
+        <translation>Možnosti pro Commit &amp;&amp; Push</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="268"/>
         <source>Tags mit hochladen</source>
-        <translation>Tags mit hochladen</translation>
+        <translation>Nahrajte značky</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="269"/>
         <source>Release auf GitHub erstellen</source>
-        <translation>Release auf GitHub erstellen</translation>
+        <translation>Vytvořte vydání na GitHubu</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="270"/>
         <source>Force with lease</source>
         <translation>Síla s pronájmem</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="271"/>
         <source>Pusht auch wenn der Remote-Branch voraus ist — aber nur wenn sich der Remote seit dem letzten Fetch nicht verändert hat.</source>
         <translation>Stlačí, i když je vzdálená větev napřed – ale pouze v případě, že se vzdálená od posledního načtení nezměnila.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="283"/>
         <source>Optionen für Pull</source>
-        <translation>Optionen für Pull</translation>
+        <translation>Možnosti pro Pull</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="288"/>
         <source>Rebase statt Merge</source>
-        <translation>Rebase statt Merge</translation>
+        <translation>Rebase místo sloučení</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="290"/>
         <source>git pull --rebase — hält den Verlauf sauber.</source>
-        <translation>git pull --rebase — hält den Verlauf sauber.</translation>
+        <translation>git pull --rebase — udržuje historii čistou.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="302"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="470"/>
         <source>▶  Erweiterte Funktionen</source>
         <translation>▶  Pokročilé funkce</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="328"/>
         <source>Verlauf (Log)</source>
-        <translation>Verlauf (Log)</translation>
+        <translation>Historie (protokol)</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="329"/>
         <source>Zeigt die letzten 20 Commits.</source>
-        <translation>Zeigt die letzten 20 Commits.</translation>
+        <translation>Zobrazuje posledních 20 odevzdání.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="331"/>
         <source>Diff</source>
         <translation>Diff</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="332"/>
         <source>Zeigt welche Zeilen du geändert hast.</source>
-        <translation>Zeigt welche Zeilen du geändert hast.</translation>
+        <translation>Ukazuje, které řádky jste změnili.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="334"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="490"/>
         <source>Tag erstellen</source>
-        <translation>Tag erstellen</translation>
+        <translation>Vytvořte značku</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="335"/>
         <source>Markiert den aktuellen Stand als Version, z.B. v1.0.</source>
-        <translation>Markiert den aktuellen Stand als Version, z.B. v1.0.</translation>
+        <translation>Označí aktuální stav jako verzi, např. v1.0.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="337"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="505"/>
         <source>Branch wechseln / erstellen</source>
-        <translation>Branch wechseln / erstellen</translation>
+        <translation>Přepnout / vytvořit větev</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="338"/>
         <source>Wechselt zu einem anderen Zweig oder erstellt einen neuen.</source>
-        <translation>Wechselt zu einem anderen Zweig oder erstellt einen neuen.</translation>
+        <translation>Přepne na jinou větev nebo vytvoří novou.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="340"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="568"/>
         <source>Merge</source>
         <translation>Merge</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="341"/>
         <source>Führt einen anderen Branch in den aktuellen zusammen.</source>
-        <translation>Führt einen anderen Branch in den aktuellen zusammen.</translation>
+        <translation>Sloučí další větev do aktuální.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="343"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="583"/>
         <source>Revert</source>
         <translation>Revert</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="344"/>
         <source>Macht einen bestimmten Commit rückgängig — History bleibt erhalten.</source>
-        <translation>Macht einen bestimmten Commit rückgängig — History bleibt erhalten.</translation>
+        <translation>Vrátí zpět konkrétní potvrzení – historie je zachována.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="346"/>
         <source>Stash (Parken)</source>
-        <translation>Stash (Parken)</translation>
+        <translation>Skrýš</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="347"/>
         <source>Legt deine Änderungen zur Seite ohne sie zu speichern.</source>
-        <translation>Legt deine Änderungen zur Seite ohne sie zu speichern.</translation>
+        <translation>Odloží změny, aniž by je uložil.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="349"/>
         <source>Stash anwenden</source>
-        <translation>Stash anwenden</translation>
+        <translation>Použít skrýš</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="350"/>
         <source>Holt die zuletzt geparkten Änderungen zurück.</source>
-        <translation>Holt die zuletzt geparkten Änderungen zurück.</translation>
+        <translation>Načte poslední uložené změny.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="370"/>
         <source>▶  Verbindungseinstellungen</source>
         <translation>▶  Nastavení připojení</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="384"/>
         <source>z.B. SplitCommander</source>
         <translation>z.B. SplitCommander</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="385"/>
         <source>Name:</source>
         <translation>Název:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="389"/>
         <source>Durchsuchen...</source>
         <translation>Procházet...</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="395"/>
         <source>Projekt-Ordner:</source>
-        <translation>Projekt-Ordner:</translation>
+        <translation>Složka projektu:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="400"/>
         <source>GitHub URL:</source>
         <translation>GitHub URL:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="404"/>
         <source>GitHub Benutzername:</source>
-        <translation>GitHub Benutzername:</translation>
+        <translation>Uživatelské jméno GitHub:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="414"/>
         <source>Token anzeigen</source>
         <translation>Zobrazit žetony</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="415"/>
         <source>Token generieren...</source>
-        <translation>Token generieren...</translation>
+        <translation>Vygenerovat token...</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="422"/>
         <source>Token / Passwort:</source>
-        <translation>Token / Passwort:</translation>
+        <translation>Token / heslo:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="430"/>
         <source>Repository klonen</source>
         <translation>Klonovat repozitář</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="434"/>
         <source>Klont das eingetragene Remote-Repository in den Projekt-Ordner.</source>
-        <translation>Klont das eingetragene Remote-Repository in den Projekt-Ordner.</translation>
+        <translation>Klonuje nakonfigurované vzdálené úložiště do složky projektu.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="435"/>
         <source>Klonen:</source>
-        <translation>Klonen:</translation>
+        <translation>Klonovat:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="445"/>
         <source>Ausgabe:</source>
         <translation>Výstup:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="460"/>
         <source>Schließen</source>
         <translation>Zavřít</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="469"/>
         <source>▼  Erweiterte Funktionen</source>
         <translation>▼  Pokročilé funkce</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="491"/>
         <source>Tag-Name (z.B. v1.0.0):</source>
-        <translation>Tag-Name (z.B. v1.0.0):</translation>
+        <translation>Název značky (např. v1.0.0):</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="516"/>
         <source>Vorhandenen Branch auschecken:</source>
         <translation>Podívejte se na stávající pobočku:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="524"/>
         <source>Oder neuen Branch erstellen:</source>
         <translation>Nebo vytvořte novou pobočku:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="529"/>
         <source>Neuer Branch-Name (leer lassen zum Auschecken)</source>
         <translation>Název nové pobočky (pro rezervaci ponechte prázdné)</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="532"/>
         <source>Force (lokale Änderungen verwerfen)</source>
         <translation>Vynutit (zrušit místní změny)</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="537"/>
         <source>Ausführen</source>
         <translation>Provést</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="538"/>
         <source>Abbrechen</source>
-        <translation type="unfinished">Zrušit</translation>
+        <translation>Zrušit</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="569"/>
         <source>Branch der zusammengeführt werden soll:</source>
         <translation>Pobočka ke sloučení:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="584"/>
         <source>Commit rückgängig machen:</source>
         <translation>Zrušit potvrzení:</translation>
     </message>
     <message>
         <source>Branch</source>
-        <translation type="vanished">Branch</translation>
+        <translation>Branch</translation>
     </message>
     <message>
         <source>Name des Branch:</source>
-        <translation type="vanished">Name des Branch:</translation>
+        <translation>Název pobočky:</translation>
     </message>
     <message>
         <source>Branch-Name der zusammengeführt werden soll:</source>
-        <translation type="vanished">Branch-Name der zusammengeführt werden soll:</translation>
+        <translation>Název pobočky ke sloučení:</translation>
     </message>
     <message>
         <source>Commit-Hash (z.B. a1b2c3d):</source>
-        <translation type="vanished">Commit-Hash (z.B. a1b2c3d):</translation>
+        <translation>Potvrdit hash (např. a1b2c3d):</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="600"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="700"/>
         <source>Hinweis</source>
         <translation>Poznámka</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="601"/>
         <source>Bitte GitHub URL und Projekt-Ordner eintragen.</source>
-        <translation>Bitte GitHub URL und Projekt-Ordner eintragen.</translation>
+        <translation>Zadejte adresu URL GitHubu a složku projektu.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="619"/>
         <source>Projekt-Ordner wählen</source>
-        <translation>Projekt-Ordner wählen</translation>
+        <translation>Vyberte složku projektu</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="633"/>
         <source>Neues Repo</source>
-        <translation>Neues Repo</translation>
+        <translation>Nové repo</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="664"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="952"/>
         <source>(unbenannt)</source>
-        <translation>(unbenannt)</translation>
+        <translation>(nejmenovaný)</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="701"/>
         <source>Bitte gib eine Beschreibung ein.</source>
-        <translation>Bitte gib eine Beschreibung ein.</translation>
+        <translation>Zadejte popis.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="728"/>
         <source>Push</source>
         <translation>TAM</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="729"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="776"/>
         <source>Remote auswählen:</source>
         <translation>Vyberte dálkový ovladač:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="789"/>
         <source>Alle lokalen Änderungen werden unwiderruflich gelöscht und auf den Stand von GitHub zurückgesetzt.
 
 Fortfahren?</source>
-        <translation>Alle lokalen Änderungen werden unwiderruflich gelöscht und auf den Stand von GitHub zurückgesetzt.
+        <translation>Všechny místní změny budou trvale smazány a obnoveny do stavu na GitHubu.
 
-Fortfahren?</translation>
+Pokračovat?</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="817"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="918"/>
         <source>Kein Repository</source>
-        <translation>Kein Repository</translation>
+        <translation>Žádné úložiště</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="858"/>
         <source>Fehler</source>
-        <translation>Fehler</translation>
+        <translation>Chyba</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="858"/>
         <source>Kein GitHub Token hinterlegt!</source>
-        <translation>Kein GitHub Token hinterlegt!</translation>
+        <translation>Není uložen žádný token GitHub!</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="917"/>
         <source>Branch: %1</source>
         <translation>Branch: %1</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="933"/>
         <source>✓ Keine ungespeicherten Änderungen</source>
-        <translation>✓ Keine ungespeicherten Änderungen</translation>
+        <translation>✓ Žádné neuložené změny</translation>
     </message>
 </context>
 <context>
     <name>JobOverlay</name>
     <message>
-        <location filename="../src/joboverlay.cpp" line="52"/>
+        <location filename="../src/joboverlay.cpp" line="62" />
         <source>Initialisierung...</source>
         <translation>Initialisierung...</translation>
     </message>
     <message>
-        <location filename="../src/joboverlay.cpp" line="73"/>
+        <location filename="../src/joboverlay.cpp" line="86" />
         <source>Fortschritt: %1%</source>
         <translation>Fortschritt: %1%</translation>
     </message>
     <message>
-        <location filename="../src/joboverlay.cpp" line="79"/>
+        <location filename="../src/joboverlay.cpp" line="96" />
         <source>Fehler: %1</source>
         <translation>Fehler: %1</translation>
     </message>
     <message>
-        <location filename="../src/joboverlay.cpp" line="82"/>
+        <location filename="../src/joboverlay.cpp" line="101" />
         <source>Fertig!</source>
         <translation>Fertig!</translation>
     </message>
@@ -880,269 +788,311 @@ Fortfahren?</translation>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/mainwindow.cpp" line="148"/>
-        <source>Löschen...</source>
-        <translation>Löschen...</translation>
+        <location filename="../src/mainwindow.cpp" line="95" />
+        <source>Vorgang erfolgreich abgeschlossen.</source>
+        <translation>Operace úspěšně dokončena.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="239"/>
-        <location filename="../src/mainwindow.cpp" line="239"/>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="278"/>
+        <location filename="../src/mainwindow.cpp" line="99" />
+        <source>Fehler bei: %1</source>
+        <translation>Chyba v: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="158" />
+        <source>Löschen...</source>
+        <translation>Vymazat...</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="308" />
+        <location filename="../src/mainwindow.cpp" line="308" />
+        <location filename="../src/mainwindow_shortcuts.cpp" line="315" />
         <source>Neuer Ordner</source>
         <translation>Nová složka</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="239"/>
+        <location filename="../src/mainwindow.cpp" line="308" />
         <source>Ordnername:</source>
-        <translation>Ordnername:</translation>
+        <translation>Název složky:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="248"/>
+        <location filename="../src/mainwindow.cpp" line="322" />
         <source>Fehler</source>
-        <translation>Fehler</translation>
+        <translation>Chyba</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="248"/>
+        <location filename="../src/mainwindow.cpp" line="322" />
         <source>Ordner konnte nicht erstellt werden.</source>
-        <translation>Ordner konnte nicht erstellt werden.</translation>
+        <translation>Složku nelze vytvořit.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="497"/>
-        <source>Aushängen fehlgeschlagen</source>
-        <translation>Aushängen fehlgeschlagen</translation>
+        <location filename="../src/mainwindow.cpp" line="376" />
+        <source>Laufwerk bereit</source>
+        <translation>Jednotka připravena</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="498"/>
-        <source>Das Laufwerk konnte nicht ausgehängt werden:
+        <location filename="../src/mainwindow.cpp" line="376" />
+        <source>Das Laufwerk wurde erfolgreich eingebunden.</source>
+        <translation>Jednotka byla úspěšně připojena.</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="380" />
+        <source>Fehler beim Einbinden</source>
+        <translation>Chyba připojení</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="380" />
+        <source>Das Laufwerk konnte nicht eingebunden werden:
 %1</source>
-        <translation>Das Laufwerk konnte nicht ausgehängt werden:
+        <translation>Jednotku se nepodařilo připojit:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="104"/>
+        <location filename="../src/mainwindow.cpp" line="619" />
+        <source>Aushängen fehlgeschlagen</source>
+        <translation>Odpojení se nezdařilo</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="619" />
+        <source>Das Laufwerk konnte nicht ausgehängt werden:
+%1</source>
+        <translation>Disk nelze odpojit:
+%1</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="620" />
+        <source>Laufwerk sicher entfernt</source>
+        <translation>Jednotka bezpečně odebrána</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="620" />
+        <source>Sie können das Gerät jetzt sicher abziehen.</source>
+        <translation>Nyní můžete zařízení bezpečně odpojit.</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="95" />
         <source>SplitCommander</source>
         <translation>SplitCommander</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="127"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="145" />
         <source>Zurück</source>
         <translation>Zpět</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="135"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="155" />
         <source>Vorwärts</source>
-        <translation>Vorwärts</translation>
+        <translation>Vpřed</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="143"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="165" />
         <source>Übergeordneter Ordner</source>
-        <translation>Übergeordneter Ordner</translation>
+        <translation>Nadřazená složka</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="157"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="186" />
         <source>Home-Verzeichnis</source>
-        <translation>Home-Verzeichnis</translation>
+        <translation>Domovský adresář</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="161"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="190" />
         <source>Neu laden</source>
-        <translation>Neu laden</translation>
+        <translation>Znovu načíst</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="170"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="201" />
         <source>Neuer Tab</source>
         <translation>Nová karta</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="172"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="205" />
         <source>Tab schließen</source>
         <translation>Zavřít kartu</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="176"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="212" />
         <source>Tab %1</source>
         <translation>Karta %1</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="181"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="409" />
         <source>Einstellungen</source>
         <translation>Nastavení</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="187"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="415" />
         <source>GitHub Manager</source>
         <translation>GitHub Manager</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="194"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="224" />
         <source>Linke Pane fokussieren</source>
-        <translation>Linke Pane fokussieren</translation>
+        <translation>Zaostřete na levé podokno</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="199"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="229" />
         <source>Rechte Pane fokussieren</source>
-        <translation>Rechte Pane fokussieren</translation>
+        <translation>Zaostřete na pravé podokno</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="204"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="234" />
         <source>Panes tauschen</source>
-        <translation>Panes tauschen</translation>
+        <translation>Vyměňte skla</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="211"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="241" />
         <source>Pfade synchronisieren</source>
-        <translation>Pfade synchronisieren</translation>
+        <translation>Synchronizovat cesty</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="217"/>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="228"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="249" />
+        <location filename="../src/mainwindow_shortcuts.cpp" line="259" />
         <source>Umbenennen</source>
         <translation>Přejmenovat</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="228"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="259" />
         <source>Neuer Name:</source>
-        <translation>Neuer Name:</translation>
+        <translation>Nové jméno:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="256"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="305" />
         <source>In den Papierkorb verschieben</source>
         <translation>Přesunout do koše</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="267"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="310" />
         <source>Löschen</source>
         <translation>Smazat</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="280"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="323" />
         <source>Kopieren (Zwischenablage)</source>
-        <translation>Kopieren (Zwischenablage)</translation>
+        <translation>Kopírovat (schránka)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="290"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="334" />
         <source>Ausschneiden (Zwischenablage)</source>
-        <translation>Ausschneiden (Zwischenablage)</translation>
+        <translation>Vyjmout (schránka)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="302"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="384" />
         <source>Versteckte Dateien umschalten</source>
-        <translation>Versteckte Dateien umschalten</translation>
+        <translation>Přepnout skryté soubory</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="314"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="400" />
         <source>Layout wechseln</source>
-        <translation>Layout wechseln</translation>
+        <translation>Změnit rozložení</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="324"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="345" />
         <source>Einfügen</source>
         <translation>Vložit</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="336"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="357" />
         <source>Verschiebe Dateien...</source>
-        <translation>Verschiebe Dateien...</translation>
+        <translation>Přesunout soubory...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="272"/>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="341"/>
+        <location filename="../src/mainwindow.cpp" line="354" />
+        <location filename="../src/mainwindow_shortcuts.cpp" line="365" />
         <source>Kopiere Dateien...</source>
-        <translation>Kopiere Dateien...</translation>
+        <translation>Kopírovat soubory...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="346"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="369" />
         <source>Alles auswählen</source>
-        <translation>Alles auswählen</translation>
+        <translation>Vyberte vše</translation>
     </message>
 </context>
 <context>
     <name>MillerColumn</name>
     <message>
-        <location filename="../src/millercolumn.cpp" line="196"/>
-        <location filename="../src/millercolumn.cpp" line="306"/>
+        <location filename="../src/millercolumn.cpp" line="414" />
+        <location filename="../src/millercolumn.cpp" line="544" />
         <source>Öffnen</source>
         <translation>Otevřít</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="199"/>
-        <location filename="../src/millercolumn.cpp" line="310"/>
+        <location filename="../src/millercolumn.cpp" line="419" />
+        <location filename="../src/millercolumn.cpp" line="549" />
         <source>Öffnen in</source>
-        <translation>Öffnen in</translation>
+        <translation>Otevřít v</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="202"/>
-        <location filename="../src/millercolumn.cpp" line="312"/>
+        <location filename="../src/millercolumn.cpp" line="422" />
+        <location filename="../src/millercolumn.cpp" line="552" />
         <source>Linke Ansicht</source>
-        <translation>Linke Ansicht</translation>
+        <translation>Pohled zleva</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="205"/>
-        <location filename="../src/millercolumn.cpp" line="315"/>
+        <location filename="../src/millercolumn.cpp" line="423" />
+        <location filename="../src/millercolumn.cpp" line="553" />
         <source>Rechte Ansicht</source>
-        <translation>Rechte Ansicht</translation>
+        <translation>Správný pohled</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="225"/>
-        <location filename="../src/millercolumn.cpp" line="229"/>
+        <location filename="../src/millercolumn.cpp" line="446" />
+        <location filename="../src/millercolumn.cpp" line="449" />
         <source>Umbenennen</source>
         <translation>Přejmenovat</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="229"/>
+        <location filename="../src/millercolumn.cpp" line="449" />
         <source>Anzeigename:</source>
-        <translation>Anzeigename:</translation>
+        <translation>zobrazovaný název:</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="246"/>
+        <location filename="../src/millercolumn.cpp" line="464" />
         <source>Aus Laufwerken entfernen</source>
-        <translation>Aus Laufwerken entfernen</translation>
+        <translation>Odstraňte z jednotek</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="272"/>
+        <location filename="../src/millercolumn.cpp" line="520" />
         <source>Kopieren</source>
         <translation>Kopírovat</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="274"/>
-        <location filename="../src/millercolumn.cpp" line="299"/>
-        <location filename="../src/millercolumn.cpp" line="329"/>
+        <location filename="../src/millercolumn.cpp" line="523" />
+        <location filename="../src/millercolumn.cpp" line="529" />
+        <location filename="../src/millercolumn.cpp" line="567" />
         <source>Pfad kopieren</source>
-        <translation>Pfad kopieren</translation>
+        <translation>Kopírovat cestu</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="277"/>
+        <location filename="../src/millercolumn.cpp" line="524" />
         <source>Name kopieren</source>
-        <translation>Name kopieren</translation>
+        <translation>Zkopírovat jméno</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="288"/>
+        <location filename="../src/millercolumn.cpp" line="497" />
         <source>Aushängen</source>
         <translation>Odpojit</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="293"/>
+        <location filename="../src/millercolumn.cpp" line="501" />
         <source>Einhängen</source>
         <translation>Připojit</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="321"/>
+        <location filename="../src/millercolumn.cpp" line="556" />
         <source>Im Terminal öffnen</source>
-        <translation>Im Terminal öffnen</translation>
+        <translation>Otevřít v terminálu</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="335"/>
+        <location filename="../src/millercolumn.cpp" line="574" />
         <source>Eigenschaften</source>
         <translation>Vlastnosti</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="347"/>
-        <location filename="../src/millercolumn.cpp" line="403"/>
+        <location filename="../src/millercolumn.cpp" line="273" />
+        <location filename="../src/millercolumn.cpp" line="336" />
         <source>Dieser PC</source>
-        <translation>Dieser PC</translation>
+        <translation>Tento PC</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="407"/>
+        <location filename="../src/millercolumn.cpp" line="344" />
         <source>Google Drive</source>
         <translation>Google Drive</translation>
     </message>
@@ -1150,717 +1100,702 @@ Fortfahren?</translation>
 <context>
     <name>PaneToolbar</name>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="41"/>
+        <location filename="../src/panetoolbar.cpp" line="50" />
         <source>Sortieren</source>
-        <translation>Sortieren</translation>
+        <translation>Seřadit</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="42"/>
+        <location filename="../src/panetoolbar.cpp" line="52" />
         <source>Neu</source>
         <translation>Nový</translation>
     </message>
     <message>
         <source>Kopieren</source>
-        <translation type="vanished">Kopírovat</translation>
+        <translation>Kopírovat</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="44"/>
+        <location filename="../src/panetoolbar.cpp" line="55" />
         <source>Papierkorb leeren</source>
         <translation>Vyprázdnit koš</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="77"/>
+        <location filename="../src/panetoolbar.cpp" line="99" />
         <source>Zurück</source>
         <translation>Zpět</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="80"/>
+        <location filename="../src/panetoolbar.cpp" line="103" />
         <source>Vorwärts</source>
-        <translation>Vorwärts</translation>
+        <translation>Vpřed</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="83"/>
+        <location filename="../src/panetoolbar.cpp" line="106" />
         <source>Hoch</source>
-        <translation>Hoch</translation>
+        <translation>Nahoru</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="90"/>
+        <location filename="../src/panetoolbar.cpp" line="114" />
         <source>Ordner zuerst</source>
         <translation>Složky nejdříve</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="134"/>
+        <location filename="../src/panetoolbar.cpp" line="125" />
+        <source>Details</source>
+        <translation>Podrobnosti</translation>
+    </message>
+    <message>
+        <location filename="../src/panetoolbar.cpp" line="126" />
+        <source>Kompakt</source>
+        <translation>Compact</translation>
+    </message>
+    <message>
+        <location filename="../src/panetoolbar.cpp" line="127" />
+        <source>Symbole</source>
+        <translation>Ikony</translation>
+    </message>
+    <message>
+        <location filename="../src/panetoolbar.cpp" line="158" />
         <source>Dieser PC</source>
-        <translation>Dieser PC</translation>
+        <translation>Tento PC</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="149"/>
+        <location filename="../src/panetoolbar.cpp" line="173" />
         <source>%1 Elemente</source>
-        <translation>%1 Elemente</translation>
+        <translation>%1 položek</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="159"/>
+        <location filename="../src/panetoolbar.cpp" line="183" />
         <source> | %1 ausgewählt</source>
-        <translation> | %1 ausgewählt</translation>
+        <translation>| Vybráno %1</translation>
     </message>
 </context>
 <context>
     <name>PaneWidget</name>
     <message>
-        <location filename="../src/panewidget.cpp" line="127"/>
-        <location filename="../src/panewidget.cpp" line="266"/>
-        <location filename="../src/panewidget.cpp" line="471"/>
-        <location filename="../src/panewidget.cpp" line="513"/>
-        <location filename="../src/panewidget.cpp" line="632"/>
-        <location filename="../src/panewidget.cpp" line="721"/>
-        <location filename="../src/panewidget.cpp" line="766"/>
-        <location filename="../src/panewidget.cpp" line="899"/>
+        <location filename="../src/panewidget.cpp" line="114" />
+        <location filename="../src/panewidget.cpp" line="283" />
+        <location filename="../src/panewidget.cpp" line="511" />
+        <location filename="../src/panewidget.cpp" line="527" />
+        <location filename="../src/panewidget.cpp" line="662" />
+        <location filename="../src/panewidget.cpp" line="751" />
+        <location filename="../src/panewidget.cpp" line="796" />
+        <location filename="../src/panewidget.cpp" line="933" />
         <source>Dieser PC</source>
-        <translation>Dieser PC</translation>
+        <translation>Tento PC</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="164"/>
+        <location filename="../src/panewidget.cpp" line="170" />
         <source>Miller-Columns ein-/ausklappen</source>
-        <translation>Miller-Columns ein-/ausklappen</translation>
+        <translation>Přepnout sloupce Miller</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="177"/>
+        <location filename="../src/panewidget.cpp" line="183" />
         <source>Suchen</source>
-        <translation>Suchen</translation>
+        <translation>Vyhledávání</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="194"/>
+        <location filename="../src/panewidget.cpp" line="200" />
         <source>Layout wählen</source>
-        <translation>Layout wählen</translation>
+        <translation>Vybrat rozvržení</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="286"/>
+        <location filename="../src/panewidget.cpp" line="301" />
         <source>Neuer Tab (Strg+T)</source>
         <translation>Nová karta (Ctrl+T)</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="829"/>
+        <location filename="../src/panewidget.cpp" line="859" />
         <source>Pfad kopieren</source>
-        <translation type="unfinished">Pfad kopieren</translation>
+        <translation>Kopírovat cestu</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="835"/>
+        <location filename="../src/panewidget.cpp" line="865" />
         <source>Schließen</source>
-        <translation type="unfinished">Zavřít</translation>
+        <translation>Zavřít</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="953"/>
+        <location filename="../src/panewidget.cpp" line="998" />
         <source>Tab schließen</source>
         <translation>Zavřít kartu</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="186"/>
+        <location filename="../src/panewidget.cpp" line="192" />
         <source>Menü</source>
-        <translation>Menü</translation>
+        <translation>Menu</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="80"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="77" />
         <source>Neu erstellen</source>
         <translation>Vytvořit nový</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="83"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="80" />
         <source>Ordner …</source>
-        <translation>Ordner …</translation>
+        <translation>Složka…</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="85"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="82" />
         <source>Textdatei …</source>
-        <translation>Textdatei …</translation>
+        <translation>Textový soubor…</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="87"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="84" />
         <source>HTML-Datei …</source>
-        <translation>HTML-Datei …</translation>
+        <translation>HTML soubor…</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="89"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="86" />
         <source>Leere Datei …</source>
-        <translation>Leere Datei …</translation>
+        <translation>Prázdný soubor…</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="93"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="90" />
         <source>Verknüpfung zu Datei oder Ordner …</source>
-        <translation>Verknüpfung zu Datei oder Ordner …</translation>
+        <translation>Odkaz na soubor nebo složku…</translation>
     </message>
     <message>
         <source>Versteckte Dateien anzeigen</source>
-        <translation type="vanished">Zobrazit skryté soubory</translation>
+        <translation>Zobrazit skryté soubory</translation>
     </message>
     <message>
         <source>Einfachklick zum Öffnen</source>
-        <translation type="vanished">Einfachklick zum Öffnen</translation>
+        <translation>Einfachklick zum Öffnen</translation>
     </message>
     <message>
         <source>Dateiendungen anzeigen</source>
-        <translation type="vanished">Dateiendungen anzeigen</translation>
+        <translation>Dateiendungen anzeigen</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="98"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="95" />
         <source>Terminal</source>
         <translation>Terminal</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="102"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="99" />
         <source>Im Terminal öffnen</source>
-        <translation>Im Terminal öffnen</translation>
+        <translation>Otevřít v terminálu</translation>
     </message>
     <message>
         <source>Einrichten</source>
-        <translation type="vanished">Einrichten</translation>
+        <translation>Einrichten</translation>
     </message>
     <message>
         <source>Fenster-Farbschema</source>
-        <translation type="vanished">Fenster-Farbschema</translation>
+        <translation>Fenster-Farbschema</translation>
     </message>
     <message>
         <source>KDE Global Theme verwenden</source>
-        <translation type="vanished">KDE Global Theme verwenden</translation>
+        <translation>KDE Global Theme verwenden</translation>
     </message>
     <message>
         <source>Übernimmt Farben und Stil des aktiven KDE Global Themes.</source>
-        <translation type="vanished">Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
+        <translation>Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
     </message>
     <message>
         <source>Designs neu laden</source>
-        <translation type="vanished">Designs neu laden</translation>
+        <translation>Designs neu laden</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="327"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="324" />
         <source>Abbrechen</source>
         <translation>Zrušit</translation>
     </message>
     <message>
         <source>Übernehmen</source>
-        <translation type="vanished">Použít</translation>
+        <translation>Použít</translation>
     </message>
     <message>
         <source>Neustart erforderlich</source>
-        <translation type="vanished">Neustart erforderlich</translation>
+        <translation>Neustart erforderlich</translation>
     </message>
     <message>
         <source>Das Theme wird nach einem Neustart angewendet.</source>
-        <translation type="vanished">Das Theme wird nach einem Neustart angewendet.</translation>
+        <translation>Das Theme wird nach einem Neustart angewendet.</translation>
     </message>
     <message>
         <source>Tastaturkurzbefehle festlegen …</source>
-        <translation type="vanished">Tastaturkurzbefehle festlegen …</translation>
+        <translation>Tastaturkurzbefehle festlegen …</translation>
     </message>
     <message>
         <source>Terminal wählen…</source>
-        <translation type="vanished">Terminal wählen…</translation>
+        <translation>Terminal wählen…</translation>
     </message>
     <message>
         <source>Altersbadges</source>
-        <translation type="vanished">Altersbadges</translation>
+        <translation>Věkové odznaky</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="120"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="117" />
         <source>Über SplitCommander</source>
         <translation>O SplitCommander</translation>
     </message>
     <message>
         <source>&lt;b&gt;SplitCommander&lt;/b&gt; &amp;nbsp;&lt;small&gt;v%1&lt;/small&gt;&lt;br&gt;</source>
-        <translation type="vanished">&lt;b&gt;SplitCommander&lt;/b&gt; &amp;nbsp;&lt;small&gt;v%1&lt;/small&gt;&lt;br&gt;</translation>
+        <translation>&lt;b&gt;SplitCommander&lt;/b&gt; &amp;nbsp;&lt;small&gt;v%1&lt;/small&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;small&gt;Ein nativer KDE-Dateimanager.&lt;/small&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Stack:&lt;/b&gt; Qt6 · KF6 · C++20&lt;br&gt;&lt;b&gt;Autor:&lt;/b&gt; D. Lange</source>
-        <translation type="vanished">&lt;small&gt;Ein nativer KDE-Dateimanager.&lt;/small&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Stack:&lt;/b&gt; Qt6 · KF6 · C++20&lt;br&gt;&lt;b&gt;Autor:&lt;/b&gt; D. Lange</translation>
+        <translation>&lt;small&gt;Ein nativer KDE-Dateimanager.&lt;/small&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Stack:&lt;/b&gt; Qt6 · KF6 · C++20&lt;br&gt;&lt;b&gt;Autor:&lt;/b&gt; D. Lange</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="66"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="63" />
         <source>GitHub</source>
         <translation>GitHub</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="72"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="69" />
         <source>Paperless Manager</source>
         <translation>Bezpapíroví manažeři</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="112"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="109" />
         <source>Einrichten ...</source>
-        <translation>Einrichten ...</translation>
+        <translation>Konfigurovat...</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="123"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="120" />
         <source>SplitCommander</source>
         <translation>SplitCommander</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="125"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="122" />
         <source>Nativer Dual-Pane-Dateimanager für Linux mit KDE Plasma.
 Miller-Column-Interface mit KIO-Integration für lokale und Remote-Dateisysteme.</source>
-        <translation>Nativer Dual-Pane-Dateimanager für Linux mit KDE Plasma.
-Miller-Column-Interface mit KIO-Integration für lokale und Remote-Dateisysteme.</translation>
+        <translation>Nativní dvoupanelový správce souborů pro Linux s KDE Plasma.
+Rozhraní Millerova sloupce s integrací KIO pro místní a vzdálené systémy souborů.</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="128"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="125" />
         <source>© 2025–2026 D. Lange</source>
         <translation>© 2025–2026 D. Lange</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="129"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="126" />
         <source>Unterstützt Google Drive, SFTP, SMB, MTP und weitere KIO-Protokolle.
 Inspiriert von OneCommander.</source>
-        <translation>Unterstützt Google Drive, SFTP, SMB, MTP und weitere KIO-Protokolle.
-Inspiriert von OneCommander.</translation>
+        <translation>Podporuje Disk Google, SFTP, SMB, MTP a další protokoly KIO.
+Inspirováno OneCommanderem.</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="135"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="132" />
         <source>Entwickler und Maintainer</source>
         <translation>Vývojář a správce</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="142"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="139" />
         <source>Cross-Platform Application Framework</source>
         <translation>Cross-Platform Application Framework</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="146"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="143" />
         <source>KDE-Bibliotheken (KF6)</source>
         <translation>Knihovny KDE (KF6)</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="150"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="147" />
         <source>KDE Ein-/Ausgabe-Framework für lokale und Remote-Dateisysteme</source>
-        <translation>KDE Ein-/Ausgabe-Framework für lokale und Remote-Dateisysteme</translation>
+        <translation>KDE I/O framework pro místní a vzdálené systémy souborů</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="154"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="151" />
         <source>Hardware-Erkennung und Geräte-Integration</source>
-        <translation>Hardware-Erkennung und Geräte-Integration</translation>
+        <translation>Detekce hardwaru a integrace zařízení</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="161"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="158" />
         <source>Repository-Verwaltung und Git-Sidebar-Integration</source>
-        <translation>Repository-Verwaltung und Git-Sidebar-Integration</translation>
+        <translation>Správa úložiště a integrace postranního panelu Git</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="167"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="164" />
         <source>Dokumente hochladen und durchsuchen</source>
         <translation>Nahrávejte a prohledávejte dokumenty</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="203"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="200" />
         <source>Klassisch</source>
-        <translation>Klassisch</translation>
+        <translation>Klasické</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="203"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="200" />
         <source>Einzeln</source>
-        <translation>Einzeln</translation>
+        <translation>Jednoduché</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="204"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="201" />
         <source>Standard</source>
-        <translation>Standard</translation>
+        <translation>Standardní</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="204"/>
-        <location filename="../src/panewidget_hamburger.cpp" line="205"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="201" />
+        <location filename="../src/panewidget_hamburger.cpp" line="202" />
         <source>Dual</source>
-        <translation>Dual</translation>
+        <translation>Duální</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="205"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="202" />
         <source>Spalten</source>
-        <translation>Spalten</translation>
+        <translation>Sloupce</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="263"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="260" />
         <source>Neue Textdatei</source>
-        <translation>Neue Textdatei</translation>
+        <translation>Nový textový soubor</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="263"/>
-        <location filename="../src/panewidget_hamburger.cpp" line="278"/>
-        <location filename="../src/panewidget_hamburger.cpp" line="294"/>
-        <location filename="../src/panewidget_hamburger.cpp" line="343"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="260" />
+        <location filename="../src/panewidget_hamburger.cpp" line="275" />
+        <location filename="../src/panewidget_hamburger.cpp" line="291" />
+        <location filename="../src/panewidget_hamburger.cpp" line="340" />
         <source>Name:</source>
         <translation>Název:</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="264"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="261" />
         <source>Neue Datei.txt</source>
-        <translation>Neue Datei.txt</translation>
+        <translation>Nový soubor.txt</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="277"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="274" />
         <source>Neue HTML-Datei</source>
-        <translation>Neue HTML-Datei</translation>
+        <translation>Nový soubor HTML</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="278"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="275" />
         <source>index.html</source>
         <translation>index.html</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="294"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="291" />
         <source>Leere Datei</source>
-        <translation>Leere Datei</translation>
+        <translation>Prázdný soubor</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="295"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="292" />
         <source>Neue Datei</source>
         <translation>Nový soubor</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="311"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="308" />
         <source>Ziel wählen</source>
-        <translation>Ziel wählen</translation>
+        <translation>Vyberte destinaci</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="328"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="325" />
         <source>Auswählen</source>
-        <translation>Auswählen</translation>
+        <translation>Vybrat</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="342"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="339" />
         <source>Verknüpfungsname</source>
-        <translation>Verknüpfungsname</translation>
+        <translation>Název odkazu</translation>
     </message>
     <message>
         <source>Ziel waehlen</source>
-        <translation type="vanished">Ziel waehlen</translation>
+        <translation>Ziel waehlen</translation>
     </message>
     <message>
         <source>Verknuepfungsname</source>
-        <translation type="vanished">Verknuepfungsname</translation>
+        <translation>Verknuepfungsname</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="343"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="340" />
         <source>Link</source>
         <translation>Link</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="71"/>
+        <location filename="../src/panewidget_search.cpp" line="89" />
         <source>Suchen ...</source>
-        <translation>Suchen ...</translation>
+        <translation>Vyhledávání...</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="80"/>
+        <location filename="../src/panewidget_search.cpp" line="98" />
         <source>Filtern</source>
-        <translation>Filtern</translation>
+        <translation>Filtr</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="96"/>
+        <location filename="../src/panewidget_search.cpp" line="133" />
         <source>Dateinamen</source>
-        <translation>Dateinamen</translation>
+        <translation>Názvy souborů</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="97"/>
+        <location filename="../src/panewidget_search.cpp" line="134" />
         <source>Dateiinhalt</source>
-        <translation>Dateiinhalt</translation>
+        <translation>Obsah souboru</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="106"/>
+        <location filename="../src/panewidget_search.cpp" line="143" />
         <source>KFind öffnen</source>
-        <translation>KFind öffnen</translation>
+        <translation>Otevřete KFind</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="109"/>
+        <location filename="../src/panewidget_search.cpp" line="146" />
         <source>Sucheinstellungen</source>
-        <translation>Sucheinstellungen</translation>
+        <translation>Nastavení vyhledávání</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="157"/>
+        <location filename="../src/panewidget_search.cpp" line="180" />
         <source>Ab hier</source>
-        <translation>Ab hier</translation>
+        <translation>Odtud</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="158"/>
+        <location filename="../src/panewidget_search.cpp" line="181" />
         <source>Überall</source>
-        <translation>Überall</translation>
+        <translation>Všude</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="291"/>
-        <location filename="../src/panewidget_search.cpp" line="308"/>
+        <location filename="../src/panewidget_search.cpp" line="328" />
+        <location filename="../src/panewidget_search.cpp" line="345" />
         <source>Keine Ergebnisse</source>
         <translation>Žádné výsledky</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="186"/>
-        <location filename="../src/panewidget_footer.cpp" line="171"/>
+        <location filename="../src/panewidget_search.cpp" line="204" />
+        <location filename="../src/panewidget_footer.cpp" line="165" />
         <source>Name</source>
         <translation>Název</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="186"/>
+        <location filename="../src/panewidget_search.cpp" line="204" />
         <source>Pfad</source>
         <translation>Cesta</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="186"/>
-        <location filename="../src/panewidget_footer.cpp" line="177"/>
+        <location filename="../src/panewidget_search.cpp" line="204" />
+        <location filename="../src/panewidget_footer.cpp" line="170" />
         <source>Geändert</source>
         <translation>Změněno</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="258"/>
+        <location filename="../src/panewidget_search.cpp" line="277" />
         <source>Suche läuft...</source>
-        <translation>Suche läuft...</translation>
+        <translation>Probíhá hledání...</translation>
     </message>
     <message>
         <source>Neuer Ordner</source>
-        <translation type="vanished">Nová složka</translation>
+        <translation>Nová složka</translation>
     </message>
     <message>
         <source>Ordnername:</source>
-        <translation type="vanished">Ordnername:</translation>
+        <translation>Název složky:</translation>
     </message>
     <message>
         <source>Fehler</source>
-        <translation type="vanished">Fehler</translation>
+        <translation>Chyba</translation>
     </message>
     <message>
         <source>Ordner konnte nicht erstellt werden.</source>
-        <translation type="vanished">Ordner konnte nicht erstellt werden.</translation>
+        <translation>Ordner konnte nicht erstellt werden.</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="565"/>
+        <location filename="../src/panewidget.cpp" line="643" />
         <source>Papierkorb leeren</source>
         <translation>Vyprázdnit koš</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="566"/>
+        <location filename="../src/panewidget.cpp" line="644" />
         <source>Möchten Sie den Papierkorb wirklich leeren?</source>
-        <translation>Möchten Sie den Papierkorb wirklich leeren?</translation>
+        <translation>Opravdu chcete vysypat koš?</translation>
     </message>
     <message>
         <source>Kopiere Dateien...</source>
-        <translation type="vanished">Kopiere Dateien...</translation>
+        <translation>Kopiere Dateien...</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="87"/>
+        <location filename="../src/panewidget_footer.cpp" line="82" />
         <source>%1 Elemente</source>
-        <translation>%1 Elemente</translation>
+        <translation>%1 položek</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="91"/>
+        <location filename="../src/panewidget_footer.cpp" line="86" />
         <source>%1 ausgewählt</source>
-        <translation>%1 ausgewählt</translation>
+        <translation>Vybráno %1</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="112"/>
-        <location filename="../src/panewidget_footer.cpp" line="172"/>
+        <location filename="../src/panewidget_footer.cpp" line="106" />
+        <location filename="../src/panewidget_footer.cpp" line="166" />
         <source>Ordner</source>
         <translation>Složka</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="113"/>
+        <location filename="../src/panewidget_footer.cpp" line="107" />
         <source>…</source>
         <translation>…</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="172"/>
+        <location filename="../src/panewidget_footer.cpp" line="166" />
         <source>Typ</source>
-        <translation>Typ</translation>
+        <translation>Type</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="174"/>
+        <location filename="../src/panewidget_footer.cpp" line="167" />
         <source>Datei</source>
         <translation>Soubor</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="175"/>
+        <location filename="../src/panewidget_footer.cpp" line="168" />
         <source>-Datei</source>
-        <translation>-Datei</translation>
+        <translation>-soubor</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="176"/>
+        <location filename="../src/panewidget_footer.cpp" line="169" />
         <source>Erstellt</source>
         <translation>Vytvořeno</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="179"/>
+        <location filename="../src/panewidget_footer.cpp" line="172" />
         <source>Alter</source>
-        <translation>Alter</translation>
+        <translation>Stáří</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="179"/>
+        <location filename="../src/panewidget_footer.cpp" line="172" />
         <source>Heute</source>
-        <translation>Heute</translation>
+        <translation>Dnes</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="180"/>
+        <location filename="../src/panewidget_footer.cpp" line="173" />
         <source>Gestern</source>
-        <translation>Gestern</translation>
+        <translation>Včera</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="181"/>
+        <location filename="../src/panewidget_footer.cpp" line="174" />
         <source>%1 t</source>
-        <translation>%1 t</translation>
+        <translation>%1 d</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="182"/>
+        <location filename="../src/panewidget_footer.cpp" line="175" />
         <source>%1 m</source>
         <translation>%1 m</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="183"/>
+        <location filename="../src/panewidget_footer.cpp" line="176" />
         <source>%1 j</source>
-        <translation>%1 j</translation>
+        <translation>%1 r</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="185"/>
+        <location filename="../src/panewidget_footer.cpp" line="178" />
         <source>Größe:</source>
-        <translation>Größe:</translation>
+        <translation>Velikost:</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="199"/>
+        <location filename="../src/panewidget_footer.cpp" line="179" />
         <source>Attribute</source>
-        <translation>Attribute</translation>
+        <translation>Atributy</translation>
     </message>
 </context>
 <context>
     <name>PaperlessManagerDialog</name>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="218"/>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="295"/>
         <source>Paperless</source>
         <translation>Bezpapírové</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="219"/>
         <source>Bitte zuerst URL und Token im Paperless Manager konfigurieren.</source>
         <translation>Nejprve nakonfigurujte adresu URL a token v aplikaci Paperless Manager.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="288"/>
         <source>Paperless Upload</source>
         <translation>Bezpapírové nahrávání</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="289"/>
         <source>Fehler beim Hochladen von %1:
 %2</source>
         <translation>Chyba při nahrávání %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="296"/>
         <source>Upload abgeschlossen.</source>
         <translation>Nahrávání dokončeno.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="311"/>
         <source>Paperless Manager</source>
         <translation>Bezpapíroví manažeři</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="349"/>
         <source>Verbindung</source>
         <translation>Spojení</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="363"/>
         <source>URL:</source>
         <translation>URL:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="375"/>
         <source>Token anzeigen</source>
         <translation>Zobrazit žetony</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="378"/>
         <source>API-Token:</source>
         <translation>API token:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="380"/>
         <source>SSL-Zertifikat nicht prüfen (für selbstsignierte Zertifikate)</source>
         <translation>Nekontrolovat certifikát SSL (u certifikátů s vlastním podpisem)</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="385"/>
         <source>Speichern</source>
         <translation>Uložit</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="396"/>
         <source>Dokumente suchen…</source>
         <translation>Hledat dokumenty...</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="399"/>
         <source>Suchen</source>
-        <translation type="unfinished">Suchen</translation>
+        <translation>Vyhledávání</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="403"/>
         <source>Hochladen</source>
         <translation>Nahrát</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="410"/>
         <source>Aktualisieren</source>
         <translation>Aktualizovat</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="419"/>
         <source>Dokumente:</source>
         <translation>dokumenty:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="454"/>
         <source>Im Browser öffnen</source>
         <translation>Otevřít v prohlížeči</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="457"/>
         <source>Schließen</source>
-        <translation type="unfinished">Zavřít</translation>
+        <translation>Zavřít</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="485"/>
         <source>Dateien für Paperless auswählen</source>
         <translation>Vyberte soubory pro bezpapírové</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="506"/>
         <source>Bitte URL und Token konfigurieren.</source>
         <translation>Nakonfigurujte adresu URL a token.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="511"/>
         <source>Lädt…</source>
         <translation>Načítání…</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="525"/>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="568"/>
         <source>Fehler: %1</source>
-        <translation type="unfinished">Fehler: %1</translation>
+        <translation>Chyba: %1</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="550"/>
         <source>%1 Dokument(e) — %2 angezeigt</source>
         <translation>%1 dokumentů – %2 zobrazeno</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="558"/>
         <source>Lade %1 herunter…</source>
         <translation>Stáhnout %1…</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="581"/>
         <source>%1 geöffnet.</source>
         <translation>%1 otevřeno.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="583"/>
         <source>Konnte Datei nicht schreiben.</source>
         <translation>Soubor nelze zapsat.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="599"/>
         <source>Einstellungen gespeichert.</source>
         <translation>Nastavení uloženo.</translation>
     </message>
@@ -1868,53 +1803,42 @@ Inspiriert von OneCommander.</translation>
 <context>
     <name>PaperlessUploadDialog</name>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="64"/>
         <source>Zu Paperless hochladen</source>
         <translation>Nahrát do služby Paperless</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="80"/>
         <source>Dateien:</source>
         <translation>Soubory:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="92"/>
         <source>Titel (optional):</source>
         <translation>Název (volitelné):</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="100"/>
         <source>Wird aus Dateiname ermittelt</source>
         <translation>Určeno z názvu souboru</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="104"/>
         <source>Tags:</source>
         <translation>Štítky:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="113"/>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="123"/>
         <source>Wird geladen…</source>
         <translation>Načítá se…</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="118"/>
         <source>Korrespondent:</source>
         <translation>Korespondent:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="141"/>
         <source>Hochladen</source>
         <translation>Nahrát</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="144"/>
         <source>Abbrechen</source>
-        <translation type="unfinished">Zrušit</translation>
+        <translation>Zrušit</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="186"/>
         <source>— keiner —</source>
         <translation>— žádný —</translation>
     </message>
@@ -1923,831 +1847,918 @@ Inspiriert von OneCommander.</translation>
     <name>QObject</name>
     <message>
         <source>Löschen</source>
-        <translation type="vanished">Smazat</translation>
+        <translation>Smazat</translation>
     </message>
     <message>
         <source>In den Papierkorb verschieben</source>
-        <translation type="vanished">Přesunout do koše</translation>
+        <translation>Přesunout do koše</translation>
     </message>
     <message>
         <source>System</source>
-        <translation type="vanished">System</translation>
+        <translation>System</translation>
     </message>
     <message>
         <source>Keine Ergebnisse</source>
-        <translation type="vanished">Žádné výsledky</translation>
+        <translation>Žádné výsledky</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="125"/>
+        <location filename="../src/sidebar.cpp" line="160" />
         <source>Eintrag bearbeiten</source>
-        <translation>Eintrag bearbeiten</translation>
+        <translation>Upravit záznam</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="157"/>
+        <location filename="../src/sidebar.cpp" line="134" />
         <source>Name:</source>
         <translation>Název:</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="161"/>
+        <location filename="../src/sidebar.cpp" line="139" />
         <source>Adresse:</source>
         <translation>Adresa:</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="201"/>
+        <location filename="../src/sidebar.cpp" line="214" />
         <source>Bearbeiten...</source>
-        <translation>Bearbeiten...</translation>
+        <translation>Upravit...</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="215"/>
+        <location filename="../src/sidebar.cpp" line="227" />
         <source>In Terminal öffnen</source>
         <translation>Otevřít v terminálu</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="223"/>
+        <location filename="../src/sidebar.cpp" line="236" />
         <source>Pfad kopieren</source>
-        <translation>Pfad kopieren</translation>
+        <translation>Kopírovat cestu</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="230"/>
+        <location filename="../src/sidebar.cpp" line="244" />
         <source>Aus Gruppe entfernen</source>
-        <translation>Aus Gruppe entfernen</translation>
+        <translation>Odebrat ze skupiny</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="236"/>
+        <location filename="../src/sidebar.cpp" line="248" />
         <source>Eigenschaften</source>
         <translation>Vlastnosti</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="35"/>
         <source>GitHub Release erstellen</source>
-        <translation>GitHub Release erstellen</translation>
+        <translation>Vytvořte vydání GitHubu</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="57"/>
         <source>Tag-Name (z.B. v1.0.0):</source>
-        <translation>Tag-Name (z.B. v1.0.0):</translation>
+        <translation>Název značky (např. v1.0.0):</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="63"/>
         <source>Release-Titel:</source>
-        <translation>Release-Titel:</translation>
+        <translation>Název vydání:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="66"/>
         <source>z.B. Version 1.0.0</source>
-        <translation>z.B. Version 1.0.0</translation>
+        <translation>např. Verze 1.0.0</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="69"/>
         <source>Beschreibung / Changelog:</source>
-        <translation>Beschreibung / Changelog:</translation>
+        <translation>Popis / Seznam změn:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="76"/>
         <source>Was ist neu in dieser Version?</source>
-        <translation>Was ist neu in dieser Version?</translation>
+        <translation>Co je nového v této verzi?</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="79"/>
-        <source>Als &quot;Latest&quot; markieren</source>
+        <source>Als "Latest" markieren</source>
         <translation>Als &amp;quot;Latest&amp;quot; markieren</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="84"/>
         <source>Pre-release</source>
         <translation>Předverze</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="100"/>
         <source>Release erstellen</source>
         <translation>Vytvořit vydání</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="102"/>
         <source>Abbrechen</source>
         <translation>Zrušit</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="474"/>
         <source>▼  Verbindungseinstellungen</source>
         <translation>▼  Nastavení připojení</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="475"/>
         <source>▶  Verbindungseinstellungen</source>
         <translation>▶  Nastavení připojení</translation>
     </message>
     <message>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="61"/>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="76"/>
         <source>ISO einbinden</source>
         <translation>Zahrnout ISO</translation>
     </message>
     <message>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="62"/>
         <source>Konnte Datei nicht öffnen: %1</source>
         <translation>Nelze otevřít soubor: %1</translation>
     </message>
     <message>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="77"/>
         <source>Fehler: %1</source>
-        <translation type="unfinished">Fehler: %1</translation>
+        <translation>Chyba: %1</translation>
     </message>
     <message>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="112"/>
         <source>ISO aushängen</source>
         <translation>Odpojit ISO</translation>
     </message>
     <message>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="113"/>
         <source>Gerät nicht gefunden.</source>
         <translation>Zařízení nenalezeno.</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="135" />
+        <source>Leere Gruppe</source>
+        <translation>Prázdná skupina</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="136" />
+        <source>Home-Favoriten</source>
+        <translation>Domácí oblíbené</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="140" />
+        <source>Git Repositories</source>
+        <translation>Repozitáře Git</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="167" />
+        <source>Es existiert bereits eine Git-Box</source>
+        <translation>Pole Git již existuje</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="190" />
+        <source>Gruppenname:</source>
+        <translation>Název skupiny:</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="193" />
+        <source>Mein Ordner...</source>
+        <translation>Moje složka...</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="196" />
+        <source>Inhalt:</source>
+        <translation>Obsah:</translation>
     </message>
 </context>
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="80"/>
+        <location filename="../src/settingsdialog.cpp" line="62" />
+        <source>1 Std</source>
+        <translation>1 hod.</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="63" />
+        <source>1 Tag</source>
+        <translation>1 den</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="64" />
+        <source>7 Tage</source>
+        <translation>7 dní</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="65" />
+        <source>1 Monat</source>
+        <translation>1 měsíc</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="66" />
+        <source>1 Jahr</source>
+        <translation>1 rok</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="67" />
+        <source>&gt;1 Jahr</source>
+        <translation>&gt;1 rok</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="108" />
         <source>Einstellungen</source>
         <translation>Nastavení</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="128"/>
+        <location filename="../src/settingsdialog.cpp" line="182" />
         <source>Allgemein</source>
         <translation>Obecné</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="129"/>
-        <location filename="../src/settingsdialog.cpp" line="422"/>
+        <location filename="../src/settingsdialog.cpp" line="183" />
+        <location filename="../src/settingsdialog.cpp" line="551" />
         <source>Erscheinungsbild</source>
         <translation>Vzhled</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="130"/>
+        <location filename="../src/settingsdialog.cpp" line="184" />
         <source>Kurzbefehle</source>
-        <translation>Kurzbefehle</translation>
+        <translation>Zkratky</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="149"/>
+        <location filename="../src/settingsdialog.cpp" line="195" />
         <source>Übernehmen &amp; Neustarten</source>
-        <translation>Übernehmen &amp; Neustarten</translation>
+        <translation>Použít a restartovat</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="150"/>
+        <location filename="../src/settingsdialog.cpp" line="197" />
         <source>Schließen</source>
         <translation>Zavřít</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="184"/>
+        <location filename="../src/settingsdialog.cpp" line="234" />
         <source>Allgemeine Einstellungen</source>
-        <translation>Allgemeine Einstellungen</translation>
+        <translation>Obecná nastavení</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="189"/>
+        <location filename="../src/settingsdialog.cpp" line="256" />
         <source>Sprache</source>
         <translation>Jazyk</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="196"/>
+        <location filename="../src/settingsdialog.cpp" line="270" />
         <source>Systemsprache</source>
         <translation>Jazyk systému</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="223"/>
+        <location filename="../src/settingsdialog.cpp" line="299" />
         <source>Neustart erforderlich, um die Sprache zu wechseln.</source>
         <translation>Ke změně jazyka je vyžadován restart.</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="229"/>
+        <location filename="../src/settingsdialog.cpp" line="307" />
         <source>Sprache:</source>
         <translation>Jazyk:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="234"/>
+        <location filename="../src/settingsdialog.cpp" line="316" />
         <source>Start-Verhalten</source>
-        <translation>Start-Verhalten</translation>
+        <translation>Chování při spuštění</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="238"/>
+        <location filename="../src/settingsdialog.cpp" line="323" />
         <source>Mit letzter Sitzung starten (Letzte Pfade)</source>
-        <translation>Mit letzter Sitzung starten (Letzte Pfade)</translation>
+        <translation>Začít s poslední relací (poslední cesty)</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="239"/>
+        <location filename="../src/settingsdialog.cpp" line="324" />
         <source>Immer in der Laufwerks-Übersicht (Dieser PC) starten</source>
-        <translation>Immer in der Laufwerks-Übersicht (Dieser PC) starten</translation>
+        <translation>Vždy spouštět v přehledu disku (tento počítač)</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="240"/>
+        <location filename="../src/settingsdialog.cpp" line="325" />
         <source>Immer in folgendem Pfad starten:</source>
-        <translation>Immer in folgendem Pfad starten:</translation>
+        <translation>Vždy začněte v následující cestě:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="254"/>
+        <location filename="../src/settingsdialog.cpp" line="340" />
         <source>Durchsuchen...</source>
         <translation>Procházet...</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="262"/>
+        <location filename="../src/settingsdialog.cpp" line="350" />
         <source>Start-Verzeichnis wählen</source>
-        <translation>Start-Verzeichnis wählen</translation>
+        <translation>Vyberte spouštěcí adresář</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="271"/>
+        <location filename="../src/settingsdialog.cpp" line="366" />
         <source>Verhalten &amp; Dateiliste</source>
-        <translation>Verhalten &amp; Dateiliste</translation>
+        <translation>Chování a seznam souborů</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="274"/>
+        <location filename="../src/settingsdialog.cpp" line="371" />
         <source>Versteckte Dateien anzeigen</source>
         <translation>Zobrazit skryté soubory</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="275"/>
+        <location filename="../src/settingsdialog.cpp" line="372" />
         <source>Dateiendungen anzeigen</source>
-        <translation>Dateiendungen anzeigen</translation>
+        <translation>Zobrazit přípony souborů</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="276"/>
+        <location filename="../src/settingsdialog.cpp" line="373" />
         <source>Einfachklick zum Öffnen verwenden</source>
-        <translation>Einfachklick zum Öffnen verwenden</translation>
+        <translation>K otevření použijte jedno kliknutí</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="277"/>
+        <location filename="../src/settingsdialog.cpp" line="374" />
         <source>IP-Adresse in Miller-Spalten anzeigen</source>
-        <translation>IP-Adresse in Miller-Spalten anzeigen</translation>
+        <translation>Zobrazit IP adresu ve sloupcích Miller</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="286"/>
+        <location filename="../src/settingsdialog.cpp" line="386" />
         <source>Laufwerke</source>
         <translation>Disky</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="289"/>
+        <location filename="../src/settingsdialog.cpp" line="391" />
         <source>IP-Adresse für Netzlaufwerke anzeigen</source>
-        <translation>IP-Adresse für Netzlaufwerke anzeigen</translation>
+        <translation>Zobrazit IP adresu pro síťové disky</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="295"/>
+        <location filename="../src/settingsdialog.cpp" line="396" />
         <source>Git</source>
         <translation>Git</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="298"/>
+        <location filename="../src/settingsdialog.cpp" line="401" />
         <source>Git-Box in Sidebar anzeigen</source>
-        <translation>Git-Box in Sidebar anzeigen</translation>
+        <translation>Zobrazit pole Git na postranním panelu</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="302"/>
+        <location filename="../src/settingsdialog.cpp" line="405" />
         <source>Aktualisierung:</source>
-        <translation>Aktualisierung:</translation>
+        <translation>Obnovit:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="304"/>
+        <location filename="../src/settingsdialog.cpp" line="408" />
         <source>Bei Änderungen</source>
         <translation>Při změnách</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="305"/>
+        <location filename="../src/settingsdialog.cpp" line="409" />
         <source>Periodisch</source>
         <translation>Pravidelně</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="306"/>
+        <location filename="../src/settingsdialog.cpp" line="410" />
         <source>Manuell</source>
         <translation>Ručně</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="311"/>
+        <location filename="../src/settingsdialog.cpp" line="415" />
         <source>Intervall (Min):</source>
-        <translation>Intervall (Min):</translation>
+        <translation>Interval (min):</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="328"/>
+        <location filename="../src/settingsdialog.cpp" line="436" />
         <source>Darstellung</source>
         <translation>Zobrazení</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="333"/>
+        <location filename="../src/settingsdialog.cpp" line="444" />
         <source> pt</source>
         <translation>pt</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="334"/>
+        <location filename="../src/settingsdialog.cpp" line="445" />
         <source>Steuert Schriftgröße, Icon-Größe und Zeilenhöhe</source>
         <translation>Ovládá velikost písma, velikost ikon a výšku řádku</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="338"/>
+        <location filename="../src/settingsdialog.cpp" line="450" />
         <source>App-weite Schriftart</source>
         <translation>Písmo pro celou aplikaci</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="342"/>
+        <location filename="../src/settingsdialog.cpp" line="455" />
         <source>Icon-Größe und Zeilenhöhen werden automatisch angepasst</source>
         <translation>Velikost ikon a výšky čar se upravují automaticky</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="359"/>
+        <location filename="../src/settingsdialog.cpp" line="475" />
         <source>Schriftart:</source>
         <translation>písmo:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="360"/>
+        <location filename="../src/settingsdialog.cpp" line="476" />
         <source>Schriftgröße:</source>
         <translation>Velikost písma:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="362"/>
+        <location filename="../src/settingsdialog.cpp" line="478" />
         <source>Abstände:</source>
         <translation>vzdálenosti:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="366"/>
+        <location filename="../src/settingsdialog.cpp" line="486" />
         <source>Pfad-Filter (Blacklist)</source>
-        <translation>Pfad-Filter (Blacklist)</translation>
+        <translation>Filtr cesty (černá listina)</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="368"/>
+        <location filename="../src/settingsdialog.cpp" line="490" />
         <source>Diese Verzeichnisse werden in der Sidebar und den Laufwerkslisten versteckt.</source>
-        <translation>Diese Verzeichnisse werden in der Sidebar und den Laufwerkslisten versteckt.</translation>
+        <translation>Tyto adresáře budou skryté v postranním panelu a seznamech jednotek.</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="380"/>
+        <location filename="../src/settingsdialog.cpp" line="505" />
         <source>Neuer Pfad...</source>
-        <translation>Neuer Pfad...</translation>
+        <translation>Nová cesta...</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="383"/>
-        <location filename="../src/settingsdialog.cpp" line="509"/>
+        <location filename="../src/settingsdialog.cpp" line="508" />
+        <location filename="../src/settingsdialog.cpp" line="703" />
         <source>Hinzufügen</source>
-        <translation>Hinzufügen</translation>
+        <translation>Přidat</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="384"/>
-        <location filename="../src/settingsdialog.cpp" line="512"/>
+        <location filename="../src/settingsdialog.cpp" line="510" />
+        <location filename="../src/settingsdialog.cpp" line="707" />
         <source>Entfernen</source>
         <translation>Odebrat</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="427"/>
+        <location filename="../src/settingsdialog.cpp" line="571" />
         <source>Design &amp; Farben</source>
-        <translation>Design &amp; Farben</translation>
+        <translation>Design &amp; Barvy</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="430"/>
+        <location filename="../src/settingsdialog.cpp" line="576" />
         <source>KDE Global Theme verwenden</source>
-        <translation>KDE Global Theme verwenden</translation>
+        <translation>Použijte globální téma KDE</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="431"/>
+        <location filename="../src/settingsdialog.cpp" line="577" />
         <source>Übernimmt Farben und Stil des aktiven KDE Global Themes.</source>
-        <translation>Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
+        <translation>Aplikuje barvy a styl aktivního globálního motivu KDE.</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="471"/>
+        <location filename="../src/settingsdialog.cpp" line="653" />
         <source>Vorschaubilder (Thumbnails)</source>
-        <translation>Vorschaubilder (Thumbnails)</translation>
+        <translation>Miniatury</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="473"/>
+        <location filename="../src/settingsdialog.cpp" line="657" />
         <source>Vorschaubilder anzeigen</source>
-        <translation>Vorschaubilder anzeigen</translation>
+        <translation>Zobrazit miniatury</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="475"/>
+        <location filename="../src/settingsdialog.cpp" line="659" />
         <source>Maximale Dateigröße (MB):</source>
-        <translation>Maximale Dateigröße (MB):</translation>
+        <translation>Maximální velikost souboru (MB):</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="487"/>
+        <location filename="../src/settingsdialog.cpp" line="676" />
         <source>Dateityp-Farben (Hervorhebung)</source>
-        <translation>Dateityp-Farben (Hervorhebung)</translation>
+        <translation>Barvy typu souboru (zvýraznění)</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="506"/>
+        <location filename="../src/settingsdialog.cpp" line="699" />
         <source>Farbe wählen...</source>
-        <translation>Farbe wählen...</translation>
+        <translation>Vyberte barvu...</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="524"/>
+        <location filename="../src/settingsdialog.cpp" line="727" />
         <source>Farbe für Dateityp wählen</source>
-        <translation>Farbe für Dateityp wählen</translation>
+        <translation>Vyberte barvu pro typ souboru</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="747"/>
+        <location filename="../src/settingsdialog.cpp" line="1022" />
         <source>Fehler</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Chyba</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="747"/>
+        <location filename="../src/settingsdialog.cpp" line="1022" />
         <source>Neustart fehlgeschlagen: %1</source>
         <translation>Restartování se nezdařilo: %1</translation>
     </message>
     <message>
         <source>Icon-Größen &amp; Zeilenhöhen</source>
-        <translation type="vanished">Icon-Größen &amp; Zeilenhöhen</translation>
+        <translation>Icon-Größen &amp; Zeilenhöhen</translation>
     </message>
     <message>
         <source>Erweiterte Höhen-Optionen anzeigen</source>
-        <translation type="vanished">Erweiterte Höhen-Optionen anzeigen</translation>
+        <translation>Erweiterte Höhen-Optionen anzeigen</translation>
     </message>
     <message>
         <source>Sidebar Icon:</source>
-        <translation type="vanished">Sidebar Icon:</translation>
+        <translation>Sidebar Icon:</translation>
     </message>
     <message>
         <source>Laufwerke Icon:</source>
-        <translation type="vanished">Laufwerke Icon:</translation>
+        <translation>Laufwerke Icon:</translation>
     </message>
     <message>
         <source>Dateilisten Icon:</source>
-        <translation type="vanished">Dateilisten Icon:</translation>
+        <translation>Dateilisten Icon:</translation>
     </message>
     <message>
         <source>Sidebar Höhe:</source>
-        <translation type="vanished">Sidebar Höhe:</translation>
+        <translation>Sidebar Höhe:</translation>
     </message>
     <message>
         <source>Laufwerke Höhe:</source>
-        <translation type="vanished">Laufwerke Höhe:</translation>
+        <translation>Laufwerke Höhe:</translation>
     </message>
     <message>
         <source>Miller Header Höhe:</source>
-        <translation type="vanished">Miller Header Höhe:</translation>
+        <translation>Miller Header Höhe:</translation>
     </message>
     <message>
         <source>Passwort erforderlich</source>
-        <translation type="vanished">Passwort erforderlich</translation>
+        <translation>Passwort erforderlich</translation>
     </message>
     <message>
         <source>Passwort für erweiterte Optionen:</source>
-        <translation type="vanished">Passwort für erweiterte Optionen:</translation>
+        <translation>Passwort für erweiterte Optionen:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="555"/>
+        <location filename="../src/settingsdialog.cpp" line="755" />
         <source>Alters-Plaketten</source>
-        <translation>Alters-Plaketten</translation>
+        <translation>Věkové odznaky</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="566"/>
+        <location filename="../src/settingsdialog.cpp" line="777" />
         <source>Sättigung:</source>
-        <translation>Sättigung:</translation>
+        <translation>Nasycení:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="567"/>
+        <location filename="../src/settingsdialog.cpp" line="778" />
         <source>Helligkeit:</source>
-        <translation>Helligkeit:</translation>
+        <translation>Lehkost:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="570"/>
+        <location filename="../src/settingsdialog.cpp" line="781" />
         <source>Neue Dateien hervorheben (&lt; 2 Tage)</source>
-        <translation>Neue Dateien hervorheben (&lt; 2 Tage)</translation>
+        <translation>Zvýraznit nové soubory (&lt; 2 dny)</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="740"/>
+        <location filename="../src/settingsdialog.cpp" line="1013" />
         <source>Neustart erforderlich</source>
-        <translation>Neustart erforderlich</translation>
+        <translation>Je vyžadován restart</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="741"/>
+        <location filename="../src/settingsdialog.cpp" line="1013" />
         <source>Einige Änderungen erfordern einen Neustart. Jetzt neu starten?</source>
-        <translation>Einige Änderungen erfordern einen Neustart. Jetzt neu starten?</translation>
+        <translation>Některé změny vyžadují restart. Restartovat nyní?</translation>
     </message>
 </context>
 <context>
     <name>Sidebar</name>
     <message>
-        <location filename="../src/sidebar.cpp" line="355"/>
+        <location filename="../src/sidebar.cpp" line="379" />
         <source>Layout wählen</source>
-        <translation type="unfinished">Layout wählen</translation>
+        <translation>Vybrat rozvržení</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="391"/>
+        <location filename="../src/sidebar.cpp" line="437" />
         <source>Klassisch</source>
-        <translation type="unfinished">Klassisch</translation>
+        <translation>Klasické</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="391"/>
+        <location filename="../src/sidebar.cpp" line="437" />
         <source>Einzeln</source>
-        <translation type="unfinished">Einzeln</translation>
+        <translation>Jednoduché</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="392"/>
+        <location filename="../src/sidebar.cpp" line="438" />
         <source>Standard</source>
-        <translation type="unfinished">Standard</translation>
+        <translation>Standardní</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="392"/>
-        <location filename="../src/sidebar.cpp" line="393"/>
+        <location filename="../src/sidebar.cpp" line="438" />
+        <location filename="../src/sidebar.cpp" line="439" />
         <source>Dual</source>
-        <translation type="unfinished">Dual</translation>
+        <translation>Duální</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="393"/>
+        <location filename="../src/sidebar.cpp" line="439" />
         <source>Spalten</source>
-        <translation type="unfinished">Spalten</translation>
+        <translation>Sloupce</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="470"/>
         <source>LAUFWERKE</source>
         <translation>LAUFWERKE</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="580"/>
-        <location filename="../src/sidebar.cpp" line="1468"/>
+        <location filename="../src/sidebar.cpp" line="746" />
+        <location filename="../src/sidebar.cpp" line="1892" />
         <source>Öffnen</source>
         <translation>Otevřít</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="583"/>
-        <location filename="../src/sidebar.cpp" line="1471"/>
-        <location filename="../src/sidebar.cpp" line="1685"/>
+        <location filename="../src/sidebar.cpp" line="747" />
+        <location filename="../src/sidebar.cpp" line="1896" />
+        <location filename="../src/sidebar.cpp" line="1941" />
         <source>Öffnen in</source>
-        <translation>Öffnen in</translation>
+        <translation>Otevřít v</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="585"/>
-        <location filename="../src/sidebar.cpp" line="1473"/>
-        <location filename="../src/sidebar.cpp" line="1687"/>
+        <location filename="../src/sidebar.cpp" line="750" />
+        <location filename="../src/sidebar.cpp" line="1899" />
+        <location filename="../src/sidebar.cpp" line="1944" />
         <source>Linke Pane</source>
-        <translation>Linke Pane</translation>
+        <translation>Levý panel</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="587"/>
-        <location filename="../src/sidebar.cpp" line="1475"/>
-        <location filename="../src/sidebar.cpp" line="1689"/>
+        <location filename="../src/sidebar.cpp" line="751" />
+        <location filename="../src/sidebar.cpp" line="1900" />
+        <location filename="../src/sidebar.cpp" line="1945" />
         <source>Rechte Pane</source>
-        <translation>Rechte Pane</translation>
+        <translation>Pravé podokno</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="607"/>
-        <location filename="../src/sidebar.cpp" line="610"/>
-        <location filename="../src/sidebar.cpp" line="1563"/>
-        <location filename="../src/sidebar.cpp" line="1566"/>
+        <location filename="../src/sidebar.cpp" line="798" />
+        <location filename="../src/sidebar.cpp" line="801" />
+        <location filename="../src/sidebar.cpp" line="1806" />
+        <location filename="../src/sidebar.cpp" line="1809" />
         <source>Umbenennen</source>
         <translation>Přejmenovat</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="610"/>
-        <location filename="../src/sidebar.cpp" line="1569"/>
+        <location filename="../src/sidebar.cpp" line="801" />
+        <location filename="../src/sidebar.cpp" line="1813" />
         <source>Anzeigename:</source>
-        <translation>Anzeigename:</translation>
+        <translation>zobrazovaný název:</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="637"/>
+        <location filename="../src/sidebar.cpp" line="808" />
         <source>Zu Laufwerken hinzufügen</source>
-        <translation>Zu Laufwerken hinzufügen</translation>
+        <translation>Přidat k diskům</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="664"/>
-        <location filename="../src/sidebar.cpp" line="1584"/>
+        <location filename="../src/sidebar.cpp" line="760" />
+        <location filename="../src/sidebar.cpp" line="1828" />
         <source>Aus Laufwerken entfernen</source>
-        <translation>Aus Laufwerken entfernen</translation>
+        <translation>Odstraňte z jednotek</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="726"/>
+        <location filename="../src/sidebar.cpp" line="767" />
         <source>Trennen</source>
         <translation>Odpojit</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="731"/>
-        <location filename="../src/sidebar.cpp" line="1612"/>
+        <location filename="../src/sidebar.cpp" line="817" />
+        <location filename="../src/sidebar.cpp" line="1918" />
         <source>Pfad kopieren</source>
-        <translation>Pfad kopieren</translation>
+        <translation>Kopírovat cestu</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="741"/>
+        <location filename="../src/sidebar.cpp" line="885" />
         <source>Box umbenennen …</source>
-        <translation>Box umbenennen …</translation>
+        <translation>Přejmenovat pole...</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="743"/>
+        <location filename="../src/sidebar.cpp" line="833" />
         <source>Box umbenennen</source>
-        <translation>Box umbenennen</translation>
+        <translation>Přejmenovat pole</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="744"/>
-        <location filename="../src/sidebargroups.cpp" line="873"/>
+        <location filename="../src/sidebar.cpp" line="550" />
+        <source>Laufwerke</source>
+        <translation>Jednotky</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebar.cpp" line="833" />
+        <location filename="../src/sidebargroups.cpp" line="1217" />
         <source>Name:</source>
         <translation>Název:</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="755"/>
+        <location filename="../src/sidebar.cpp" line="892" />
         <source>Alles aktualisieren</source>
-        <translation>Alles aktualisieren</translation>
+        <translation>Obnovit vše</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="760"/>
+        <location filename="../src/sidebar.cpp" line="899" />
         <source>Netzwerklaufwerk verbinden</source>
-        <translation>Netzwerklaufwerk verbinden</translation>
+        <translation>Připojte síťový disk</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="763"/>
+        <location filename="../src/sidebar.cpp" line="904" />
         <source>SMB Laufwerke verbinden</source>
         <translation>Připojit disky SMB</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="861"/>
+        <location filename="../src/sidebar.cpp" line="979" />
         <source>+ Neue Gruppe</source>
-        <translation>+ Neue Gruppe</translation>
+        <translation>+ Nová skupina</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1072"/>
         <source>TAGS</source>
         <translation>ŠTÍTKY</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1125"/>
+        <location filename="../src/sidebar.cpp" line="1250" />
         <source>Neuer Tag</source>
-        <translation>Neuer Tag</translation>
+        <translation>Nová značka</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1125"/>
+        <location filename="../src/sidebar.cpp" line="1250" />
         <source>Tag-Name:</source>
-        <translation>Tag-Name:</translation>
+        <translation>Název značky:</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1130"/>
-        <location filename="../src/sidebargroups.cpp" line="857"/>
+        <location filename="../src/sidebar.cpp" line="1257" />
+        <location filename="../src/sidebargroups.cpp" line="1191" />
         <source>Farbe wählen</source>
-        <translation>Farbe wählen</translation>
+        <translation>Vyberte barvu</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1171"/>
+        <location filename="../src/sidebar.cpp" line="1356" />
         <source>Über</source>
-        <translation>Über</translation>
+        <translation>O</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1172"/>
+        <location filename="../src/sidebar.cpp" line="1357" />
         <source>Suchen</source>
-        <translation>Suchen</translation>
+        <translation>Vyhledávání</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1173"/>
+        <location filename="../src/sidebar.cpp" line="1358" />
         <source>Drucken</source>
-        <translation>Drucken</translation>
+        <translation>Vytisknout</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1174"/>
+        <location filename="../src/sidebar.cpp" line="1359" />
         <source>Nachricht</source>
-        <translation>Nachricht</translation>
+        <translation>Zpráva</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1482"/>
-        <location filename="../src/sidebar.cpp" line="1534"/>
+        <location filename="../src/sidebar.cpp" line="1726" />
+        <location filename="../src/sidebar.cpp" line="1752" />
         <source>Aushängen</source>
         <translation>Odpojit</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1490"/>
+        <location filename="../src/sidebar.cpp" line="1761" />
         <source>Auswerfen</source>
         <translation>Vysunout</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1538"/>
+        <location filename="../src/sidebar.cpp" line="1733" />
         <source>Einhängen</source>
         <translation>Připojit</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1610"/>
+        <location filename="../src/sidebar.cpp" line="1201" />
+        <source>Tags</source>
+        <translation>Tags</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebar.cpp" line="1915" />
         <source>Kopieren</source>
         <translation>Kopírovat</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1615"/>
+        <location filename="../src/sidebar.cpp" line="1919" />
         <source>Name kopieren</source>
-        <translation>Name kopieren</translation>
+        <translation>Zkopírovat jméno</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1622"/>
+        <location filename="../src/sidebar.cpp" line="1854" />
         <source>Verknüpfung erstellen</source>
-        <translation>Verknüpfung erstellen</translation>
+        <translation>Vytvořit odkaz</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1643"/>
+        <location filename="../src/sidebar.cpp" line="1870" />
         <source>Eigenschaften</source>
         <translation>Vlastnosti</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="69"/>
+        <location filename="../src/sidebargroups.cpp" line="211" />
         <source>Neue Gruppe</source>
         <translation>Nová skupina</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="76"/>
         <source>Gruppenname:</source>
-        <translation>Gruppenname:</translation>
+        <translation>Název skupiny:</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="78"/>
         <source>Mein Ordner...</source>
-        <translation>Mein Ordner...</translation>
+        <translation>Moje složka...</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="81"/>
         <source>Inhalt:</source>
-        <translation>Inhalt:</translation>
+        <translation>Obsah:</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="83"/>
         <source>Leere Gruppe</source>
         <translation>Prázdná skupina</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="84"/>
         <source>Home-Favoriten</source>
-        <translation>Home-Favoriten</translation>
+        <translation>Domácí oblíbené</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="86"/>
         <source>Git Repositories</source>
-        <translation>Git Repositories</translation>
+        <translation>Repozitáře Git</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="107"/>
         <source>Es existiert bereits eine Git-Box</source>
-        <translation>Es existiert bereits eine Git-Box</translation>
+        <translation>Pole Git již existuje</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="343"/>
-        <location filename="../src/sidebargroups.cpp" line="346"/>
-        <location filename="../src/sidebargroups.cpp" line="566"/>
-        <location filename="../src/sidebargroups.cpp" line="569"/>
+        <location filename="../src/sidebargroups.cpp" line="277" />
+        <location filename="../src/sidebargroups.cpp" line="370" />
+        <location filename="../src/sidebargroups.cpp" line="653" />
+        <location filename="../src/sidebargroups.cpp" line="701" />
         <source>Gruppe umbenennen</source>
-        <translation>Gruppe umbenennen</translation>
+        <translation>Přejmenovat skupinu</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="346"/>
-        <location filename="../src/sidebargroups.cpp" line="569"/>
+        <location filename="../src/sidebargroups.cpp" line="277" />
+        <location filename="../src/sidebargroups.cpp" line="701" />
         <source>Neuer Name:</source>
-        <translation>Neuer Name:</translation>
+        <translation>Nové jméno:</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="380"/>
+        <location filename="../src/sidebargroups.cpp" line="399" />
         <source>Lösen</source>
         <translation>Odepnout</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="380"/>
+        <location filename="../src/sidebargroups.cpp" line="399" />
         <source>An Position verankern</source>
-        <translation>An Position verankern</translation>
+        <translation>Pozice špendlíku</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="392"/>
-        <location filename="../src/sidebargroups.cpp" line="590"/>
+        <location filename="../src/sidebargroups.cpp" line="411" />
+        <location filename="../src/sidebargroups.cpp" line="660" />
         <source>Nach oben</source>
         <translation>Nahoru</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="393"/>
-        <location filename="../src/sidebargroups.cpp" line="591"/>
+        <location filename="../src/sidebargroups.cpp" line="412" />
+        <location filename="../src/sidebargroups.cpp" line="661" />
         <source>Nach unten</source>
         <translation>Dolů</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="397"/>
-        <location filename="../src/sidebargroups.cpp" line="594"/>
+        <location filename="../src/sidebargroups.cpp" line="385" />
+        <location filename="../src/sidebargroups.cpp" line="665" />
         <source>Gruppe löschen</source>
         <translation>Smazat skupinu</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="720"/>
+        <location filename="../src/sidebargroups.cpp" line="238" />
+        <location filename="../src/sidebargroups.cpp" line="592" />
+        <source>Orte</source>
+        <translation>Místa</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="239" />
+        <location filename="../src/sidebargroups.cpp" line="593" />
+        <source>Favoriten</source>
+        <translation>Oblíbené</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="240" />
+        <location filename="../src/sidebargroups.cpp" line="594" />
+        <source>Repos</source>
+        <translation>Repozitáře</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="241" />
+        <location filename="../src/sidebargroups.cpp" line="595" />
+        <source>Repo</source>
+        <translation>Repozitář</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="972" />
         <source>Papierkorb</source>
         <translation>Koš</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="721"/>
+        <location filename="../src/sidebargroups.cpp" line="976" />
         <source>Zuletzt verwendet</source>
-        <translation>Zuletzt verwendet</translation>
+        <translation>Nedávno použité</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="722"/>
+        <location filename="../src/sidebargroups.cpp" line="980" />
         <source>Netzwerk</source>
         <translation>Síť</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="723"/>
+        <location filename="../src/sidebargroups.cpp" line="984" />
         <source>Persönlicher Ordner</source>
-        <translation>Persönlicher Ordner</translation>
+        <translation>Domovská složka</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="854"/>
+        <location filename="../src/sidebargroups.cpp" line="1126" />
+        <source>Wichtig</source>
+        <translation>Důležité</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="1127" />
+        <source>Arbeit</source>
+        <translation>Práce</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="1128" />
+        <source>Schule</source>
+        <translation>Škola</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="1169" />
         <source>Farbe ändern …</source>
-        <translation>Farbe ändern …</translation>
+        <translation>Změnit barvu…</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="870"/>
+        <location filename="../src/sidebargroups.cpp" line="1174" />
         <source>Umbenennen …</source>
-        <translation>Umbenennen …</translation>
+        <translation>Přejmenovat…</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="873"/>
+        <location filename="../src/sidebargroups.cpp" line="1217" />
         <source>Tag umbenennen</source>
-        <translation>Tag umbenennen</translation>
+        <translation>Přejmenovat značku</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="878"/>
+        <location filename="../src/sidebargroups.cpp" line="1180" />
         <source>Löschen</source>
         <translation>Smazat</translation>
     </message>
@@ -2755,1335 +2766,1307 @@ Inspiriert von OneCommander.</translation>
 <context>
     <name>SidebarHandle</name>
     <message>
-        <location filename="../src/panecomponents.cpp" line="180"/>
+        <location filename="../src/panecomponents.cpp" line="180" />
         <source>Layout wählen</source>
-        <translation type="unfinished">Layout wählen</translation>
+        <translation>Vybrat rozvržení</translation>
     </message>
 </context>
 <context>
     <name>SplitCommander</name>
     <message>
         <source>Altersbadges</source>
-        <translation type="vanished">Altersbadges</translation>
+        <translation>Věkové odznaky</translation>
     </message>
     <message>
         <source>Dateialter / relatives Datum</source>
-        <translation type="vanished">Dateialter / relatives Datum</translation>
+        <translation>Stáří souboru / relativní datum</translation>
     </message>
     <message>
         <source>Zurücksetzen</source>
-        <translation type="vanished">Obnovit výchozí</translation>
+        <translation>Obnovit výchozí</translation>
     </message>
     <message>
         <source>Neue Dateien hervorheben (&lt; 2 Tage)</source>
-        <translation type="vanished">Neue Dateien hervorheben (&lt; 2 Tage)</translation>
+        <translation>Zvýraznit nové soubory (&lt; 2 dny)</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="96"/>
-        <location filename="../src/sidebargroups.cpp" line="46"/>
+        <location filename="../src/sidebar.cpp" line="90" />
+        <location filename="../src/sidebargroups.cpp" line="45" />
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="99"/>
-        <location filename="../src/sidebargroups.cpp" line="47"/>
+        <location filename="../src/sidebar.cpp" line="91" />
+        <location filename="../src/sidebargroups.cpp" line="46" />
         <source>Abbrechen</source>
         <translation>Zrušit</translation>
     </message>
     <message>
         <source>Übernehmen</source>
-        <translation type="vanished">Použít</translation>
+        <translation>Použít</translation>
     </message>
     <message>
         <source>Batch Rename - %1 Dateien</source>
-        <translation type="vanished">Batch Rename - %1 Dateien</translation>
+        <translation>Dávkové přejmenování – %1 souborů</translation>
     </message>
     <message>
         <source>An ursprünglichem Ort wiederherstellen</source>
-        <translation type="vanished">An ursprünglichem Ort wiederherstellen</translation>
+        <translation>Obnovit na původní místo</translation>
     </message>
     <message>
         <source>Löschen</source>
-        <translation type="vanished">Smazat</translation>
+        <translation>Smazat</translation>
     </message>
     <message>
         <source>Sortieren nach</source>
-        <translation type="vanished">Seřadit podle</translation>
+        <translation>Seřadit podle</translation>
     </message>
     <message>
         <source>Ansichtsmodus ändern</source>
-        <translation type="vanished">Ansichtsmodus ändern</translation>
+        <translation>Změnit režim zobrazení</translation>
     </message>
     <message>
         <source>Details</source>
-        <translation type="vanished">Podrobnosti</translation>
+        <translation>Podrobnosti</translation>
     </message>
     <message>
         <source>Symbole</source>
-        <translation type="vanished">Ikony</translation>
+        <translation>Ikony</translation>
     </message>
     <message>
         <source>Papierkorb leeren</source>
-        <translation type="vanished">Vyprázdnit koš</translation>
+        <translation>Vyprázdnit koš</translation>
     </message>
     <message>
         <source>Öffnen</source>
-        <translation type="vanished">Otevřít</translation>
+        <translation>Otevřít</translation>
     </message>
     <message>
         <source>Neu erstellen</source>
-        <translation type="vanished">Vytvořit nový</translation>
+        <translation>Vytvořit nový</translation>
     </message>
     <message>
         <source>Adresse kopieren</source>
-        <translation type="vanished">Adresse kopieren</translation>
+        <translation>Zkopírujte adresu</translation>
     </message>
     <message>
         <source>Hier duplizieren</source>
-        <translation type="vanished">Hier duplizieren</translation>
+        <translation>Duplikovat zde</translation>
     </message>
     <message>
         <source>Dupliziere Datei...</source>
-        <translation type="vanished">Dupliziere Datei...</translation>
+        <translation>Duplicitní soubor...</translation>
     </message>
     <message>
         <source>Favoriten</source>
-        <translation type="vanished">Oblíbené</translation>
+        <translation>Oblíbené</translation>
     </message>
     <message>
         <source>Hinzufügen zu</source>
-        <translation type="vanished">Hinzufügen zu</translation>
+        <translation>Přidat do</translation>
     </message>
     <message>
         <source>Laufwerke</source>
-        <translation type="vanished">Disky</translation>
+        <translation>Disky</translation>
     </message>
     <message>
         <source>Terminal hier öffnen</source>
-        <translation type="vanished">Otevřít terminál zde</translation>
+        <translation>Otevřít terminál zde</translation>
     </message>
     <message>
         <source>Diaschau starten</source>
-        <translation type="vanished">Diaschau starten</translation>
+        <translation>Spusťte prezentaci</translation>
     </message>
     <message>
         <source>Tag</source>
-        <translation type="vanished">Tag</translation>
+        <translation>Tag</translation>
     </message>
     <message>
         <source>Tag entfernen</source>
-        <translation type="vanished">Tag entfernen</translation>
+        <translation>Odebrat značku</translation>
     </message>
     <message>
         <source>Aktionen</source>
-        <translation type="vanished">Aktionen</translation>
+        <translation>Akce</translation>
     </message>
     <message>
         <source>In neuen Ordner verschieben ...</source>
-        <translation type="vanished">In neuen Ordner verschieben ...</translation>
+        <translation>Přesunout do nové složky...</translation>
     </message>
     <message>
         <source>In neuen Ordner verschieben</source>
-        <translation type="vanished">In neuen Ordner verschieben</translation>
+        <translation>Přesunout do nové složky</translation>
     </message>
     <message>
         <source>Ordnername:</source>
-        <translation type="vanished">Ordnername:</translation>
+        <translation>Název složky:</translation>
     </message>
     <message>
         <source>Neuer Ordner</source>
-        <translation type="vanished">Nová složka</translation>
+        <translation>Nová složka</translation>
     </message>
     <message>
         <source>Eigenschaften</source>
-        <translation type="vanished">Vlastnosti</translation>
+        <translation>Vlastnosti</translation>
     </message>
     <message>
         <source>Zu Laufwerken hinzufügen</source>
-        <translation type="vanished">Zu Laufwerken hinzufügen</translation>
+        <translation>Přidat k diskům</translation>
     </message>
     <message>
         <source>Initialisierung...</source>
-        <translation type="vanished">Initialisierung...</translation>
+        <translation>Initialisierung...</translation>
     </message>
     <message>
         <source>Fortschritt: %1%</source>
-        <translation type="vanished">Fortschritt: %1%</translation>
+        <translation>Fortschritt: %1%</translation>
     </message>
     <message>
         <source>Fehler: %1</source>
-        <translation type="vanished">Fehler: %1</translation>
+        <translation>Fehler: %1</translation>
     </message>
     <message>
         <source>Fertig!</source>
-        <translation type="vanished">Fertig!</translation>
+        <translation>Fertig!</translation>
     </message>
     <message>
         <source>Löschen...</source>
-        <translation type="vanished">Löschen...</translation>
+        <translation>Löschen...</translation>
     </message>
     <message>
         <source>Fehler</source>
-        <translation type="vanished">Fehler</translation>
+        <translation>Chyba</translation>
     </message>
     <message>
         <source>Ordner konnte nicht erstellt werden.</source>
-        <translation type="vanished">Ordner konnte nicht erstellt werden.</translation>
+        <translation>Ordner konnte nicht erstellt werden.</translation>
     </message>
     <message>
         <source>SplitCommander</source>
-        <translation type="vanished">SplitCommander</translation>
+        <translation>SplitCommander</translation>
     </message>
     <message>
         <source>Zurück</source>
-        <translation type="vanished">Zpět</translation>
+        <translation>Zpět</translation>
     </message>
     <message>
         <source>Vorwärts</source>
-        <translation type="vanished">Vorwärts</translation>
+        <translation>Vorwärts</translation>
     </message>
     <message>
         <source>Übergeordneter Ordner</source>
-        <translation type="vanished">Übergeordneter Ordner</translation>
+        <translation>Nadřazená složka</translation>
     </message>
     <message>
         <source>Home-Verzeichnis</source>
-        <translation type="vanished">Home-Verzeichnis</translation>
+        <translation>Home-Verzeichnis</translation>
     </message>
     <message>
         <source>Neu laden</source>
-        <translation type="vanished">Neu laden</translation>
+        <translation>Neu laden</translation>
     </message>
     <message>
         <source>Linke Pane fokussieren</source>
-        <translation type="vanished">Linke Pane fokussieren</translation>
+        <translation>Linke Pane fokussieren</translation>
     </message>
     <message>
         <source>Rechte Pane fokussieren</source>
-        <translation type="vanished">Rechte Pane fokussieren</translation>
+        <translation>Rechte Pane fokussieren</translation>
     </message>
     <message>
         <source>Panes tauschen</source>
-        <translation type="vanished">Panes tauschen</translation>
+        <translation>Panes tauschen</translation>
     </message>
     <message>
         <source>Pfade synchronisieren</source>
-        <translation type="vanished">Pfade synchronisieren</translation>
+        <translation>Pfade synchronisieren</translation>
     </message>
     <message>
         <source>Umbenennen</source>
-        <translation type="vanished">Přejmenovat</translation>
+        <translation>Přejmenovat</translation>
     </message>
     <message>
         <source>Neuer Name:</source>
-        <translation type="vanished">Neuer Name:</translation>
+        <translation>Nové jméno:</translation>
     </message>
     <message>
         <source>In den Papierkorb verschieben</source>
-        <translation type="vanished">Přesunout do koše</translation>
+        <translation>Přesunout do koše</translation>
     </message>
     <message>
         <source>Kopieren (Zwischenablage)</source>
-        <translation type="vanished">Kopieren (Zwischenablage)</translation>
+        <translation>Kopieren (Zwischenablage)</translation>
     </message>
     <message>
         <source>Ausschneiden (Zwischenablage)</source>
-        <translation type="vanished">Ausschneiden (Zwischenablage)</translation>
+        <translation>Ausschneiden (Zwischenablage)</translation>
     </message>
     <message>
         <source>Versteckte Dateien umschalten</source>
-        <translation type="vanished">Versteckte Dateien umschalten</translation>
+        <translation>Versteckte Dateien umschalten</translation>
     </message>
     <message>
         <source>Layout wechseln</source>
-        <translation type="vanished">Layout wechseln</translation>
+        <translation>Layout wechseln</translation>
     </message>
     <message>
         <source>Einfügen</source>
-        <translation type="vanished">Vložit</translation>
+        <translation>Vložit</translation>
     </message>
     <message>
         <source>Verschiebe Dateien...</source>
-        <translation type="vanished">Verschiebe Dateien...</translation>
+        <translation>Verschiebe Dateien...</translation>
     </message>
     <message>
         <source>Kopiere Dateien...</source>
-        <translation type="vanished">Kopiere Dateien...</translation>
+        <translation>Kopiere Dateien...</translation>
     </message>
     <message>
         <source>Alles auswählen</source>
-        <translation type="vanished">Alles auswählen</translation>
+        <translation>Alles auswählen</translation>
     </message>
     <message>
         <source>Öffnen in</source>
-        <translation type="vanished">Öffnen in</translation>
+        <translation>Öffnen in</translation>
     </message>
     <message>
         <source>Linke Ansicht</source>
-        <translation type="vanished">Linke Ansicht</translation>
+        <translation>Linke Ansicht</translation>
     </message>
     <message>
         <source>Rechte Ansicht</source>
-        <translation type="vanished">Rechte Ansicht</translation>
+        <translation>Rechte Ansicht</translation>
     </message>
     <message>
         <source>Anzeigename:</source>
-        <translation type="vanished">Anzeigename:</translation>
+        <translation>Anzeigename:</translation>
     </message>
     <message>
         <source>Aus Laufwerken entfernen</source>
-        <translation type="vanished">Aus Laufwerken entfernen</translation>
+        <translation>Aus Laufwerken entfernen</translation>
     </message>
     <message>
         <source>Kopieren</source>
-        <translation type="vanished">Kopírovat</translation>
+        <translation>Kopírovat</translation>
     </message>
     <message>
         <source>Pfad kopieren</source>
-        <translation type="vanished">Pfad kopieren</translation>
+        <translation>Pfad kopieren</translation>
     </message>
     <message>
         <source>Name kopieren</source>
-        <translation type="vanished">Name kopieren</translation>
+        <translation>Name kopieren</translation>
     </message>
     <message>
         <source>Aushängen</source>
-        <translation type="vanished">Odpojit</translation>
+        <translation>Odpojit</translation>
     </message>
     <message>
         <source>Einhängen</source>
-        <translation type="vanished">Připojit</translation>
+        <translation>Připojit</translation>
     </message>
     <message>
         <source>Im Terminal öffnen</source>
-        <translation type="vanished">Im Terminal öffnen</translation>
+        <translation>Otevřít v terminálu</translation>
     </message>
     <message>
         <source>Dieser PC</source>
-        <translation type="vanished">Dieser PC</translation>
+        <translation>Dieser PC</translation>
     </message>
     <message>
         <source>Sortieren</source>
-        <translation type="vanished">Sortieren</translation>
+        <translation>Sortieren</translation>
     </message>
     <message>
         <source>Neu</source>
-        <translation type="vanished">Nový</translation>
+        <translation>Nový</translation>
     </message>
     <message>
         <source>Hoch</source>
-        <translation type="vanished">Hoch</translation>
+        <translation>Hoch</translation>
     </message>
     <message>
         <source>Ordner zuerst</source>
-        <translation type="vanished">Složky nejdříve</translation>
+        <translation>Složky nejdříve</translation>
     </message>
     <message>
         <source>%1 Elemente</source>
-        <translation type="vanished">%1 Elemente</translation>
+        <translation>%1 Elemente</translation>
     </message>
     <message>
         <source> | %1 ausgewählt</source>
-        <translation type="vanished"> | %1 ausgewählt</translation>
+        <translation> | %1 ausgewählt</translation>
     </message>
     <message>
         <source>Miller-Columns ein-/ausklappen</source>
-        <translation type="vanished">Miller-Columns ein-/ausklappen</translation>
+        <translation>Miller-Columns ein-/ausklappen</translation>
     </message>
     <message>
         <source>Suchen</source>
-        <translation type="vanished">Suchen</translation>
+        <translation>Suchen</translation>
     </message>
     <message>
         <source>Layout wählen</source>
-        <translation type="vanished">Layout wählen</translation>
+        <translation>Vybrat rozvržení</translation>
     </message>
     <message>
         <source>Menü</source>
-        <translation type="vanished">Menü</translation>
+        <translation>Menü</translation>
     </message>
     <message>
         <source>Ordner …</source>
-        <translation type="vanished">Ordner …</translation>
+        <translation>Ordner …</translation>
     </message>
     <message>
         <source>Textdatei …</source>
-        <translation type="vanished">Textdatei …</translation>
+        <translation>Textdatei …</translation>
     </message>
     <message>
         <source>HTML-Datei …</source>
-        <translation type="vanished">HTML-Datei …</translation>
+        <translation>HTML-Datei …</translation>
     </message>
     <message>
         <source>Leere Datei …</source>
-        <translation type="vanished">Leere Datei …</translation>
+        <translation>Leere Datei …</translation>
     </message>
     <message>
         <source>Verknüpfung zu Datei oder Ordner …</source>
-        <translation type="vanished">Verknüpfung zu Datei oder Ordner …</translation>
+        <translation>Verknüpfung zu Datei oder Ordner …</translation>
     </message>
     <message>
         <source>Versteckte Dateien anzeigen</source>
-        <translation type="vanished">Zobrazit skryté soubory</translation>
+        <translation>Zobrazit skryté soubory</translation>
     </message>
     <message>
         <source>Einfachklick zum Öffnen</source>
-        <translation type="vanished">Einfachklick zum Öffnen</translation>
+        <translation>Einfachklick zum Öffnen</translation>
     </message>
     <message>
         <source>Dateiendungen anzeigen</source>
-        <translation type="vanished">Dateiendungen anzeigen</translation>
+        <translation>Dateiendungen anzeigen</translation>
     </message>
     <message>
         <source>Terminal</source>
-        <translation type="vanished">Terminal</translation>
+        <translation>Terminal</translation>
     </message>
     <message>
         <source>In Terminal öffnen</source>
-        <translation type="vanished">Otevřít v terminálu</translation>
+        <translation>Otevřít v terminálu</translation>
     </message>
     <message>
         <source>Einrichten</source>
-        <translation type="vanished">Einrichten</translation>
+        <translation>Einrichten</translation>
     </message>
     <message>
         <source>Fenster-Farbschema</source>
-        <translation type="vanished">Fenster-Farbschema</translation>
+        <translation>Fenster-Farbschema</translation>
     </message>
     <message>
         <source>KDE Global Theme verwenden</source>
-        <translation type="vanished">KDE Global Theme verwenden</translation>
+        <translation>KDE Global Theme verwenden</translation>
     </message>
     <message>
         <source>Übernimmt Farben und Stil des aktiven KDE Global Themes.</source>
-        <translation type="vanished">Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
+        <translation>Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
     </message>
     <message>
         <source>Designs neu laden</source>
-        <translation type="vanished">Designs neu laden</translation>
+        <translation>Designs neu laden</translation>
     </message>
     <message>
         <source>Neustart erforderlich</source>
-        <translation type="vanished">Neustart erforderlich</translation>
+        <translation>Neustart erforderlich</translation>
     </message>
     <message>
         <source>Das Theme wird nach einem Neustart angewendet.</source>
-        <translation type="vanished">Das Theme wird nach einem Neustart angewendet.</translation>
+        <translation>Das Theme wird nach einem Neustart angewendet.</translation>
     </message>
     <message>
         <source>Tastaturkurzbefehle festlegen …</source>
-        <translation type="vanished">Tastaturkurzbefehle festlegen …</translation>
+        <translation>Tastaturkurzbefehle festlegen …</translation>
     </message>
     <message>
         <source>Terminal wählen…</source>
-        <translation type="vanished">Terminal wählen…</translation>
+        <translation>Terminal wählen…</translation>
     </message>
     <message>
         <source>Über SplitCommander</source>
-        <translation type="vanished">O SplitCommander</translation>
+        <translation>O SplitCommander</translation>
     </message>
     <message>
         <source>Klassisch</source>
-        <translation type="vanished">Klassisch</translation>
+        <translation>Klasické</translation>
     </message>
     <message>
         <source>Einzeln</source>
-        <translation type="vanished">Einzeln</translation>
+        <translation>Jednoduché</translation>
     </message>
     <message>
         <source>Standard</source>
-        <translation type="vanished">Standard</translation>
+        <translation>Standardní</translation>
     </message>
     <message>
         <source>Dual</source>
-        <translation type="vanished">Dual</translation>
+        <translation>Duální</translation>
     </message>
     <message>
         <source>Spalten</source>
-        <translation type="vanished">Spalten</translation>
+        <translation>Sloupce</translation>
     </message>
     <message>
         <source>Neue Textdatei</source>
-        <translation type="vanished">Neue Textdatei</translation>
+        <translation>Neue Textdatei</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="vanished">Název:</translation>
+        <translation>Název:</translation>
     </message>
     <message>
         <source>Neue Datei.txt</source>
-        <translation type="vanished">Neue Datei.txt</translation>
+        <translation>Neue Datei.txt</translation>
     </message>
     <message>
         <source>Neue HTML-Datei</source>
-        <translation type="vanished">Neue HTML-Datei</translation>
+        <translation>Neue HTML-Datei</translation>
     </message>
     <message>
         <source>index.html</source>
-        <translation type="vanished">index.html</translation>
+        <translation>index.html</translation>
     </message>
     <message>
         <source>Leere Datei</source>
-        <translation type="vanished">Leere Datei</translation>
+        <translation>Leere Datei</translation>
     </message>
     <message>
         <source>Neue Datei</source>
-        <translation type="vanished">Nový soubor</translation>
+        <translation>Nový soubor</translation>
     </message>
     <message>
         <source>Ziel waehlen</source>
-        <translation type="vanished">Ziel waehlen</translation>
+        <translation>Ziel waehlen</translation>
     </message>
     <message>
         <source>Verknuepfungsname</source>
-        <translation type="vanished">Verknuepfungsname</translation>
+        <translation>Verknuepfungsname</translation>
     </message>
     <message>
         <source>Link</source>
-        <translation type="vanished">Link</translation>
+        <translation>Link</translation>
     </message>
     <message>
         <source>Suchen ...</source>
-        <translation type="vanished">Suchen ...</translation>
+        <translation>Suchen ...</translation>
     </message>
     <message>
         <source>Filtern</source>
-        <translation type="vanished">Filtern</translation>
+        <translation>Filtern</translation>
     </message>
     <message>
         <source>Dateinamen</source>
-        <translation type="vanished">Dateinamen</translation>
+        <translation>Dateinamen</translation>
     </message>
     <message>
         <source>Dateiinhalt</source>
-        <translation type="vanished">Dateiinhalt</translation>
+        <translation>Dateiinhalt</translation>
     </message>
     <message>
         <source>KFind öffnen</source>
-        <translation type="vanished">KFind öffnen</translation>
+        <translation>KFind öffnen</translation>
     </message>
     <message>
         <source>Sucheinstellungen</source>
-        <translation type="vanished">Sucheinstellungen</translation>
+        <translation>Sucheinstellungen</translation>
     </message>
     <message>
         <source>Ab hier</source>
-        <translation type="vanished">Ab hier</translation>
+        <translation>Ab hier</translation>
     </message>
     <message>
         <source>Überall</source>
-        <translation type="vanished">Überall</translation>
+        <translation>Überall</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="144"/>
-        <location filename="../src/previewpanel.cpp" line="181"/>
-        <location filename="../src/previewpanel.cpp" line="198"/>
+        <location filename="../src/filepane.cpp" line="143" />
         <source>Name</source>
         <translation>Název</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="154"/>
+        <location filename="../src/filepane.cpp" line="153" />
         <source>Pfad</source>
         <translation>Cesta</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="147"/>
-        <location filename="../src/previewpanel.cpp" line="148"/>
-        <location filename="../src/previewpanel.cpp" line="171"/>
-        <location filename="../src/previewpanel.cpp" line="185"/>
+        <location filename="../src/filepane.cpp" line="146" />
         <source>Geändert</source>
         <translation>Změněno</translation>
     </message>
     <message>
         <source>Suche läuft...</source>
-        <translation type="vanished">Suche läuft...</translation>
+        <translation>Suche läuft...</translation>
     </message>
     <message>
         <source>Möchten Sie den Papierkorb wirklich leeren?</source>
-        <translation type="vanished">Möchten Sie den Papierkorb wirklich leeren?</translation>
+        <translation>Möchten Sie den Papierkorb wirklich leeren?</translation>
     </message>
     <message>
         <source>%1 ausgewählt</source>
-        <translation type="vanished">%1 ausgewählt</translation>
+        <translation>%1 ausgewählt</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="126"/>
         <source>Graustufen 8-bit</source>
         <translation>Graustufen 8-bit</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="127"/>
         <source>Graustufen 16-bit</source>
         <translation>Graustufen 16-bit</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="129"/>
         <source>RGB 24-bit</source>
         <translation>RGB 24-bit</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="131"/>
         <source>RGBA 32-bit</source>
         <translation>RGBA 32-bit</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="132"/>
         <source>%1-bit</source>
         <translation>%1-bit</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="139"/>
         <source>Aufl.</source>
         <translation>Aufl.</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="140"/>
         <source>Format</source>
         <translation>Format</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="141"/>
         <source>Tiefe</source>
         <translation>Tiefe</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="143"/>
         <source>DPI</source>
         <translation>DPI</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="146"/>
         <source>Maße</source>
         <translation>Maße</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="182"/>
         <source>Ordner</source>
         <translation>Složka</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="200"/>
         <source>Protokoll</source>
         <translation>Protokoll</translation>
     </message>
     <message>
         <source>…</source>
-        <translation type="vanished">…</translation>
+        <translation>…</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="136"/>
-        <location filename="../src/previewpanel.cpp" line="168"/>
         <source>Datei</source>
         <translation>Soubor</translation>
     </message>
     <message>
         <source>-Datei</source>
-        <translation type="vanished">-Datei</translation>
+        <translation>-Datei</translation>
     </message>
     <message>
         <source>Heute</source>
-        <translation type="vanished">Heute</translation>
+        <translation>Heute</translation>
     </message>
     <message>
         <source>Gestern</source>
-        <translation type="vanished">Gestern</translation>
+        <translation>Gestern</translation>
     </message>
     <message>
         <source>%1 t</source>
-        <translation type="vanished">%1 t</translation>
+        <translation>%1 t</translation>
     </message>
     <message>
         <source>%1 m</source>
-        <translation type="vanished">%1 m</translation>
+        <translation>%1 m</translation>
     </message>
     <message>
         <source>%1 j</source>
-        <translation type="vanished">%1 j</translation>
+        <translation>%1 j</translation>
     </message>
     <message>
         <source>System</source>
-        <translation type="vanished">System</translation>
+        <translation>System</translation>
     </message>
     <message>
         <source>Keine Ergebnisse</source>
-        <translation type="vanished">Žádné výsledky</translation>
+        <translation>Žádné výsledky</translation>
     </message>
     <message>
         <source>Eintrag bearbeiten</source>
-        <translation type="vanished">Eintrag bearbeiten</translation>
+        <translation>Eintrag bearbeiten</translation>
     </message>
     <message>
         <source>Adresse:</source>
-        <translation type="vanished">Adresa:</translation>
+        <translation>Adresa:</translation>
     </message>
     <message>
         <source>Bearbeiten...</source>
-        <translation type="vanished">Bearbeiten...</translation>
+        <translation>Bearbeiten...</translation>
     </message>
     <message>
         <source>Aus Gruppe entfernen</source>
-        <translation type="vanished">Aus Gruppe entfernen</translation>
+        <translation>Aus Gruppe entfernen</translation>
     </message>
     <message>
         <source>LAUFWERKE</source>
-        <translation type="vanished">LAUFWERKE</translation>
+        <translation>LAUFWERKE</translation>
     </message>
     <message>
         <source>Linke Pane</source>
-        <translation type="vanished">Linke Pane</translation>
+        <translation>Linke Pane</translation>
     </message>
     <message>
         <source>Rechte Pane</source>
-        <translation type="vanished">Rechte Pane</translation>
+        <translation>Rechte Pane</translation>
     </message>
     <message>
         <source>Trennen</source>
-        <translation type="vanished">Odpojit</translation>
+        <translation>Odpojit</translation>
     </message>
     <message>
         <source>Box umbenennen …</source>
-        <translation type="vanished">Box umbenennen …</translation>
+        <translation>Box umbenennen …</translation>
     </message>
     <message>
         <source>Box umbenennen</source>
-        <translation type="vanished">Box umbenennen</translation>
+        <translation>Box umbenennen</translation>
     </message>
     <message>
         <source>Alles aktualisieren</source>
-        <translation type="vanished">Alles aktualisieren</translation>
+        <translation>Alles aktualisieren</translation>
     </message>
     <message>
         <source>Netzwerklaufwerk verbinden</source>
-        <translation type="vanished">Netzwerklaufwerk verbinden</translation>
+        <translation>Netzwerklaufwerk verbinden</translation>
     </message>
     <message>
         <source>+ Neue Gruppe</source>
-        <translation type="vanished">+ Neue Gruppe</translation>
+        <translation>+ Neue Gruppe</translation>
     </message>
     <message>
         <source>TAGS</source>
-        <translation type="vanished">ŠTÍTKY</translation>
+        <translation>ŠTÍTKY</translation>
     </message>
     <message>
         <source>Neuer Tag</source>
-        <translation type="vanished">Neuer Tag</translation>
+        <translation>Neuer Tag</translation>
     </message>
     <message>
         <source>Tag-Name:</source>
-        <translation type="vanished">Tag-Name:</translation>
+        <translation>Tag-Name:</translation>
     </message>
     <message>
         <source>Farbe wählen</source>
-        <translation type="vanished">Farbe wählen</translation>
+        <translation>Farbe wählen</translation>
     </message>
     <message>
         <source>Über</source>
-        <translation type="vanished">Über</translation>
+        <translation>Über</translation>
     </message>
     <message>
         <source>Drucken</source>
-        <translation type="vanished">Drucken</translation>
+        <translation>Drucken</translation>
     </message>
     <message>
         <source>Nachricht</source>
-        <translation type="vanished">Nachricht</translation>
+        <translation>Nachricht</translation>
     </message>
     <message>
         <source>Auswerfen</source>
-        <translation type="vanished">Vysunout</translation>
+        <translation>Vysunout</translation>
     </message>
     <message>
         <source>Verknüpfung erstellen</source>
-        <translation type="vanished">Verknüpfung erstellen</translation>
+        <translation>Vytvořit odkaz</translation>
     </message>
     <message>
         <source>Neue Gruppe</source>
-        <translation type="vanished">Nová skupina</translation>
+        <translation>Nová skupina</translation>
     </message>
     <message>
         <source>Gruppenname:</source>
-        <translation type="vanished">Gruppenname:</translation>
+        <translation>Název skupiny:</translation>
     </message>
     <message>
         <source>Mein Ordner...</source>
-        <translation type="vanished">Mein Ordner...</translation>
+        <translation>Moje složka...</translation>
     </message>
     <message>
         <source>Inhalt:</source>
-        <translation type="vanished">Inhalt:</translation>
+        <translation>Obsah:</translation>
     </message>
     <message>
         <source>Leere Gruppe</source>
-        <translation type="vanished">Prázdná skupina</translation>
+        <translation>Prázdná skupina</translation>
     </message>
     <message>
         <source>Home-Favoriten</source>
-        <translation type="vanished">Home-Favoriten</translation>
+        <translation>Domácí oblíbené</translation>
     </message>
     <message>
         <source>Gruppe umbenennen</source>
-        <translation type="vanished">Gruppe umbenennen</translation>
+        <translation>Přejmenovat skupinu</translation>
     </message>
     <message>
         <source>Lösen</source>
-        <translation type="vanished">Odepnout</translation>
+        <translation>Odepnout</translation>
     </message>
     <message>
         <source>An Position verankern</source>
-        <translation type="vanished">An Position verankern</translation>
+        <translation>Pozice špendlíku</translation>
     </message>
     <message>
         <source>Nach oben</source>
-        <translation type="vanished">Nahoru</translation>
+        <translation>Nahoru</translation>
     </message>
     <message>
         <source>Nach unten</source>
-        <translation type="vanished">Dolů</translation>
+        <translation>Dolů</translation>
     </message>
     <message>
         <source>Gruppe löschen</source>
-        <translation type="vanished">Smazat skupinu</translation>
+        <translation>Smazat skupinu</translation>
     </message>
     <message>
         <source>Papierkorb</source>
-        <translation type="vanished">Koš</translation>
+        <translation>Koš</translation>
     </message>
     <message>
         <source>Zuletzt verwendet</source>
-        <translation type="vanished">Zuletzt verwendet</translation>
+        <translation>Nedávno použité</translation>
     </message>
     <message>
         <source>Netzwerk</source>
-        <translation type="vanished">Síť</translation>
+        <translation>Síť</translation>
     </message>
     <message>
         <source>Persönlicher Ordner</source>
-        <translation type="vanished">Persönlicher Ordner</translation>
+        <translation>Domovská složka</translation>
     </message>
     <message>
         <source>Farbe ändern …</source>
-        <translation type="vanished">Farbe ändern …</translation>
+        <translation>Změnit barvu…</translation>
     </message>
     <message>
         <source>Umbenennen …</source>
-        <translation type="vanished">Umbenennen …</translation>
+        <translation>Přejmenovat…</translation>
     </message>
     <message>
         <source>Tag umbenennen</source>
-        <translation type="vanished">Tag umbenennen</translation>
+        <translation>Přejmenovat značku</translation>
     </message>
     <message>
         <source>Theme auswählen</source>
-        <translation type="vanished">Theme auswählen</translation>
+        <translation>Theme auswählen</translation>
     </message>
     <message>
         <source>System-Theme</source>
-        <translation type="vanished">System-Theme</translation>
+        <translation>System-Theme</translation>
     </message>
     <message>
         <source>Eigenes Theme</source>
-        <translation type="vanished">Eigenes Theme</translation>
+        <translation>Eigenes Theme</translation>
     </message>
     <message>
         <source>Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</source>
-        <translation type="vanished">Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</translation>
+        <translation>Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="145"/>
-        <location filename="../src/previewpanel.cpp" line="137"/>
-        <location filename="../src/previewpanel.cpp" line="169"/>
-        <location filename="../src/previewpanel.cpp" line="182"/>
-        <location filename="../src/previewpanel.cpp" line="199"/>
+        <location filename="../src/filepane.cpp" line="144" />
         <source>Typ</source>
-        <translation>Typ</translation>
+        <translation>Type</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="146"/>
+        <location filename="../src/filepane.cpp" line="145" />
         <source>Alter</source>
-        <translation>Alter</translation>
+        <translation>Stáří</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="148"/>
-        <location filename="../src/previewpanel.cpp" line="172"/>
-        <location filename="../src/previewpanel.cpp" line="186"/>
+        <location filename="../src/filepane.cpp" line="147" />
         <source>Erstellt</source>
         <translation>Vytvořeno</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="149"/>
+        <location filename="../src/filepane.cpp" line="148" />
         <source>Letzter Zugriff</source>
-        <translation>Letzter Zugriff</translation>
+        <translation>Poslední přístup</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="150"/>
-        <location filename="../src/previewpanel.cpp" line="138"/>
-        <location filename="../src/previewpanel.cpp" line="170"/>
-        <location filename="../src/previewpanel.cpp" line="184"/>
+        <location filename="../src/filepane.cpp" line="149" />
         <source>Größe</source>
         <translation>Velikost</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="151"/>
+        <location filename="../src/filepane.cpp" line="150" />
         <source>Rechte</source>
-        <translation>Rechte</translation>
+        <translation>Oprávnění</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="152"/>
-        <location filename="../src/filepane.cpp" line="153"/>
-        <location filename="../src/filepane.cpp" line="154"/>
-        <location filename="../src/filepane.cpp" line="155"/>
+        <location filename="../src/filepane.cpp" line="151" />
+        <location filename="../src/filepane.cpp" line="152" />
+        <location filename="../src/filepane.cpp" line="153" />
+        <location filename="../src/filepane.cpp" line="154" />
         <source>Weitere</source>
-        <translation>Weitere</translation>
+        <translation>Ostatní</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="152"/>
+        <location filename="../src/filepane.cpp" line="151" />
         <source>Eigentümer</source>
-        <translation>Eigentümer</translation>
+        <translation>Majitel</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="153"/>
+        <location filename="../src/filepane.cpp" line="152" />
         <source>Benutzergruppe</source>
-        <translation>Benutzergruppe</translation>
+        <translation>Skupina</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="155"/>
+        <location filename="../src/filepane.cpp" line="154" />
         <source>Dateierweiterung</source>
-        <translation>Dateierweiterung</translation>
+        <translation>Přípona souboru</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="156"/>
+        <location filename="../src/filepane.cpp" line="155" />
         <source>Tags</source>
         <translation>Tags</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="157"/>
-        <location filename="../src/filepane.cpp" line="158"/>
-        <location filename="../src/filepane.cpp" line="159"/>
-        <location filename="../src/filepane.cpp" line="160"/>
-        <location filename="../src/filepane.cpp" line="161"/>
+        <location filename="../src/filepane.cpp" line="156" />
+        <location filename="../src/filepane.cpp" line="157" />
+        <location filename="../src/filepane.cpp" line="158" />
+        <location filename="../src/filepane.cpp" line="159" />
+        <location filename="../src/filepane.cpp" line="160" />
         <source>Bild</source>
-        <translation>Bild</translation>
+        <translation>Obraz</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="157"/>
+        <location filename="../src/filepane.cpp" line="156" />
         <source>Datum der Aufnahme</source>
-        <translation>Datum der Aufnahme</translation>
+        <translation>Datum pořízení</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="158"/>
+        <location filename="../src/filepane.cpp" line="157" />
         <source>Abmessungen</source>
-        <translation>Abmessungen</translation>
+        <translation>Rozměry</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="159"/>
+        <location filename="../src/filepane.cpp" line="158" />
         <source>Breite</source>
-        <translation>Breite</translation>
+        <translation>Šířka</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="160"/>
+        <location filename="../src/filepane.cpp" line="159" />
         <source>Höhe</source>
-        <translation>Höhe</translation>
+        <translation>Výška</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="161"/>
+        <location filename="../src/filepane.cpp" line="160" />
         <source>Ausrichtung</source>
-        <translation>Ausrichtung</translation>
+        <translation>Orientace</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="162"/>
-        <location filename="../src/filepane.cpp" line="163"/>
-        <location filename="../src/filepane.cpp" line="164"/>
-        <location filename="../src/filepane.cpp" line="165"/>
-        <location filename="../src/filepane.cpp" line="166"/>
-        <location filename="../src/filepane.cpp" line="167"/>
+        <location filename="../src/filepane.cpp" line="161" />
+        <location filename="../src/filepane.cpp" line="162" />
+        <location filename="../src/filepane.cpp" line="163" />
+        <location filename="../src/filepane.cpp" line="164" />
+        <location filename="../src/filepane.cpp" line="165" />
+        <location filename="../src/filepane.cpp" line="166" />
         <source>Audio</source>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="162"/>
+        <location filename="../src/filepane.cpp" line="161" />
         <source>Künstler</source>
-        <translation>Künstler</translation>
+        <translation>Umělec</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="163"/>
+        <location filename="../src/filepane.cpp" line="162" />
         <source>Genre</source>
         <translation>Genre</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="164"/>
+        <location filename="../src/filepane.cpp" line="163" />
         <source>Album</source>
         <translation>Album</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="165"/>
-        <location filename="../src/filepane.cpp" line="170"/>
+        <location filename="../src/filepane.cpp" line="164" />
+        <location filename="../src/filepane.cpp" line="169" />
         <source>Dauer</source>
-        <translation>Dauer</translation>
+        <translation>Trvání</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="166"/>
+        <location filename="../src/filepane.cpp" line="165" />
         <source>Bitrate</source>
         <translation>Bitrate</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="167"/>
+        <location filename="../src/filepane.cpp" line="166" />
         <source>Stück</source>
-        <translation>Stück</translation>
+        <translation>Dráha</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="168"/>
-        <location filename="../src/filepane.cpp" line="169"/>
-        <location filename="../src/filepane.cpp" line="170"/>
+        <location filename="../src/filepane.cpp" line="167" />
+        <location filename="../src/filepane.cpp" line="168" />
+        <location filename="../src/filepane.cpp" line="169" />
         <source>Video</source>
         <translation>Video</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="168"/>
+        <location filename="../src/filepane.cpp" line="167" />
         <source>Seitenverhältnis</source>
-        <translation>Seitenverhältnis</translation>
+        <translation>Poměr stran</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="169"/>
+        <location filename="../src/filepane.cpp" line="168" />
         <source>Bildwiederholrate</source>
-        <translation>Bildwiederholrate</translation>
+        <translation>Snímková frekvence</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="171"/>
-        <location filename="../src/filepane.cpp" line="172"/>
-        <location filename="../src/filepane.cpp" line="173"/>
-        <location filename="../src/filepane.cpp" line="174"/>
-        <location filename="../src/filepane.cpp" line="175"/>
-        <location filename="../src/filepane.cpp" line="176"/>
+        <location filename="../src/filepane.cpp" line="170" />
+        <location filename="../src/filepane.cpp" line="171" />
+        <location filename="../src/filepane.cpp" line="172" />
+        <location filename="../src/filepane.cpp" line="173" />
+        <location filename="../src/filepane.cpp" line="174" />
+        <location filename="../src/filepane.cpp" line="175" />
         <source>Dokument</source>
         <translation>Dokument</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="171"/>
+        <location filename="../src/filepane.cpp" line="170" />
         <source>Titel</source>
-        <translation>Titel</translation>
+        <translation>Titul</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="172"/>
+        <location filename="../src/filepane.cpp" line="171" />
         <source>Autor</source>
-        <translation>Autor</translation>
+        <translation>Author</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="173"/>
+        <location filename="../src/filepane.cpp" line="172" />
         <source>Herausgeber</source>
-        <translation>Herausgeber</translation>
+        <translation>Vydavatel</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="174"/>
+        <location filename="../src/filepane.cpp" line="173" />
         <source>Seitenanzahl</source>
-        <translation>Seitenanzahl</translation>
+        <translation>Stránky</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="175"/>
+        <location filename="../src/filepane.cpp" line="174" />
         <source>Wortanzahl</source>
-        <translation>Wortanzahl</translation>
+        <translation>Slova</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="176"/>
+        <location filename="../src/filepane.cpp" line="175" />
         <source>Zeilenanzahl</source>
-        <translation>Zeilenanzahl</translation>
+        <translation>Čáry</translation>
     </message>
     <message>
         <source>Kopiere diese Datei, um ein eigenes Theme zu erstellen!</source>
-        <translation type="vanished">Kopiere diese Datei, um ein eigenes Theme zu erstellen!</translation>
+        <translation>Kopiere diese Datei, um ein eigenes Theme zu erstellen!</translation>
     </message>
     <message>
-        <source>Ändere den &apos;name&apos;, damit es als neues Theme im Menü erscheint.</source>
-        <translation type="vanished">Ändere den &amp;apos;name&amp;apos;, damit es als neues Theme im Menü erscheint.</translation>
+        <source>Ändere den 'name', damit es als neues Theme im Menü erscheint.</source>
+        <translation>Ändere den &amp;apos;name&amp;apos;, damit es als neues Theme im Menü erscheint.</translation>
     </message>
     <message>
         <source>Mein neues Design</source>
-        <translation type="vanished">Mein neues Design</translation>
+        <translation>Mein neues Design</translation>
     </message>
     <message>
         <source>#1e1e2e (Sidebar &amp; App-Hintergrund)</source>
-        <translation type="vanished">#1e1e2e (Sidebar &amp; App-Hintergrund)</translation>
+        <translation>#1e1e2e (Sidebar &amp; App-Hintergrund)</translation>
     </message>
     <message>
         <source>#11111b (Hintergrund der Dateilisten)</source>
-        <translation type="vanished">#11111b (Hintergrund der Dateilisten)</translation>
+        <translation>#11111b (Hintergrund der Dateilisten)</translation>
     </message>
     <message>
         <source>#313244 (Hintergrund der Karten/Favoriten)</source>
-        <translation type="vanished">#313244 (Hintergrund der Karten/Favoriten)</translation>
+        <translation>#313244 (Hintergrund der Karten/Favoriten)</translation>
     </message>
     <message>
         <source>#cdd6f4 (Haupt-Schriftfarbe)</source>
-        <translation type="vanished">#cdd6f4 (Haupt-Schriftfarbe)</translation>
+        <translation>#cdd6f4 (Haupt-Schriftfarbe)</translation>
     </message>
     <message>
         <source>#cba6f7 (Farbe für Pfade und Highlights)</source>
-        <translation type="vanished">#cba6f7 (Farbe für Pfade und Highlights)</translation>
+        <translation>#cba6f7 (Farbe für Pfade und Highlights)</translation>
     </message>
     <message>
         <source>#f5c2e7 (Buttons und Markierungen)</source>
-        <translation type="vanished">#f5c2e7 (Buttons und Markierungen)</translation>
+        <translation>#f5c2e7 (Buttons und Markierungen)</translation>
     </message>
     <message>
         <source>#313244 (Rahmenlinien)</source>
-        <translation type="vanished">#313244 (Rahmenlinien)</translation>
+        <translation>#313244 (Rahmenlinien)</translation>
     </message>
 </context>
 <context>
     <name>ThemeCreatorDialog</name>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="15"/>
+        <location filename="../src/themecreatordialog.cpp" line="15" />
         <source>SplitCommander - Design Designer</source>
-        <translation>SplitCommander - Design Designer</translation>
+        <translation>SplitCommander - Návrhář motivů</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="41"/>
+        <location filename="../src/themecreatordialog.cpp" line="60" />
         <source>Erstelle dein persönliches Design</source>
-        <translation>Erstelle dein persönliches Design</translation>
+        <translation>Vytvořte si vlastní motiv</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="49"/>
+        <location filename="../src/themecreatordialog.cpp" line="71" />
         <source>Farben anpassen</source>
-        <translation>Farben anpassen</translation>
+        <translation>Přizpůsobte barvy</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="55"/>
+        <location filename="../src/themecreatordialog.cpp" line="79" />
         <source>App-Hintergrund</source>
-        <translation>App-Hintergrund</translation>
+        <translation>Pozadí aplikace</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="56"/>
+        <location filename="../src/themecreatordialog.cpp" line="80" />
         <source>Dateiliste</source>
-        <translation>Dateiliste</translation>
+        <translation>Seznam souborů</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="57"/>
+        <location filename="../src/themecreatordialog.cpp" line="81" />
         <source>Eingabefelder</source>
-        <translation>Eingabefelder</translation>
+        <translation>Vstupní pole</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="58"/>
+        <location filename="../src/themecreatordialog.cpp" line="82" />
         <source>Karten/Favoriten</source>
-        <translation>Karten/Favoriten</translation>
+        <translation>Karty/Oblíbené</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="59"/>
+        <location filename="../src/themecreatordialog.cpp" line="83" />
         <source>Sidebar/Panel</source>
         <translation>Sidebar/Panel</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="60"/>
+        <location filename="../src/themecreatordialog.cpp" line="84" />
         <source>Akzentfarbe</source>
-        <translation>Akzentfarbe</translation>
+        <translation>Barva přízvuku</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="61"/>
+        <location filename="../src/themecreatordialog.cpp" line="85" />
         <source>Akzent-Hover</source>
-        <translation>Akzent-Hover</translation>
+        <translation>Vznášet se akcentem</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="62"/>
+        <location filename="../src/themecreatordialog.cpp" line="86" />
         <source>Selektion/Markierung</source>
-        <translation>Selektion/Markierung</translation>
+        <translation>Výběr/Zvýraznění</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="63"/>
+        <location filename="../src/themecreatordialog.cpp" line="87" />
         <source>Hover-Effekt</source>
-        <translation>Hover-Effekt</translation>
+        <translation>Efekt vznášení</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="64"/>
+        <location filename="../src/themecreatordialog.cpp" line="88" />
         <source>Rahmen (Standard)</source>
-        <translation>Rahmen (Standard)</translation>
+        <translation>Hranice (standardní)</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="65"/>
+        <location filename="../src/themecreatordialog.cpp" line="89" />
         <source>Rahmen (Alternativ)</source>
-        <translation>Rahmen (Alternativ)</translation>
+        <translation>Hranice (alternativní)</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="66"/>
+        <location filename="../src/themecreatordialog.cpp" line="90" />
         <source>Splitter/Trenner</source>
-        <translation>Splitter/Trenner</translation>
+        <translation>Splitter/Separator</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="67"/>
+        <location filename="../src/themecreatordialog.cpp" line="91" />
         <source>Haupttext</source>
-        <translation>Haupttext</translation>
+        <translation>Primární text</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="68"/>
+        <location filename="../src/themecreatordialog.cpp" line="92" />
         <source>Text (Kontrast/Hell)</source>
-        <translation>Text (Kontrast/Hell)</translation>
+        <translation>Text (kontrast/světlý)</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="69"/>
+        <location filename="../src/themecreatordialog.cpp" line="93" />
         <source>Text (Akzent)</source>
-        <translation>Text (Akzent)</translation>
+        <translation>Text (přízvuk)</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="70"/>
+        <location filename="../src/themecreatordialog.cpp" line="94" />
         <source>Text (Dezent)</source>
-        <translation>Text (Dezent)</translation>
+        <translation>Text (jemný)</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="71"/>
+        <location filename="../src/themecreatordialog.cpp" line="95" />
         <source>Inaktive Elemente</source>
-        <translation>Inaktive Elemente</translation>
+        <translation>Neaktivní prvky</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="72"/>
+        <location filename="../src/themecreatordialog.cpp" line="96" />
         <source>Horiz. Trenner</source>
-        <translation>Horiz. Trenner</translation>
+        <translation>Horiz. oddělovač</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="107"/>
+        <location filename="../src/themecreatordialog.cpp" line="146" />
         <source>Name deines Designs (z.B. My Dark Blue)</source>
-        <translation>Name deines Designs (z.B. My Dark Blue)</translation>
+        <translation>Název vašeho motivu (např. Moje tmavě modrá)</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="111"/>
+        <location filename="../src/themecreatordialog.cpp" line="150" />
         <source>Design speichern &amp; schließen</source>
-        <translation>Design speichern &amp; schließen</translation>
+        <translation>Uložit motiv a zavřít</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="127"/>
+        <location filename="../src/themecreatordialog.cpp" line="167" />
         <source>Farbe für %1 wählen</source>
-        <translation>Farbe für %1 wählen</translation>
+        <translation>Vyberte barvu pro %1</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="155"/>
+        <location filename="../src/themecreatordialog.cpp" line="195" />
         <source>Ungültiger Name</source>
-        <translation>Ungültiger Name</translation>
+        <translation>Neplatné jméno</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="155"/>
+        <location filename="../src/themecreatordialog.cpp" line="195" />
         <source>Bitte gib einen eindeutigen Namen für dein Design ein.</source>
-        <translation>Bitte gib einen eindeutigen Namen für dein Design ein.</translation>
+        <translation>Zadejte prosím jedinečný název svého motivu.</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="166"/>
+        <location filename="../src/themecreatordialog.cpp" line="206" />
         <source>Gespeichert</source>
-        <translation>Gespeichert</translation>
+        <translation>Uloženo</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="166"/>
-        <source>Dein Design &apos;%1&apos; wurde erfolgreich gespeichert und angewendet!</source>
+        <location filename="../src/themecreatordialog.cpp" line="206" />
+        <source>Dein Design '%1' wurde erfolgreich gespeichert und angewendet!</source>
         <translation>Dein Design &amp;apos;%1&amp;apos; wurde erfolgreich gespeichert und angewendet!</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="169"/>
+        <location filename="../src/themecreatordialog.cpp" line="209" />
         <source>Fehler</source>
-        <translation>Fehler</translation>
+        <translation>Chyba</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="169"/>
+        <location filename="../src/themecreatordialog.cpp" line="209" />
         <source>Konnte das Design nicht speichern.</source>
-        <translation>Konnte das Design nicht speichern.</translation>
+        <translation>Motiv se nepodařilo uložit.</translation>
     </message>
 </context>
 <context>
     <name>ThemeDialog</name>
     <message>
         <source>Theme auswählen</source>
-        <translation type="vanished">Theme auswählen</translation>
+        <translation>Theme auswählen</translation>
     </message>
     <message>
         <source>System-Theme</source>
-        <translation type="vanished">System-Theme</translation>
+        <translation>System-Theme</translation>
     </message>
     <message>
         <source>KDE Global Theme verwenden</source>
-        <translation type="vanished">KDE Global Theme verwenden</translation>
+        <translation>KDE Global Theme verwenden</translation>
     </message>
     <message>
         <source>Übernimmt Farben und Stil des aktiven KDE Global Themes.</source>
-        <translation type="vanished">Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
+        <translation>Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
     </message>
     <message>
         <source>Eigenes Theme</source>
-        <translation type="vanished">Eigenes Theme</translation>
+        <translation>Eigenes Theme</translation>
     </message>
     <message>
         <source>Abbrechen</source>
-        <translation type="vanished">Zrušit</translation>
+        <translation>Zrušit</translation>
     </message>
     <message>
         <source>Übernehmen</source>
-        <translation type="vanished">Použít</translation>
+        <translation>Použít</translation>
     </message>
     <message>
         <source>Neustart erforderlich</source>
-        <translation type="vanished">Neustart erforderlich</translation>
+        <translation>Neustart erforderlich</translation>
     </message>
     <message>
         <source>Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</source>
-        <translation type="vanished">Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</translation>
+        <translation>Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</translation>
     </message>
 </context>
 <context>
     <name>ThemePreviewWidget</name>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="27"/>
+        <location filename="../src/themepreviewwidget.cpp" line="27" />
         <source>Live-Vorschau (SplitCommander Mockup)</source>
-        <translation>Live-Vorschau (SplitCommander Mockup)</translation>
+        <translation>Živý náhled (SplitCommander Mockup)</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="59"/>
+        <location filename="../src/themepreviewwidget.cpp" line="72" />
         <source>FAVORITEN</source>
-        <translation>FAVORITEN</translation>
+        <translation>OBLÍBENÉ</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="69"/>
+        <location filename="../src/themepreviewwidget.cpp" line="82" />
         <source>☁️ Google Drive</source>
         <translation>☁️ Google Drive</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="84"/>
+        <location filename="../src/themepreviewwidget.cpp" line="105" />
         <source>💾 SATA-SSD (/)</source>
         <translation>💾 SATA-SSD (/)</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="106"/>
+        <location filename="../src/themepreviewwidget.cpp" line="127" />
         <source>240 GB frei von 512 GB</source>
-        <translation>240 GB frei von 512 GB</translation>
+        <translation>240 GB zdarma z 512 GB</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="124"/>
+        <location filename="../src/themepreviewwidget.cpp" line="146" />
         <source>📁 /home/user/Dokumente</source>
         <translation>📁 /home/user/Dokumente</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="129"/>
+        <location filename="../src/themepreviewwidget.cpp" line="151" />
         <source>📄 bericht_2026.pdf</source>
         <translation>📄 bericht_2026.pdf</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="139"/>
+        <location filename="../src/themepreviewwidget.cpp" line="161" />
         <source>📁 SplitCommander Project</source>
         <translation>📁 SplitCommander Project</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="156"/>
+        <location filename="../src/themepreviewwidget.cpp" line="181" />
         <source>📁 /run/media/usb</source>
         <translation>📁 /run/media/usb</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="161"/>
+        <location filename="../src/themepreviewwidget.cpp" line="186" />
         <source>🖼️ urlaub_foto.png</source>
         <translation>🖼️ urlaub_foto.png</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="166"/>
+        <location filename="../src/themepreviewwidget.cpp" line="191" />
         <source>📄 notizen.txt</source>
         <translation>📄 notizen.txt</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="189"/>
+        <location filename="../src/themepreviewwidget.cpp" line="215" />
         <source>gdrive://google18/Dokumente/</source>
         <translation>gdrive://google18/Dokumente/</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="200"/>
+        <location filename="../src/themepreviewwidget.cpp" line="226" />
         <source>Neuer Ordner</source>
         <translation>Nová složka</translation>
     </message>

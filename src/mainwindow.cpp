@@ -367,17 +367,17 @@ void MainWindow::handleSolidDeviceMount(const QString &path, const std::function
     }
     else
     {
-        connect(acc, &Solid::StorageAccess::setupDone, this, [this, acc, navigate](Solid::ErrorType, QVariant errData, const QString &)
+        connect(acc, &Solid::StorageAccess::setupDone, this, [acc, navigate](Solid::ErrorType, QVariant errData, const QString &)
         {
             if (acc->isAccessible())
             {
                 DriveManager::instance()->refreshAll();
                 navigate(acc->filePath());
-                sc_notify(this->tr("Laufwerk bereit"), this->tr("Das Laufwerk wurde erfolgreich eingebunden."), QStringLiteral("media-removable"));
+                sc_notify(tr("Laufwerk bereit"), tr("Das Laufwerk wurde erfolgreich eingebunden."), QStringLiteral("media-removable"));
             }
             else
             {
-                sc_notify(this->tr("Fehler beim Einbinden"), this->tr("Das Laufwerk konnte nicht eingebunden werden:\n%1").arg(errData.toString()), QStringLiteral("dialog-warning"));
+                sc_notify(tr("Fehler beim Einbinden"), tr("Das Laufwerk konnte nicht eingebunden werden:\n%1").arg(errData.toString()), QStringLiteral("dialog-warning"));
             }
         }, Qt::SingleShotConnection);
         acc->setup();

@@ -1,65 +1,64 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
+<?xml version='1.0' encoding='utf-8'?>
 <TS version="2.1" language="fr_FR" sourcelanguage="de_DE">
 <context>
     <name>AddNetworkDialog</name>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="13"/>
+        <location filename="../src/addnetworkdialog.cpp" line="14" />
         <source>SMB Laufwerke verbinden</source>
         <translation>Connecter des lecteurs SMB</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="40"/>
+        <location filename="../src/addnetworkdialog.cpp" line="72" />
         <source>Anzeigename</source>
-        <translation>Nom d&apos;affichage</translation>
+        <translation>Nom d'affichage</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="55"/>
+        <location filename="../src/addnetworkdialog.cpp" line="103" />
         <source>Freigegebener Ordner (SMB)</source>
         <translation>Dossier partagé (SMB)</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="56"/>
+        <location filename="../src/addnetworkdialog.cpp" line="104" />
         <source>SSH / SFTP</source>
-        <translation>SSH / SFTP</translation>
+        <translation>SSH/SFTP</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="57"/>
+        <location filename="../src/addnetworkdialog.cpp" line="105" />
         <source>Google Drive</source>
-        <translation>Google Drive</translation>
+        <translation>Google Drive</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="58"/>
+        <location filename="../src/addnetworkdialog.cpp" line="106" />
         <source>Netzwerkserver</source>
         <translation>Serveur réseau</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="59"/>
+        <location filename="../src/addnetworkdialog.cpp" line="107" />
         <source>MTP-Gerät</source>
         <translation>Appareil MTP</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="60"/>
+        <location filename="../src/addnetworkdialog.cpp" line="108" />
         <source>Bluetooth</source>
         <translation>Bluetooth</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="61"/>
+        <location filename="../src/addnetworkdialog.cpp" line="109" />
         <source>Netzwerkordner</source>
         <translation>Dossier réseau</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="75"/>
+        <location filename="../src/addnetworkdialog.cpp" line="75" />
         <source>Adresse:</source>
         <translation>Adresse :</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="76"/>
+        <location filename="../src/addnetworkdialog.cpp" line="77" />
         <source>Name:</source>
         <translation>Nom :</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="77"/>
+        <location filename="../src/addnetworkdialog.cpp" line="127" />
         <source>Symbol:</source>
         <translation>Icône :</translation>
     </message>
@@ -68,33 +67,33 @@
     <name>AgeBadgeDialog</name>
     <message>
         <source>Altersbadges</source>
-        <translation type="vanished">Badges d&apos;âge</translation>
+        <translation>Badges d'âge</translation>
     </message>
     <message>
         <source>Dateialter / relatives Datum</source>
-        <translation type="vanished">Âge du fichier / date relative</translation>
+        <translation>Âge du fichier / date relative</translation>
     </message>
     <message>
         <source>Zurücksetzen</source>
-        <translation type="vanished">Réinitialiser</translation>
+        <translation>Réinitialiser</translation>
     </message>
     <message>
         <source>Neue Dateien hervorheben (&lt; 2 Tage)</source>
-        <translation type="vanished">Surligner les nouveaux fichiers (&lt; 2 jours)</translation>
+        <translation>Surligner les nouveaux fichiers (&lt; 2 jours)</translation>
     </message>
     <message>
         <source>Abbrechen</source>
-        <translation type="vanished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
     <message>
         <source>Übernehmen</source>
-        <translation type="vanished">Appliquer</translation>
+        <translation>Appliquer</translation>
     </message>
 </context>
 <context>
     <name>BatchRenamer</name>
     <message>
-        <location filename="../src/batchrenamer.cpp" line="11"/>
+        <location filename="../src/batchrenamer.cpp" line="14" />
         <source>Batch Rename - %1 Dateien</source>
         <translation>Renommer en lot - %1 fichiers</translation>
     </message>
@@ -102,320 +101,320 @@
 <context>
     <name>FilePane</name>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="280"/>
+        <location filename="../src/filepane_menus.cpp" line="277" />
         <source>An ursprünglichem Ort wiederherstellen</source>
-        <translation>Restaurer à l&apos;emplacement d&apos;origine</translation>
+        <translation>Restaurer à l'emplacement d'origine</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="303"/>
-        <location filename="../src/filepane_menus.cpp" line="570"/>
+        <location filename="../src/filepane_menus.cpp" line="300" />
+        <location filename="../src/filepane_menus.cpp" line="567" />
         <source>Löschen</source>
         <translation>Supprimer</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="312"/>
-        <location filename="../src/filepane_menus.cpp" line="463"/>
-        <location filename="../src/filepane_menus.cpp" line="773"/>
+        <location filename="../src/filepane_menus.cpp" line="309" />
+        <location filename="../src/filepane_menus.cpp" line="460" />
+        <location filename="../src/filepane_menus.cpp" line="777" />
         <source>Sortieren nach</source>
         <translation>Trier par</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="330"/>
-        <location filename="../src/filepane_menus.cpp" line="520"/>
-        <location filename="../src/filepane_menus.cpp" line="812"/>
+        <location filename="../src/filepane_menus.cpp" line="327" />
+        <location filename="../src/filepane_menus.cpp" line="517" />
+        <location filename="../src/filepane_menus.cpp" line="816" />
         <source>Ansichtsmodus ändern</source>
-        <translation>Changer le mode d&apos;affichage</translation>
+        <translation>Changer le mode d'affichage</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="337"/>
-        <location filename="../src/filepane_menus.cpp" line="527"/>
-        <location filename="../src/filepane_menus.cpp" line="819"/>
+        <location filename="../src/filepane_menus.cpp" line="334" />
+        <location filename="../src/filepane_menus.cpp" line="524" />
+        <location filename="../src/filepane_menus.cpp" line="823" />
         <source>Details</source>
         <translation>Détails</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="338"/>
-        <location filename="../src/filepane_menus.cpp" line="528"/>
-        <location filename="../src/filepane_menus.cpp" line="820"/>
+        <location filename="../src/filepane_menus.cpp" line="335" />
+        <location filename="../src/filepane_menus.cpp" line="525" />
+        <location filename="../src/filepane_menus.cpp" line="824" />
         <source>Symbole</source>
         <translation>Icônes</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="342"/>
+        <location filename="../src/filepane_menus.cpp" line="339" />
         <source>Papierkorb leeren</source>
         <translation>Vider la corbeille</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="394"/>
+        <location filename="../src/filepane_menus.cpp" line="391" />
         <source>Zu Paperless hochladen</source>
         <translation>Télécharger vers le sans papier</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="409"/>
+        <location filename="../src/filepane_menus.cpp" line="406" />
         <source>ISO aushängen</source>
-        <translation>Démonter l&apos;ISO</translation>
+        <translation>Démonter l'ISO</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="415"/>
+        <location filename="../src/filepane_menus.cpp" line="412" />
         <source>ISO einbinden</source>
-        <translation>Inclure l&apos;ISO</translation>
+        <translation>Inclure l'ISO</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="468"/>
-        <location filename="../src/filepane_menus.cpp" line="483"/>
+        <location filename="../src/filepane_menus.cpp" line="465" />
+        <location filename="../src/filepane_menus.cpp" line="480" />
         <source>Name</source>
         <translation>Nom</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="469"/>
+        <location filename="../src/filepane_menus.cpp" line="466" />
         <source>Größe</source>
         <translation>Taille</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="470"/>
+        <location filename="../src/filepane_menus.cpp" line="467" />
         <source>Geändert</source>
         <translation>Modifié</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="471"/>
+        <location filename="../src/filepane_menus.cpp" line="468" />
         <source>Erstellt</source>
         <translation>Créé</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="472"/>
+        <location filename="../src/filepane_menus.cpp" line="469" />
         <source>Letzter Zugriff</source>
         <translation>Dernier accès</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="473"/>
+        <location filename="../src/filepane_menus.cpp" line="470" />
         <source>Typ</source>
         <translation>Type</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="474"/>
+        <location filename="../src/filepane_menus.cpp" line="471" />
         <source>Bewertung</source>
         <translation>Évaluation</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="492"/>
-        <location filename="../src/filepane_menus.cpp" line="789"/>
+        <location filename="../src/filepane_menus.cpp" line="489" />
+        <location filename="../src/filepane_menus.cpp" line="793" />
         <source>A-Z</source>
-        <translation>A-Z</translation>
+        <translation>A à Z</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="494"/>
-        <location filename="../src/filepane_menus.cpp" line="791"/>
+        <location filename="../src/filepane_menus.cpp" line="491" />
+        <location filename="../src/filepane_menus.cpp" line="795" />
         <source>Z-A</source>
-        <translation>Z-A</translation>
+        <translation>ZA</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="508"/>
-        <location filename="../src/filepane_menus.cpp" line="804"/>
+        <location filename="../src/filepane_menus.cpp" line="505" />
+        <location filename="../src/filepane_menus.cpp" line="808" />
         <source>Ordner zuerst</source>
         <translation>Dossiers en premier</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="515"/>
+        <location filename="../src/filepane_menus.cpp" line="512" />
         <source>Versteckte Dateien zuletzt</source>
         <translation>Fichiers cachés en dernier</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="569"/>
-        <location filename="../src/filepane_menus.cpp" line="588"/>
-        <location filename="../src/filepane_menus.cpp" line="848"/>
-        <location filename="../src/filepane_menus.cpp" line="869"/>
+        <location filename="../src/filepane_menus.cpp" line="566" />
+        <location filename="../src/filepane_menus.cpp" line="585" />
+        <location filename="../src/filepane_menus.cpp" line="852" />
+        <location filename="../src/filepane_menus.cpp" line="873" />
         <source>Stichwörter zuweisen</source>
         <translation>Attribuer des mots-clés</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="569"/>
-        <location filename="../src/filepane_menus.cpp" line="589"/>
-        <location filename="../src/filepane_menus.cpp" line="848"/>
-        <location filename="../src/filepane_menus.cpp" line="871"/>
+        <location filename="../src/filepane_menus.cpp" line="566" />
+        <location filename="../src/filepane_menus.cpp" line="586" />
+        <location filename="../src/filepane_menus.cpp" line="852" />
+        <location filename="../src/filepane_menus.cpp" line="875" />
         <source>Komprimieren</source>
         <translation>Compresser</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="569"/>
-        <location filename="../src/filepane_menus.cpp" line="653"/>
-        <location filename="../src/filepane_menus.cpp" line="848"/>
-        <location filename="../src/filepane_menus.cpp" line="873"/>
+        <location filename="../src/filepane_menus.cpp" line="566" />
+        <location filename="../src/filepane_menus.cpp" line="591" />
+        <location filename="../src/filepane_menus.cpp" line="852" />
+        <location filename="../src/filepane_menus.cpp" line="877" />
         <source>Aktivitäten</source>
         <translation>Activités</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="570"/>
+        <location filename="../src/filepane_menus.cpp" line="567" />
         <source>In den Papierkorb verschieben</source>
         <translation>Déplacer vers la corbeille</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="570"/>
+        <location filename="../src/filepane_menus.cpp" line="567" />
         <source>Umbenennen</source>
         <translation>Renommer</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="571"/>
+        <location filename="../src/filepane_menus.cpp" line="568" />
         <source>Kopieren</source>
         <translation>Copier</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="571"/>
+        <location filename="../src/filepane_menus.cpp" line="568" />
         <source>Ausschneiden</source>
         <translation>Couper</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="571"/>
+        <location filename="../src/filepane_menus.cpp" line="568" />
         <source>Einfügen</source>
         <translation>Coller</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="572"/>
-        <location filename="../src/filepane_menus.cpp" line="613"/>
-        <location filename="../src/filepane_menus.cpp" line="849"/>
+        <location filename="../src/filepane_menus.cpp" line="569" />
+        <location filename="../src/filepane_menus.cpp" line="701" />
+        <location filename="../src/filepane_menus.cpp" line="853" />
         <source>Entpacken</source>
         <translation>Extraire</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="572"/>
-        <location filename="../src/filepane_menus.cpp" line="654"/>
-        <location filename="../src/filepane_menus.cpp" line="849"/>
+        <location filename="../src/filepane_menus.cpp" line="569" />
+        <location filename="../src/filepane_menus.cpp" line="592" />
+        <location filename="../src/filepane_menus.cpp" line="853" />
         <source>Teilen</source>
         <translation>Partager</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="572"/>
-        <location filename="../src/filepane_menus.cpp" line="849"/>
+        <location filename="../src/filepane_menus.cpp" line="569" />
+        <location filename="../src/filepane_menus.cpp" line="853" />
         <source>Extract</source>
         <translation>Extraire</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="572"/>
-        <location filename="../src/filepane_menus.cpp" line="849"/>
+        <location filename="../src/filepane_menus.cpp" line="569" />
+        <location filename="../src/filepane_menus.cpp" line="853" />
         <source>Share</source>
         <translation>Partager</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="616"/>
+        <location filename="../src/filepane_menus.cpp" line="709" />
         <source>Hierher entpacken</source>
         <translation>Extraire ici</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="624"/>
+        <location filename="../src/filepane_menus.cpp" line="717" />
         <source>Entpacken und Archiv in den Papierkorb verschieben</source>
-        <translation>Extraire et déplacer l&apos;archive vers la corbeille</translation>
+        <translation>Extraire et déplacer l'archive vers la corbeille</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="641"/>
+        <location filename="../src/filepane_menus.cpp" line="734" />
         <source>Entpacken nach ...</source>
         <translation>Extraire vers...</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="642"/>
+        <location filename="../src/filepane_menus.cpp" line="735" />
         <source>Zielordner wählen</source>
         <translation>Choisir le dossier cible</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="658"/>
+        <location filename="../src/filepane_menus.cpp" line="596" />
         <source>Tag setzen</source>
         <translation>Définir le tag</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="707"/>
+        <location filename="../src/filepane_menus.cpp" line="645" />
         <source>Prüfsumme</source>
         <translation>Somme de contrôle</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="732"/>
+        <location filename="../src/filepane_menus.cpp" line="670" />
         <source>%1 kopiert</source>
         <translation>%1 copié</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="884"/>
+        <location filename="../src/filepane_menus.cpp" line="888" />
         <source>Make</source>
         <translation>Faire</translation>
     </message>
     <message>
         <source>Öffnen</source>
-        <translation type="vanished">Ouvrir</translation>
+        <translation>Ouvrir</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="360"/>
-        <location filename="../src/filepane_menus.cpp" line="754"/>
+        <location filename="../src/filepane_menus.cpp" line="357" />
+        <location filename="../src/filepane_menus.cpp" line="758" />
         <source>Neu erstellen</source>
         <translation>Créer nouveau</translation>
     </message>
     <message>
         <source>Adresse kopieren</source>
-        <translation type="vanished">Copier l&apos;adresse</translation>
+        <translation>Copier l'adresse</translation>
     </message>
     <message>
         <source>Hier duplizieren</source>
-        <translation type="vanished">Dupliquer ici</translation>
+        <translation>Dupliquer ici</translation>
     </message>
     <message>
         <source>Dupliziere Datei...</source>
-        <translation type="vanished">Dupliquer le fichier...</translation>
+        <translation>Dupliquer le fichier...</translation>
     </message>
     <message>
         <source>Favoriten</source>
-        <translation type="vanished">Favoris</translation>
+        <translation>Favoris</translation>
     </message>
     <message>
         <source>Hinzufügen zu</source>
-        <translation type="vanished">Ajouter à</translation>
+        <translation>Ajouter à</translation>
     </message>
     <message>
         <source>Laufwerke</source>
-        <translation type="vanished">Lecteurs</translation>
+        <translation>Lecteurs</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="560"/>
-        <location filename="../src/filepane_menus.cpp" line="840"/>
+        <location filename="../src/filepane_menus.cpp" line="557" />
+        <location filename="../src/filepane_menus.cpp" line="844" />
         <source>Terminal hier öffnen</source>
         <translation>Ouvrir le terminal ici</translation>
     </message>
     <message>
         <source>Diaschau starten</source>
-        <translation type="vanished">Démarrer le diaporama</translation>
+        <translation>Démarrer le diaporama</translation>
     </message>
     <message>
         <source>Tag</source>
-        <translation type="vanished">Tag</translation>
+        <translation>Étiqueter</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="683"/>
+        <location filename="../src/filepane_menus.cpp" line="621" />
         <source>Tag entfernen</source>
         <translation>Supprimer le tag</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="554"/>
-        <location filename="../src/filepane_menus.cpp" line="837"/>
+        <location filename="../src/filepane_menus.cpp" line="551" />
+        <location filename="../src/filepane_menus.cpp" line="841" />
         <source>Aktionen</source>
         <translation>Actions</translation>
     </message>
     <message>
         <source>In neuen Ordner verschieben ...</source>
-        <translation type="vanished">Déplacer vers un nouveau dossier...</translation>
+        <translation>Déplacer vers un nouveau dossier...</translation>
     </message>
     <message>
         <source>In neuen Ordner verschieben</source>
-        <translation type="vanished">Déplacer vers un nouveau dossier</translation>
+        <translation>Déplacer vers un nouveau dossier</translation>
     </message>
     <message>
         <source>Ordnername:</source>
-        <translation type="vanished">Nom du dossier :</translation>
+        <translation>Nom du dossier :</translation>
     </message>
     <message>
         <source>Neuer Ordner</source>
-        <translation type="vanished">Nouveau dossier</translation>
+        <translation>Nouveau dossier</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="258"/>
+        <location filename="../src/filepane_menus.cpp" line="255" />
         <source>Eigenschaften</source>
         <translation>Propriétés</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="444"/>
+        <location filename="../src/filepane_menus.cpp" line="441" />
         <source>Zu Laufwerken hinzufügen</source>
         <translation>Ajouter aux lecteurs</translation>
     </message>
@@ -423,433 +422,342 @@
 <context>
     <name>GitManagerDialog</name>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="125"/>
         <source>Git Manager</source>
-        <translation>Git Manager</translation>
+        <translation>Gestionnaire Git</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="180"/>
         <source>Repository:</source>
         <translation>Dépôt :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="184"/>
         <source>Neu</source>
         <translation>Nouveau</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="188"/>
         <source>Entfernen</source>
         <translation>Supprimer</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="200"/>
         <source>Geänderte Dateien:</source>
         <translation>Fichiers modifiés :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="202"/>
         <source>Branch: …</source>
         <translation>Branche : …</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="218"/>
         <source>Beschreibung der Änderungen:</source>
         <translation>Description des modifications :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="223"/>
         <source>z.B. Fehler in der Suche behoben...</source>
-        <translation>p. ex. Correction d&apos;un bug dans la recherche...</translation>
+        <translation>p. ex. Correction d'un bug dans la recherche...</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="231"/>
         <source>Commit &amp;&amp; Push</source>
-        <translation>Commit &amp;&amp; Push</translation>
+        <translation>Valider et pousser</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="234"/>
         <source>Speichert deine Änderungen und lädt sie zu GitHub hoch.</source>
         <translation>Enregistre vos modifications et les envoie sur GitHub.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="236"/>
         <source>Fetch</source>
         <translation>Récupérer</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="239"/>
         <source>Prüft ob es neue Änderungen auf GitHub gibt, ohne sie herunterzuladen.</source>
-        <translation>Vérifie s&apos;il y a de nouvelles modifications sur GitHub sans les télécharger.</translation>
+        <translation>Vérifie s'il y a de nouvelles modifications sur GitHub sans les télécharger.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="241"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="775"/>
         <source>Pull</source>
-        <translation>Pull</translation>
+        <translation>Tirer</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="244"/>
         <source>Holt die neuesten Änderungen von GitHub.</source>
         <translation>Récupère les dernières modifications de GitHub.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="246"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="788"/>
         <source>Änderungen verwerfen</source>
         <translation>Annuler les modifications</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="249"/>
         <source>Setzt alle lokalen Änderungen auf den Stand von GitHub zurück.</source>
-        <translation>Réinitialise toutes les modifications locales à l&apos;état de GitHub.</translation>
+        <translation>Réinitialise toutes les modifications locales à l'état de GitHub.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="258"/>
         <source>Optionen für Commit &amp;&amp; Push</source>
         <translation>Options pour Commit &amp;&amp; Push</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="268"/>
         <source>Tags mit hochladen</source>
         <translation>Envoyer aussi les tags</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="269"/>
         <source>Release auf GitHub erstellen</source>
         <translation>Créer une version sur GitHub</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="270"/>
         <source>Force with lease</source>
         <translation>Force avec bail</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="271"/>
         <source>Pusht auch wenn der Remote-Branch voraus ist — aber nur wenn sich der Remote seit dem letzten Fetch nicht verändert hat.</source>
-        <translation>Pousse même si la branche distante est en avance, mais seulement si la branche distante n&apos;a pas changé depuis la dernière récupération.</translation>
+        <translation>Pousse même si la branche distante est en avance, mais seulement si la branche distante n'a pas changé depuis la dernière récupération.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="283"/>
         <source>Optionen für Pull</source>
         <translation>Options pour Pull</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="288"/>
         <source>Rebase statt Merge</source>
         <translation>Rebase au lieu de merge</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="290"/>
         <source>git pull --rebase — hält den Verlauf sauber.</source>
-        <translation>git pull --rebase — garde l&apos;historique propre.</translation>
+        <translation>git pull --rebase — garde l'historique propre.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="302"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="470"/>
         <source>▶  Erweiterte Funktionen</source>
         <translation>▶  Fonctions avancées</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="328"/>
         <source>Verlauf (Log)</source>
         <translation>Historique (Log)</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="329"/>
         <source>Zeigt die letzten 20 Commits.</source>
         <translation>Affiche les 20 derniers commits.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="331"/>
         <source>Diff</source>
-        <translation>Diff</translation>
+        <translation>Différence</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="332"/>
         <source>Zeigt welche Zeilen du geändert hast.</source>
         <translation>Affiche les lignes que vous avez modifiées.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="334"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="490"/>
         <source>Tag erstellen</source>
         <translation>Créer un tag</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="335"/>
         <source>Markiert den aktuellen Stand als Version, z.B. v1.0.</source>
-        <translation>Marque l&apos;état actuel comme une version, p. ex. v1.0.</translation>
+        <translation>Marque l'état actuel comme une version, p. ex. v1.0.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="337"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="505"/>
         <source>Branch wechseln / erstellen</source>
         <translation>Changer / créer une branche</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="338"/>
         <source>Wechselt zu einem anderen Zweig oder erstellt einen neuen.</source>
         <translation>Bascule vers une autre branche ou en crée une nouvelle.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="340"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="568"/>
         <source>Merge</source>
         <translation>Fusion</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="341"/>
         <source>Führt einen anderen Branch in den aktuellen zusammen.</source>
         <translation>Fusionne une autre branche dans la branche actuelle.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="343"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="583"/>
         <source>Revert</source>
         <translation>Annuler</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="344"/>
         <source>Macht einen bestimmten Commit rückgängig — History bleibt erhalten.</source>
-        <translation>Annule un commit spécifique — l&apos;historique est conservé.</translation>
+        <translation>Annule un commit spécifique — l'historique est conservé.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="346"/>
         <source>Stash (Parken)</source>
         <translation>Stash</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="347"/>
         <source>Legt deine Änderungen zur Seite ohne sie zu speichern.</source>
         <translation>Met vos modifications de côté sans les enregistrer.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="349"/>
         <source>Stash anwenden</source>
         <translation>Appliquer le stash</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="350"/>
         <source>Holt die zuletzt geparkten Änderungen zurück.</source>
         <translation>Récupère les dernières modifications mises de côté.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="370"/>
         <source>▶  Verbindungseinstellungen</source>
         <translation>▶  Paramètres de connexion</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="384"/>
         <source>z.B. SplitCommander</source>
-        <translation>z.B. SplitCommander</translation>
+        <translation>par exemple B. Commandant divisé</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="385"/>
         <source>Name:</source>
         <translation>Nom :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="389"/>
         <source>Durchsuchen...</source>
         <translation>Parcourir...</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="395"/>
         <source>Projekt-Ordner:</source>
         <translation>Dossier du projet :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="400"/>
         <source>GitHub URL:</source>
         <translation>URL GitHub :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="404"/>
         <source>GitHub Benutzername:</source>
-        <translation>Nom d&apos;utilisateur GitHub :</translation>
+        <translation>Nom d'utilisateur GitHub :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="414"/>
         <source>Token anzeigen</source>
         <translation>Afficher les jetons</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="415"/>
         <source>Token generieren...</source>
         <translation>Générer un token...</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="422"/>
         <source>Token / Passwort:</source>
         <translation>Token / Mot de passe :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="430"/>
         <source>Repository klonen</source>
         <translation>Cloner le dépôt</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="434"/>
         <source>Klont das eingetragene Remote-Repository in den Projekt-Ordner.</source>
         <translation>Clone le dépôt distant configuré dans le dossier du projet.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="435"/>
         <source>Klonen:</source>
         <translation>Cloner :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="445"/>
         <source>Ausgabe:</source>
         <translation>Sortie :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="460"/>
         <source>Schließen</source>
         <translation>Fermer</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="469"/>
         <source>▼  Erweiterte Funktionen</source>
         <translation>▼  Fonctions avancées</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="491"/>
         <source>Tag-Name (z.B. v1.0.0):</source>
         <translation>Nom du tag (p. ex. v1.0.0) :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="516"/>
         <source>Vorhandenen Branch auschecken:</source>
         <translation>Découvrez une succursale existante :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="524"/>
         <source>Oder neuen Branch erstellen:</source>
         <translation>Ou créez une nouvelle branche :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="529"/>
         <source>Neuer Branch-Name (leer lassen zum Auschecken)</source>
         <translation>Nouveau nom de succursale (laisser vide pour vérifier)</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="532"/>
         <source>Force (lokale Änderungen verwerfen)</source>
         <translation>Forcer (ignorer les modifications locales)</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="537"/>
         <source>Ausführen</source>
         <translation>Effectuer</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="538"/>
         <source>Abbrechen</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="569"/>
         <source>Branch der zusammengeführt werden soll:</source>
         <translation>Branche à fusionner :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="584"/>
         <source>Commit rückgängig machen:</source>
         <translation>Annuler la validation :</translation>
     </message>
     <message>
         <source>Branch</source>
-        <translation type="vanished">Branche</translation>
+        <translation>Branche</translation>
     </message>
     <message>
         <source>Name des Branch:</source>
-        <translation type="vanished">Nom de la branche :</translation>
+        <translation>Nom de la branche :</translation>
     </message>
     <message>
         <source>Branch-Name der zusammengeführt werden soll:</source>
-        <translation type="vanished">Nom de la branche à fusionner :</translation>
+        <translation>Nom de la branche à fusionner :</translation>
     </message>
     <message>
         <source>Commit-Hash (z.B. a1b2c3d):</source>
-        <translation type="vanished">Hash de commit (p. ex. a1b2c3d) :</translation>
+        <translation>Hash de commit (p. ex. a1b2c3d) :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="600"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="700"/>
         <source>Hinweis</source>
         <translation>Remarque</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="601"/>
         <source>Bitte GitHub URL und Projekt-Ordner eintragen.</source>
-        <translation>Veuillez saisir l&apos;URL GitHub et le dossier du projet.</translation>
+        <translation>Veuillez saisir l'URL GitHub et le dossier du projet.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="619"/>
         <source>Projekt-Ordner wählen</source>
         <translation>Choisir le dossier du projet</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="633"/>
         <source>Neues Repo</source>
         <translation>Nouveau dépôt</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="664"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="952"/>
         <source>(unbenannt)</source>
         <translation>(sans nom)</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="701"/>
         <source>Bitte gib eine Beschreibung ein.</source>
         <translation>Veuillez saisir une description.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="728"/>
         <source>Push</source>
         <translation>Pousser</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="729"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="776"/>
         <source>Remote auswählen:</source>
         <translation>Sélectionnez À distance :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="789"/>
         <source>Alle lokalen Änderungen werden unwiderruflich gelöscht und auf den Stand von GitHub zurückgesetzt.
 
 Fortfahren?</source>
-        <translation>Toutes les modifications locales seront définitivement supprimées et réinitialisées à l&apos;état de GitHub.
+        <translation>Toutes les modifications locales seront définitivement supprimées et réinitialisées à l'état de GitHub.
 
 Continuer ?</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="817"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="918"/>
         <source>Kein Repository</source>
         <translation>Aucun dépôt</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="858"/>
         <source>Fehler</source>
         <translation>Erreur</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="858"/>
         <source>Kein GitHub Token hinterlegt!</source>
         <translation>Aucun token GitHub enregistré !</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="917"/>
         <source>Branch: %1</source>
         <translation>Branche : %1</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="933"/>
         <source>✓ Keine ungespeicherten Änderungen</source>
         <translation>✓ Aucune modification non enregistrée</translation>
     </message>
@@ -857,22 +765,22 @@ Continuer ?</translation>
 <context>
     <name>JobOverlay</name>
     <message>
-        <location filename="../src/joboverlay.cpp" line="52"/>
+        <location filename="../src/joboverlay.cpp" line="62" />
         <source>Initialisierung...</source>
-        <translation>Initialisierung...</translation>
+        <translation>Initialisation...</translation>
     </message>
     <message>
-        <location filename="../src/joboverlay.cpp" line="73"/>
+        <location filename="../src/joboverlay.cpp" line="86" />
         <source>Fortschritt: %1%</source>
-        <translation>Fortschritt: %1%</translation>
+        <translation>Fortschritt : %1%</translation>
     </message>
     <message>
-        <location filename="../src/joboverlay.cpp" line="79"/>
+        <location filename="../src/joboverlay.cpp" line="96" />
         <source>Fehler: %1</source>
-        <translation>Fehler: %1</translation>
+        <translation>Fehler : %1</translation>
     </message>
     <message>
-        <location filename="../src/joboverlay.cpp" line="82"/>
+        <location filename="../src/joboverlay.cpp" line="101" />
         <source>Fertig!</source>
         <translation>Fertig!</translation>
     </message>
@@ -880,987 +788,1014 @@ Continuer ?</translation>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/mainwindow.cpp" line="148"/>
-        <source>Löschen...</source>
-        <translation>Löschen...</translation>
+        <location filename="../src/mainwindow.cpp" line="95" />
+        <source>Vorgang erfolgreich abgeschlossen.</source>
+        <translation>Opération terminée avec succès.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="239"/>
-        <location filename="../src/mainwindow.cpp" line="239"/>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="278"/>
+        <location filename="../src/mainwindow.cpp" line="99" />
+        <source>Fehler bei: %1</source>
+        <translation>Erreur dans : %1</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="158" />
+        <source>Löschen...</source>
+        <translation>Supprimer...</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="308" />
+        <location filename="../src/mainwindow.cpp" line="308" />
+        <location filename="../src/mainwindow_shortcuts.cpp" line="315" />
         <source>Neuer Ordner</source>
         <translation>Nouveau dossier</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="239"/>
+        <location filename="../src/mainwindow.cpp" line="308" />
         <source>Ordnername:</source>
         <translation>Nom du dossier :</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="248"/>
+        <location filename="../src/mainwindow.cpp" line="322" />
         <source>Fehler</source>
         <translation>Erreur</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="248"/>
+        <location filename="../src/mainwindow.cpp" line="322" />
         <source>Ordner konnte nicht erstellt werden.</source>
-        <translation>Ordner konnte nicht erstellt werden.</translation>
+        <translation>Le dossier n'a pas pu être créé.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="497"/>
-        <source>Aushängen fehlgeschlagen</source>
-        <translation>Aushängen fehlgeschlagen</translation>
+        <location filename="../src/mainwindow.cpp" line="376" />
+        <source>Laufwerk bereit</source>
+        <translation>Lecteur prêt</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="498"/>
-        <source>Das Laufwerk konnte nicht ausgehängt werden:
+        <location filename="../src/mainwindow.cpp" line="376" />
+        <source>Das Laufwerk wurde erfolgreich eingebunden.</source>
+        <translation>Le lecteur a été monté avec succès.</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="380" />
+        <source>Fehler beim Einbinden</source>
+        <translation>Erreur de montage</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="380" />
+        <source>Das Laufwerk konnte nicht eingebunden werden:
 %1</source>
-        <translation>Das Laufwerk konnte nicht ausgehängt werden:
+        <translation>Le lecteur n'a pas pu être monté :
 %1</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="104"/>
-        <source>SplitCommander</source>
-        <translation>SplitCommander</translation>
+        <location filename="../src/mainwindow.cpp" line="619" />
+        <source>Aushängen fehlgeschlagen</source>
+        <translation>Le démontage a échoué</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="127"/>
+        <location filename="../src/mainwindow.cpp" line="619" />
+        <source>Das Laufwerk konnte nicht ausgehängt werden:
+%1</source>
+        <translation>Le lecteur n'a pas pu être démonté :
+%1</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="620" />
+        <source>Laufwerk sicher entfernt</source>
+        <translation>Lecteur retiré en toute sécurité</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="620" />
+        <source>Sie können das Gerät jetzt sicher abziehen.</source>
+        <translation>Vous pouvez maintenant débrancher l'appareil en toute sécurité.</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="95" />
+        <source>SplitCommander</source>
+        <translation>Commandant divisé</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="145" />
         <source>Zurück</source>
         <translation>Précédent</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="135"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="155" />
         <source>Vorwärts</source>
-        <translation>Vorwärts</translation>
+        <translation>Avant</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="143"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="165" />
         <source>Übergeordneter Ordner</source>
         <translation>Dossier parent</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="157"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="186" />
         <source>Home-Verzeichnis</source>
-        <translation>Home-Verzeichnis</translation>
+        <translation>Répertoire personnel</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="161"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="190" />
         <source>Neu laden</source>
-        <translation>Neu laden</translation>
+        <translation>Recharger</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="170"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="201" />
         <source>Neuer Tab</source>
         <translation>Nouvel onglet</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="172"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="205" />
         <source>Tab schließen</source>
-        <translation>Fermer l&apos;onglet</translation>
+        <translation>Fermer l'onglet</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="176"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="212" />
         <source>Tab %1</source>
         <translation>Onglet %1</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="181"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="409" />
         <source>Einstellungen</source>
         <translation>Paramètres</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="187"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="415" />
         <source>GitHub Manager</source>
-        <translation>GitHub Manager</translation>
+        <translation>Gestionnaire GitHub</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="194"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="224" />
         <source>Linke Pane fokussieren</source>
-        <translation>Linke Pane fokussieren</translation>
+        <translation>Focus sur le volet gauche</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="199"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="229" />
         <source>Rechte Pane fokussieren</source>
-        <translation>Rechte Pane fokussieren</translation>
+        <translation>Focus sur le volet droit</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="204"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="234" />
         <source>Panes tauschen</source>
-        <translation>Panes tauschen</translation>
+        <translation>Permuter les volets</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="211"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="241" />
         <source>Pfade synchronisieren</source>
-        <translation>Pfade synchronisieren</translation>
+        <translation>Synchroniser les chemins</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="217"/>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="228"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="249" />
+        <location filename="../src/mainwindow_shortcuts.cpp" line="259" />
         <source>Umbenennen</source>
         <translation>Renommer</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="228"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="259" />
         <source>Neuer Name:</source>
         <translation>Nouveau nom :</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="256"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="305" />
         <source>In den Papierkorb verschieben</source>
         <translation>Déplacer vers la corbeille</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="267"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="310" />
         <source>Löschen</source>
         <translation>Supprimer</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="280"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="323" />
         <source>Kopieren (Zwischenablage)</source>
-        <translation>Kopieren (Zwischenablage)</translation>
+        <translation>Copier (Presse-papiers)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="290"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="334" />
         <source>Ausschneiden (Zwischenablage)</source>
-        <translation>Ausschneiden (Zwischenablage)</translation>
+        <translation>Couper (Presse-papiers)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="302"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="384" />
         <source>Versteckte Dateien umschalten</source>
-        <translation>Versteckte Dateien umschalten</translation>
+        <translation>Basculer les fichiers cachés</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="314"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="400" />
         <source>Layout wechseln</source>
-        <translation>Layout wechseln</translation>
+        <translation>Changer la mise en page</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="324"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="345" />
         <source>Einfügen</source>
         <translation>Coller</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="336"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="357" />
         <source>Verschiebe Dateien...</source>
-        <translation>Verschiebe Dateien...</translation>
+        <translation>Déplacer des fichiers...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="272"/>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="341"/>
+        <location filename="../src/mainwindow.cpp" line="354" />
+        <location filename="../src/mainwindow_shortcuts.cpp" line="365" />
         <source>Kopiere Dateien...</source>
-        <translation>Kopiere Dateien...</translation>
+        <translation>Copier les fichiers...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="346"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="369" />
         <source>Alles auswählen</source>
-        <translation>Alles auswählen</translation>
+        <translation>Tout sélectionner</translation>
     </message>
 </context>
 <context>
     <name>MillerColumn</name>
     <message>
-        <location filename="../src/millercolumn.cpp" line="196"/>
-        <location filename="../src/millercolumn.cpp" line="306"/>
+        <location filename="../src/millercolumn.cpp" line="414" />
+        <location filename="../src/millercolumn.cpp" line="544" />
         <source>Öffnen</source>
         <translation>Ouvrir</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="199"/>
-        <location filename="../src/millercolumn.cpp" line="310"/>
+        <location filename="../src/millercolumn.cpp" line="419" />
+        <location filename="../src/millercolumn.cpp" line="549" />
         <source>Öffnen in</source>
-        <translation>Öffnen in</translation>
+        <translation>Ouvrir dans</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="202"/>
-        <location filename="../src/millercolumn.cpp" line="312"/>
+        <location filename="../src/millercolumn.cpp" line="422" />
+        <location filename="../src/millercolumn.cpp" line="552" />
         <source>Linke Ansicht</source>
-        <translation>Linke Ansicht</translation>
+        <translation>Vue gauche</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="205"/>
-        <location filename="../src/millercolumn.cpp" line="315"/>
+        <location filename="../src/millercolumn.cpp" line="423" />
+        <location filename="../src/millercolumn.cpp" line="553" />
         <source>Rechte Ansicht</source>
-        <translation>Rechte Ansicht</translation>
+        <translation>Vue de droite</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="225"/>
-        <location filename="../src/millercolumn.cpp" line="229"/>
+        <location filename="../src/millercolumn.cpp" line="446" />
+        <location filename="../src/millercolumn.cpp" line="449" />
         <source>Umbenennen</source>
         <translation>Renommer</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="229"/>
+        <location filename="../src/millercolumn.cpp" line="449" />
         <source>Anzeigename:</source>
-        <translation>Anzeigename:</translation>
+        <translation>Nom d'affichage :</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="246"/>
+        <location filename="../src/millercolumn.cpp" line="464" />
         <source>Aus Laufwerken entfernen</source>
-        <translation>Aus Laufwerken entfernen</translation>
+        <translation>Supprimer des lecteurs</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="272"/>
+        <location filename="../src/millercolumn.cpp" line="520" />
         <source>Kopieren</source>
         <translation>Copier</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="274"/>
-        <location filename="../src/millercolumn.cpp" line="299"/>
-        <location filename="../src/millercolumn.cpp" line="329"/>
+        <location filename="../src/millercolumn.cpp" line="523" />
+        <location filename="../src/millercolumn.cpp" line="529" />
+        <location filename="../src/millercolumn.cpp" line="567" />
         <source>Pfad kopieren</source>
-        <translation>Pfad kopieren</translation>
+        <translation>Copier le chemin</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="277"/>
+        <location filename="../src/millercolumn.cpp" line="524" />
         <source>Name kopieren</source>
-        <translation>Name kopieren</translation>
+        <translation>Copier le nom</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="288"/>
+        <location filename="../src/millercolumn.cpp" line="497" />
         <source>Aushängen</source>
         <translation>Démonter</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="293"/>
+        <location filename="../src/millercolumn.cpp" line="501" />
         <source>Einhängen</source>
         <translation>Monter</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="321"/>
+        <location filename="../src/millercolumn.cpp" line="556" />
         <source>Im Terminal öffnen</source>
         <translation>Ouvrir dans le terminal</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="335"/>
+        <location filename="../src/millercolumn.cpp" line="574" />
         <source>Eigenschaften</source>
         <translation>Propriétés</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="347"/>
-        <location filename="../src/millercolumn.cpp" line="403"/>
+        <location filename="../src/millercolumn.cpp" line="273" />
+        <location filename="../src/millercolumn.cpp" line="336" />
         <source>Dieser PC</source>
-        <translation>Dieser PC</translation>
+        <translation>Ce PC</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="407"/>
+        <location filename="../src/millercolumn.cpp" line="344" />
         <source>Google Drive</source>
-        <translation>Google Drive</translation>
+        <translation>Google Drive</translation>
     </message>
 </context>
 <context>
     <name>PaneToolbar</name>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="41"/>
+        <location filename="../src/panetoolbar.cpp" line="50" />
         <source>Sortieren</source>
-        <translation>Sortieren</translation>
+        <translation>Trier</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="42"/>
+        <location filename="../src/panetoolbar.cpp" line="52" />
         <source>Neu</source>
         <translation>Nouveau</translation>
     </message>
     <message>
         <source>Kopieren</source>
-        <translation type="vanished">Copier</translation>
+        <translation>Copier</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="44"/>
+        <location filename="../src/panetoolbar.cpp" line="55" />
         <source>Papierkorb leeren</source>
         <translation>Vider la corbeille</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="77"/>
+        <location filename="../src/panetoolbar.cpp" line="99" />
         <source>Zurück</source>
         <translation>Précédent</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="80"/>
+        <location filename="../src/panetoolbar.cpp" line="103" />
         <source>Vorwärts</source>
-        <translation>Vorwärts</translation>
+        <translation>Avant</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="83"/>
+        <location filename="../src/panetoolbar.cpp" line="106" />
         <source>Hoch</source>
-        <translation>Hoch</translation>
+        <translation>En haut</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="90"/>
+        <location filename="../src/panetoolbar.cpp" line="114" />
         <source>Ordner zuerst</source>
         <translation>Dossiers en premier</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="134"/>
+        <location filename="../src/panetoolbar.cpp" line="125" />
+        <source>Details</source>
+        <translation>Détails</translation>
+    </message>
+    <message>
+        <location filename="../src/panetoolbar.cpp" line="126" />
+        <source>Kompakt</source>
+        <translation>Compact</translation>
+    </message>
+    <message>
+        <location filename="../src/panetoolbar.cpp" line="127" />
+        <source>Symbole</source>
+        <translation>Icônes</translation>
+    </message>
+    <message>
+        <location filename="../src/panetoolbar.cpp" line="158" />
         <source>Dieser PC</source>
-        <translation>Dieser PC</translation>
+        <translation>Ce PC</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="149"/>
+        <location filename="../src/panetoolbar.cpp" line="173" />
         <source>%1 Elemente</source>
-        <translation>%1 Elemente</translation>
+        <translation>%1 éléments</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="159"/>
+        <location filename="../src/panetoolbar.cpp" line="183" />
         <source> | %1 ausgewählt</source>
-        <translation> | %1 ausgewählt</translation>
+        <translation>| %1 sélectionné</translation>
     </message>
 </context>
 <context>
     <name>PaneWidget</name>
     <message>
-        <location filename="../src/panewidget.cpp" line="127"/>
-        <location filename="../src/panewidget.cpp" line="266"/>
-        <location filename="../src/panewidget.cpp" line="471"/>
-        <location filename="../src/panewidget.cpp" line="513"/>
-        <location filename="../src/panewidget.cpp" line="632"/>
-        <location filename="../src/panewidget.cpp" line="721"/>
-        <location filename="../src/panewidget.cpp" line="766"/>
-        <location filename="../src/panewidget.cpp" line="899"/>
+        <location filename="../src/panewidget.cpp" line="114" />
+        <location filename="../src/panewidget.cpp" line="283" />
+        <location filename="../src/panewidget.cpp" line="511" />
+        <location filename="../src/panewidget.cpp" line="527" />
+        <location filename="../src/panewidget.cpp" line="662" />
+        <location filename="../src/panewidget.cpp" line="751" />
+        <location filename="../src/panewidget.cpp" line="796" />
+        <location filename="../src/panewidget.cpp" line="933" />
         <source>Dieser PC</source>
-        <translation>Dieser PC</translation>
+        <translation>Ce PC</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="164"/>
+        <location filename="../src/panewidget.cpp" line="170" />
         <source>Miller-Columns ein-/ausklappen</source>
-        <translation>Miller-Columns ein-/ausklappen</translation>
+        <translation>Basculer les colonnes Miller</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="177"/>
+        <location filename="../src/panewidget.cpp" line="183" />
         <source>Suchen</source>
-        <translation>Suchen</translation>
+        <translation>Recherche</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="194"/>
+        <location filename="../src/panewidget.cpp" line="200" />
         <source>Layout wählen</source>
-        <translation>Layout wählen</translation>
+        <translation>Choisir la disposition</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="286"/>
+        <location filename="../src/panewidget.cpp" line="301" />
         <source>Neuer Tab (Strg+T)</source>
         <translation>Nouvel onglet (Ctrl+T)</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="829"/>
+        <location filename="../src/panewidget.cpp" line="859" />
         <source>Pfad kopieren</source>
-        <translation type="unfinished">Pfad kopieren</translation>
+        <translation>Copier le chemin</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="835"/>
+        <location filename="../src/panewidget.cpp" line="865" />
         <source>Schließen</source>
-        <translation type="unfinished">Fermer</translation>
+        <translation>Fermer</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="953"/>
+        <location filename="../src/panewidget.cpp" line="998" />
         <source>Tab schließen</source>
-        <translation>Fermer l&apos;onglet</translation>
+        <translation>Fermer l'onglet</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="186"/>
+        <location filename="../src/panewidget.cpp" line="192" />
         <source>Menü</source>
-        <translation>Menü</translation>
+        <translation>Menu</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="80"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="77" />
         <source>Neu erstellen</source>
         <translation>Créer nouveau</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="83"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="80" />
         <source>Ordner …</source>
-        <translation>Ordner …</translation>
+        <translation>Dossier …</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="85"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="82" />
         <source>Textdatei …</source>
-        <translation>Textdatei …</translation>
+        <translation>Fichier texte…</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="87"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="84" />
         <source>HTML-Datei …</source>
-        <translation>HTML-Datei …</translation>
+        <translation>Fichier HTML…</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="89"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="86" />
         <source>Leere Datei …</source>
-        <translation>Leere Datei …</translation>
+        <translation>Fichier vide…</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="93"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="90" />
         <source>Verknüpfung zu Datei oder Ordner …</source>
-        <translation>Verknüpfung zu Datei oder Ordner …</translation>
+        <translation>Lien vers un fichier ou un dossier…</translation>
     </message>
     <message>
         <source>Versteckte Dateien anzeigen</source>
-        <translation type="vanished">Afficher les fichiers cachés</translation>
+        <translation>Afficher les fichiers cachés</translation>
     </message>
     <message>
         <source>Einfachklick zum Öffnen</source>
-        <translation type="vanished">Einfachklick zum Öffnen</translation>
+        <translation>Einfachklick zum Öffnen</translation>
     </message>
     <message>
         <source>Dateiendungen anzeigen</source>
-        <translation type="vanished">Dateiendungen anzeigen</translation>
+        <translation>Dateiendungen anzeigen</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="98"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="95" />
         <source>Terminal</source>
         <translation>Terminal</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="102"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="99" />
         <source>Im Terminal öffnen</source>
         <translation>Ouvrir dans le terminal</translation>
     </message>
     <message>
         <source>Einrichten</source>
-        <translation type="vanished">Einrichten</translation>
+        <translation>Einrichten</translation>
     </message>
     <message>
         <source>Fenster-Farbschema</source>
-        <translation type="vanished">Fenster-Farbschema</translation>
+        <translation>Fenster-Farbschema</translation>
     </message>
     <message>
         <source>KDE Global Theme verwenden</source>
-        <translation type="vanished">KDE Global Theme verwenden</translation>
+        <translation>Utilisation du thème global KDE</translation>
     </message>
     <message>
         <source>Übernimmt Farben und Stil des aktiven KDE Global Themes.</source>
-        <translation type="vanished">Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
+        <translation>Découvrez les couleurs et le style des thèmes globaux KDE actifs.</translation>
     </message>
     <message>
         <source>Designs neu laden</source>
-        <translation type="vanished">Designs neu laden</translation>
+        <translation>Des designs neufs</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="327"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="324" />
         <source>Abbrechen</source>
         <translation>Annuler</translation>
     </message>
     <message>
         <source>Übernehmen</source>
-        <translation type="vanished">Appliquer</translation>
+        <translation>Appliquer</translation>
     </message>
     <message>
         <source>Neustart erforderlich</source>
-        <translation type="vanished">Neustart erforderlich</translation>
+        <translation>Neustart erforderlich</translation>
     </message>
     <message>
         <source>Das Theme wird nach einem Neustart angewendet.</source>
-        <translation type="vanished">Das Theme wird nach einem Neustart angewendet.</translation>
+        <translation>Ce thème sera pour un Neustart angewendet.</translation>
     </message>
     <message>
         <source>Tastaturkurzbefehle festlegen …</source>
-        <translation type="vanished">Tastaturkurzbefehle festlegen …</translation>
+        <translation>Tastaturkurzbefehle festlegen…</translation>
     </message>
     <message>
         <source>Terminal wählen…</source>
-        <translation type="vanished">Terminal wählen…</translation>
+        <translation>Terminal wählen…</translation>
     </message>
     <message>
         <source>Altersbadges</source>
-        <translation type="vanished">Badges d&apos;âge</translation>
+        <translation>Badges d'âge</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="120"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="117" />
         <source>Über SplitCommander</source>
         <translation>À propos de SplitCommander</translation>
     </message>
     <message>
         <source>&lt;b&gt;SplitCommander&lt;/b&gt; &amp;nbsp;&lt;small&gt;v%1&lt;/small&gt;&lt;br&gt;</source>
-        <translation type="vanished">&lt;b&gt;SplitCommander&lt;/b&gt; &amp;nbsp;&lt;small&gt;v%1&lt;/small&gt;&lt;br&gt;</translation>
+        <translation>&lt;b&gt;SplitCommander&lt;/b&gt; &amp;nbsp;&lt;small&gt;v%1&lt;/small&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;small&gt;Ein nativer KDE-Dateimanager.&lt;/small&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Stack:&lt;/b&gt; Qt6 · KF6 · C++20&lt;br&gt;&lt;b&gt;Autor:&lt;/b&gt; D. Lange</source>
-        <translation type="vanished">&lt;small&gt;Ein nativer KDE-Dateimanager.&lt;/small&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Stack:&lt;/b&gt; Qt6 · KF6 · C++20&lt;br&gt;&lt;b&gt;Autor:&lt;/b&gt; D. Lange</translation>
+        <translation>&lt;small&gt;Un KDE-Dateimanager natif.&lt;/small&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Pile :&lt;/b&gt; Qt6 · KF6 · C++20&lt;br&gt;&lt;b&gt;Auteur :&lt;/b&gt; D. Lange</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="66"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="63" />
         <source>GitHub</source>
         <translation>GitHub</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="72"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="69" />
         <source>Paperless Manager</source>
         <translation>Gestionnaires sans papier</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="112"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="109" />
         <source>Einrichten ...</source>
-        <translation>Einrichten ...</translation>
+        <translation>Configurer...</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="123"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="120" />
         <source>SplitCommander</source>
-        <translation>SplitCommander</translation>
+        <translation>Commandant divisé</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="125"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="122" />
         <source>Nativer Dual-Pane-Dateimanager für Linux mit KDE Plasma.
 Miller-Column-Interface mit KIO-Integration für lokale und Remote-Dateisysteme.</source>
         <translation>Gestionnaire de fichiers natif à double volet pour Linux avec KDE Plasma.
 Interface Miller Column avec intégration KIO pour les systèmes de fichiers locaux et distants.</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="128"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="125" />
         <source>© 2025–2026 D. Lange</source>
-        <translation>© 2025–2026 D. Lange</translation>
+        <translation>© 2025–2026 D.Lange</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="129"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="126" />
         <source>Unterstützt Google Drive, SFTP, SMB, MTP und weitere KIO-Protokolle.
 Inspiriert von OneCommander.</source>
-        <translation>Prend en charge Google Drive, SFTP, SMB, MTP et d&apos;autres protocoles KIO.
+        <translation>Prend en charge Google Drive, SFTP, SMB, MTP et d'autres protocoles KIO.
 Inspiré de OneCommander.</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="135"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="132" />
         <source>Entwickler und Maintainer</source>
         <translation>Développeur et mainteneur</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="142"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="139" />
         <source>Cross-Platform Application Framework</source>
-        <translation>Cross-Platform Application Framework</translation>
+        <translation>Cadre d'application multiplateforme</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="146"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="143" />
         <source>KDE-Bibliotheken (KF6)</source>
         <translation>Bibliothèques KDE (KF6)</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="150"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="147" />
         <source>KDE Ein-/Ausgabe-Framework für lokale und Remote-Dateisysteme</source>
         <translation>Framework E/S KDE pour les systèmes de fichiers locaux et distants</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="154"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="151" />
         <source>Hardware-Erkennung und Geräte-Integration</source>
         <translation>Détection matérielle et intégration des appareils</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="161"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="158" />
         <source>Repository-Verwaltung und Git-Sidebar-Integration</source>
         <translation>Gestion des dépôts et intégration Git dans la barre latérale</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="167"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="164" />
         <source>Dokumente hochladen und durchsuchen</source>
         <translation>Télécharger et rechercher des documents</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="203"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="200" />
         <source>Klassisch</source>
-        <translation>Klassisch</translation>
+        <translation>Classique</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="203"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="200" />
         <source>Einzeln</source>
-        <translation>Einzeln</translation>
+        <translation>Simple</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="204"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="201" />
         <source>Standard</source>
         <translation>Standard</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="204"/>
-        <location filename="../src/panewidget_hamburger.cpp" line="205"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="201" />
+        <location filename="../src/panewidget_hamburger.cpp" line="202" />
         <source>Dual</source>
-        <translation>Dual</translation>
+        <translation>Double</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="205"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="202" />
         <source>Spalten</source>
-        <translation>Spalten</translation>
+        <translation>Colonnes</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="263"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="260" />
         <source>Neue Textdatei</source>
-        <translation>Neue Textdatei</translation>
+        <translation>Nouveau fichier texte</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="263"/>
-        <location filename="../src/panewidget_hamburger.cpp" line="278"/>
-        <location filename="../src/panewidget_hamburger.cpp" line="294"/>
-        <location filename="../src/panewidget_hamburger.cpp" line="343"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="260" />
+        <location filename="../src/panewidget_hamburger.cpp" line="275" />
+        <location filename="../src/panewidget_hamburger.cpp" line="291" />
+        <location filename="../src/panewidget_hamburger.cpp" line="340" />
         <source>Name:</source>
         <translation>Nom :</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="264"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="261" />
         <source>Neue Datei.txt</source>
-        <translation>Neue Datei.txt</translation>
+        <translation>Nouveau fichier.txt</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="277"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="274" />
         <source>Neue HTML-Datei</source>
-        <translation>Neue HTML-Datei</translation>
+        <translation>Nouveau fichier HTML</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="278"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="275" />
         <source>index.html</source>
         <translation>index.html</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="294"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="291" />
         <source>Leere Datei</source>
-        <translation>Leere Datei</translation>
+        <translation>Fichier vide</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="295"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="292" />
         <source>Neue Datei</source>
         <translation>Nouveau fichier</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="311"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="308" />
         <source>Ziel wählen</source>
-        <translation>Ziel wählen</translation>
+        <translation>Choisissez une destination</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="328"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="325" />
         <source>Auswählen</source>
-        <translation>Auswählen</translation>
+        <translation>Sélectionner</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="342"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="339" />
         <source>Verknüpfungsname</source>
-        <translation>Verknüpfungsname</translation>
+        <translation>Nom du lien</translation>
     </message>
     <message>
         <source>Ziel waehlen</source>
-        <translation type="vanished">Ziel waehlen</translation>
+        <translation>Ziel Waehlen</translation>
     </message>
     <message>
         <source>Verknuepfungsname</source>
-        <translation type="vanished">Verknuepfungsname</translation>
+        <translation>Verknuepfungsname</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="343"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="340" />
         <source>Link</source>
-        <translation>Link</translation>
+        <translation>Lien</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="71"/>
+        <location filename="../src/panewidget_search.cpp" line="89" />
         <source>Suchen ...</source>
-        <translation>Suchen ...</translation>
+        <translation>Recherche...</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="80"/>
+        <location filename="../src/panewidget_search.cpp" line="98" />
         <source>Filtern</source>
-        <translation>Filtern</translation>
+        <translation>Filtre</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="96"/>
+        <location filename="../src/panewidget_search.cpp" line="133" />
         <source>Dateinamen</source>
-        <translation>Dateinamen</translation>
+        <translation>Noms de fichiers</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="97"/>
+        <location filename="../src/panewidget_search.cpp" line="134" />
         <source>Dateiinhalt</source>
-        <translation>Dateiinhalt</translation>
+        <translation>Contenu du fichier</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="106"/>
+        <location filename="../src/panewidget_search.cpp" line="143" />
         <source>KFind öffnen</source>
-        <translation>KFind öffnen</translation>
+        <translation>Ouvrir KFind</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="109"/>
+        <location filename="../src/panewidget_search.cpp" line="146" />
         <source>Sucheinstellungen</source>
-        <translation>Sucheinstellungen</translation>
+        <translation>Paramètres de recherche</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="157"/>
+        <location filename="../src/panewidget_search.cpp" line="180" />
         <source>Ab hier</source>
-        <translation>Ab hier</translation>
+        <translation>D'ici</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="158"/>
+        <location filename="../src/panewidget_search.cpp" line="181" />
         <source>Überall</source>
-        <translation>Überall</translation>
+        <translation>Partout</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="291"/>
-        <location filename="../src/panewidget_search.cpp" line="308"/>
+        <location filename="../src/panewidget_search.cpp" line="328" />
+        <location filename="../src/panewidget_search.cpp" line="345" />
         <source>Keine Ergebnisse</source>
         <translation>Aucun résultat</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="186"/>
-        <location filename="../src/panewidget_footer.cpp" line="171"/>
+        <location filename="../src/panewidget_search.cpp" line="204" />
+        <location filename="../src/panewidget_footer.cpp" line="165" />
         <source>Name</source>
         <translation>Nom</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="186"/>
+        <location filename="../src/panewidget_search.cpp" line="204" />
         <source>Pfad</source>
         <translation>Chemin</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="186"/>
-        <location filename="../src/panewidget_footer.cpp" line="177"/>
+        <location filename="../src/panewidget_search.cpp" line="204" />
+        <location filename="../src/panewidget_footer.cpp" line="170" />
         <source>Geändert</source>
         <translation>Modifié</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="258"/>
+        <location filename="../src/panewidget_search.cpp" line="277" />
         <source>Suche läuft...</source>
-        <translation>Suche läuft...</translation>
+        <translation>Recherche en cours...</translation>
     </message>
     <message>
         <source>Neuer Ordner</source>
-        <translation type="vanished">Nouveau dossier</translation>
+        <translation>Nouveau dossier</translation>
     </message>
     <message>
         <source>Ordnername:</source>
-        <translation type="vanished">Nom du dossier :</translation>
+        <translation>Nom du dossier :</translation>
     </message>
     <message>
         <source>Fehler</source>
-        <translation type="vanished">Erreur</translation>
+        <translation>Erreur</translation>
     </message>
     <message>
         <source>Ordner konnte nicht erstellt werden.</source>
-        <translation type="vanished">Ordner konnte nicht erstellt werden.</translation>
+        <translation>Ordner konnte nicht erstellt werden.</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="565"/>
+        <location filename="../src/panewidget.cpp" line="643" />
         <source>Papierkorb leeren</source>
         <translation>Vider la corbeille</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="566"/>
+        <location filename="../src/panewidget.cpp" line="644" />
         <source>Möchten Sie den Papierkorb wirklich leeren?</source>
-        <translation>Möchten Sie den Papierkorb wirklich leeren?</translation>
+        <translation>Êtes-vous sûr de vouloir vider la poubelle ?</translation>
     </message>
     <message>
         <source>Kopiere Dateien...</source>
-        <translation type="vanished">Kopiere Dateien...</translation>
+        <translation>Copieur Dateien...</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="87"/>
+        <location filename="../src/panewidget_footer.cpp" line="82" />
         <source>%1 Elemente</source>
-        <translation>%1 Elemente</translation>
+        <translation>%1 éléments</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="91"/>
+        <location filename="../src/panewidget_footer.cpp" line="86" />
         <source>%1 ausgewählt</source>
-        <translation>%1 ausgewählt</translation>
+        <translation>%1 sélectionné</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="112"/>
-        <location filename="../src/panewidget_footer.cpp" line="172"/>
+        <location filename="../src/panewidget_footer.cpp" line="106" />
+        <location filename="../src/panewidget_footer.cpp" line="166" />
         <source>Ordner</source>
         <translation>Dossier</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="113"/>
+        <location filename="../src/panewidget_footer.cpp" line="107" />
         <source>…</source>
-        <translation>…</translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="172"/>
+        <location filename="../src/panewidget_footer.cpp" line="166" />
         <source>Typ</source>
         <translation>Type</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="174"/>
+        <location filename="../src/panewidget_footer.cpp" line="167" />
         <source>Datei</source>
         <translation>Fichier</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="175"/>
+        <location filename="../src/panewidget_footer.cpp" line="168" />
         <source>-Datei</source>
-        <translation>-Datei</translation>
+        <translation>-déposer</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="176"/>
+        <location filename="../src/panewidget_footer.cpp" line="169" />
         <source>Erstellt</source>
         <translation>Créé</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="179"/>
+        <location filename="../src/panewidget_footer.cpp" line="172" />
         <source>Alter</source>
-        <translation>Alter</translation>
+        <translation>Âge</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="179"/>
+        <location filename="../src/panewidget_footer.cpp" line="172" />
         <source>Heute</source>
-        <translation>Heute</translation>
+        <translation>Aujourd'hui</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="180"/>
+        <location filename="../src/panewidget_footer.cpp" line="173" />
         <source>Gestern</source>
-        <translation>Gestern</translation>
+        <translation>Hier</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="181"/>
+        <location filename="../src/panewidget_footer.cpp" line="174" />
         <source>%1 t</source>
-        <translation>%1 t</translation>
-    </message>
-    <message>
-        <location filename="../src/panewidget_footer.cpp" line="182"/>
-        <source>%1 m</source>
-        <translation>%1 m</translation>
-    </message>
-    <message>
-        <location filename="../src/panewidget_footer.cpp" line="183"/>
-        <source>%1 j</source>
         <translation>%1 j</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="185"/>
-        <source>Größe:</source>
-        <translation>Größe:</translation>
+        <location filename="../src/panewidget_footer.cpp" line="175" />
+        <source>%1 m</source>
+        <translation>%1 millions</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="199"/>
+        <location filename="../src/panewidget_footer.cpp" line="176" />
+        <source>%1 j</source>
+        <translation>%1 an</translation>
+    </message>
+    <message>
+        <location filename="../src/panewidget_footer.cpp" line="178" />
+        <source>Größe:</source>
+        <translation>Taille:</translation>
+    </message>
+    <message>
+        <location filename="../src/panewidget_footer.cpp" line="179" />
         <source>Attribute</source>
-        <translation>Attribute</translation>
+        <translation>Attributs</translation>
     </message>
 </context>
 <context>
     <name>PaperlessManagerDialog</name>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="218"/>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="295"/>
         <source>Paperless</source>
         <translation>Sans papier</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="219"/>
         <source>Bitte zuerst URL und Token im Paperless Manager konfigurieren.</source>
-        <translation>Veuillez d&apos;abord configurer l&apos;URL et le jeton dans Paperless Manager.</translation>
+        <translation>Veuillez d'abord configurer l'URL et le jeton dans Paperless Manager.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="288"/>
         <source>Paperless Upload</source>
         <translation>Téléchargement sans papier</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="289"/>
         <source>Fehler beim Hochladen von %1:
 %2</source>
         <translation>Erreur lors du téléchargement de %1 :
 %2</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="296"/>
         <source>Upload abgeschlossen.</source>
         <translation>Téléchargement terminé.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="311"/>
         <source>Paperless Manager</source>
         <translation>Gestionnaires sans papier</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="349"/>
         <source>Verbindung</source>
         <translation>Connexion</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="363"/>
         <source>URL:</source>
         <translation>URL :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="375"/>
         <source>Token anzeigen</source>
         <translation>Afficher les jetons</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="378"/>
         <source>API-Token:</source>
         <translation>Jeton API :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="380"/>
         <source>SSL-Zertifikat nicht prüfen (für selbstsignierte Zertifikate)</source>
         <translation>Ne vérifiez pas le certificat SSL (pour les certificats auto-signés)</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="385"/>
         <source>Speichern</source>
         <translation>Sauvegarder</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="396"/>
         <source>Dokumente suchen…</source>
         <translation>Rechercher des documents...</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="399"/>
         <source>Suchen</source>
-        <translation type="unfinished">Suchen</translation>
+        <translation>Recherche</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="403"/>
         <source>Hochladen</source>
         <translation>Télécharger</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="410"/>
         <source>Aktualisieren</source>
         <translation>Mise à jour</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="419"/>
         <source>Dokumente:</source>
         <translation>Documents :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="454"/>
         <source>Im Browser öffnen</source>
         <translation>Ouvrir dans le navigateur</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="457"/>
         <source>Schließen</source>
-        <translation type="unfinished">Fermer</translation>
+        <translation>Fermer</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="485"/>
         <source>Dateien für Paperless auswählen</source>
         <translation>Sélectionnez les fichiers pour la dématérialisation</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="506"/>
         <source>Bitte URL und Token konfigurieren.</source>
-        <translation>Veuillez configurer l&apos;URL et le jeton.</translation>
+        <translation>Veuillez configurer l'URL et le jeton.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="511"/>
         <source>Lädt…</source>
         <translation>Chargement…</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="525"/>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="568"/>
         <source>Fehler: %1</source>
-        <translation type="unfinished">Fehler: %1</translation>
+        <translation>Erreur : %1</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="550"/>
         <source>%1 Dokument(e) — %2 angezeigt</source>
         <translation>%1 document(s) — %2 affichés</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="558"/>
         <source>Lade %1 herunter…</source>
         <translation>Télécharger %1…</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="581"/>
         <source>%1 geöffnet.</source>
         <translation>%1 ouvert.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="583"/>
         <source>Konnte Datei nicht schreiben.</source>
-        <translation>Impossible d&apos;écrire le fichier.</translation>
+        <translation>Impossible d'écrire le fichier.</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="599"/>
         <source>Einstellungen gespeichert.</source>
         <translation>Paramètres enregistrés.</translation>
     </message>
@@ -1868,53 +1803,42 @@ Inspiré de OneCommander.</translation>
 <context>
     <name>PaperlessUploadDialog</name>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="64"/>
         <source>Zu Paperless hochladen</source>
         <translation>Télécharger vers le sans papier</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="80"/>
         <source>Dateien:</source>
         <translation>Fichiers :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="92"/>
         <source>Titel (optional):</source>
         <translation>Titre (facultatif) :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="100"/>
         <source>Wird aus Dateiname ermittelt</source>
         <translation>Déterminé à partir du nom du fichier</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="104"/>
         <source>Tags:</source>
         <translation>Balises :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="113"/>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="123"/>
         <source>Wird geladen…</source>
         <translation>Est en train de charger…</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="118"/>
         <source>Korrespondent:</source>
         <translation>Correspondant:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="141"/>
         <source>Hochladen</source>
         <translation>Télécharger</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="144"/>
         <source>Abbrechen</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="186"/>
         <source>— keiner —</source>
         <translation>- aucun -</translation>
     </message>
@@ -1923,831 +1847,918 @@ Inspiré de OneCommander.</translation>
     <name>QObject</name>
     <message>
         <source>Löschen</source>
-        <translation type="vanished">Supprimer</translation>
+        <translation>Supprimer</translation>
     </message>
     <message>
         <source>In den Papierkorb verschieben</source>
-        <translation type="vanished">Déplacer vers la corbeille</translation>
+        <translation>Déplacer vers la corbeille</translation>
     </message>
     <message>
         <source>System</source>
-        <translation type="vanished">System</translation>
+        <translation>Système</translation>
     </message>
     <message>
         <source>Keine Ergebnisse</source>
-        <translation type="vanished">Aucun résultat</translation>
+        <translation>Aucun résultat</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="125"/>
+        <location filename="../src/sidebar.cpp" line="160" />
         <source>Eintrag bearbeiten</source>
-        <translation>Eintrag bearbeiten</translation>
+        <translation>Modifier l'entrée</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="157"/>
+        <location filename="../src/sidebar.cpp" line="134" />
         <source>Name:</source>
         <translation>Nom :</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="161"/>
+        <location filename="../src/sidebar.cpp" line="139" />
         <source>Adresse:</source>
         <translation>Adresse :</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="201"/>
+        <location filename="../src/sidebar.cpp" line="214" />
         <source>Bearbeiten...</source>
-        <translation>Bearbeiten...</translation>
+        <translation>Modifier...</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="215"/>
+        <location filename="../src/sidebar.cpp" line="227" />
         <source>In Terminal öffnen</source>
         <translation>Ouvrir dans le terminal</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="223"/>
+        <location filename="../src/sidebar.cpp" line="236" />
         <source>Pfad kopieren</source>
-        <translation>Pfad kopieren</translation>
+        <translation>Copier le chemin</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="230"/>
+        <location filename="../src/sidebar.cpp" line="244" />
         <source>Aus Gruppe entfernen</source>
-        <translation>Aus Gruppe entfernen</translation>
+        <translation>Supprimer du groupe</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="236"/>
+        <location filename="../src/sidebar.cpp" line="248" />
         <source>Eigenschaften</source>
         <translation>Propriétés</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="35"/>
         <source>GitHub Release erstellen</source>
         <translation>Créer une version GitHub</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="57"/>
         <source>Tag-Name (z.B. v1.0.0):</source>
         <translation>Nom du tag (p. ex. v1.0.0) :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="63"/>
         <source>Release-Titel:</source>
         <translation>Titre de la version :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="66"/>
         <source>z.B. Version 1.0.0</source>
         <translation>p. ex. Version 1.0.0</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="69"/>
         <source>Beschreibung / Changelog:</source>
         <translation>Description / Journal des modifications :</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="76"/>
         <source>Was ist neu in dieser Version?</source>
         <translation>Quoi de neuf dans cette version ?</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="79"/>
-        <source>Als &quot;Latest&quot; markieren</source>
+        <source>Als "Latest" markieren</source>
         <translation>Als &amp;quot;Latest&amp;quot; markieren</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="84"/>
         <source>Pre-release</source>
         <translation>Pré-version</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="100"/>
         <source>Release erstellen</source>
         <translation>Créer la version</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="102"/>
         <source>Abbrechen</source>
         <translation>Annuler</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="474"/>
         <source>▼  Verbindungseinstellungen</source>
         <translation>▼  Paramètres de connexion</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="475"/>
         <source>▶  Verbindungseinstellungen</source>
         <translation>▶  Paramètres de connexion</translation>
     </message>
     <message>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="61"/>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="76"/>
         <source>ISO einbinden</source>
-        <translation>Inclure l&apos;ISO</translation>
+        <translation>Inclure l'ISO</translation>
     </message>
     <message>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="62"/>
         <source>Konnte Datei nicht öffnen: %1</source>
-        <translation>Impossible d&apos;ouvrir le fichier : %1</translation>
+        <translation>Impossible d'ouvrir le fichier : %1</translation>
     </message>
     <message>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="77"/>
         <source>Fehler: %1</source>
-        <translation type="unfinished">Fehler: %1</translation>
+        <translation>Erreur : %1</translation>
     </message>
     <message>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="112"/>
         <source>ISO aushängen</source>
-        <translation>Démonter l&apos;ISO</translation>
+        <translation>Démonter l'ISO</translation>
     </message>
     <message>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="113"/>
         <source>Gerät nicht gefunden.</source>
         <translation>Appareil introuvable.</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="135" />
+        <source>Leere Gruppe</source>
+        <translation>Groupe vide</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="136" />
+        <source>Home-Favoriten</source>
+        <translation>Favoris personnels</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="140" />
+        <source>Git Repositories</source>
+        <translation>Dépôts Git</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="167" />
+        <source>Es existiert bereits eine Git-Box</source>
+        <translation>Une boîte Git existe déjà</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="190" />
+        <source>Gruppenname:</source>
+        <translation>Nom du groupe :</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="193" />
+        <source>Mein Ordner...</source>
+        <translation>Mon dossier...</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="196" />
+        <source>Inhalt:</source>
+        <translation>Contenu :</translation>
     </message>
 </context>
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="80"/>
+        <location filename="../src/settingsdialog.cpp" line="62" />
+        <source>1 Std</source>
+        <translation>1 h</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="63" />
+        <source>1 Tag</source>
+        <translation>1 jour</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="64" />
+        <source>7 Tage</source>
+        <translation>7 jours</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="65" />
+        <source>1 Monat</source>
+        <translation>1 mois</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="66" />
+        <source>1 Jahr</source>
+        <translation>1 an</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="67" />
+        <source>&gt;1 Jahr</source>
+        <translation>&gt;1 an</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="108" />
         <source>Einstellungen</source>
         <translation>Paramètres</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="128"/>
+        <location filename="../src/settingsdialog.cpp" line="182" />
         <source>Allgemein</source>
         <translation>Général</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="129"/>
-        <location filename="../src/settingsdialog.cpp" line="422"/>
+        <location filename="../src/settingsdialog.cpp" line="183" />
+        <location filename="../src/settingsdialog.cpp" line="551" />
         <source>Erscheinungsbild</source>
         <translation>Apparence</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="130"/>
+        <location filename="../src/settingsdialog.cpp" line="184" />
         <source>Kurzbefehle</source>
-        <translation>Kurzbefehle</translation>
+        <translation>Raccourcis</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="149"/>
+        <location filename="../src/settingsdialog.cpp" line="195" />
         <source>Übernehmen &amp; Neustarten</source>
-        <translation>Übernehmen &amp; Neustarten</translation>
+        <translation>Appliquer et redémarrer</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="150"/>
+        <location filename="../src/settingsdialog.cpp" line="197" />
         <source>Schließen</source>
         <translation>Fermer</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="184"/>
+        <location filename="../src/settingsdialog.cpp" line="234" />
         <source>Allgemeine Einstellungen</source>
-        <translation>Allgemeine Einstellungen</translation>
+        <translation>Paramètres généraux</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="189"/>
+        <location filename="../src/settingsdialog.cpp" line="256" />
         <source>Sprache</source>
         <translation>Langue</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="196"/>
+        <location filename="../src/settingsdialog.cpp" line="270" />
         <source>Systemsprache</source>
         <translation>Langue du système</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="223"/>
+        <location filename="../src/settingsdialog.cpp" line="299" />
         <source>Neustart erforderlich, um die Sprache zu wechseln.</source>
         <translation>Redémarrage requis pour changer de langue.</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="229"/>
+        <location filename="../src/settingsdialog.cpp" line="307" />
         <source>Sprache:</source>
         <translation>Langue:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="234"/>
+        <location filename="../src/settingsdialog.cpp" line="316" />
         <source>Start-Verhalten</source>
-        <translation>Start-Verhalten</translation>
+        <translation>Comportement de démarrage</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="238"/>
+        <location filename="../src/settingsdialog.cpp" line="323" />
         <source>Mit letzter Sitzung starten (Letzte Pfade)</source>
-        <translation>Mit letzter Sitzung starten (Letzte Pfade)</translation>
+        <translation>Commencer par la dernière session (derniers chemins)</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="239"/>
+        <location filename="../src/settingsdialog.cpp" line="324" />
         <source>Immer in der Laufwerks-Übersicht (Dieser PC) starten</source>
-        <translation>Immer in der Laufwerks-Übersicht (Dieser PC) starten</translation>
+        <translation>Toujours démarrer dans l'aperçu du lecteur (ce PC)</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="240"/>
+        <location filename="../src/settingsdialog.cpp" line="325" />
         <source>Immer in folgendem Pfad starten:</source>
-        <translation>Immer in folgendem Pfad starten:</translation>
+        <translation>Commencez toujours par le chemin suivant :</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="254"/>
+        <location filename="../src/settingsdialog.cpp" line="340" />
         <source>Durchsuchen...</source>
         <translation>Parcourir...</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="262"/>
+        <location filename="../src/settingsdialog.cpp" line="350" />
         <source>Start-Verzeichnis wählen</source>
-        <translation>Start-Verzeichnis wählen</translation>
+        <translation>Sélectionnez le répertoire de démarrage</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="271"/>
+        <location filename="../src/settingsdialog.cpp" line="366" />
         <source>Verhalten &amp; Dateiliste</source>
-        <translation>Verhalten &amp; Dateiliste</translation>
+        <translation>Comportement et liste de fichiers</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="274"/>
+        <location filename="../src/settingsdialog.cpp" line="371" />
         <source>Versteckte Dateien anzeigen</source>
         <translation>Afficher les fichiers cachés</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="275"/>
+        <location filename="../src/settingsdialog.cpp" line="372" />
         <source>Dateiendungen anzeigen</source>
-        <translation>Dateiendungen anzeigen</translation>
+        <translation>Afficher les extensions de fichiers</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="276"/>
+        <location filename="../src/settingsdialog.cpp" line="373" />
         <source>Einfachklick zum Öffnen verwenden</source>
-        <translation>Einfachklick zum Öffnen verwenden</translation>
+        <translation>Utilisez un seul clic pour ouvrir</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="277"/>
+        <location filename="../src/settingsdialog.cpp" line="374" />
         <source>IP-Adresse in Miller-Spalten anzeigen</source>
-        <translation>IP-Adresse in Miller-Spalten anzeigen</translation>
+        <translation>Afficher l'adresse IP dans les colonnes Miller</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="286"/>
+        <location filename="../src/settingsdialog.cpp" line="386" />
         <source>Laufwerke</source>
         <translation>Lecteurs</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="289"/>
+        <location filename="../src/settingsdialog.cpp" line="391" />
         <source>IP-Adresse für Netzlaufwerke anzeigen</source>
-        <translation>Afficher l&apos;adresse IP pour les lecteurs réseau</translation>
+        <translation>Afficher l'adresse IP pour les lecteurs réseau</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="295"/>
+        <location filename="../src/settingsdialog.cpp" line="396" />
         <source>Git</source>
         <translation>Git</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="298"/>
+        <location filename="../src/settingsdialog.cpp" line="401" />
         <source>Git-Box in Sidebar anzeigen</source>
         <translation>Afficher la boîte Git dans la barre latérale</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="302"/>
+        <location filename="../src/settingsdialog.cpp" line="405" />
         <source>Aktualisierung:</source>
         <translation>Actualisation :</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="304"/>
+        <location filename="../src/settingsdialog.cpp" line="408" />
         <source>Bei Änderungen</source>
         <translation>Lors des modifications</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="305"/>
+        <location filename="../src/settingsdialog.cpp" line="409" />
         <source>Periodisch</source>
         <translation>Périodiquement</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="306"/>
+        <location filename="../src/settingsdialog.cpp" line="410" />
         <source>Manuell</source>
         <translation>Manuel</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="311"/>
+        <location filename="../src/settingsdialog.cpp" line="415" />
         <source>Intervall (Min):</source>
         <translation>Intervalle (min) :</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="328"/>
+        <location filename="../src/settingsdialog.cpp" line="436" />
         <source>Darstellung</source>
         <translation>Représentation</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="333"/>
+        <location filename="../src/settingsdialog.cpp" line="444" />
         <source> pt</source>
         <translation>pt</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="334"/>
+        <location filename="../src/settingsdialog.cpp" line="445" />
         <source>Steuert Schriftgröße, Icon-Größe und Zeilenhöhe</source>
         <translation>Contrôle la taille de la police, la taille des icônes et la hauteur des lignes</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="338"/>
+        <location filename="../src/settingsdialog.cpp" line="450" />
         <source>App-weite Schriftart</source>
-        <translation>Police à l&apos;échelle de l&apos;application</translation>
+        <translation>Police à l'échelle de l'application</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="342"/>
+        <location filename="../src/settingsdialog.cpp" line="455" />
         <source>Icon-Größe und Zeilenhöhen werden automatisch angepasst</source>
         <translation>La taille des icônes et la hauteur des lignes sont ajustées automatiquement</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="359"/>
+        <location filename="../src/settingsdialog.cpp" line="475" />
         <source>Schriftart:</source>
         <translation>Fonte:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="360"/>
+        <location filename="../src/settingsdialog.cpp" line="476" />
         <source>Schriftgröße:</source>
         <translation>Taille de la police :</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="362"/>
+        <location filename="../src/settingsdialog.cpp" line="478" />
         <source>Abstände:</source>
         <translation>Distances :</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="366"/>
+        <location filename="../src/settingsdialog.cpp" line="486" />
         <source>Pfad-Filter (Blacklist)</source>
         <translation>Filtre de chemin (liste noire)</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="368"/>
+        <location filename="../src/settingsdialog.cpp" line="490" />
         <source>Diese Verzeichnisse werden in der Sidebar und den Laufwerkslisten versteckt.</source>
-        <translation>Diese Verzeichnisse werden in der Sidebar und den Laufwerkslisten versteckt.</translation>
+        <translation>Ces répertoires seront masqués dans la barre latérale et dans les listes de lecteurs.</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="380"/>
+        <location filename="../src/settingsdialog.cpp" line="505" />
         <source>Neuer Pfad...</source>
-        <translation>Neuer Pfad...</translation>
+        <translation>Nouveau chemin...</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="383"/>
-        <location filename="../src/settingsdialog.cpp" line="509"/>
+        <location filename="../src/settingsdialog.cpp" line="508" />
+        <location filename="../src/settingsdialog.cpp" line="703" />
         <source>Hinzufügen</source>
-        <translation>Hinzufügen</translation>
+        <translation>Ajouter</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="384"/>
-        <location filename="../src/settingsdialog.cpp" line="512"/>
+        <location filename="../src/settingsdialog.cpp" line="510" />
+        <location filename="../src/settingsdialog.cpp" line="707" />
         <source>Entfernen</source>
         <translation>Supprimer</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="427"/>
+        <location filename="../src/settingsdialog.cpp" line="571" />
         <source>Design &amp; Farben</source>
-        <translation>Design &amp; Farben</translation>
+        <translation>Conception et couleurs</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="430"/>
+        <location filename="../src/settingsdialog.cpp" line="576" />
         <source>KDE Global Theme verwenden</source>
-        <translation>KDE Global Theme verwenden</translation>
+        <translation>Utiliser le thème global KDE</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="431"/>
+        <location filename="../src/settingsdialog.cpp" line="577" />
         <source>Übernimmt Farben und Stil des aktiven KDE Global Themes.</source>
-        <translation>Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
+        <translation>Applique les couleurs et le style du thème global KDE actif.</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="471"/>
+        <location filename="../src/settingsdialog.cpp" line="653" />
         <source>Vorschaubilder (Thumbnails)</source>
-        <translation>Vorschaubilder (Thumbnails)</translation>
+        <translation>Miniatures</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="473"/>
+        <location filename="../src/settingsdialog.cpp" line="657" />
         <source>Vorschaubilder anzeigen</source>
-        <translation>Vorschaubilder anzeigen</translation>
+        <translation>Afficher les vignettes</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="475"/>
+        <location filename="../src/settingsdialog.cpp" line="659" />
         <source>Maximale Dateigröße (MB):</source>
-        <translation>Maximale Dateigröße (MB):</translation>
+        <translation>Taille maximale du fichier (Mo) :</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="487"/>
+        <location filename="../src/settingsdialog.cpp" line="676" />
         <source>Dateityp-Farben (Hervorhebung)</source>
-        <translation>Dateityp-Farben (Hervorhebung)</translation>
+        <translation>Couleurs du type de fichier (mise en évidence)</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="506"/>
+        <location filename="../src/settingsdialog.cpp" line="699" />
         <source>Farbe wählen...</source>
-        <translation>Farbe wählen...</translation>
+        <translation>Choisissez la couleur...</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="524"/>
+        <location filename="../src/settingsdialog.cpp" line="727" />
         <source>Farbe für Dateityp wählen</source>
-        <translation>Farbe für Dateityp wählen</translation>
+        <translation>Choisissez la couleur pour le type de fichier</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="747"/>
+        <location filename="../src/settingsdialog.cpp" line="1022" />
         <source>Fehler</source>
-        <translation type="unfinished">Erreur</translation>
+        <translation>Erreur</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="747"/>
+        <location filename="../src/settingsdialog.cpp" line="1022" />
         <source>Neustart fehlgeschlagen: %1</source>
         <translation>Échec du redémarrage : %1</translation>
     </message>
     <message>
         <source>Icon-Größen &amp; Zeilenhöhen</source>
-        <translation type="vanished">Icon-Größen &amp; Zeilenhöhen</translation>
+        <translation>Icon-Größen &amp; Zeilenhöhen</translation>
     </message>
     <message>
         <source>Erweiterte Höhen-Optionen anzeigen</source>
-        <translation type="vanished">Erweiterte Höhen-Optionen anzeigen</translation>
+        <translation>Autres options de hauteur disponibles</translation>
     </message>
     <message>
         <source>Sidebar Icon:</source>
-        <translation type="vanished">Sidebar Icon:</translation>
+        <translation>Icône de la barre latérale :</translation>
     </message>
     <message>
         <source>Laufwerke Icon:</source>
-        <translation type="vanished">Laufwerke Icon:</translation>
+        <translation>Icône Laufwerke :</translation>
     </message>
     <message>
         <source>Dateilisten Icon:</source>
-        <translation type="vanished">Dateilisten Icon:</translation>
+        <translation>Icône Dateilisten :</translation>
     </message>
     <message>
         <source>Sidebar Höhe:</source>
-        <translation type="vanished">Sidebar Höhe:</translation>
+        <translation>Barre latérale ici :</translation>
     </message>
     <message>
         <source>Laufwerke Höhe:</source>
-        <translation type="vanished">Laufwerke Höhe:</translation>
+        <translation>Laufwerke Höhe :</translation>
     </message>
     <message>
         <source>Miller Header Höhe:</source>
-        <translation type="vanished">Miller Header Höhe:</translation>
+        <translation>Miller Header Hauteur:</translation>
     </message>
     <message>
         <source>Passwort erforderlich</source>
-        <translation type="vanished">Passwort erforderlich</translation>
+        <translation>Mot de passe erforderlich</translation>
     </message>
     <message>
         <source>Passwort für erweiterte Optionen:</source>
-        <translation type="vanished">Passwort für erweiterte Optionen:</translation>
+        <translation>Mot de passe pour les différentes options :</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="555"/>
+        <location filename="../src/settingsdialog.cpp" line="755" />
         <source>Alters-Plaketten</source>
-        <translation>Alters-Plaketten</translation>
+        <translation>Insignes d'âge</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="566"/>
+        <location filename="../src/settingsdialog.cpp" line="777" />
         <source>Sättigung:</source>
-        <translation>Sättigung:</translation>
+        <translation>Saturation:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="567"/>
+        <location filename="../src/settingsdialog.cpp" line="778" />
         <source>Helligkeit:</source>
-        <translation>Helligkeit:</translation>
+        <translation>Légèreté:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="570"/>
+        <location filename="../src/settingsdialog.cpp" line="781" />
         <source>Neue Dateien hervorheben (&lt; 2 Tage)</source>
         <translation>Surligner les nouveaux fichiers (&lt; 2 jours)</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="740"/>
+        <location filename="../src/settingsdialog.cpp" line="1013" />
         <source>Neustart erforderlich</source>
-        <translation>Neustart erforderlich</translation>
+        <translation>Redémarrage requis</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="741"/>
+        <location filename="../src/settingsdialog.cpp" line="1013" />
         <source>Einige Änderungen erfordern einen Neustart. Jetzt neu starten?</source>
-        <translation>Einige Änderungen erfordern einen Neustart. Jetzt neu starten?</translation>
+        <translation>Certaines modifications nécessitent un redémarrage. Redémarrer maintenant ?</translation>
     </message>
 </context>
 <context>
     <name>Sidebar</name>
     <message>
-        <location filename="../src/sidebar.cpp" line="355"/>
+        <location filename="../src/sidebar.cpp" line="379" />
         <source>Layout wählen</source>
-        <translation type="unfinished">Layout wählen</translation>
+        <translation>Choisir la disposition</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="391"/>
+        <location filename="../src/sidebar.cpp" line="437" />
         <source>Klassisch</source>
-        <translation type="unfinished">Klassisch</translation>
+        <translation>Classique</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="391"/>
+        <location filename="../src/sidebar.cpp" line="437" />
         <source>Einzeln</source>
-        <translation type="unfinished">Einzeln</translation>
+        <translation>Simple</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="392"/>
+        <location filename="../src/sidebar.cpp" line="438" />
         <source>Standard</source>
-        <translation type="unfinished">Standard</translation>
+        <translation>Standard</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="392"/>
-        <location filename="../src/sidebar.cpp" line="393"/>
+        <location filename="../src/sidebar.cpp" line="438" />
+        <location filename="../src/sidebar.cpp" line="439" />
         <source>Dual</source>
-        <translation type="unfinished">Dual</translation>
+        <translation>Double</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="393"/>
+        <location filename="../src/sidebar.cpp" line="439" />
         <source>Spalten</source>
-        <translation type="unfinished">Spalten</translation>
+        <translation>Colonnes</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="470"/>
         <source>LAUFWERKE</source>
         <translation>LAUFWERKE</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="580"/>
-        <location filename="../src/sidebar.cpp" line="1468"/>
+        <location filename="../src/sidebar.cpp" line="746" />
+        <location filename="../src/sidebar.cpp" line="1892" />
         <source>Öffnen</source>
         <translation>Ouvrir</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="583"/>
-        <location filename="../src/sidebar.cpp" line="1471"/>
-        <location filename="../src/sidebar.cpp" line="1685"/>
+        <location filename="../src/sidebar.cpp" line="747" />
+        <location filename="../src/sidebar.cpp" line="1896" />
+        <location filename="../src/sidebar.cpp" line="1941" />
         <source>Öffnen in</source>
-        <translation>Öffnen in</translation>
+        <translation>Ouvrir dans</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="585"/>
-        <location filename="../src/sidebar.cpp" line="1473"/>
-        <location filename="../src/sidebar.cpp" line="1687"/>
+        <location filename="../src/sidebar.cpp" line="750" />
+        <location filename="../src/sidebar.cpp" line="1899" />
+        <location filename="../src/sidebar.cpp" line="1944" />
         <source>Linke Pane</source>
-        <translation>Linke Pane</translation>
+        <translation>Volet gauche</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="587"/>
-        <location filename="../src/sidebar.cpp" line="1475"/>
-        <location filename="../src/sidebar.cpp" line="1689"/>
+        <location filename="../src/sidebar.cpp" line="751" />
+        <location filename="../src/sidebar.cpp" line="1900" />
+        <location filename="../src/sidebar.cpp" line="1945" />
         <source>Rechte Pane</source>
-        <translation>Rechte Pane</translation>
+        <translation>Volet droit</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="607"/>
-        <location filename="../src/sidebar.cpp" line="610"/>
-        <location filename="../src/sidebar.cpp" line="1563"/>
-        <location filename="../src/sidebar.cpp" line="1566"/>
+        <location filename="../src/sidebar.cpp" line="798" />
+        <location filename="../src/sidebar.cpp" line="801" />
+        <location filename="../src/sidebar.cpp" line="1806" />
+        <location filename="../src/sidebar.cpp" line="1809" />
         <source>Umbenennen</source>
         <translation>Renommer</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="610"/>
-        <location filename="../src/sidebar.cpp" line="1569"/>
+        <location filename="../src/sidebar.cpp" line="801" />
+        <location filename="../src/sidebar.cpp" line="1813" />
         <source>Anzeigename:</source>
-        <translation>Anzeigename:</translation>
+        <translation>Nom d'affichage :</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="637"/>
+        <location filename="../src/sidebar.cpp" line="808" />
         <source>Zu Laufwerken hinzufügen</source>
         <translation>Ajouter aux lecteurs</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="664"/>
-        <location filename="../src/sidebar.cpp" line="1584"/>
+        <location filename="../src/sidebar.cpp" line="760" />
+        <location filename="../src/sidebar.cpp" line="1828" />
         <source>Aus Laufwerken entfernen</source>
-        <translation>Aus Laufwerken entfernen</translation>
+        <translation>Supprimer des lecteurs</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="726"/>
+        <location filename="../src/sidebar.cpp" line="767" />
         <source>Trennen</source>
         <translation>Déconnecter</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="731"/>
-        <location filename="../src/sidebar.cpp" line="1612"/>
+        <location filename="../src/sidebar.cpp" line="817" />
+        <location filename="../src/sidebar.cpp" line="1918" />
         <source>Pfad kopieren</source>
-        <translation>Pfad kopieren</translation>
+        <translation>Copier le chemin</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="741"/>
+        <location filename="../src/sidebar.cpp" line="885" />
         <source>Box umbenennen …</source>
-        <translation>Box umbenennen …</translation>
+        <translation>Renommer la boîte...</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="743"/>
+        <location filename="../src/sidebar.cpp" line="833" />
         <source>Box umbenennen</source>
-        <translation>Box umbenennen</translation>
+        <translation>Renommer la boîte</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="744"/>
-        <location filename="../src/sidebargroups.cpp" line="873"/>
+        <location filename="../src/sidebar.cpp" line="550" />
+        <source>Laufwerke</source>
+        <translation>Lecteurs</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebar.cpp" line="833" />
+        <location filename="../src/sidebargroups.cpp" line="1217" />
         <source>Name:</source>
         <translation>Nom :</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="755"/>
+        <location filename="../src/sidebar.cpp" line="892" />
         <source>Alles aktualisieren</source>
-        <translation>Alles aktualisieren</translation>
+        <translation>Actualiser tout</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="760"/>
+        <location filename="../src/sidebar.cpp" line="899" />
         <source>Netzwerklaufwerk verbinden</source>
-        <translation>Netzwerklaufwerk verbinden</translation>
+        <translation>Connecter le lecteur réseau</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="763"/>
+        <location filename="../src/sidebar.cpp" line="904" />
         <source>SMB Laufwerke verbinden</source>
         <translation>Connecter des lecteurs SMB</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="861"/>
+        <location filename="../src/sidebar.cpp" line="979" />
         <source>+ Neue Gruppe</source>
-        <translation>+ Neue Gruppe</translation>
+        <translation>+ Nouveau groupe</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1072"/>
         <source>TAGS</source>
-        <translation>TAGS</translation>
+        <translation>ÉTIQUETTES</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1125"/>
+        <location filename="../src/sidebar.cpp" line="1250" />
         <source>Neuer Tag</source>
-        <translation>Neuer Tag</translation>
+        <translation>Nouvelle balise</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1125"/>
+        <location filename="../src/sidebar.cpp" line="1250" />
         <source>Tag-Name:</source>
-        <translation>Tag-Name:</translation>
+        <translation>Nom de la balise :</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1130"/>
-        <location filename="../src/sidebargroups.cpp" line="857"/>
+        <location filename="../src/sidebar.cpp" line="1257" />
+        <location filename="../src/sidebargroups.cpp" line="1191" />
         <source>Farbe wählen</source>
-        <translation>Farbe wählen</translation>
+        <translation>Choisissez la couleur</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1171"/>
+        <location filename="../src/sidebar.cpp" line="1356" />
         <source>Über</source>
-        <translation>Über</translation>
+        <translation>À propos</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1172"/>
+        <location filename="../src/sidebar.cpp" line="1357" />
         <source>Suchen</source>
-        <translation>Suchen</translation>
+        <translation>Recherche</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1173"/>
+        <location filename="../src/sidebar.cpp" line="1358" />
         <source>Drucken</source>
-        <translation>Drucken</translation>
+        <translation>Imprimer</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1174"/>
+        <location filename="../src/sidebar.cpp" line="1359" />
         <source>Nachricht</source>
-        <translation>Nachricht</translation>
+        <translation>Message</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1482"/>
-        <location filename="../src/sidebar.cpp" line="1534"/>
+        <location filename="../src/sidebar.cpp" line="1726" />
+        <location filename="../src/sidebar.cpp" line="1752" />
         <source>Aushängen</source>
         <translation>Démonter</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1490"/>
+        <location filename="../src/sidebar.cpp" line="1761" />
         <source>Auswerfen</source>
         <translation>Éjecter</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1538"/>
+        <location filename="../src/sidebar.cpp" line="1733" />
         <source>Einhängen</source>
         <translation>Monter</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1610"/>
+        <location filename="../src/sidebar.cpp" line="1201" />
+        <source>Tags</source>
+        <translation>Balises</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebar.cpp" line="1915" />
         <source>Kopieren</source>
         <translation>Copier</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1615"/>
+        <location filename="../src/sidebar.cpp" line="1919" />
         <source>Name kopieren</source>
-        <translation>Name kopieren</translation>
+        <translation>Copier le nom</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1622"/>
+        <location filename="../src/sidebar.cpp" line="1854" />
         <source>Verknüpfung erstellen</source>
         <translation>Créer un lien</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1643"/>
+        <location filename="../src/sidebar.cpp" line="1870" />
         <source>Eigenschaften</source>
         <translation>Propriétés</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="69"/>
+        <location filename="../src/sidebargroups.cpp" line="211" />
         <source>Neue Gruppe</source>
         <translation>Nouveau groupe</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="76"/>
         <source>Gruppenname:</source>
         <translation>Nom du groupe :</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="78"/>
         <source>Mein Ordner...</source>
         <translation>Mon dossier...</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="81"/>
         <source>Inhalt:</source>
         <translation>Contenu :</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="83"/>
         <source>Leere Gruppe</source>
         <translation>Groupe vide</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="84"/>
         <source>Home-Favoriten</source>
         <translation>Favoris personnels</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="86"/>
         <source>Git Repositories</source>
         <translation>Dépôts Git</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="107"/>
         <source>Es existiert bereits eine Git-Box</source>
         <translation>Une boîte Git existe déjà</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="343"/>
-        <location filename="../src/sidebargroups.cpp" line="346"/>
-        <location filename="../src/sidebargroups.cpp" line="566"/>
-        <location filename="../src/sidebargroups.cpp" line="569"/>
+        <location filename="../src/sidebargroups.cpp" line="277" />
+        <location filename="../src/sidebargroups.cpp" line="370" />
+        <location filename="../src/sidebargroups.cpp" line="653" />
+        <location filename="../src/sidebargroups.cpp" line="701" />
         <source>Gruppe umbenennen</source>
         <translation>Renommer le groupe</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="346"/>
-        <location filename="../src/sidebargroups.cpp" line="569"/>
+        <location filename="../src/sidebargroups.cpp" line="277" />
+        <location filename="../src/sidebargroups.cpp" line="701" />
         <source>Neuer Name:</source>
         <translation>Nouveau nom :</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="380"/>
+        <location filename="../src/sidebargroups.cpp" line="399" />
         <source>Lösen</source>
         <translation>Détacher</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="380"/>
+        <location filename="../src/sidebargroups.cpp" line="399" />
         <source>An Position verankern</source>
         <translation>Épingler la position</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="392"/>
-        <location filename="../src/sidebargroups.cpp" line="590"/>
+        <location filename="../src/sidebargroups.cpp" line="411" />
+        <location filename="../src/sidebargroups.cpp" line="660" />
         <source>Nach oben</source>
         <translation>Vers le haut</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="393"/>
-        <location filename="../src/sidebargroups.cpp" line="591"/>
+        <location filename="../src/sidebargroups.cpp" line="412" />
+        <location filename="../src/sidebargroups.cpp" line="661" />
         <source>Nach unten</source>
         <translation>Vers le bas</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="397"/>
-        <location filename="../src/sidebargroups.cpp" line="594"/>
+        <location filename="../src/sidebargroups.cpp" line="385" />
+        <location filename="../src/sidebargroups.cpp" line="665" />
         <source>Gruppe löschen</source>
         <translation>Supprimer le groupe</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="720"/>
+        <location filename="../src/sidebargroups.cpp" line="238" />
+        <location filename="../src/sidebargroups.cpp" line="592" />
+        <source>Orte</source>
+        <translation>Places</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="239" />
+        <location filename="../src/sidebargroups.cpp" line="593" />
+        <source>Favoriten</source>
+        <translation>Favoris</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="240" />
+        <location filename="../src/sidebargroups.cpp" line="594" />
+        <source>Repos</source>
+        <translation>Dépôts</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="241" />
+        <location filename="../src/sidebargroups.cpp" line="595" />
+        <source>Repo</source>
+        <translation>Dépôt</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="972" />
         <source>Papierkorb</source>
         <translation>Corbeille</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="721"/>
+        <location filename="../src/sidebargroups.cpp" line="976" />
         <source>Zuletzt verwendet</source>
         <translation>Récemment utilisé</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="722"/>
+        <location filename="../src/sidebargroups.cpp" line="980" />
         <source>Netzwerk</source>
         <translation>Réseau</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="723"/>
+        <location filename="../src/sidebargroups.cpp" line="984" />
         <source>Persönlicher Ordner</source>
         <translation>Dossier personnel</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="854"/>
+        <location filename="../src/sidebargroups.cpp" line="1126" />
+        <source>Wichtig</source>
+        <translation>Important</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="1127" />
+        <source>Arbeit</source>
+        <translation>Travail</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="1128" />
+        <source>Schule</source>
+        <translation>École</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="1169" />
         <source>Farbe ändern …</source>
         <translation>Changer la couleur…</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="870"/>
+        <location filename="../src/sidebargroups.cpp" line="1174" />
         <source>Umbenennen …</source>
         <translation>Renommer…</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="873"/>
+        <location filename="../src/sidebargroups.cpp" line="1217" />
         <source>Tag umbenennen</source>
         <translation>Renommer le tag</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="878"/>
+        <location filename="../src/sidebargroups.cpp" line="1180" />
         <source>Löschen</source>
         <translation>Supprimer</translation>
     </message>
@@ -2755,1335 +2766,1307 @@ Inspiré de OneCommander.</translation>
 <context>
     <name>SidebarHandle</name>
     <message>
-        <location filename="../src/panecomponents.cpp" line="180"/>
+        <location filename="../src/panecomponents.cpp" line="180" />
         <source>Layout wählen</source>
-        <translation type="unfinished">Layout wählen</translation>
+        <translation>Choisir la disposition</translation>
     </message>
 </context>
 <context>
     <name>SplitCommander</name>
     <message>
         <source>Altersbadges</source>
-        <translation type="vanished">Badges d&apos;âge</translation>
+        <translation>Badges d'âge</translation>
     </message>
     <message>
         <source>Dateialter / relatives Datum</source>
-        <translation type="vanished">Âge du fichier / date relative</translation>
+        <translation>Âge du fichier / date relative</translation>
     </message>
     <message>
         <source>Zurücksetzen</source>
-        <translation type="vanished">Réinitialiser</translation>
+        <translation>Réinitialiser</translation>
     </message>
     <message>
         <source>Neue Dateien hervorheben (&lt; 2 Tage)</source>
-        <translation type="vanished">Surligner les nouveaux fichiers (&lt; 2 jours)</translation>
+        <translation>Surligner les nouveaux fichiers (&lt; 2 jours)</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="96"/>
-        <location filename="../src/sidebargroups.cpp" line="46"/>
+        <location filename="../src/sidebar.cpp" line="90" />
+        <location filename="../src/sidebargroups.cpp" line="45" />
         <source>OK</source>
-        <translation>OK</translation>
+        <translation>D'ACCORD</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="99"/>
-        <location filename="../src/sidebargroups.cpp" line="47"/>
+        <location filename="../src/sidebar.cpp" line="91" />
+        <location filename="../src/sidebargroups.cpp" line="46" />
         <source>Abbrechen</source>
         <translation>Annuler</translation>
     </message>
     <message>
         <source>Übernehmen</source>
-        <translation type="vanished">Appliquer</translation>
+        <translation>Appliquer</translation>
     </message>
     <message>
         <source>Batch Rename - %1 Dateien</source>
-        <translation type="vanished">Renommer en lot - %1 fichiers</translation>
+        <translation>Renommer en lot - %1 fichiers</translation>
     </message>
     <message>
         <source>An ursprünglichem Ort wiederherstellen</source>
-        <translation type="vanished">Restaurer à l&apos;emplacement d&apos;origine</translation>
+        <translation>Restaurer à l'emplacement d'origine</translation>
     </message>
     <message>
         <source>Löschen</source>
-        <translation type="vanished">Supprimer</translation>
+        <translation>Supprimer</translation>
     </message>
     <message>
         <source>Sortieren nach</source>
-        <translation type="vanished">Trier par</translation>
+        <translation>Trier par</translation>
     </message>
     <message>
         <source>Ansichtsmodus ändern</source>
-        <translation type="vanished">Changer le mode d&apos;affichage</translation>
+        <translation>Changer le mode d'affichage</translation>
     </message>
     <message>
         <source>Details</source>
-        <translation type="vanished">Détails</translation>
+        <translation>Détails</translation>
     </message>
     <message>
         <source>Symbole</source>
-        <translation type="vanished">Icônes</translation>
+        <translation>Icônes</translation>
     </message>
     <message>
         <source>Papierkorb leeren</source>
-        <translation type="vanished">Vider la corbeille</translation>
+        <translation>Vider la corbeille</translation>
     </message>
     <message>
         <source>Öffnen</source>
-        <translation type="vanished">Ouvrir</translation>
+        <translation>Ouvrir</translation>
     </message>
     <message>
         <source>Neu erstellen</source>
-        <translation type="vanished">Créer nouveau</translation>
+        <translation>Créer nouveau</translation>
     </message>
     <message>
         <source>Adresse kopieren</source>
-        <translation type="vanished">Copier l&apos;adresse</translation>
+        <translation>Copier l'adresse</translation>
     </message>
     <message>
         <source>Hier duplizieren</source>
-        <translation type="vanished">Dupliquer ici</translation>
+        <translation>Dupliquer ici</translation>
     </message>
     <message>
         <source>Dupliziere Datei...</source>
-        <translation type="vanished">Dupliquer le fichier...</translation>
+        <translation>Dupliquer le fichier...</translation>
     </message>
     <message>
         <source>Favoriten</source>
-        <translation type="vanished">Favoris</translation>
+        <translation>Favoris</translation>
     </message>
     <message>
         <source>Hinzufügen zu</source>
-        <translation type="vanished">Ajouter à</translation>
+        <translation>Ajouter à</translation>
     </message>
     <message>
         <source>Laufwerke</source>
-        <translation type="vanished">Lecteurs</translation>
+        <translation>Lecteurs</translation>
     </message>
     <message>
         <source>Terminal hier öffnen</source>
-        <translation type="vanished">Ouvrir le terminal ici</translation>
+        <translation>Ouvrir le terminal ici</translation>
     </message>
     <message>
         <source>Diaschau starten</source>
-        <translation type="vanished">Démarrer le diaporama</translation>
+        <translation>Démarrer le diaporama</translation>
     </message>
     <message>
         <source>Tag</source>
-        <translation type="vanished">Tag</translation>
+        <translation>Étiqueter</translation>
     </message>
     <message>
         <source>Tag entfernen</source>
-        <translation type="vanished">Supprimer le tag</translation>
+        <translation>Supprimer le tag</translation>
     </message>
     <message>
         <source>Aktionen</source>
-        <translation type="vanished">Actions</translation>
+        <translation>Actions</translation>
     </message>
     <message>
         <source>In neuen Ordner verschieben ...</source>
-        <translation type="vanished">Déplacer vers un nouveau dossier...</translation>
+        <translation>Déplacer vers un nouveau dossier...</translation>
     </message>
     <message>
         <source>In neuen Ordner verschieben</source>
-        <translation type="vanished">Déplacer vers un nouveau dossier</translation>
+        <translation>Déplacer vers un nouveau dossier</translation>
     </message>
     <message>
         <source>Ordnername:</source>
-        <translation type="vanished">Nom du dossier :</translation>
+        <translation>Nom du dossier :</translation>
     </message>
     <message>
         <source>Neuer Ordner</source>
-        <translation type="vanished">Nouveau dossier</translation>
+        <translation>Nouveau dossier</translation>
     </message>
     <message>
         <source>Eigenschaften</source>
-        <translation type="vanished">Propriétés</translation>
+        <translation>Propriétés</translation>
     </message>
     <message>
         <source>Zu Laufwerken hinzufügen</source>
-        <translation type="vanished">Ajouter aux lecteurs</translation>
+        <translation>Ajouter aux lecteurs</translation>
     </message>
     <message>
         <source>Initialisierung...</source>
-        <translation type="vanished">Initialisierung...</translation>
+        <translation>Initialisation...</translation>
     </message>
     <message>
         <source>Fortschritt: %1%</source>
-        <translation type="vanished">Fortschritt: %1%</translation>
+        <translation>Fortschritt : %1%</translation>
     </message>
     <message>
         <source>Fehler: %1</source>
-        <translation type="vanished">Fehler: %1</translation>
+        <translation>Fehler : %1</translation>
     </message>
     <message>
         <source>Fertig!</source>
-        <translation type="vanished">Fertig!</translation>
+        <translation>Fertig!</translation>
     </message>
     <message>
         <source>Löschen...</source>
-        <translation type="vanished">Löschen...</translation>
+        <translation>Löschen...</translation>
     </message>
     <message>
         <source>Fehler</source>
-        <translation type="vanished">Erreur</translation>
+        <translation>Erreur</translation>
     </message>
     <message>
         <source>Ordner konnte nicht erstellt werden.</source>
-        <translation type="vanished">Ordner konnte nicht erstellt werden.</translation>
+        <translation>Ordner konnte nicht erstellt werden.</translation>
     </message>
     <message>
         <source>SplitCommander</source>
-        <translation type="vanished">SplitCommander</translation>
+        <translation>Commandant divisé</translation>
     </message>
     <message>
         <source>Zurück</source>
-        <translation type="vanished">Précédent</translation>
+        <translation>Précédent</translation>
     </message>
     <message>
         <source>Vorwärts</source>
-        <translation type="vanished">Vorwärts</translation>
+        <translation>Vorwärts</translation>
     </message>
     <message>
         <source>Übergeordneter Ordner</source>
-        <translation type="vanished">Dossier parent</translation>
+        <translation>Dossier parent</translation>
     </message>
     <message>
         <source>Home-Verzeichnis</source>
-        <translation type="vanished">Home-Verzeichnis</translation>
+        <translation>Accueil-Verzeichnis</translation>
     </message>
     <message>
         <source>Neu laden</source>
-        <translation type="vanished">Neu laden</translation>
+        <translation>Nouveau chargé</translation>
     </message>
     <message>
         <source>Linke Pane fokussieren</source>
-        <translation type="vanished">Linke Pane fokussieren</translation>
+        <translation>Linke Pane fokussieren</translation>
     </message>
     <message>
         <source>Rechte Pane fokussieren</source>
-        <translation type="vanished">Rechte Pane fokussieren</translation>
+        <translation>Rechte Pane fokussieren</translation>
     </message>
     <message>
         <source>Panes tauschen</source>
-        <translation type="vanished">Panes tauschen</translation>
+        <translation>Vitres tauschen</translation>
     </message>
     <message>
         <source>Pfade synchronisieren</source>
-        <translation type="vanished">Pfade synchronisieren</translation>
+        <translation>Pfades synchronisés</translation>
     </message>
     <message>
         <source>Umbenennen</source>
-        <translation type="vanished">Renommer</translation>
+        <translation>Renommer</translation>
     </message>
     <message>
         <source>Neuer Name:</source>
-        <translation type="vanished">Nouveau nom :</translation>
+        <translation>Nouveau nom :</translation>
     </message>
     <message>
         <source>In den Papierkorb verschieben</source>
-        <translation type="vanished">Déplacer vers la corbeille</translation>
+        <translation>Déplacer vers la corbeille</translation>
     </message>
     <message>
         <source>Kopieren (Zwischenablage)</source>
-        <translation type="vanished">Kopieren (Zwischenablage)</translation>
+        <translation>Kopieren (Zwischenablage)</translation>
     </message>
     <message>
         <source>Ausschneiden (Zwischenablage)</source>
-        <translation type="vanished">Ausschneiden (Zwischenablage)</translation>
+        <translation>Ausschneiden (Zwischenablage)</translation>
     </message>
     <message>
         <source>Versteckte Dateien umschalten</source>
-        <translation type="vanished">Versteckte Dateien umschalten</translation>
+        <translation>Versteckte Dateien umschalten</translation>
     </message>
     <message>
         <source>Layout wechseln</source>
-        <translation type="vanished">Layout wechseln</translation>
+        <translation>Mise en page à chaque fois</translation>
     </message>
     <message>
         <source>Einfügen</source>
-        <translation type="vanished">Coller</translation>
+        <translation>Coller</translation>
     </message>
     <message>
         <source>Verschiebe Dateien...</source>
-        <translation type="vanished">Verschiebe Dateien...</translation>
+        <translation>Verschiebe Dateien...</translation>
     </message>
     <message>
         <source>Kopiere Dateien...</source>
-        <translation type="vanished">Kopiere Dateien...</translation>
+        <translation>Copieur Dateien...</translation>
     </message>
     <message>
         <source>Alles auswählen</source>
-        <translation type="vanished">Alles auswählen</translation>
+        <translation>Tous les produits</translation>
     </message>
     <message>
         <source>Öffnen in</source>
-        <translation type="vanished">Öffnen in</translation>
+        <translation>Öffnen dans</translation>
     </message>
     <message>
         <source>Linke Ansicht</source>
-        <translation type="vanished">Linke Ansicht</translation>
+        <translation>Lien vers l'analyse</translation>
     </message>
     <message>
         <source>Rechte Ansicht</source>
-        <translation type="vanished">Rechte Ansicht</translation>
+        <translation>Rechte Ansicht</translation>
     </message>
     <message>
         <source>Anzeigename:</source>
-        <translation type="vanished">Anzeigename:</translation>
+        <translation>Nom d'Anzeige :</translation>
     </message>
     <message>
         <source>Aus Laufwerken entfernen</source>
-        <translation type="vanished">Aus Laufwerken entfernen</translation>
+        <translation>Aus Laufwerken entfernen</translation>
     </message>
     <message>
         <source>Kopieren</source>
-        <translation type="vanished">Copier</translation>
+        <translation>Copier</translation>
     </message>
     <message>
         <source>Pfad kopieren</source>
-        <translation type="vanished">Pfad kopieren</translation>
+        <translation>Copier le formulaire</translation>
     </message>
     <message>
         <source>Name kopieren</source>
-        <translation type="vanished">Name kopieren</translation>
+        <translation>Nom copieren</translation>
     </message>
     <message>
         <source>Aushängen</source>
-        <translation type="vanished">Démonter</translation>
+        <translation>Démonter</translation>
     </message>
     <message>
         <source>Einhängen</source>
-        <translation type="vanished">Monter</translation>
+        <translation>Monter</translation>
     </message>
     <message>
         <source>Im Terminal öffnen</source>
-        <translation type="vanished">Ouvrir dans le terminal</translation>
+        <translation>Ouvrir dans le terminal</translation>
     </message>
     <message>
         <source>Dieser PC</source>
-        <translation type="vanished">Dieser PC</translation>
+        <translation>Ce PC</translation>
     </message>
     <message>
         <source>Sortieren</source>
-        <translation type="vanished">Sortieren</translation>
+        <translation>Sorties</translation>
     </message>
     <message>
         <source>Neu</source>
-        <translation type="vanished">Nouveau</translation>
+        <translation>Nouveau</translation>
     </message>
     <message>
         <source>Hoch</source>
-        <translation type="vanished">Hoch</translation>
+        <translation>Très</translation>
     </message>
     <message>
         <source>Ordner zuerst</source>
-        <translation type="vanished">Dossiers en premier</translation>
+        <translation>Dossiers en premier</translation>
     </message>
     <message>
         <source>%1 Elemente</source>
-        <translation type="vanished">%1 Elemente</translation>
+        <translation>%1 élément</translation>
     </message>
     <message>
         <source> | %1 ausgewählt</source>
-        <translation type="vanished"> | %1 ausgewählt</translation>
+        <translation>| %1 ausgewählt</translation>
     </message>
     <message>
         <source>Miller-Columns ein-/ausklappen</source>
-        <translation type="vanished">Miller-Columns ein-/ausklappen</translation>
+        <translation>Miller-Columns ein-/ausklappen</translation>
     </message>
     <message>
         <source>Suchen</source>
-        <translation type="vanished">Suchen</translation>
+        <translation>Suchen</translation>
     </message>
     <message>
         <source>Layout wählen</source>
-        <translation type="vanished">Layout wählen</translation>
+        <translation>Choisir la disposition</translation>
     </message>
     <message>
         <source>Menü</source>
-        <translation type="vanished">Menü</translation>
+        <translation>Menu</translation>
     </message>
     <message>
         <source>Ordner …</source>
-        <translation type="vanished">Ordner …</translation>
+        <translation>Ordonner…</translation>
     </message>
     <message>
         <source>Textdatei …</source>
-        <translation type="vanished">Textdatei …</translation>
+        <translation>Textedatei…</translation>
     </message>
     <message>
         <source>HTML-Datei …</source>
-        <translation type="vanished">HTML-Datei …</translation>
+        <translation>HTML-Datei …</translation>
     </message>
     <message>
         <source>Leere Datei …</source>
-        <translation type="vanished">Leere Datei …</translation>
+        <translation>Lire Datei…</translation>
     </message>
     <message>
         <source>Verknüpfung zu Datei oder Ordner …</source>
-        <translation type="vanished">Verknüpfung zu Datei oder Ordner …</translation>
+        <translation>Verknüpfung zu Datei oder Ordner …</translation>
     </message>
     <message>
         <source>Versteckte Dateien anzeigen</source>
-        <translation type="vanished">Afficher les fichiers cachés</translation>
+        <translation>Afficher les fichiers cachés</translation>
     </message>
     <message>
         <source>Einfachklick zum Öffnen</source>
-        <translation type="vanished">Einfachklick zum Öffnen</translation>
+        <translation>Einfachklick zum Öffnen</translation>
     </message>
     <message>
         <source>Dateiendungen anzeigen</source>
-        <translation type="vanished">Dateiendungen anzeigen</translation>
+        <translation>Dateiendungen anzeigen</translation>
     </message>
     <message>
         <source>Terminal</source>
-        <translation type="vanished">Terminal</translation>
+        <translation>Terminal</translation>
     </message>
     <message>
         <source>In Terminal öffnen</source>
-        <translation type="vanished">Ouvrir dans le terminal</translation>
+        <translation>Ouvrir dans le terminal</translation>
     </message>
     <message>
         <source>Einrichten</source>
-        <translation type="vanished">Einrichten</translation>
+        <translation>Einrichten</translation>
     </message>
     <message>
         <source>Fenster-Farbschema</source>
-        <translation type="vanished">Fenster-Farbschema</translation>
+        <translation>Fenster-Farbschema</translation>
     </message>
     <message>
         <source>KDE Global Theme verwenden</source>
-        <translation type="vanished">KDE Global Theme verwenden</translation>
+        <translation>Utilisation du thème global KDE</translation>
     </message>
     <message>
         <source>Übernimmt Farben und Stil des aktiven KDE Global Themes.</source>
-        <translation type="vanished">Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
+        <translation>Découvrez les couleurs et le style des thèmes globaux KDE actifs.</translation>
     </message>
     <message>
         <source>Designs neu laden</source>
-        <translation type="vanished">Designs neu laden</translation>
+        <translation>Des designs neufs</translation>
     </message>
     <message>
         <source>Neustart erforderlich</source>
-        <translation type="vanished">Neustart erforderlich</translation>
+        <translation>Neustart erforderlich</translation>
     </message>
     <message>
         <source>Das Theme wird nach einem Neustart angewendet.</source>
-        <translation type="vanished">Das Theme wird nach einem Neustart angewendet.</translation>
+        <translation>Ce thème sera pour un Neustart angewendet.</translation>
     </message>
     <message>
         <source>Tastaturkurzbefehle festlegen …</source>
-        <translation type="vanished">Tastaturkurzbefehle festlegen …</translation>
+        <translation>Tastaturkurzbefehle festlegen…</translation>
     </message>
     <message>
         <source>Terminal wählen…</source>
-        <translation type="vanished">Terminal wählen…</translation>
+        <translation>Terminal wählen…</translation>
     </message>
     <message>
         <source>Über SplitCommander</source>
-        <translation type="vanished">À propos de SplitCommander</translation>
+        <translation>À propos de SplitCommander</translation>
     </message>
     <message>
         <source>Klassisch</source>
-        <translation type="vanished">Klassisch</translation>
+        <translation>Classique</translation>
     </message>
     <message>
         <source>Einzeln</source>
-        <translation type="vanished">Einzeln</translation>
+        <translation>Simple</translation>
     </message>
     <message>
         <source>Standard</source>
-        <translation type="vanished">Standard</translation>
+        <translation>Standard</translation>
     </message>
     <message>
         <source>Dual</source>
-        <translation type="vanished">Dual</translation>
+        <translation>Double</translation>
     </message>
     <message>
         <source>Spalten</source>
-        <translation type="vanished">Spalten</translation>
+        <translation>Colonnes</translation>
     </message>
     <message>
         <source>Neue Textdatei</source>
-        <translation type="vanished">Neue Textdatei</translation>
+        <translation>Nouvelle date de texte</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="vanished">Nom :</translation>
+        <translation>Nom :</translation>
     </message>
     <message>
         <source>Neue Datei.txt</source>
-        <translation type="vanished">Neue Datei.txt</translation>
+        <translation>Nouvelle datei.txt</translation>
     </message>
     <message>
         <source>Neue HTML-Datei</source>
-        <translation type="vanished">Neue HTML-Datei</translation>
+        <translation>Nouvelles dates HTML</translation>
     </message>
     <message>
         <source>index.html</source>
-        <translation type="vanished">index.html</translation>
+        <translation>index.html</translation>
     </message>
     <message>
         <source>Leere Datei</source>
-        <translation type="vanished">Leere Datei</translation>
+        <translation>Leere Datei</translation>
     </message>
     <message>
         <source>Neue Datei</source>
-        <translation type="vanished">Nouveau fichier</translation>
+        <translation>Nouveau fichier</translation>
     </message>
     <message>
         <source>Ziel waehlen</source>
-        <translation type="vanished">Ziel waehlen</translation>
+        <translation>Ziel Waehlen</translation>
     </message>
     <message>
         <source>Verknuepfungsname</source>
-        <translation type="vanished">Verknuepfungsname</translation>
+        <translation>Verknuepfungsname</translation>
     </message>
     <message>
         <source>Link</source>
-        <translation type="vanished">Link</translation>
+        <translation>Lien</translation>
     </message>
     <message>
         <source>Suchen ...</source>
-        <translation type="vanished">Suchen ...</translation>
+        <translation>Suchen...</translation>
     </message>
     <message>
         <source>Filtern</source>
-        <translation type="vanished">Filtern</translation>
+        <translation>Filtrer</translation>
     </message>
     <message>
         <source>Dateinamen</source>
-        <translation type="vanished">Dateinamen</translation>
+        <translation>Dateinamen</translation>
     </message>
     <message>
         <source>Dateiinhalt</source>
-        <translation type="vanished">Dateiinhalt</translation>
+        <translation>Date d'expiration</translation>
     </message>
     <message>
         <source>KFind öffnen</source>
-        <translation type="vanished">KFind öffnen</translation>
+        <translation>KFind öffnen</translation>
     </message>
     <message>
         <source>Sucheinstellungen</source>
-        <translation type="vanished">Sucheinstellungen</translation>
+        <translation>Recherche d'informations</translation>
     </message>
     <message>
         <source>Ab hier</source>
-        <translation type="vanished">Ab hier</translation>
+        <translation>Ab hier</translation>
     </message>
     <message>
         <source>Überall</source>
-        <translation type="vanished">Überall</translation>
+        <translation>Überall</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="144"/>
-        <location filename="../src/previewpanel.cpp" line="181"/>
-        <location filename="../src/previewpanel.cpp" line="198"/>
+        <location filename="../src/filepane.cpp" line="143" />
         <source>Name</source>
         <translation>Nom</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="154"/>
+        <location filename="../src/filepane.cpp" line="153" />
         <source>Pfad</source>
         <translation>Chemin</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="147"/>
-        <location filename="../src/previewpanel.cpp" line="148"/>
-        <location filename="../src/previewpanel.cpp" line="171"/>
-        <location filename="../src/previewpanel.cpp" line="185"/>
+        <location filename="../src/filepane.cpp" line="146" />
         <source>Geändert</source>
         <translation>Modifié</translation>
     </message>
     <message>
         <source>Suche läuft...</source>
-        <translation type="vanished">Suche läuft...</translation>
+        <translation>Suche läuft...</translation>
     </message>
     <message>
         <source>Möchten Sie den Papierkorb wirklich leeren?</source>
-        <translation type="vanished">Möchten Sie den Papierkorb wirklich leeren?</translation>
+        <translation>Voulez-vous que le panier à papier soit utile?</translation>
     </message>
     <message>
         <source>%1 ausgewählt</source>
-        <translation type="vanished">%1 ausgewählt</translation>
+        <translation>%1 ausgewählt</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="126"/>
         <source>Graustufen 8-bit</source>
-        <translation>Graustufen 8-bit</translation>
+        <translation>Graustufen 8 bits</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="127"/>
         <source>Graustufen 16-bit</source>
-        <translation>Graustufen 16-bit</translation>
+        <translation>Graustufen 16 bits</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="129"/>
         <source>RGB 24-bit</source>
-        <translation>RGB 24-bit</translation>
+        <translation>RVB 24 bits</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="131"/>
         <source>RGBA 32-bit</source>
-        <translation>RGBA 32-bit</translation>
+        <translation>RVBA 32 bits</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="132"/>
         <source>%1-bit</source>
-        <translation>%1-bit</translation>
+        <translation>%1 bits</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="139"/>
         <source>Aufl.</source>
         <translation>Aufl.</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="140"/>
         <source>Format</source>
         <translation>Format</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="141"/>
         <source>Tiefe</source>
         <translation>Tiefe</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="143"/>
         <source>DPI</source>
-        <translation>DPI</translation>
+        <translation>PPP</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="146"/>
         <source>Maße</source>
-        <translation>Maße</translation>
+        <translation>Masse</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="182"/>
         <source>Ordner</source>
         <translation>Dossier</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="200"/>
         <source>Protokoll</source>
-        <translation>Protokoll</translation>
+        <translation>Protocole</translation>
     </message>
     <message>
         <source>…</source>
-        <translation type="vanished">…</translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="136"/>
-        <location filename="../src/previewpanel.cpp" line="168"/>
         <source>Datei</source>
         <translation>Fichier</translation>
     </message>
     <message>
         <source>-Datei</source>
-        <translation type="vanished">-Datei</translation>
+        <translation>-Dateï</translation>
     </message>
     <message>
         <source>Heute</source>
-        <translation type="vanished">Heute</translation>
+        <translation>Aujourd'hui</translation>
     </message>
     <message>
         <source>Gestern</source>
-        <translation type="vanished">Gestern</translation>
+        <translation>Gestern</translation>
     </message>
     <message>
         <source>%1 t</source>
-        <translation type="vanished">%1 t</translation>
+        <translation>%1 t</translation>
     </message>
     <message>
         <source>%1 m</source>
-        <translation type="vanished">%1 m</translation>
+        <translation>%1 millions</translation>
     </message>
     <message>
         <source>%1 j</source>
-        <translation type="vanished">%1 j</translation>
+        <translation>%1j</translation>
     </message>
     <message>
         <source>System</source>
-        <translation type="vanished">System</translation>
+        <translation>Système</translation>
     </message>
     <message>
         <source>Keine Ergebnisse</source>
-        <translation type="vanished">Aucun résultat</translation>
+        <translation>Aucun résultat</translation>
     </message>
     <message>
         <source>Eintrag bearbeiten</source>
-        <translation type="vanished">Eintrag bearbeiten</translation>
+        <translation>Eintrag Bearbeiten</translation>
     </message>
     <message>
         <source>Adresse:</source>
-        <translation type="vanished">Adresse :</translation>
+        <translation>Adresse :</translation>
     </message>
     <message>
         <source>Bearbeiten...</source>
-        <translation type="vanished">Bearbeiten...</translation>
+        <translation>Bearbeit...</translation>
     </message>
     <message>
         <source>Aus Gruppe entfernen</source>
-        <translation type="vanished">Aus Gruppe entfernen</translation>
+        <translation>Aus Gruppe entfernen</translation>
     </message>
     <message>
         <source>LAUFWERKE</source>
-        <translation type="vanished">LAUFWERKE</translation>
+        <translation>LAUFWERKE</translation>
     </message>
     <message>
         <source>Linke Pane</source>
-        <translation type="vanished">Linke Pane</translation>
+        <translation>Volet Liens</translation>
     </message>
     <message>
         <source>Rechte Pane</source>
-        <translation type="vanished">Rechte Pane</translation>
+        <translation>Volet droit</translation>
     </message>
     <message>
         <source>Trennen</source>
-        <translation type="vanished">Déconnecter</translation>
+        <translation>Déconnecter</translation>
     </message>
     <message>
         <source>Box umbenennen …</source>
-        <translation type="vanished">Box umbenennen …</translation>
+        <translation>Boîte umbenennen…</translation>
     </message>
     <message>
         <source>Box umbenennen</source>
-        <translation type="vanished">Box umbenennen</translation>
+        <translation>Boîte umbenennen</translation>
     </message>
     <message>
         <source>Alles aktualisieren</source>
-        <translation type="vanished">Alles aktualisieren</translation>
+        <translation>Toutes les mises à jour</translation>
     </message>
     <message>
         <source>Netzwerklaufwerk verbinden</source>
-        <translation type="vanished">Netzwerklaufwerk verbinden</translation>
+        <translation>Travaux de réseau verbinden</translation>
     </message>
     <message>
         <source>+ Neue Gruppe</source>
-        <translation type="vanished">+ Neue Gruppe</translation>
+        <translation>+ Nouveau Groupe</translation>
     </message>
     <message>
         <source>TAGS</source>
-        <translation type="vanished">TAGS</translation>
+        <translation>ÉTIQUETTES</translation>
     </message>
     <message>
         <source>Neuer Tag</source>
-        <translation type="vanished">Neuer Tag</translation>
+        <translation>Nouvelle étiquette</translation>
     </message>
     <message>
         <source>Tag-Name:</source>
-        <translation type="vanished">Tag-Name:</translation>
+        <translation>Nom de la balise :</translation>
     </message>
     <message>
         <source>Farbe wählen</source>
-        <translation type="vanished">Farbe wählen</translation>
+        <translation>Couleurs wählen</translation>
     </message>
     <message>
         <source>Über</source>
-        <translation type="vanished">Über</translation>
+        <translation>Super</translation>
     </message>
     <message>
         <source>Drucken</source>
-        <translation type="vanished">Drucken</translation>
+        <translation>Drucken</translation>
     </message>
     <message>
         <source>Nachricht</source>
-        <translation type="vanished">Nachricht</translation>
+        <translation>Nachricht</translation>
     </message>
     <message>
         <source>Auswerfen</source>
-        <translation type="vanished">Éjecter</translation>
+        <translation>Éjecter</translation>
     </message>
     <message>
         <source>Verknüpfung erstellen</source>
-        <translation type="vanished">Créer un lien</translation>
+        <translation>Créer un lien</translation>
     </message>
     <message>
         <source>Neue Gruppe</source>
-        <translation type="vanished">Nouveau groupe</translation>
+        <translation>Nouveau groupe</translation>
     </message>
     <message>
         <source>Gruppenname:</source>
-        <translation type="vanished">Nom du groupe :</translation>
+        <translation>Nom du groupe :</translation>
     </message>
     <message>
         <source>Mein Ordner...</source>
-        <translation type="vanished">Mon dossier...</translation>
+        <translation>Mon dossier...</translation>
     </message>
     <message>
         <source>Inhalt:</source>
-        <translation type="vanished">Contenu :</translation>
+        <translation>Contenu :</translation>
     </message>
     <message>
         <source>Leere Gruppe</source>
-        <translation type="vanished">Groupe vide</translation>
+        <translation>Groupe vide</translation>
     </message>
     <message>
         <source>Home-Favoriten</source>
-        <translation type="vanished">Favoris personnels</translation>
+        <translation>Favoris personnels</translation>
     </message>
     <message>
         <source>Gruppe umbenennen</source>
-        <translation type="vanished">Renommer le groupe</translation>
+        <translation>Renommer le groupe</translation>
     </message>
     <message>
         <source>Lösen</source>
-        <translation type="vanished">Détacher</translation>
+        <translation>Détacher</translation>
     </message>
     <message>
         <source>An Position verankern</source>
-        <translation type="vanished">Épingler la position</translation>
+        <translation>Épingler la position</translation>
     </message>
     <message>
         <source>Nach oben</source>
-        <translation type="vanished">Vers le haut</translation>
+        <translation>Vers le haut</translation>
     </message>
     <message>
         <source>Nach unten</source>
-        <translation type="vanished">Vers le bas</translation>
+        <translation>Vers le bas</translation>
     </message>
     <message>
         <source>Gruppe löschen</source>
-        <translation type="vanished">Supprimer le groupe</translation>
+        <translation>Supprimer le groupe</translation>
     </message>
     <message>
         <source>Papierkorb</source>
-        <translation type="vanished">Corbeille</translation>
+        <translation>Corbeille</translation>
     </message>
     <message>
         <source>Zuletzt verwendet</source>
-        <translation type="vanished">Récemment utilisé</translation>
+        <translation>Récemment utilisé</translation>
     </message>
     <message>
         <source>Netzwerk</source>
-        <translation type="vanished">Réseau</translation>
+        <translation>Réseau</translation>
     </message>
     <message>
         <source>Persönlicher Ordner</source>
-        <translation type="vanished">Dossier personnel</translation>
+        <translation>Dossier personnel</translation>
     </message>
     <message>
         <source>Farbe ändern …</source>
-        <translation type="vanished">Changer la couleur…</translation>
+        <translation>Changer la couleur…</translation>
     </message>
     <message>
         <source>Umbenennen …</source>
-        <translation type="vanished">Renommer…</translation>
+        <translation>Renommer…</translation>
     </message>
     <message>
         <source>Tag umbenennen</source>
-        <translation type="vanished">Renommer le tag</translation>
+        <translation>Renommer le tag</translation>
     </message>
     <message>
         <source>Theme auswählen</source>
-        <translation type="vanished">Theme auswählen</translation>
+        <translation>Thème auswählen</translation>
     </message>
     <message>
         <source>System-Theme</source>
-        <translation type="vanished">System-Theme</translation>
+        <translation>Thème système</translation>
     </message>
     <message>
         <source>Eigenes Theme</source>
-        <translation type="vanished">Eigenes Theme</translation>
+        <translation>Thème propre</translation>
     </message>
     <message>
         <source>Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</source>
-        <translation type="vanished">Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</translation>
+        <translation>Ce thème est vraiment importé et sera disponible dans un nouveau démarrage de SplitCommander de manière significative.</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="145"/>
-        <location filename="../src/previewpanel.cpp" line="137"/>
-        <location filename="../src/previewpanel.cpp" line="169"/>
-        <location filename="../src/previewpanel.cpp" line="182"/>
-        <location filename="../src/previewpanel.cpp" line="199"/>
+        <location filename="../src/filepane.cpp" line="144" />
         <source>Typ</source>
         <translation>Type</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="146"/>
+        <location filename="../src/filepane.cpp" line="145" />
         <source>Alter</source>
-        <translation>Alter</translation>
+        <translation>Âge</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="148"/>
-        <location filename="../src/previewpanel.cpp" line="172"/>
-        <location filename="../src/previewpanel.cpp" line="186"/>
+        <location filename="../src/filepane.cpp" line="147" />
         <source>Erstellt</source>
         <translation>Créé</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="149"/>
+        <location filename="../src/filepane.cpp" line="148" />
         <source>Letzter Zugriff</source>
         <translation>Dernier accès</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="150"/>
-        <location filename="../src/previewpanel.cpp" line="138"/>
-        <location filename="../src/previewpanel.cpp" line="170"/>
-        <location filename="../src/previewpanel.cpp" line="184"/>
+        <location filename="../src/filepane.cpp" line="149" />
         <source>Größe</source>
         <translation>Taille</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="151"/>
+        <location filename="../src/filepane.cpp" line="150" />
         <source>Rechte</source>
-        <translation>Rechte</translation>
+        <translation>Autorisations</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="152"/>
-        <location filename="../src/filepane.cpp" line="153"/>
-        <location filename="../src/filepane.cpp" line="154"/>
-        <location filename="../src/filepane.cpp" line="155"/>
+        <location filename="../src/filepane.cpp" line="151" />
+        <location filename="../src/filepane.cpp" line="152" />
+        <location filename="../src/filepane.cpp" line="153" />
+        <location filename="../src/filepane.cpp" line="154" />
         <source>Weitere</source>
-        <translation>Weitere</translation>
+        <translation>Autres</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="152"/>
+        <location filename="../src/filepane.cpp" line="151" />
         <source>Eigentümer</source>
-        <translation>Eigentümer</translation>
+        <translation>Propriétaire</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="153"/>
+        <location filename="../src/filepane.cpp" line="152" />
         <source>Benutzergruppe</source>
-        <translation>Benutzergruppe</translation>
+        <translation>Groupe</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="155"/>
+        <location filename="../src/filepane.cpp" line="154" />
         <source>Dateierweiterung</source>
-        <translation>Dateierweiterung</translation>
+        <translation>Extension de fichier</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="156"/>
+        <location filename="../src/filepane.cpp" line="155" />
         <source>Tags</source>
-        <translation>Tags</translation>
+        <translation>Balises</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="157"/>
-        <location filename="../src/filepane.cpp" line="158"/>
-        <location filename="../src/filepane.cpp" line="159"/>
-        <location filename="../src/filepane.cpp" line="160"/>
-        <location filename="../src/filepane.cpp" line="161"/>
+        <location filename="../src/filepane.cpp" line="156" />
+        <location filename="../src/filepane.cpp" line="157" />
+        <location filename="../src/filepane.cpp" line="158" />
+        <location filename="../src/filepane.cpp" line="159" />
+        <location filename="../src/filepane.cpp" line="160" />
         <source>Bild</source>
-        <translation>Bild</translation>
+        <translation>Image</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="157"/>
+        <location filename="../src/filepane.cpp" line="156" />
         <source>Datum der Aufnahme</source>
-        <translation>Datum der Aufnahme</translation>
+        <translation>Date de prise</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="158"/>
+        <location filename="../src/filepane.cpp" line="157" />
         <source>Abmessungen</source>
-        <translation>Abmessungen</translation>
+        <translation>Dimensions</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="159"/>
+        <location filename="../src/filepane.cpp" line="158" />
         <source>Breite</source>
-        <translation>Breite</translation>
+        <translation>Largeur</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="160"/>
+        <location filename="../src/filepane.cpp" line="159" />
         <source>Höhe</source>
-        <translation>Höhe</translation>
+        <translation>Hauteur</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="161"/>
+        <location filename="../src/filepane.cpp" line="160" />
         <source>Ausrichtung</source>
-        <translation>Ausrichtung</translation>
+        <translation>Orientation</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="162"/>
-        <location filename="../src/filepane.cpp" line="163"/>
-        <location filename="../src/filepane.cpp" line="164"/>
-        <location filename="../src/filepane.cpp" line="165"/>
-        <location filename="../src/filepane.cpp" line="166"/>
-        <location filename="../src/filepane.cpp" line="167"/>
+        <location filename="../src/filepane.cpp" line="161" />
+        <location filename="../src/filepane.cpp" line="162" />
+        <location filename="../src/filepane.cpp" line="163" />
+        <location filename="../src/filepane.cpp" line="164" />
+        <location filename="../src/filepane.cpp" line="165" />
+        <location filename="../src/filepane.cpp" line="166" />
         <source>Audio</source>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="162"/>
+        <location filename="../src/filepane.cpp" line="161" />
         <source>Künstler</source>
-        <translation>Künstler</translation>
+        <translation>Artiste</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="163"/>
+        <location filename="../src/filepane.cpp" line="162" />
         <source>Genre</source>
         <translation>Genre</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="164"/>
+        <location filename="../src/filepane.cpp" line="163" />
         <source>Album</source>
         <translation>Album</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="165"/>
-        <location filename="../src/filepane.cpp" line="170"/>
+        <location filename="../src/filepane.cpp" line="164" />
+        <location filename="../src/filepane.cpp" line="169" />
         <source>Dauer</source>
-        <translation>Dauer</translation>
+        <translation>Durée</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="166"/>
+        <location filename="../src/filepane.cpp" line="165" />
         <source>Bitrate</source>
-        <translation>Bitrate</translation>
+        <translation>Débit</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="167"/>
+        <location filename="../src/filepane.cpp" line="166" />
         <source>Stück</source>
-        <translation>Stück</translation>
+        <translation>Piste</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="168"/>
-        <location filename="../src/filepane.cpp" line="169"/>
-        <location filename="../src/filepane.cpp" line="170"/>
+        <location filename="../src/filepane.cpp" line="167" />
+        <location filename="../src/filepane.cpp" line="168" />
+        <location filename="../src/filepane.cpp" line="169" />
         <source>Video</source>
-        <translation>Video</translation>
+        <translation>Vidéo</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="168"/>
+        <location filename="../src/filepane.cpp" line="167" />
         <source>Seitenverhältnis</source>
-        <translation>Seitenverhältnis</translation>
+        <translation>Rapport hauteur/largeur</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="169"/>
+        <location filename="../src/filepane.cpp" line="168" />
         <source>Bildwiederholrate</source>
-        <translation>Bildwiederholrate</translation>
+        <translation>Fréquence d'images</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="171"/>
-        <location filename="../src/filepane.cpp" line="172"/>
-        <location filename="../src/filepane.cpp" line="173"/>
-        <location filename="../src/filepane.cpp" line="174"/>
-        <location filename="../src/filepane.cpp" line="175"/>
-        <location filename="../src/filepane.cpp" line="176"/>
+        <location filename="../src/filepane.cpp" line="170" />
+        <location filename="../src/filepane.cpp" line="171" />
+        <location filename="../src/filepane.cpp" line="172" />
+        <location filename="../src/filepane.cpp" line="173" />
+        <location filename="../src/filepane.cpp" line="174" />
+        <location filename="../src/filepane.cpp" line="175" />
         <source>Dokument</source>
-        <translation>Dokument</translation>
+        <translation>Documentation</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="171"/>
+        <location filename="../src/filepane.cpp" line="170" />
         <source>Titel</source>
-        <translation>Titel</translation>
+        <translation>Titre</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="172"/>
+        <location filename="../src/filepane.cpp" line="171" />
         <source>Autor</source>
-        <translation>Autor</translation>
+        <translation>Auteur</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="173"/>
+        <location filename="../src/filepane.cpp" line="172" />
         <source>Herausgeber</source>
-        <translation>Herausgeber</translation>
+        <translation>Éditeur</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="174"/>
+        <location filename="../src/filepane.cpp" line="173" />
         <source>Seitenanzahl</source>
-        <translation>Seitenanzahl</translation>
+        <translation>Pages</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="175"/>
+        <location filename="../src/filepane.cpp" line="174" />
         <source>Wortanzahl</source>
-        <translation>Wortanzahl</translation>
+        <translation>Mots</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="176"/>
+        <location filename="../src/filepane.cpp" line="175" />
         <source>Zeilenanzahl</source>
-        <translation>Zeilenanzahl</translation>
+        <translation>Lignes</translation>
     </message>
     <message>
         <source>Kopiere diese Datei, um ein eigenes Theme zu erstellen!</source>
-        <translation type="vanished">Kopiere diese Datei, um ein eigenes Theme zu erstellen!</translation>
+        <translation>Copiez cette date, un thème propre à créer !</translation>
     </message>
     <message>
-        <source>Ändere den &apos;name&apos;, damit es als neues Theme im Menü erscheint.</source>
-        <translation type="vanished">Ändere den &amp;apos;name&amp;apos;, damit es als neues Theme im Menü erscheint.</translation>
+        <source>Ändere den 'name', damit es als neues Theme im Menü erscheint.</source>
+        <translation>Ändere den &amp;apos;name&amp;apos;, damit es als neues Theme im Menü erscheint.</translation>
     </message>
     <message>
         <source>Mein neues Design</source>
-        <translation type="vanished">Mein neues Design</translation>
+        <translation>Mon nouveau design</translation>
     </message>
     <message>
         <source>#1e1e2e (Sidebar &amp; App-Hintergrund)</source>
-        <translation type="vanished">#1e1e2e (Sidebar &amp; App-Hintergrund)</translation>
+        <translation>#1e1e2e (barre latérale et arrière-plan de l'application)</translation>
     </message>
     <message>
         <source>#11111b (Hintergrund der Dateilisten)</source>
-        <translation type="vanished">#11111b (Hintergrund der Dateilisten)</translation>
+        <translation>#11111b (Hintergrund der Dateilisten)</translation>
     </message>
     <message>
         <source>#313244 (Hintergrund der Karten/Favoriten)</source>
-        <translation type="vanished">#313244 (Hintergrund der Karten/Favoriten)</translation>
+        <translation>#313244 (Hintergrund der Karten/Favoriten)</translation>
     </message>
     <message>
         <source>#cdd6f4 (Haupt-Schriftfarbe)</source>
-        <translation type="vanished">#cdd6f4 (Haupt-Schriftfarbe)</translation>
+        <translation>#cdd6f4 (Haupt-Schriftfarbe)</translation>
     </message>
     <message>
         <source>#cba6f7 (Farbe für Pfade und Highlights)</source>
-        <translation type="vanished">#cba6f7 (Farbe für Pfade und Highlights)</translation>
+        <translation>#cba6f7 (Couleurs pour les pages et les points forts)</translation>
     </message>
     <message>
         <source>#f5c2e7 (Buttons und Markierungen)</source>
-        <translation type="vanished">#f5c2e7 (Buttons und Markierungen)</translation>
+        <translation>#f5c2e7 (Boutons et marques)</translation>
     </message>
     <message>
         <source>#313244 (Rahmenlinien)</source>
-        <translation type="vanished">#313244 (Rahmenlinien)</translation>
+        <translation>#313244 (Rahmenlinien)</translation>
     </message>
 </context>
 <context>
     <name>ThemeCreatorDialog</name>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="15"/>
+        <location filename="../src/themecreatordialog.cpp" line="15" />
         <source>SplitCommander - Design Designer</source>
-        <translation>SplitCommander - Design Designer</translation>
+        <translation>SplitCommander - Concepteur de thèmes</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="41"/>
+        <location filename="../src/themecreatordialog.cpp" line="60" />
         <source>Erstelle dein persönliches Design</source>
-        <translation>Erstelle dein persönliches Design</translation>
+        <translation>Créez votre thème personnalisé</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="49"/>
+        <location filename="../src/themecreatordialog.cpp" line="71" />
         <source>Farben anpassen</source>
-        <translation>Farben anpassen</translation>
+        <translation>Personnaliser les couleurs</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="55"/>
+        <location filename="../src/themecreatordialog.cpp" line="79" />
         <source>App-Hintergrund</source>
-        <translation>App-Hintergrund</translation>
+        <translation>Arrière-plan de l'application</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="56"/>
+        <location filename="../src/themecreatordialog.cpp" line="80" />
         <source>Dateiliste</source>
-        <translation>Dateiliste</translation>
+        <translation>Liste des fichiers</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="57"/>
+        <location filename="../src/themecreatordialog.cpp" line="81" />
         <source>Eingabefelder</source>
-        <translation>Eingabefelder</translation>
+        <translation>Champs de saisie</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="58"/>
+        <location filename="../src/themecreatordialog.cpp" line="82" />
         <source>Karten/Favoriten</source>
-        <translation>Karten/Favoriten</translation>
+        <translation>Cartes/Favoris</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="59"/>
+        <location filename="../src/themecreatordialog.cpp" line="83" />
         <source>Sidebar/Panel</source>
-        <translation>Sidebar/Panel</translation>
+        <translation>Barre latérale/panneau</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="60"/>
+        <location filename="../src/themecreatordialog.cpp" line="84" />
         <source>Akzentfarbe</source>
-        <translation>Akzentfarbe</translation>
+        <translation>Couleur d'accentuation</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="61"/>
+        <location filename="../src/themecreatordialog.cpp" line="85" />
         <source>Akzent-Hover</source>
-        <translation>Akzent-Hover</translation>
+        <translation>Survol d'accent</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="62"/>
+        <location filename="../src/themecreatordialog.cpp" line="86" />
         <source>Selektion/Markierung</source>
-        <translation>Selektion/Markierung</translation>
+        <translation>Sélection/Surbrillance</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="63"/>
+        <location filename="../src/themecreatordialog.cpp" line="87" />
         <source>Hover-Effekt</source>
-        <translation>Hover-Effekt</translation>
+        <translation>Effet de survol</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="64"/>
+        <location filename="../src/themecreatordialog.cpp" line="88" />
         <source>Rahmen (Standard)</source>
-        <translation>Rahmen (Standard)</translation>
+        <translation>Bordure (standard)</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="65"/>
+        <location filename="../src/themecreatordialog.cpp" line="89" />
         <source>Rahmen (Alternativ)</source>
-        <translation>Rahmen (Alternativ)</translation>
+        <translation>Frontière (Alternative)</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="66"/>
+        <location filename="../src/themecreatordialog.cpp" line="90" />
         <source>Splitter/Trenner</source>
-        <translation>Splitter/Trenner</translation>
+        <translation>Séparateur/Séparateur</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="67"/>
+        <location filename="../src/themecreatordialog.cpp" line="91" />
         <source>Haupttext</source>
-        <translation>Haupttext</translation>
+        <translation>Texte principal</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="68"/>
+        <location filename="../src/themecreatordialog.cpp" line="92" />
         <source>Text (Kontrast/Hell)</source>
-        <translation>Text (Kontrast/Hell)</translation>
+        <translation>Texte (Contraste/Lumière)</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="69"/>
+        <location filename="../src/themecreatordialog.cpp" line="93" />
         <source>Text (Akzent)</source>
-        <translation>Text (Akzent)</translation>
+        <translation>Texte (accentué)</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="70"/>
+        <location filename="../src/themecreatordialog.cpp" line="94" />
         <source>Text (Dezent)</source>
-        <translation>Text (Dezent)</translation>
+        <translation>Texte (subtil)</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="71"/>
+        <location filename="../src/themecreatordialog.cpp" line="95" />
         <source>Inaktive Elemente</source>
-        <translation>Inaktive Elemente</translation>
+        <translation>Éléments inactifs</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="72"/>
+        <location filename="../src/themecreatordialog.cpp" line="96" />
         <source>Horiz. Trenner</source>
-        <translation>Horiz. Trenner</translation>
+        <translation>Horiz. séparateur</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="107"/>
+        <location filename="../src/themecreatordialog.cpp" line="146" />
         <source>Name deines Designs (z.B. My Dark Blue)</source>
-        <translation>Name deines Designs (z.B. My Dark Blue)</translation>
+        <translation>Nom de votre thème (par exemple My Dark Blue)</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="111"/>
+        <location filename="../src/themecreatordialog.cpp" line="150" />
         <source>Design speichern &amp; schließen</source>
-        <translation>Design speichern &amp; schließen</translation>
+        <translation>Enregistrer le thème et fermer</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="127"/>
+        <location filename="../src/themecreatordialog.cpp" line="167" />
         <source>Farbe für %1 wählen</source>
-        <translation>Farbe für %1 wählen</translation>
+        <translation>Choisissez la couleur pour %1</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="155"/>
+        <location filename="../src/themecreatordialog.cpp" line="195" />
         <source>Ungültiger Name</source>
-        <translation>Ungültiger Name</translation>
+        <translation>Nom invalide</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="155"/>
+        <location filename="../src/themecreatordialog.cpp" line="195" />
         <source>Bitte gib einen eindeutigen Namen für dein Design ein.</source>
-        <translation>Bitte gib einen eindeutigen Namen für dein Design ein.</translation>
+        <translation>Veuillez saisir un nom unique pour votre thème.</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="166"/>
+        <location filename="../src/themecreatordialog.cpp" line="206" />
         <source>Gespeichert</source>
-        <translation>Gespeichert</translation>
+        <translation>Enregistré</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="166"/>
-        <source>Dein Design &apos;%1&apos; wurde erfolgreich gespeichert und angewendet!</source>
+        <location filename="../src/themecreatordialog.cpp" line="206" />
+        <source>Dein Design '%1' wurde erfolgreich gespeichert und angewendet!</source>
         <translation>Dein Design &amp;apos;%1&amp;apos; wurde erfolgreich gespeichert und angewendet!</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="169"/>
+        <location filename="../src/themecreatordialog.cpp" line="209" />
         <source>Fehler</source>
         <translation>Erreur</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="169"/>
+        <location filename="../src/themecreatordialog.cpp" line="209" />
         <source>Konnte das Design nicht speichern.</source>
-        <translation>Konnte das Design nicht speichern.</translation>
+        <translation>Impossible d'enregistrer le thème.</translation>
     </message>
 </context>
 <context>
     <name>ThemeDialog</name>
     <message>
         <source>Theme auswählen</source>
-        <translation type="vanished">Theme auswählen</translation>
+        <translation>Thème auswählen</translation>
     </message>
     <message>
         <source>System-Theme</source>
-        <translation type="vanished">System-Theme</translation>
+        <translation>Thème système</translation>
     </message>
     <message>
         <source>KDE Global Theme verwenden</source>
-        <translation type="vanished">KDE Global Theme verwenden</translation>
+        <translation>Utilisation du thème global KDE</translation>
     </message>
     <message>
         <source>Übernimmt Farben und Stil des aktiven KDE Global Themes.</source>
-        <translation type="vanished">Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
+        <translation>Découvrez les couleurs et le style des thèmes globaux KDE actifs.</translation>
     </message>
     <message>
         <source>Eigenes Theme</source>
-        <translation type="vanished">Eigenes Theme</translation>
+        <translation>Thème propre</translation>
     </message>
     <message>
         <source>Abbrechen</source>
-        <translation type="vanished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
     <message>
         <source>Übernehmen</source>
-        <translation type="vanished">Appliquer</translation>
+        <translation>Appliquer</translation>
     </message>
     <message>
         <source>Neustart erforderlich</source>
-        <translation type="vanished">Neustart erforderlich</translation>
+        <translation>Neustart erforderlich</translation>
     </message>
     <message>
         <source>Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</source>
-        <translation type="vanished">Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</translation>
+        <translation>Ce thème est vraiment importé et sera disponible dans un nouveau démarrage de SplitCommander de manière significative.</translation>
     </message>
 </context>
 <context>
     <name>ThemePreviewWidget</name>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="27"/>
+        <location filename="../src/themepreviewwidget.cpp" line="27" />
         <source>Live-Vorschau (SplitCommander Mockup)</source>
-        <translation>Live-Vorschau (SplitCommander Mockup)</translation>
+        <translation>Aperçu en direct (maquette SplitCommander)</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="59"/>
+        <location filename="../src/themepreviewwidget.cpp" line="72" />
         <source>FAVORITEN</source>
-        <translation>FAVORITEN</translation>
+        <translation>FAVORIS</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="69"/>
+        <location filename="../src/themepreviewwidget.cpp" line="82" />
         <source>☁️ Google Drive</source>
         <translation>☁️ Google Drive</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="84"/>
+        <location filename="../src/themepreviewwidget.cpp" line="105" />
         <source>💾 SATA-SSD (/)</source>
         <translation>💾 SATA-SSD (/)</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="106"/>
+        <location filename="../src/themepreviewwidget.cpp" line="127" />
         <source>240 GB frei von 512 GB</source>
-        <translation>240 GB frei von 512 GB</translation>
+        <translation>240 Go gratuits sur 512 Go</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="124"/>
+        <location filename="../src/themepreviewwidget.cpp" line="146" />
         <source>📁 /home/user/Dokumente</source>
-        <translation>📁 /home/user/Dokumente</translation>
+        <translation>📁 /home/user/Document</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="129"/>
+        <location filename="../src/themepreviewwidget.cpp" line="151" />
         <source>📄 bericht_2026.pdf</source>
         <translation>📄 bericht_2026.pdf</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="139"/>
+        <location filename="../src/themepreviewwidget.cpp" line="161" />
         <source>📁 SplitCommander Project</source>
-        <translation>📁 SplitCommander Project</translation>
+        <translation>📁 Projet SplitCommander</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="156"/>
+        <location filename="../src/themepreviewwidget.cpp" line="181" />
         <source>📁 /run/media/usb</source>
         <translation>📁 /run/media/usb</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="161"/>
+        <location filename="../src/themepreviewwidget.cpp" line="186" />
         <source>🖼️ urlaub_foto.png</source>
         <translation>🖼️ urlaub_foto.png</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="166"/>
+        <location filename="../src/themepreviewwidget.cpp" line="191" />
         <source>📄 notizen.txt</source>
-        <translation>📄 notizen.txt</translation>
+        <translation>📄notizen.txt</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="189"/>
+        <location filename="../src/themepreviewwidget.cpp" line="215" />
         <source>gdrive://google18/Dokumente/</source>
-        <translation>gdrive://google18/Dokumente/</translation>
+        <translation>gdrive://google18/Document/</translation>
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="200"/>
+        <location filename="../src/themepreviewwidget.cpp" line="226" />
         <source>Neuer Ordner</source>
         <translation>Nouveau dossier</translation>
     </message>

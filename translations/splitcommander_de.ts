@@ -1,2693 +1,2189 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
+<?xml version='1.0' encoding='utf-8'?>
 <TS version="2.1" language="de_DE" sourcelanguage="de_DE">
 <context>
     <name>AddNetworkDialog</name>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="13"/>
+        <location filename="../src/addnetworkdialog.cpp" line="14" />
         <source>SMB Laufwerke verbinden</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="40"/>
+        <location filename="../src/addnetworkdialog.cpp" line="72" />
         <source>Anzeigename</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="55"/>
+        <location filename="../src/addnetworkdialog.cpp" line="103" />
         <source>Freigegebener Ordner (SMB)</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="56"/>
+        <location filename="../src/addnetworkdialog.cpp" line="104" />
         <source>SSH / SFTP</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="57"/>
+        <location filename="../src/addnetworkdialog.cpp" line="105" />
         <source>Google Drive</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="58"/>
+        <location filename="../src/addnetworkdialog.cpp" line="106" />
         <source>Netzwerkserver</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="59"/>
+        <location filename="../src/addnetworkdialog.cpp" line="107" />
         <source>MTP-Gerät</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="60"/>
+        <location filename="../src/addnetworkdialog.cpp" line="108" />
         <source>Bluetooth</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="61"/>
+        <location filename="../src/addnetworkdialog.cpp" line="109" />
         <source>Netzwerkordner</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="75"/>
+        <location filename="../src/addnetworkdialog.cpp" line="75" />
         <source>Adresse:</source>
-        <translation type="unfinished">Adresse:</translation>
+        <translation>Adresse:</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="76"/>
+        <location filename="../src/addnetworkdialog.cpp" line="77" />
         <source>Name:</source>
-        <translation type="unfinished">Name:</translation>
+        <translation>Name:</translation>
     </message>
     <message>
-        <location filename="../src/addnetworkdialog.cpp" line="77"/>
+        <location filename="../src/addnetworkdialog.cpp" line="127" />
         <source>Symbol:</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
 </context>
 <context>
     <name>AgeBadgeDialog</name>
     <message>
         <source>Altersbadges</source>
-        <translation type="obsolete">Altersbadges</translation>
+        <translation type="vanished">Altersbadges</translation>
     </message>
     <message>
         <source>Dateialter / relatives Datum</source>
-        <translation type="obsolete">Dateialter / relatives Datum</translation>
+        <translation type="vanished">Dateialter / relatives Datum</translation>
     </message>
     <message>
         <source>Zurücksetzen</source>
-        <translation type="obsolete">Zurücksetzen</translation>
+        <translation type="vanished">Zurücksetzen</translation>
     </message>
     <message>
         <source>Neue Dateien hervorheben (&lt; 2 Tage)</source>
-        <translation type="obsolete">Neue Dateien hervorheben (&lt; 2 Tage)</translation>
+        <translation type="vanished">Neue Dateien hervorheben (&lt; 2 Tage)</translation>
     </message>
     <message>
         <source>Abbrechen</source>
-        <translation type="obsolete">Abbrechen</translation>
+        <translation type="vanished">Abbrechen</translation>
     </message>
     <message>
         <source>Übernehmen</source>
-        <translation type="obsolete">Übernehmen</translation>
+        <translation type="vanished">Übernehmen</translation>
     </message>
 </context>
 <context>
     <name>BatchRenamer</name>
     <message>
-        <location filename="../src/batchrenamer.cpp" line="11"/>
+        <location filename="../src/batchrenamer.cpp" line="14" />
         <source>Batch Rename - %1 Dateien</source>
-        <translation type="unfinished">Batch Rename - %1 Dateien</translation>
+        <translation>Batch Rename - %1 Dateien</translation>
     </message>
 </context>
 <context>
     <name>FilePane</name>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="280"/>
+        <location filename="../src/filepane_menus.cpp" line="277" />
         <source>An ursprünglichem Ort wiederherstellen</source>
-        <translation type="unfinished">An ursprünglichem Ort wiederherstellen</translation>
+        <translation>An ursprünglichem Ort wiederherstellen</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="303"/>
-        <location filename="../src/filepane_menus.cpp" line="570"/>
+        <location filename="../src/filepane_menus.cpp" line="300" />
+        <location filename="../src/filepane_menus.cpp" line="567" />
         <source>Löschen</source>
-        <translation type="unfinished">Löschen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="312"/>
-        <location filename="../src/filepane_menus.cpp" line="463"/>
-        <location filename="../src/filepane_menus.cpp" line="773"/>
+        <location filename="../src/filepane_menus.cpp" line="309" />
+        <location filename="../src/filepane_menus.cpp" line="460" />
+        <location filename="../src/filepane_menus.cpp" line="777" />
         <source>Sortieren nach</source>
-        <translation type="unfinished">Sortieren nach</translation>
+        <translation>Sortieren nach</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="330"/>
-        <location filename="../src/filepane_menus.cpp" line="520"/>
-        <location filename="../src/filepane_menus.cpp" line="812"/>
+        <location filename="../src/filepane_menus.cpp" line="327" />
+        <location filename="../src/filepane_menus.cpp" line="517" />
+        <location filename="../src/filepane_menus.cpp" line="816" />
         <source>Ansichtsmodus ändern</source>
-        <translation type="unfinished">Ansichtsmodus ändern</translation>
+        <translation>Ansichtsmodus ändern</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="337"/>
-        <location filename="../src/filepane_menus.cpp" line="527"/>
-        <location filename="../src/filepane_menus.cpp" line="819"/>
+        <location filename="../src/filepane_menus.cpp" line="334" />
+        <location filename="../src/filepane_menus.cpp" line="524" />
+        <location filename="../src/filepane_menus.cpp" line="823" />
         <source>Details</source>
-        <translation type="unfinished">Details</translation>
+        <translation>Details</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="338"/>
-        <location filename="../src/filepane_menus.cpp" line="528"/>
-        <location filename="../src/filepane_menus.cpp" line="820"/>
+        <location filename="../src/filepane_menus.cpp" line="335" />
+        <location filename="../src/filepane_menus.cpp" line="525" />
+        <location filename="../src/filepane_menus.cpp" line="824" />
         <source>Symbole</source>
-        <translation type="unfinished">Symbole</translation>
+        <translation>Symbole</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="342"/>
+        <location filename="../src/filepane_menus.cpp" line="339" />
         <source>Papierkorb leeren</source>
-        <translation type="unfinished">Papierkorb leeren</translation>
+        <translation>Papierkorb leeren</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="394"/>
+        <location filename="../src/filepane_menus.cpp" line="391" />
         <source>Zu Paperless hochladen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="409"/>
+        <location filename="../src/filepane_menus.cpp" line="406" />
         <source>ISO aushängen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="415"/>
+        <location filename="../src/filepane_menus.cpp" line="412" />
         <source>ISO einbinden</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="468"/>
-        <location filename="../src/filepane_menus.cpp" line="483"/>
+        <location filename="../src/filepane_menus.cpp" line="465" />
+        <location filename="../src/filepane_menus.cpp" line="480" />
         <source>Name</source>
-        <translation type="unfinished">Name</translation>
+        <translation>Name</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="469"/>
+        <location filename="../src/filepane_menus.cpp" line="466" />
         <source>Größe</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="470"/>
+        <location filename="../src/filepane_menus.cpp" line="467" />
         <source>Geändert</source>
-        <translation type="unfinished">Geändert</translation>
+        <translation>Geändert</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="471"/>
+        <location filename="../src/filepane_menus.cpp" line="468" />
         <source>Erstellt</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="472"/>
+        <location filename="../src/filepane_menus.cpp" line="469" />
         <source>Letzter Zugriff</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="473"/>
+        <location filename="../src/filepane_menus.cpp" line="470" />
         <source>Typ</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="474"/>
+        <location filename="../src/filepane_menus.cpp" line="471" />
         <source>Bewertung</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="492"/>
-        <location filename="../src/filepane_menus.cpp" line="789"/>
+        <location filename="../src/filepane_menus.cpp" line="489" />
+        <location filename="../src/filepane_menus.cpp" line="793" />
         <source>A-Z</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="494"/>
-        <location filename="../src/filepane_menus.cpp" line="791"/>
+        <location filename="../src/filepane_menus.cpp" line="491" />
+        <location filename="../src/filepane_menus.cpp" line="795" />
         <source>Z-A</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="508"/>
-        <location filename="../src/filepane_menus.cpp" line="804"/>
+        <location filename="../src/filepane_menus.cpp" line="505" />
+        <location filename="../src/filepane_menus.cpp" line="808" />
         <source>Ordner zuerst</source>
-        <translation type="unfinished">Ordner zuerst</translation>
+        <translation>Ordner zuerst</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="515"/>
+        <location filename="../src/filepane_menus.cpp" line="512" />
         <source>Versteckte Dateien zuletzt</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="569"/>
-        <location filename="../src/filepane_menus.cpp" line="588"/>
-        <location filename="../src/filepane_menus.cpp" line="848"/>
-        <location filename="../src/filepane_menus.cpp" line="869"/>
+        <location filename="../src/filepane_menus.cpp" line="566" />
+        <location filename="../src/filepane_menus.cpp" line="585" />
+        <location filename="../src/filepane_menus.cpp" line="852" />
+        <location filename="../src/filepane_menus.cpp" line="873" />
         <source>Stichwörter zuweisen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="569"/>
-        <location filename="../src/filepane_menus.cpp" line="589"/>
-        <location filename="../src/filepane_menus.cpp" line="848"/>
-        <location filename="../src/filepane_menus.cpp" line="871"/>
+        <location filename="../src/filepane_menus.cpp" line="566" />
+        <location filename="../src/filepane_menus.cpp" line="586" />
+        <location filename="../src/filepane_menus.cpp" line="852" />
+        <location filename="../src/filepane_menus.cpp" line="875" />
         <source>Komprimieren</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="569"/>
-        <location filename="../src/filepane_menus.cpp" line="653"/>
-        <location filename="../src/filepane_menus.cpp" line="848"/>
-        <location filename="../src/filepane_menus.cpp" line="873"/>
+        <location filename="../src/filepane_menus.cpp" line="566" />
+        <location filename="../src/filepane_menus.cpp" line="591" />
+        <location filename="../src/filepane_menus.cpp" line="852" />
+        <location filename="../src/filepane_menus.cpp" line="877" />
         <source>Aktivitäten</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="570"/>
+        <location filename="../src/filepane_menus.cpp" line="567" />
         <source>In den Papierkorb verschieben</source>
-        <translation type="unfinished">In den Papierkorb verschieben</translation>
+        <translation>In den Papierkorb verschieben</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="570"/>
+        <location filename="../src/filepane_menus.cpp" line="567" />
         <source>Umbenennen</source>
-        <translation type="unfinished">Umbenennen</translation>
+        <translation>Umbenennen</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="571"/>
+        <location filename="../src/filepane_menus.cpp" line="568" />
         <source>Kopieren</source>
-        <translation type="unfinished">Kopieren</translation>
+        <translation>Kopieren</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="571"/>
+        <location filename="../src/filepane_menus.cpp" line="568" />
         <source>Ausschneiden</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="571"/>
+        <location filename="../src/filepane_menus.cpp" line="568" />
         <source>Einfügen</source>
-        <translation type="unfinished">Einfügen</translation>
+        <translation>Einfügen</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="572"/>
-        <location filename="../src/filepane_menus.cpp" line="613"/>
-        <location filename="../src/filepane_menus.cpp" line="849"/>
+        <location filename="../src/filepane_menus.cpp" line="569" />
+        <location filename="../src/filepane_menus.cpp" line="701" />
+        <location filename="../src/filepane_menus.cpp" line="853" />
         <source>Entpacken</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="572"/>
-        <location filename="../src/filepane_menus.cpp" line="654"/>
-        <location filename="../src/filepane_menus.cpp" line="849"/>
+        <location filename="../src/filepane_menus.cpp" line="569" />
+        <location filename="../src/filepane_menus.cpp" line="592" />
+        <location filename="../src/filepane_menus.cpp" line="853" />
         <source>Teilen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="572"/>
-        <location filename="../src/filepane_menus.cpp" line="849"/>
+        <location filename="../src/filepane_menus.cpp" line="569" />
+        <location filename="../src/filepane_menus.cpp" line="853" />
         <source>Extract</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="572"/>
-        <location filename="../src/filepane_menus.cpp" line="849"/>
+        <location filename="../src/filepane_menus.cpp" line="569" />
+        <location filename="../src/filepane_menus.cpp" line="853" />
         <source>Share</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="616"/>
+        <location filename="../src/filepane_menus.cpp" line="709" />
         <source>Hierher entpacken</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="624"/>
+        <location filename="../src/filepane_menus.cpp" line="717" />
         <source>Entpacken und Archiv in den Papierkorb verschieben</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="641"/>
+        <location filename="../src/filepane_menus.cpp" line="734" />
         <source>Entpacken nach ...</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="642"/>
+        <location filename="../src/filepane_menus.cpp" line="735" />
         <source>Zielordner wählen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="658"/>
+        <location filename="../src/filepane_menus.cpp" line="596" />
         <source>Tag setzen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="707"/>
+        <location filename="../src/filepane_menus.cpp" line="645" />
         <source>Prüfsumme</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="732"/>
+        <location filename="../src/filepane_menus.cpp" line="670" />
         <source>%1 kopiert</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="884"/>
+        <location filename="../src/filepane_menus.cpp" line="888" />
         <source>Make</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
         <source>Öffnen</source>
-        <translation type="obsolete">Öffnen</translation>
+        <translation type="vanished">Öffnen</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="360"/>
-        <location filename="../src/filepane_menus.cpp" line="754"/>
+        <location filename="../src/filepane_menus.cpp" line="357" />
+        <location filename="../src/filepane_menus.cpp" line="758" />
         <source>Neu erstellen</source>
-        <translation type="unfinished">Neu erstellen</translation>
+        <translation>Neu erstellen</translation>
     </message>
     <message>
         <source>Adresse kopieren</source>
-        <translation type="obsolete">Adresse kopieren</translation>
+        <translation type="vanished">Adresse kopieren</translation>
     </message>
     <message>
         <source>Hier duplizieren</source>
-        <translation type="obsolete">Hier duplizieren</translation>
+        <translation type="vanished">Hier duplizieren</translation>
     </message>
     <message>
         <source>Dupliziere Datei...</source>
-        <translation type="obsolete">Dupliziere Datei...</translation>
+        <translation type="vanished">Dupliziere Datei...</translation>
     </message>
     <message>
         <source>Favoriten</source>
-        <translation type="obsolete">Favoriten</translation>
+        <translation type="vanished">Favoriten</translation>
     </message>
     <message>
         <source>Hinzufügen zu</source>
-        <translation type="obsolete">Hinzufügen zu</translation>
+        <translation type="vanished">Hinzufügen zu</translation>
     </message>
     <message>
         <source>Laufwerke</source>
-        <translation type="obsolete">Laufwerke</translation>
+        <translation type="vanished">Laufwerke</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="560"/>
-        <location filename="../src/filepane_menus.cpp" line="840"/>
+        <location filename="../src/filepane_menus.cpp" line="557" />
+        <location filename="../src/filepane_menus.cpp" line="844" />
         <source>Terminal hier öffnen</source>
-        <translation type="unfinished">Terminal hier öffnen</translation>
+        <translation>Terminal hier öffnen</translation>
     </message>
     <message>
         <source>Diaschau starten</source>
-        <translation type="obsolete">Diaschau starten</translation>
+        <translation type="vanished">Diaschau starten</translation>
     </message>
     <message>
         <source>Tag</source>
-        <translation type="obsolete">Tag</translation>
+        <translation type="vanished">Tag</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="683"/>
+        <location filename="../src/filepane_menus.cpp" line="621" />
         <source>Tag entfernen</source>
-        <translation type="unfinished">Tag entfernen</translation>
+        <translation>Tag entfernen</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="554"/>
-        <location filename="../src/filepane_menus.cpp" line="837"/>
+        <location filename="../src/filepane_menus.cpp" line="551" />
+        <location filename="../src/filepane_menus.cpp" line="841" />
         <source>Aktionen</source>
-        <translation type="unfinished">Aktionen</translation>
+        <translation>Aktionen</translation>
     </message>
     <message>
         <source>In neuen Ordner verschieben ...</source>
-        <translation type="obsolete">In neuen Ordner verschieben ...</translation>
+        <translation type="vanished">In neuen Ordner verschieben ...</translation>
     </message>
     <message>
         <source>In neuen Ordner verschieben</source>
-        <translation type="obsolete">In neuen Ordner verschieben</translation>
+        <translation type="vanished">In neuen Ordner verschieben</translation>
     </message>
     <message>
         <source>Ordnername:</source>
-        <translation type="obsolete">Ordnername:</translation>
+        <translation type="vanished">Ordnername:</translation>
     </message>
     <message>
         <source>Neuer Ordner</source>
-        <translation type="obsolete">Neuer Ordner</translation>
+        <translation type="vanished">Neuer Ordner</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="258"/>
+        <location filename="../src/filepane_menus.cpp" line="255" />
         <source>Eigenschaften</source>
-        <translation type="unfinished">Eigenschaften</translation>
+        <translation>Eigenschaften</translation>
     </message>
     <message>
-        <location filename="../src/filepane_menus.cpp" line="444"/>
+        <location filename="../src/filepane_menus.cpp" line="441" />
         <source>Zu Laufwerken hinzufügen</source>
-        <translation type="unfinished">Zu Laufwerken hinzufügen</translation>
+        <translation>Zu Laufwerken hinzufügen</translation>
     </message>
 </context>
 <context>
     <name>GitManagerDialog</name>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="125"/>
-        <source>Git Manager</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="180"/>
-        <source>Repository:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="184"/>
         <source>Neu</source>
-        <translation type="unfinished">Neu</translation>
+        <translation type="vanished">Neu</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="188"/>
-        <source>Entfernen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="200"/>
-        <source>Geänderte Dateien:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="202"/>
-        <source>Branch: …</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="218"/>
-        <source>Beschreibung der Änderungen:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="223"/>
-        <source>z.B. Fehler in der Suche behoben...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="231"/>
-        <source>Commit &amp;&amp; Push</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="234"/>
-        <source>Speichert deine Änderungen und lädt sie zu GitHub hoch.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="236"/>
-        <source>Fetch</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="239"/>
-        <source>Prüft ob es neue Änderungen auf GitHub gibt, ohne sie herunterzuladen.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="241"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="775"/>
-        <source>Pull</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="244"/>
-        <source>Holt die neuesten Änderungen von GitHub.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="246"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="788"/>
-        <source>Änderungen verwerfen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="249"/>
-        <source>Setzt alle lokalen Änderungen auf den Stand von GitHub zurück.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="258"/>
-        <source>Optionen für Commit &amp;&amp; Push</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="268"/>
-        <source>Tags mit hochladen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="269"/>
-        <source>Release auf GitHub erstellen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="270"/>
-        <source>Force with lease</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="271"/>
-        <source>Pusht auch wenn der Remote-Branch voraus ist — aber nur wenn sich der Remote seit dem letzten Fetch nicht verändert hat.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="283"/>
-        <source>Optionen für Pull</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="288"/>
-        <source>Rebase statt Merge</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="290"/>
-        <source>git pull --rebase — hält den Verlauf sauber.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="302"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="470"/>
-        <source>▶  Erweiterte Funktionen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="328"/>
-        <source>Verlauf (Log)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="329"/>
-        <source>Zeigt die letzten 20 Commits.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="331"/>
-        <source>Diff</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="332"/>
-        <source>Zeigt welche Zeilen du geändert hast.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="334"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="490"/>
-        <source>Tag erstellen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="335"/>
-        <source>Markiert den aktuellen Stand als Version, z.B. v1.0.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="337"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="505"/>
-        <source>Branch wechseln / erstellen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="338"/>
-        <source>Wechselt zu einem anderen Zweig oder erstellt einen neuen.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="340"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="568"/>
-        <source>Merge</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="341"/>
-        <source>Führt einen anderen Branch in den aktuellen zusammen.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="343"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="583"/>
-        <source>Revert</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="344"/>
-        <source>Macht einen bestimmten Commit rückgängig — History bleibt erhalten.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="346"/>
-        <source>Stash (Parken)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="347"/>
-        <source>Legt deine Änderungen zur Seite ohne sie zu speichern.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="349"/>
-        <source>Stash anwenden</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="350"/>
-        <source>Holt die zuletzt geparkten Änderungen zurück.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="370"/>
-        <source>▶  Verbindungseinstellungen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="384"/>
-        <source>z.B. SplitCommander</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="385"/>
         <source>Name:</source>
-        <translation type="unfinished">Name:</translation>
+        <translation type="vanished">Name:</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="389"/>
-        <source>Durchsuchen...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="395"/>
-        <source>Projekt-Ordner:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="400"/>
-        <source>GitHub URL:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="404"/>
-        <source>GitHub Benutzername:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="414"/>
-        <source>Token anzeigen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="415"/>
-        <source>Token generieren...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="422"/>
-        <source>Token / Passwort:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="430"/>
-        <source>Repository klonen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="434"/>
-        <source>Klont das eingetragene Remote-Repository in den Projekt-Ordner.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="435"/>
-        <source>Klonen:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="445"/>
-        <source>Ausgabe:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="460"/>
-        <source>Schließen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="469"/>
-        <source>▼  Erweiterte Funktionen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="491"/>
-        <source>Tag-Name (z.B. v1.0.0):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="516"/>
-        <source>Vorhandenen Branch auschecken:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="524"/>
-        <source>Oder neuen Branch erstellen:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="529"/>
-        <source>Neuer Branch-Name (leer lassen zum Auschecken)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="532"/>
-        <source>Force (lokale Änderungen verwerfen)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="537"/>
-        <source>Ausführen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="538"/>
         <source>Abbrechen</source>
-        <translation type="unfinished">Abbrechen</translation>
+        <translation type="vanished">Abbrechen</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="569"/>
-        <source>Branch der zusammengeführt werden soll:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="584"/>
-        <source>Commit rückgängig machen:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="600"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="700"/>
-        <source>Hinweis</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="601"/>
-        <source>Bitte GitHub URL und Projekt-Ordner eintragen.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="619"/>
-        <source>Projekt-Ordner wählen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="633"/>
-        <source>Neues Repo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="664"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="952"/>
-        <source>(unbenannt)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="701"/>
-        <source>Bitte gib eine Beschreibung ein.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="728"/>
-        <source>Push</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="729"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="776"/>
-        <source>Remote auswählen:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="789"/>
-        <source>Alle lokalen Änderungen werden unwiderruflich gelöscht und auf den Stand von GitHub zurückgesetzt.
-
-Fortfahren?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="817"/>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="918"/>
-        <source>Kein Repository</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="858"/>
         <source>Fehler</source>
-        <translation type="unfinished">Fehler</translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="858"/>
-        <source>Kein GitHub Token hinterlegt!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="917"/>
-        <source>Branch: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="933"/>
-        <source>✓ Keine ungespeicherten Änderungen</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Fehler</translation>
     </message>
 </context>
 <context>
     <name>JobOverlay</name>
     <message>
-        <location filename="../src/joboverlay.cpp" line="52"/>
+        <location filename="../src/joboverlay.cpp" line="62" />
         <source>Initialisierung...</source>
-        <translation type="unfinished">Initialisierung...</translation>
+        <translation>Initialisierung...</translation>
     </message>
     <message>
-        <location filename="../src/joboverlay.cpp" line="73"/>
+        <location filename="../src/joboverlay.cpp" line="86" />
         <source>Fortschritt: %1%</source>
-        <translation type="unfinished">Fortschritt: %1%</translation>
+        <translation>Fortschritt: %1%</translation>
     </message>
     <message>
-        <location filename="../src/joboverlay.cpp" line="79"/>
+        <location filename="../src/joboverlay.cpp" line="96" />
         <source>Fehler: %1</source>
-        <translation type="unfinished">Fehler: %1</translation>
+        <translation>Fehler: %1</translation>
     </message>
     <message>
-        <location filename="../src/joboverlay.cpp" line="82"/>
+        <location filename="../src/joboverlay.cpp" line="101" />
         <source>Fertig!</source>
-        <translation type="unfinished">Fertig!</translation>
+        <translation>Fertig!</translation>
     </message>
 </context>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/mainwindow.cpp" line="148"/>
+        <location filename="../src/mainwindow.cpp" line="95" />
+        <source>Vorgang erfolgreich abgeschlossen.</source>
+        <translation>Vorgang erfolgreich abgeschlossen.</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="99" />
+        <source>Fehler bei: %1</source>
+        <translation>Fehler bei: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="158" />
         <source>Löschen...</source>
-        <translation type="unfinished">Löschen...</translation>
+        <translation>Löschen...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="239"/>
-        <location filename="../src/mainwindow.cpp" line="239"/>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="278"/>
+        <location filename="../src/mainwindow.cpp" line="308" />
+        <location filename="../src/mainwindow.cpp" line="308" />
+        <location filename="../src/mainwindow_shortcuts.cpp" line="315" />
         <source>Neuer Ordner</source>
-        <translation type="unfinished">Neuer Ordner</translation>
+        <translation>Neuer Ordner</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="239"/>
+        <location filename="../src/mainwindow.cpp" line="308" />
         <source>Ordnername:</source>
-        <translation type="unfinished">Ordnername:</translation>
+        <translation>Ordnername:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="248"/>
+        <location filename="../src/mainwindow.cpp" line="322" />
         <source>Fehler</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="248"/>
+        <location filename="../src/mainwindow.cpp" line="322" />
         <source>Ordner konnte nicht erstellt werden.</source>
-        <translation type="unfinished">Ordner konnte nicht erstellt werden.</translation>
+        <translation>Ordner konnte nicht erstellt werden.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="497"/>
+        <location filename="../src/mainwindow.cpp" line="376" />
+        <source>Laufwerk bereit</source>
+        <translation>Laufwerk bereit</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="376" />
+        <source>Das Laufwerk wurde erfolgreich eingebunden.</source>
+        <translation>Das Laufwerk wurde erfolgreich eingebunden.</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="380" />
+        <source>Fehler beim Einbinden</source>
+        <translation>Fehler beim Einbinden</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="380" />
+        <source>Das Laufwerk konnte nicht eingebunden werden:
+%1</source>
+        <translation>Das Laufwerk konnte nicht eingebunden werden:
+%1</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="619" />
         <source>Aushängen fehlgeschlagen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="498"/>
+        <location filename="../src/mainwindow.cpp" line="619" />
         <source>Das Laufwerk konnte nicht ausgehängt werden:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="104"/>
+        <location filename="../src/mainwindow.cpp" line="620" />
+        <source>Laufwerk sicher entfernt</source>
+        <translation>Laufwerk sicher entfernt</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="620" />
+        <source>Sie können das Gerät jetzt sicher abziehen.</source>
+        <translation>Sie können das Gerät jetzt sicher abziehen.</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="95" />
         <source>SplitCommander</source>
-        <translation type="unfinished">SplitCommander</translation>
+        <translation>SplitCommander</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="127"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="145" />
         <source>Zurück</source>
-        <translation type="unfinished">Zurück</translation>
+        <translation>Zurück</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="135"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="155" />
         <source>Vorwärts</source>
-        <translation type="unfinished">Vorwärts</translation>
+        <translation>Vorwärts</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="143"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="165" />
         <source>Übergeordneter Ordner</source>
-        <translation type="unfinished">Übergeordneter Ordner</translation>
+        <translation>Übergeordneter Ordner</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="157"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="186" />
         <source>Home-Verzeichnis</source>
-        <translation type="unfinished">Home-Verzeichnis</translation>
+        <translation>Home-Verzeichnis</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="161"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="190" />
         <source>Neu laden</source>
-        <translation type="unfinished">Neu laden</translation>
+        <translation>Neu laden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="170"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="201" />
         <source>Neuer Tab</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="172"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="205" />
         <source>Tab schließen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="176"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="212" />
         <source>Tab %1</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="181"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="409" />
         <source>Einstellungen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="187"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="415" />
         <source>GitHub Manager</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="194"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="224" />
         <source>Linke Pane fokussieren</source>
-        <translation type="unfinished">Linke Pane fokussieren</translation>
+        <translation>Linke Pane fokussieren</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="199"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="229" />
         <source>Rechte Pane fokussieren</source>
-        <translation type="unfinished">Rechte Pane fokussieren</translation>
+        <translation>Rechte Pane fokussieren</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="204"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="234" />
         <source>Panes tauschen</source>
-        <translation type="unfinished">Panes tauschen</translation>
+        <translation>Panes tauschen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="211"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="241" />
         <source>Pfade synchronisieren</source>
-        <translation type="unfinished">Pfade synchronisieren</translation>
+        <translation>Pfade synchronisieren</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="217"/>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="228"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="249" />
+        <location filename="../src/mainwindow_shortcuts.cpp" line="259" />
         <source>Umbenennen</source>
-        <translation type="unfinished">Umbenennen</translation>
+        <translation>Umbenennen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="228"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="259" />
         <source>Neuer Name:</source>
-        <translation type="unfinished">Neuer Name:</translation>
+        <translation>Neuer Name:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="256"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="305" />
         <source>In den Papierkorb verschieben</source>
-        <translation type="unfinished">In den Papierkorb verschieben</translation>
+        <translation>In den Papierkorb verschieben</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="267"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="310" />
         <source>Löschen</source>
-        <translation type="unfinished">Löschen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="280"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="323" />
         <source>Kopieren (Zwischenablage)</source>
-        <translation type="unfinished">Kopieren (Zwischenablage)</translation>
+        <translation>Kopieren (Zwischenablage)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="290"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="334" />
         <source>Ausschneiden (Zwischenablage)</source>
-        <translation type="unfinished">Ausschneiden (Zwischenablage)</translation>
+        <translation>Ausschneiden (Zwischenablage)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="302"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="384" />
         <source>Versteckte Dateien umschalten</source>
-        <translation type="unfinished">Versteckte Dateien umschalten</translation>
+        <translation>Versteckte Dateien umschalten</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="314"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="400" />
         <source>Layout wechseln</source>
-        <translation type="unfinished">Layout wechseln</translation>
+        <translation>Layout wechseln</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="324"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="345" />
         <source>Einfügen</source>
-        <translation type="unfinished">Einfügen</translation>
+        <translation>Einfügen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="336"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="357" />
         <source>Verschiebe Dateien...</source>
-        <translation type="unfinished">Verschiebe Dateien...</translation>
+        <translation>Verschiebe Dateien...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="272"/>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="341"/>
+        <location filename="../src/mainwindow.cpp" line="354" />
+        <location filename="../src/mainwindow_shortcuts.cpp" line="365" />
         <source>Kopiere Dateien...</source>
-        <translation type="unfinished">Kopiere Dateien...</translation>
+        <translation>Kopiere Dateien...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow_shortcuts.cpp" line="346"/>
+        <location filename="../src/mainwindow_shortcuts.cpp" line="369" />
         <source>Alles auswählen</source>
-        <translation type="unfinished">Alles auswählen</translation>
+        <translation>Alles auswählen</translation>
     </message>
 </context>
 <context>
     <name>MillerColumn</name>
     <message>
-        <location filename="../src/millercolumn.cpp" line="196"/>
-        <location filename="../src/millercolumn.cpp" line="306"/>
+        <location filename="../src/millercolumn.cpp" line="414" />
+        <location filename="../src/millercolumn.cpp" line="544" />
         <source>Öffnen</source>
-        <translation type="unfinished">Öffnen</translation>
+        <translation>Öffnen</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="199"/>
-        <location filename="../src/millercolumn.cpp" line="310"/>
+        <location filename="../src/millercolumn.cpp" line="419" />
+        <location filename="../src/millercolumn.cpp" line="549" />
         <source>Öffnen in</source>
-        <translation type="unfinished">Öffnen in</translation>
+        <translation>Öffnen in</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="202"/>
-        <location filename="../src/millercolumn.cpp" line="312"/>
+        <location filename="../src/millercolumn.cpp" line="422" />
+        <location filename="../src/millercolumn.cpp" line="552" />
         <source>Linke Ansicht</source>
-        <translation type="unfinished">Linke Ansicht</translation>
+        <translation>Linke Ansicht</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="205"/>
-        <location filename="../src/millercolumn.cpp" line="315"/>
+        <location filename="../src/millercolumn.cpp" line="423" />
+        <location filename="../src/millercolumn.cpp" line="553" />
         <source>Rechte Ansicht</source>
-        <translation type="unfinished">Rechte Ansicht</translation>
+        <translation>Rechte Ansicht</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="225"/>
-        <location filename="../src/millercolumn.cpp" line="229"/>
+        <location filename="../src/millercolumn.cpp" line="446" />
+        <location filename="../src/millercolumn.cpp" line="449" />
         <source>Umbenennen</source>
-        <translation type="unfinished">Umbenennen</translation>
+        <translation>Umbenennen</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="229"/>
+        <location filename="../src/millercolumn.cpp" line="449" />
         <source>Anzeigename:</source>
-        <translation type="unfinished">Anzeigename:</translation>
+        <translation>Anzeigename:</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="246"/>
+        <location filename="../src/millercolumn.cpp" line="464" />
         <source>Aus Laufwerken entfernen</source>
-        <translation type="unfinished">Aus Laufwerken entfernen</translation>
+        <translation>Aus Laufwerken entfernen</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="272"/>
+        <location filename="../src/millercolumn.cpp" line="520" />
         <source>Kopieren</source>
-        <translation type="unfinished">Kopieren</translation>
+        <translation>Kopieren</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="274"/>
-        <location filename="../src/millercolumn.cpp" line="299"/>
-        <location filename="../src/millercolumn.cpp" line="329"/>
+        <location filename="../src/millercolumn.cpp" line="523" />
+        <location filename="../src/millercolumn.cpp" line="529" />
+        <location filename="../src/millercolumn.cpp" line="567" />
         <source>Pfad kopieren</source>
-        <translation type="unfinished">Pfad kopieren</translation>
+        <translation>Pfad kopieren</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="277"/>
+        <location filename="../src/millercolumn.cpp" line="524" />
         <source>Name kopieren</source>
-        <translation type="unfinished">Name kopieren</translation>
+        <translation>Name kopieren</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="288"/>
+        <location filename="../src/millercolumn.cpp" line="497" />
         <source>Aushängen</source>
-        <translation type="unfinished">Aushängen</translation>
+        <translation>Aushängen</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="293"/>
+        <location filename="../src/millercolumn.cpp" line="501" />
         <source>Einhängen</source>
-        <translation type="unfinished">Einhängen</translation>
+        <translation>Einhängen</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="321"/>
+        <location filename="../src/millercolumn.cpp" line="556" />
         <source>Im Terminal öffnen</source>
-        <translation type="unfinished">Im Terminal öffnen</translation>
+        <translation>Im Terminal öffnen</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="335"/>
+        <location filename="../src/millercolumn.cpp" line="574" />
         <source>Eigenschaften</source>
-        <translation type="unfinished">Eigenschaften</translation>
+        <translation>Eigenschaften</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="347"/>
-        <location filename="../src/millercolumn.cpp" line="403"/>
+        <location filename="../src/millercolumn.cpp" line="273" />
+        <location filename="../src/millercolumn.cpp" line="336" />
         <source>Dieser PC</source>
-        <translation type="unfinished">Dieser PC</translation>
+        <translation>Dieser PC</translation>
     </message>
     <message>
-        <location filename="../src/millercolumn.cpp" line="407"/>
+        <location filename="../src/millercolumn.cpp" line="344" />
         <source>Google Drive</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
 </context>
 <context>
     <name>PaneToolbar</name>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="41"/>
+        <location filename="../src/panetoolbar.cpp" line="50" />
         <source>Sortieren</source>
-        <translation type="unfinished">Sortieren</translation>
+        <translation>Sortieren</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="42"/>
+        <location filename="../src/panetoolbar.cpp" line="52" />
         <source>Neu</source>
-        <translation type="unfinished">Neu</translation>
+        <translation>Neu</translation>
     </message>
     <message>
         <source>Kopieren</source>
-        <translation type="obsolete">Kopieren</translation>
+        <translation type="vanished">Kopieren</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="44"/>
+        <location filename="../src/panetoolbar.cpp" line="55" />
         <source>Papierkorb leeren</source>
-        <translation type="unfinished">Papierkorb leeren</translation>
+        <translation>Papierkorb leeren</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="77"/>
+        <location filename="../src/panetoolbar.cpp" line="99" />
         <source>Zurück</source>
-        <translation type="unfinished">Zurück</translation>
+        <translation>Zurück</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="80"/>
+        <location filename="../src/panetoolbar.cpp" line="103" />
         <source>Vorwärts</source>
-        <translation type="unfinished">Vorwärts</translation>
+        <translation>Vorwärts</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="83"/>
+        <location filename="../src/panetoolbar.cpp" line="106" />
         <source>Hoch</source>
-        <translation type="unfinished">Hoch</translation>
+        <translation>Hoch</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="90"/>
+        <location filename="../src/panetoolbar.cpp" line="114" />
         <source>Ordner zuerst</source>
-        <translation type="unfinished">Ordner zuerst</translation>
+        <translation>Ordner zuerst</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="134"/>
+        <location filename="../src/panetoolbar.cpp" line="125" />
+        <source>Details</source>
+        <translation>Details</translation>
+    </message>
+    <message>
+        <location filename="../src/panetoolbar.cpp" line="126" />
+        <source>Kompakt</source>
+        <translation>Kompakt</translation>
+    </message>
+    <message>
+        <location filename="../src/panetoolbar.cpp" line="127" />
+        <source>Symbole</source>
+        <translation>Symbole</translation>
+    </message>
+    <message>
+        <location filename="../src/panetoolbar.cpp" line="158" />
         <source>Dieser PC</source>
-        <translation type="unfinished">Dieser PC</translation>
+        <translation>Dieser PC</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="149"/>
+        <location filename="../src/panetoolbar.cpp" line="173" />
         <source>%1 Elemente</source>
-        <translation type="unfinished">%1 Elemente</translation>
+        <translation>%1 Elemente</translation>
     </message>
     <message>
-        <location filename="../src/panetoolbar.cpp" line="159"/>
+        <location filename="../src/panetoolbar.cpp" line="183" />
         <source> | %1 ausgewählt</source>
-        <translation type="unfinished"> | %1 ausgewählt</translation>
+        <translation> | %1 ausgewählt</translation>
     </message>
 </context>
 <context>
     <name>PaneWidget</name>
     <message>
-        <location filename="../src/panewidget.cpp" line="127"/>
-        <location filename="../src/panewidget.cpp" line="266"/>
-        <location filename="../src/panewidget.cpp" line="471"/>
-        <location filename="../src/panewidget.cpp" line="513"/>
-        <location filename="../src/panewidget.cpp" line="632"/>
-        <location filename="../src/panewidget.cpp" line="721"/>
-        <location filename="../src/panewidget.cpp" line="766"/>
-        <location filename="../src/panewidget.cpp" line="899"/>
+        <location filename="../src/panewidget.cpp" line="114" />
+        <location filename="../src/panewidget.cpp" line="283" />
+        <location filename="../src/panewidget.cpp" line="511" />
+        <location filename="../src/panewidget.cpp" line="527" />
+        <location filename="../src/panewidget.cpp" line="662" />
+        <location filename="../src/panewidget.cpp" line="751" />
+        <location filename="../src/panewidget.cpp" line="796" />
+        <location filename="../src/panewidget.cpp" line="933" />
         <source>Dieser PC</source>
-        <translation type="unfinished">Dieser PC</translation>
+        <translation>Dieser PC</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="164"/>
+        <location filename="../src/panewidget.cpp" line="170" />
         <source>Miller-Columns ein-/ausklappen</source>
-        <translation type="unfinished">Miller-Columns ein-/ausklappen</translation>
+        <translation>Miller-Columns ein-/ausklappen</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="177"/>
+        <location filename="../src/panewidget.cpp" line="183" />
         <source>Suchen</source>
-        <translation type="unfinished">Suchen</translation>
+        <translation>Suchen</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="194"/>
+        <location filename="../src/panewidget.cpp" line="200" />
         <source>Layout wählen</source>
-        <translation type="unfinished">Layout wählen</translation>
+        <translation>Layout wählen</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="286"/>
+        <location filename="../src/panewidget.cpp" line="301" />
         <source>Neuer Tab (Strg+T)</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="829"/>
+        <location filename="../src/panewidget.cpp" line="859" />
         <source>Pfad kopieren</source>
-        <translation type="unfinished">Pfad kopieren</translation>
+        <translation>Pfad kopieren</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="835"/>
+        <location filename="../src/panewidget.cpp" line="865" />
         <source>Schließen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="953"/>
+        <location filename="../src/panewidget.cpp" line="998" />
         <source>Tab schließen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="186"/>
+        <location filename="../src/panewidget.cpp" line="192" />
         <source>Menü</source>
-        <translation type="unfinished">Menü</translation>
+        <translation>Menü</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="80"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="77" />
         <source>Neu erstellen</source>
-        <translation type="unfinished">Neu erstellen</translation>
+        <translation>Neu erstellen</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="83"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="80" />
         <source>Ordner …</source>
-        <translation type="unfinished">Ordner …</translation>
+        <translation>Ordner …</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="85"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="82" />
         <source>Textdatei …</source>
-        <translation type="unfinished">Textdatei …</translation>
+        <translation>Textdatei …</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="87"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="84" />
         <source>HTML-Datei …</source>
-        <translation type="unfinished">HTML-Datei …</translation>
+        <translation>HTML-Datei …</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="89"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="86" />
         <source>Leere Datei …</source>
-        <translation type="unfinished">Leere Datei …</translation>
+        <translation>Leere Datei …</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="93"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="90" />
         <source>Verknüpfung zu Datei oder Ordner …</source>
-        <translation type="unfinished">Verknüpfung zu Datei oder Ordner …</translation>
+        <translation>Verknüpfung zu Datei oder Ordner …</translation>
     </message>
     <message>
         <source>Versteckte Dateien anzeigen</source>
-        <translation type="obsolete">Versteckte Dateien anzeigen</translation>
+        <translation type="vanished">Versteckte Dateien anzeigen</translation>
     </message>
     <message>
         <source>Einfachklick zum Öffnen</source>
-        <translation type="obsolete">Einfachklick zum Öffnen</translation>
+        <translation type="vanished">Einfachklick zum Öffnen</translation>
     </message>
     <message>
         <source>Dateiendungen anzeigen</source>
-        <translation type="obsolete">Dateiendungen anzeigen</translation>
+        <translation type="vanished">Dateiendungen anzeigen</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="98"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="95" />
         <source>Terminal</source>
-        <translation type="unfinished">Terminal</translation>
+        <translation>Terminal</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="102"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="99" />
         <source>Im Terminal öffnen</source>
-        <translation type="unfinished">Im Terminal öffnen</translation>
+        <translation>Im Terminal öffnen</translation>
     </message>
     <message>
         <source>Einrichten</source>
-        <translation type="obsolete">Einrichten</translation>
+        <translation type="vanished">Einrichten</translation>
     </message>
     <message>
         <source>Fenster-Farbschema</source>
-        <translation type="obsolete">Fenster-Farbschema</translation>
+        <translation type="vanished">Fenster-Farbschema</translation>
     </message>
     <message>
         <source>KDE Global Theme verwenden</source>
-        <translation type="obsolete">KDE Global Theme verwenden</translation>
+        <translation type="vanished">KDE Global Theme verwenden</translation>
     </message>
     <message>
         <source>Übernimmt Farben und Stil des aktiven KDE Global Themes.</source>
-        <translation type="obsolete">Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
+        <translation type="vanished">Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
     </message>
     <message>
         <source>Designs neu laden</source>
-        <translation type="obsolete">Designs neu laden</translation>
+        <translation type="vanished">Designs neu laden</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="327"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="324" />
         <source>Abbrechen</source>
-        <translation type="unfinished">Abbrechen</translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
         <source>Übernehmen</source>
-        <translation type="obsolete">Übernehmen</translation>
+        <translation type="vanished">Übernehmen</translation>
     </message>
     <message>
         <source>Neustart erforderlich</source>
-        <translation type="obsolete">Neustart erforderlich</translation>
+        <translation type="vanished">Neustart erforderlich</translation>
     </message>
     <message>
         <source>Das Theme wird nach einem Neustart angewendet.</source>
-        <translation type="obsolete">Das Theme wird nach einem Neustart angewendet.</translation>
+        <translation type="vanished">Das Theme wird nach einem Neustart angewendet.</translation>
     </message>
     <message>
         <source>Tastaturkurzbefehle festlegen …</source>
-        <translation type="obsolete">Tastaturkurzbefehle festlegen …</translation>
+        <translation type="vanished">Tastaturkurzbefehle festlegen …</translation>
     </message>
     <message>
         <source>Terminal wählen…</source>
-        <translation type="obsolete">Terminal wählen…</translation>
+        <translation type="vanished">Terminal wählen…</translation>
     </message>
     <message>
         <source>Altersbadges</source>
-        <translation type="obsolete">Altersbadges</translation>
+        <translation type="vanished">Altersbadges</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="120"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="117" />
         <source>Über SplitCommander</source>
-        <translation type="unfinished">Über SplitCommander</translation>
+        <translation>Über SplitCommander</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="66"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="63" />
         <source>GitHub</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="72"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="69" />
         <source>Paperless Manager</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="112"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="109" />
         <source>Einrichten ...</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="123"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="120" />
         <source>SplitCommander</source>
-        <translation type="unfinished">SplitCommander</translation>
+        <translation>SplitCommander</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="125"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="122" />
         <source>Nativer Dual-Pane-Dateimanager für Linux mit KDE Plasma.
 Miller-Column-Interface mit KIO-Integration für lokale und Remote-Dateisysteme.</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="128"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="125" />
         <source>© 2025–2026 D. Lange</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="129"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="126" />
         <source>Unterstützt Google Drive, SFTP, SMB, MTP und weitere KIO-Protokolle.
 Inspiriert von OneCommander.</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="135"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="132" />
         <source>Entwickler und Maintainer</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="142"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="139" />
         <source>Cross-Platform Application Framework</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="146"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="143" />
         <source>KDE-Bibliotheken (KF6)</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="150"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="147" />
         <source>KDE Ein-/Ausgabe-Framework für lokale und Remote-Dateisysteme</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="154"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="151" />
         <source>Hardware-Erkennung und Geräte-Integration</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="161"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="158" />
         <source>Repository-Verwaltung und Git-Sidebar-Integration</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="167"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="164" />
         <source>Dokumente hochladen und durchsuchen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="203"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="200" />
         <source>Klassisch</source>
-        <translation type="unfinished">Klassisch</translation>
+        <translation>Klassisch</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="203"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="200" />
         <source>Einzeln</source>
-        <translation type="unfinished">Einzeln</translation>
+        <translation>Einzeln</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="204"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="201" />
         <source>Standard</source>
-        <translation type="unfinished">Standard</translation>
+        <translation>Standard</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="204"/>
-        <location filename="../src/panewidget_hamburger.cpp" line="205"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="201" />
+        <location filename="../src/panewidget_hamburger.cpp" line="202" />
         <source>Dual</source>
-        <translation type="unfinished">Dual</translation>
+        <translation>Dual</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="205"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="202" />
         <source>Spalten</source>
-        <translation type="unfinished">Spalten</translation>
+        <translation>Spalten</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="263"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="260" />
         <source>Neue Textdatei</source>
-        <translation type="unfinished">Neue Textdatei</translation>
+        <translation>Neue Textdatei</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="263"/>
-        <location filename="../src/panewidget_hamburger.cpp" line="278"/>
-        <location filename="../src/panewidget_hamburger.cpp" line="294"/>
-        <location filename="../src/panewidget_hamburger.cpp" line="343"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="260" />
+        <location filename="../src/panewidget_hamburger.cpp" line="275" />
+        <location filename="../src/panewidget_hamburger.cpp" line="291" />
+        <location filename="../src/panewidget_hamburger.cpp" line="340" />
         <source>Name:</source>
-        <translation type="unfinished">Name:</translation>
+        <translation>Name:</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="264"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="261" />
         <source>Neue Datei.txt</source>
-        <translation type="unfinished">Neue Datei.txt</translation>
+        <translation>Neue Datei.txt</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="277"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="274" />
         <source>Neue HTML-Datei</source>
-        <translation type="unfinished">Neue HTML-Datei</translation>
+        <translation>Neue HTML-Datei</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="278"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="275" />
         <source>index.html</source>
-        <translation type="unfinished">index.html</translation>
+        <translation>index.html</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="294"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="291" />
         <source>Leere Datei</source>
-        <translation type="unfinished">Leere Datei</translation>
+        <translation>Leere Datei</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="295"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="292" />
         <source>Neue Datei</source>
-        <translation type="unfinished">Neue Datei</translation>
+        <translation>Neue Datei</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="311"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="308" />
         <source>Ziel wählen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="328"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="325" />
         <source>Auswählen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="342"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="339" />
         <source>Verknüpfungsname</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
         <source>Ziel waehlen</source>
-        <translation type="obsolete">Ziel waehlen</translation>
+        <translation type="vanished">Ziel waehlen</translation>
     </message>
     <message>
         <source>Verknuepfungsname</source>
-        <translation type="obsolete">Verknuepfungsname</translation>
+        <translation type="vanished">Verknuepfungsname</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_hamburger.cpp" line="343"/>
+        <location filename="../src/panewidget_hamburger.cpp" line="340" />
         <source>Link</source>
-        <translation type="unfinished">Link</translation>
+        <translation>Link</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="71"/>
+        <location filename="../src/panewidget_search.cpp" line="89" />
         <source>Suchen ...</source>
-        <translation type="unfinished">Suchen ...</translation>
+        <translation>Suchen ...</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="80"/>
+        <location filename="../src/panewidget_search.cpp" line="98" />
         <source>Filtern</source>
-        <translation type="unfinished">Filtern</translation>
+        <translation>Filtern</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="96"/>
+        <location filename="../src/panewidget_search.cpp" line="133" />
         <source>Dateinamen</source>
-        <translation type="unfinished">Dateinamen</translation>
+        <translation>Dateinamen</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="97"/>
+        <location filename="../src/panewidget_search.cpp" line="134" />
         <source>Dateiinhalt</source>
-        <translation type="unfinished">Dateiinhalt</translation>
+        <translation>Dateiinhalt</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="106"/>
+        <location filename="../src/panewidget_search.cpp" line="143" />
         <source>KFind öffnen</source>
-        <translation type="unfinished">KFind öffnen</translation>
+        <translation>KFind öffnen</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="109"/>
+        <location filename="../src/panewidget_search.cpp" line="146" />
         <source>Sucheinstellungen</source>
-        <translation type="unfinished">Sucheinstellungen</translation>
+        <translation>Sucheinstellungen</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="157"/>
+        <location filename="../src/panewidget_search.cpp" line="180" />
         <source>Ab hier</source>
-        <translation type="unfinished">Ab hier</translation>
+        <translation>Ab hier</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="158"/>
+        <location filename="../src/panewidget_search.cpp" line="181" />
         <source>Überall</source>
-        <translation type="unfinished">Überall</translation>
+        <translation>Überall</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="291"/>
-        <location filename="../src/panewidget_search.cpp" line="308"/>
+        <location filename="../src/panewidget_search.cpp" line="328" />
+        <location filename="../src/panewidget_search.cpp" line="345" />
         <source>Keine Ergebnisse</source>
-        <translation type="unfinished">Keine Ergebnisse</translation>
+        <translation>Keine Ergebnisse</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="186"/>
-        <location filename="../src/panewidget_footer.cpp" line="171"/>
+        <location filename="../src/panewidget_search.cpp" line="204" />
+        <location filename="../src/panewidget_footer.cpp" line="165" />
         <source>Name</source>
-        <translation type="unfinished">Name</translation>
+        <translation>Name</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="186"/>
+        <location filename="../src/panewidget_search.cpp" line="204" />
         <source>Pfad</source>
-        <translation type="unfinished">Pfad</translation>
+        <translation>Pfad</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="186"/>
-        <location filename="../src/panewidget_footer.cpp" line="177"/>
+        <location filename="../src/panewidget_search.cpp" line="204" />
+        <location filename="../src/panewidget_footer.cpp" line="170" />
         <source>Geändert</source>
-        <translation type="unfinished">Geändert</translation>
+        <translation>Geändert</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_search.cpp" line="258"/>
+        <location filename="../src/panewidget_search.cpp" line="277" />
         <source>Suche läuft...</source>
-        <translation type="unfinished">Suche läuft...</translation>
+        <translation>Suche läuft...</translation>
     </message>
     <message>
         <source>Neuer Ordner</source>
-        <translation type="obsolete">Neuer Ordner</translation>
+        <translation type="vanished">Neuer Ordner</translation>
     </message>
     <message>
         <source>Ordnername:</source>
-        <translation type="obsolete">Ordnername:</translation>
+        <translation type="vanished">Ordnername:</translation>
     </message>
     <message>
         <source>Fehler</source>
-        <translation type="obsolete">Fehler</translation>
+        <translation type="vanished">Fehler</translation>
     </message>
     <message>
         <source>Ordner konnte nicht erstellt werden.</source>
-        <translation type="obsolete">Ordner konnte nicht erstellt werden.</translation>
+        <translation type="vanished">Ordner konnte nicht erstellt werden.</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="565"/>
+        <location filename="../src/panewidget.cpp" line="643" />
         <source>Papierkorb leeren</source>
-        <translation type="unfinished">Papierkorb leeren</translation>
+        <translation>Papierkorb leeren</translation>
     </message>
     <message>
-        <location filename="../src/panewidget.cpp" line="566"/>
+        <location filename="../src/panewidget.cpp" line="644" />
         <source>Möchten Sie den Papierkorb wirklich leeren?</source>
-        <translation type="unfinished">Möchten Sie den Papierkorb wirklich leeren?</translation>
+        <translation>Möchten Sie den Papierkorb wirklich leeren?</translation>
     </message>
     <message>
         <source>Kopiere Dateien...</source>
-        <translation type="obsolete">Kopiere Dateien...</translation>
+        <translation type="vanished">Kopiere Dateien...</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="87"/>
+        <location filename="../src/panewidget_footer.cpp" line="82" />
         <source>%1 Elemente</source>
-        <translation type="unfinished">%1 Elemente</translation>
+        <translation>%1 Elemente</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="91"/>
+        <location filename="../src/panewidget_footer.cpp" line="86" />
         <source>%1 ausgewählt</source>
-        <translation type="unfinished">%1 ausgewählt</translation>
+        <translation>%1 ausgewählt</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="112"/>
-        <location filename="../src/panewidget_footer.cpp" line="172"/>
+        <location filename="../src/panewidget_footer.cpp" line="106" />
+        <location filename="../src/panewidget_footer.cpp" line="166" />
         <source>Ordner</source>
-        <translation type="unfinished">Ordner</translation>
+        <translation>Ordner</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="113"/>
+        <location filename="../src/panewidget_footer.cpp" line="107" />
         <source>…</source>
-        <translation type="unfinished">…</translation>
+        <translation>…</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="172"/>
+        <location filename="../src/panewidget_footer.cpp" line="166" />
         <source>Typ</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="174"/>
+        <location filename="../src/panewidget_footer.cpp" line="167" />
         <source>Datei</source>
-        <translation type="unfinished">Datei</translation>
+        <translation>Datei</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="175"/>
+        <location filename="../src/panewidget_footer.cpp" line="168" />
         <source>-Datei</source>
-        <translation type="unfinished">-Datei</translation>
+        <translation>-Datei</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="176"/>
+        <location filename="../src/panewidget_footer.cpp" line="169" />
         <source>Erstellt</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="179"/>
+        <location filename="../src/panewidget_footer.cpp" line="172" />
         <source>Alter</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="179"/>
+        <location filename="../src/panewidget_footer.cpp" line="172" />
         <source>Heute</source>
-        <translation type="unfinished">Heute</translation>
+        <translation>Heute</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="180"/>
+        <location filename="../src/panewidget_footer.cpp" line="173" />
         <source>Gestern</source>
-        <translation type="unfinished">Gestern</translation>
+        <translation>Gestern</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="181"/>
+        <location filename="../src/panewidget_footer.cpp" line="174" />
         <source>%1 t</source>
-        <translation type="unfinished">%1 t</translation>
+        <translation>%1 t</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="182"/>
+        <location filename="../src/panewidget_footer.cpp" line="175" />
         <source>%1 m</source>
-        <translation type="unfinished">%1 m</translation>
+        <translation>%1 m</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="183"/>
+        <location filename="../src/panewidget_footer.cpp" line="176" />
         <source>%1 j</source>
-        <translation type="unfinished">%1 j</translation>
+        <translation>%1 j</translation>
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="185"/>
+        <location filename="../src/panewidget_footer.cpp" line="178" />
         <source>Größe:</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/panewidget_footer.cpp" line="199"/>
+        <location filename="../src/panewidget_footer.cpp" line="179" />
         <source>Attribute</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
 </context>
 <context>
     <name>PaperlessManagerDialog</name>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="218"/>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="295"/>
-        <source>Paperless</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="219"/>
-        <source>Bitte zuerst URL und Token im Paperless Manager konfigurieren.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="288"/>
-        <source>Paperless Upload</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="289"/>
-        <source>Fehler beim Hochladen von %1:
-%2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="296"/>
-        <source>Upload abgeschlossen.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="311"/>
-        <source>Paperless Manager</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="349"/>
-        <source>Verbindung</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="363"/>
-        <source>URL:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="375"/>
-        <source>Token anzeigen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="378"/>
-        <source>API-Token:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="380"/>
-        <source>SSL-Zertifikat nicht prüfen (für selbstsignierte Zertifikate)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="385"/>
-        <source>Speichern</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="396"/>
-        <source>Dokumente suchen…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="399"/>
         <source>Suchen</source>
-        <translation type="unfinished">Suchen</translation>
+        <translation type="vanished">Suchen</translation>
     </message>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="403"/>
-        <source>Hochladen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="410"/>
-        <source>Aktualisieren</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="419"/>
-        <source>Dokumente:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="454"/>
-        <source>Im Browser öffnen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="457"/>
-        <source>Schließen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="485"/>
-        <source>Dateien für Paperless auswählen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="506"/>
-        <source>Bitte URL und Token konfigurieren.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="511"/>
-        <source>Lädt…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="525"/>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="568"/>
         <source>Fehler: %1</source>
-        <translation type="unfinished">Fehler: %1</translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="550"/>
-        <source>%1 Dokument(e) — %2 angezeigt</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="558"/>
-        <source>Lade %1 herunter…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="581"/>
-        <source>%1 geöffnet.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="583"/>
-        <source>Konnte Datei nicht schreiben.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="599"/>
-        <source>Einstellungen gespeichert.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Fehler: %1</translation>
     </message>
 </context>
 <context>
     <name>PaperlessUploadDialog</name>
     <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="64"/>
-        <source>Zu Paperless hochladen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="80"/>
-        <source>Dateien:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="92"/>
-        <source>Titel (optional):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="100"/>
-        <source>Wird aus Dateiname ermittelt</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="104"/>
-        <source>Tags:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="113"/>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="123"/>
-        <source>Wird geladen…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="118"/>
-        <source>Korrespondent:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="141"/>
-        <source>Hochladen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="144"/>
         <source>Abbrechen</source>
-        <translation type="unfinished">Abbrechen</translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/paperless/paperlessmanager.cpp" line="186"/>
-        <source>— keiner —</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Abbrechen</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
         <source>Löschen</source>
-        <translation type="obsolete">Löschen</translation>
+        <translation type="vanished">Löschen</translation>
     </message>
     <message>
         <source>In den Papierkorb verschieben</source>
-        <translation type="obsolete">In den Papierkorb verschieben</translation>
+        <translation type="vanished">In den Papierkorb verschieben</translation>
     </message>
     <message>
         <source>System</source>
-        <translation type="obsolete">System</translation>
+        <translation type="vanished">System</translation>
     </message>
     <message>
         <source>Keine Ergebnisse</source>
-        <translation type="obsolete">Keine Ergebnisse</translation>
+        <translation type="vanished">Keine Ergebnisse</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="125"/>
+        <location filename="../src/sidebar.cpp" line="160" />
         <source>Eintrag bearbeiten</source>
-        <translation type="unfinished">Eintrag bearbeiten</translation>
+        <translation>Eintrag bearbeiten</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="157"/>
+        <location filename="../src/sidebar.cpp" line="134" />
         <source>Name:</source>
-        <translation type="unfinished">Name:</translation>
+        <translation>Name:</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="161"/>
+        <location filename="../src/sidebar.cpp" line="139" />
         <source>Adresse:</source>
-        <translation type="unfinished">Adresse:</translation>
+        <translation>Adresse:</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="201"/>
+        <location filename="../src/sidebar.cpp" line="214" />
         <source>Bearbeiten...</source>
-        <translation type="unfinished">Bearbeiten...</translation>
+        <translation>Bearbeiten...</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="215"/>
+        <location filename="../src/sidebar.cpp" line="227" />
         <source>In Terminal öffnen</source>
-        <translation type="unfinished">In Terminal öffnen</translation>
+        <translation>In Terminal öffnen</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="223"/>
+        <location filename="../src/sidebar.cpp" line="236" />
         <source>Pfad kopieren</source>
-        <translation type="unfinished">Pfad kopieren</translation>
+        <translation>Pfad kopieren</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="230"/>
+        <location filename="../src/sidebar.cpp" line="244" />
         <source>Aus Gruppe entfernen</source>
-        <translation type="unfinished">Aus Gruppe entfernen</translation>
+        <translation>Aus Gruppe entfernen</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="236"/>
+        <location filename="../src/sidebar.cpp" line="248" />
         <source>Eigenschaften</source>
-        <translation type="unfinished">Eigenschaften</translation>
+        <translation>Eigenschaften</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="35"/>
-        <source>GitHub Release erstellen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="57"/>
-        <source>Tag-Name (z.B. v1.0.0):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="63"/>
-        <source>Release-Titel:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="66"/>
-        <source>z.B. Version 1.0.0</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="69"/>
-        <source>Beschreibung / Changelog:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="76"/>
-        <source>Was ist neu in dieser Version?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="79"/>
-        <source>Als &quot;Latest&quot; markieren</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="84"/>
-        <source>Pre-release</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="100"/>
-        <source>Release erstellen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="102"/>
         <source>Abbrechen</source>
-        <translation type="unfinished">Abbrechen</translation>
+        <translation type="vanished">Abbrechen</translation>
     </message>
     <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="474"/>
-        <source>▼  Verbindungseinstellungen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/git/gitmanagerdialog.cpp" line="475"/>
-        <source>▶  Verbindungseinstellungen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="61"/>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="76"/>
-        <source>ISO einbinden</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="62"/>
-        <source>Konnte Datei nicht öffnen: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="77"/>
         <source>Fehler: %1</source>
-        <translation type="unfinished">Fehler: %1</translation>
+        <translation type="vanished">Fehler: %1</translation>
     </message>
     <message>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="112"/>
-        <source>ISO aushängen</source>
-        <translation type="unfinished"></translation>
+        <location filename="../src/sidebargroups.cpp" line="135" />
+        <source>Leere Gruppe</source>
+        <translation>Leere Gruppe</translation>
     </message>
     <message>
-        <location filename="../src/plugins/mountiso/mountiso.cpp" line="113"/>
-        <source>Gerät nicht gefunden.</source>
-        <translation type="unfinished"></translation>
+        <location filename="../src/sidebargroups.cpp" line="136" />
+        <source>Home-Favoriten</source>
+        <translation>Home-Favoriten</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="140" />
+        <source>Git Repositories</source>
+        <translation />
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="167" />
+        <source>Es existiert bereits eine Git-Box</source>
+        <translation />
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="190" />
+        <source>Gruppenname:</source>
+        <translation>Gruppenname:</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="193" />
+        <source>Mein Ordner...</source>
+        <translation>Mein Ordner...</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="196" />
+        <source>Inhalt:</source>
+        <translation>Inhalt:</translation>
     </message>
 </context>
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="80"/>
+        <location filename="../src/settingsdialog.cpp" line="108" />
         <source>Einstellungen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="128"/>
+        <location filename="../src/settingsdialog.cpp" line="182" />
         <source>Allgemein</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="129"/>
-        <location filename="../src/settingsdialog.cpp" line="422"/>
+        <location filename="../src/settingsdialog.cpp" line="183" />
+        <location filename="../src/settingsdialog.cpp" line="551" />
         <source>Erscheinungsbild</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="130"/>
+        <location filename="../src/settingsdialog.cpp" line="184" />
         <source>Kurzbefehle</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="149"/>
+        <location filename="../src/settingsdialog.cpp" line="195" />
         <source>Übernehmen &amp; Neustarten</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="150"/>
+        <location filename="../src/settingsdialog.cpp" line="197" />
         <source>Schließen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="184"/>
+        <location filename="../src/settingsdialog.cpp" line="234" />
         <source>Allgemeine Einstellungen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="189"/>
+        <location filename="../src/settingsdialog.cpp" line="256" />
         <source>Sprache</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="196"/>
+        <location filename="../src/settingsdialog.cpp" line="270" />
         <source>Systemsprache</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="223"/>
+        <location filename="../src/settingsdialog.cpp" line="299" />
         <source>Neustart erforderlich, um die Sprache zu wechseln.</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="229"/>
+        <location filename="../src/settingsdialog.cpp" line="307" />
         <source>Sprache:</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="234"/>
+        <location filename="../src/settingsdialog.cpp" line="316" />
         <source>Start-Verhalten</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="238"/>
+        <location filename="../src/settingsdialog.cpp" line="323" />
         <source>Mit letzter Sitzung starten (Letzte Pfade)</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="239"/>
+        <location filename="../src/settingsdialog.cpp" line="324" />
         <source>Immer in der Laufwerks-Übersicht (Dieser PC) starten</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="240"/>
+        <location filename="../src/settingsdialog.cpp" line="325" />
         <source>Immer in folgendem Pfad starten:</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="254"/>
+        <location filename="../src/settingsdialog.cpp" line="340" />
         <source>Durchsuchen...</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="262"/>
+        <location filename="../src/settingsdialog.cpp" line="350" />
         <source>Start-Verzeichnis wählen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="271"/>
+        <location filename="../src/settingsdialog.cpp" line="366" />
         <source>Verhalten &amp; Dateiliste</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="274"/>
+        <location filename="../src/settingsdialog.cpp" line="371" />
         <source>Versteckte Dateien anzeigen</source>
-        <translation type="unfinished">Versteckte Dateien anzeigen</translation>
+        <translation>Versteckte Dateien anzeigen</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="275"/>
+        <location filename="../src/settingsdialog.cpp" line="372" />
         <source>Dateiendungen anzeigen</source>
-        <translation type="unfinished">Dateiendungen anzeigen</translation>
+        <translation>Dateiendungen anzeigen</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="276"/>
+        <location filename="../src/settingsdialog.cpp" line="373" />
         <source>Einfachklick zum Öffnen verwenden</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="277"/>
+        <location filename="../src/settingsdialog.cpp" line="374" />
         <source>IP-Adresse in Miller-Spalten anzeigen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="286"/>
+        <location filename="../src/settingsdialog.cpp" line="386" />
         <source>Laufwerke</source>
-        <translation type="unfinished">Laufwerke</translation>
+        <translation>Laufwerke</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="289"/>
+        <location filename="../src/settingsdialog.cpp" line="391" />
         <source>IP-Adresse für Netzlaufwerke anzeigen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="295"/>
+        <location filename="../src/settingsdialog.cpp" line="396" />
         <source>Git</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="298"/>
+        <location filename="../src/settingsdialog.cpp" line="401" />
         <source>Git-Box in Sidebar anzeigen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="302"/>
+        <location filename="../src/settingsdialog.cpp" line="405" />
         <source>Aktualisierung:</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="304"/>
+        <location filename="../src/settingsdialog.cpp" line="408" />
         <source>Bei Änderungen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="305"/>
+        <location filename="../src/settingsdialog.cpp" line="409" />
         <source>Periodisch</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="306"/>
+        <location filename="../src/settingsdialog.cpp" line="410" />
         <source>Manuell</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="311"/>
+        <location filename="../src/settingsdialog.cpp" line="415" />
         <source>Intervall (Min):</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="328"/>
+        <location filename="../src/settingsdialog.cpp" line="436" />
         <source>Darstellung</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="333"/>
+        <location filename="../src/settingsdialog.cpp" line="444" />
         <source> pt</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="334"/>
+        <location filename="../src/settingsdialog.cpp" line="445" />
         <source>Steuert Schriftgröße, Icon-Größe und Zeilenhöhe</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="338"/>
+        <location filename="../src/settingsdialog.cpp" line="450" />
         <source>App-weite Schriftart</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="342"/>
+        <location filename="../src/settingsdialog.cpp" line="455" />
         <source>Icon-Größe und Zeilenhöhen werden automatisch angepasst</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="359"/>
+        <location filename="../src/settingsdialog.cpp" line="475" />
         <source>Schriftart:</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="360"/>
+        <location filename="../src/settingsdialog.cpp" line="476" />
         <source>Schriftgröße:</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="362"/>
+        <location filename="../src/settingsdialog.cpp" line="478" />
         <source>Abstände:</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="366"/>
+        <location filename="../src/settingsdialog.cpp" line="486" />
         <source>Pfad-Filter (Blacklist)</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="368"/>
+        <location filename="../src/settingsdialog.cpp" line="490" />
         <source>Diese Verzeichnisse werden in der Sidebar und den Laufwerkslisten versteckt.</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="380"/>
+        <location filename="../src/settingsdialog.cpp" line="505" />
         <source>Neuer Pfad...</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="383"/>
-        <location filename="../src/settingsdialog.cpp" line="509"/>
+        <location filename="../src/settingsdialog.cpp" line="508" />
+        <location filename="../src/settingsdialog.cpp" line="703" />
         <source>Hinzufügen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="384"/>
-        <location filename="../src/settingsdialog.cpp" line="512"/>
+        <location filename="../src/settingsdialog.cpp" line="510" />
+        <location filename="../src/settingsdialog.cpp" line="707" />
         <source>Entfernen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="427"/>
+        <location filename="../src/settingsdialog.cpp" line="571" />
         <source>Design &amp; Farben</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="430"/>
+        <location filename="../src/settingsdialog.cpp" line="576" />
         <source>KDE Global Theme verwenden</source>
-        <translation type="unfinished">KDE Global Theme verwenden</translation>
+        <translation>KDE Global Theme verwenden</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="431"/>
+        <location filename="../src/settingsdialog.cpp" line="577" />
         <source>Übernimmt Farben und Stil des aktiven KDE Global Themes.</source>
-        <translation type="unfinished">Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
+        <translation>Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="471"/>
+        <location filename="../src/settingsdialog.cpp" line="653" />
         <source>Vorschaubilder (Thumbnails)</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="473"/>
+        <location filename="../src/settingsdialog.cpp" line="657" />
         <source>Vorschaubilder anzeigen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="475"/>
+        <location filename="../src/settingsdialog.cpp" line="659" />
         <source>Maximale Dateigröße (MB):</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="487"/>
+        <location filename="../src/settingsdialog.cpp" line="676" />
         <source>Dateityp-Farben (Hervorhebung)</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="506"/>
+        <location filename="../src/settingsdialog.cpp" line="699" />
         <source>Farbe wählen...</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="524"/>
+        <location filename="../src/settingsdialog.cpp" line="727" />
         <source>Farbe für Dateityp wählen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="747"/>
+        <location filename="../src/settingsdialog.cpp" line="1022" />
         <source>Fehler</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="747"/>
+        <location filename="../src/settingsdialog.cpp" line="1022" />
         <source>Neustart fehlgeschlagen: %1</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="555"/>
+        <location filename="../src/settingsdialog.cpp" line="755" />
         <source>Alters-Plaketten</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="566"/>
+        <location filename="../src/settingsdialog.cpp" line="62" />
+        <source>1 Std</source>
+        <translation>1 Std</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="63" />
+        <source>1 Tag</source>
+        <translation>1 Tag</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="64" />
+        <source>7 Tage</source>
+        <translation>7 Tage</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="65" />
+        <source>1 Monat</source>
+        <translation>1 Monat</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="66" />
+        <source>1 Jahr</source>
+        <translation>1 Jahr</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="67" />
+        <source>&gt;1 Jahr</source>
+        <translation>&gt;1 Jahr</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="777" />
         <source>Sättigung:</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="567"/>
+        <location filename="../src/settingsdialog.cpp" line="778" />
         <source>Helligkeit:</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="570"/>
+        <location filename="../src/settingsdialog.cpp" line="781" />
         <source>Neue Dateien hervorheben (&lt; 2 Tage)</source>
-        <translation type="unfinished">Neue Dateien hervorheben (&lt; 2 Tage)</translation>
+        <translation>Neue Dateien hervorheben (&lt; 2 Tage)</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="740"/>
+        <location filename="../src/settingsdialog.cpp" line="1013" />
         <source>Neustart erforderlich</source>
-        <translation type="unfinished">Neustart erforderlich</translation>
+        <translation>Neustart erforderlich</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="741"/>
+        <location filename="../src/settingsdialog.cpp" line="1013" />
         <source>Einige Änderungen erfordern einen Neustart. Jetzt neu starten?</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
 </context>
 <context>
     <name>Sidebar</name>
     <message>
-        <location filename="../src/sidebar.cpp" line="355"/>
+        <location filename="../src/sidebar.cpp" line="379" />
         <source>Layout wählen</source>
-        <translation type="unfinished">Layout wählen</translation>
+        <translation>Layout wählen</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="391"/>
+        <location filename="../src/sidebar.cpp" line="437" />
         <source>Klassisch</source>
-        <translation type="unfinished">Klassisch</translation>
+        <translation>Klassisch</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="391"/>
+        <location filename="../src/sidebar.cpp" line="437" />
         <source>Einzeln</source>
-        <translation type="unfinished">Einzeln</translation>
+        <translation>Einzeln</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="392"/>
+        <location filename="../src/sidebar.cpp" line="438" />
         <source>Standard</source>
-        <translation type="unfinished">Standard</translation>
+        <translation>Standard</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="392"/>
-        <location filename="../src/sidebar.cpp" line="393"/>
+        <location filename="../src/sidebar.cpp" line="438" />
+        <location filename="../src/sidebar.cpp" line="439" />
         <source>Dual</source>
-        <translation type="unfinished">Dual</translation>
+        <translation>Dual</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="393"/>
+        <location filename="../src/sidebar.cpp" line="439" />
         <source>Spalten</source>
-        <translation type="unfinished">Spalten</translation>
+        <translation>Spalten</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="470"/>
         <source>LAUFWERKE</source>
-        <translation type="unfinished">LAUFWERKE</translation>
+        <translation type="vanished">LAUFWERKE</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="580"/>
-        <location filename="../src/sidebar.cpp" line="1468"/>
+        <location filename="../src/sidebar.cpp" line="746" />
+        <location filename="../src/sidebar.cpp" line="1892" />
         <source>Öffnen</source>
-        <translation type="unfinished">Öffnen</translation>
+        <translation>Öffnen</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="583"/>
-        <location filename="../src/sidebar.cpp" line="1471"/>
-        <location filename="../src/sidebar.cpp" line="1685"/>
+        <location filename="../src/sidebar.cpp" line="747" />
+        <location filename="../src/sidebar.cpp" line="1896" />
+        <location filename="../src/sidebar.cpp" line="1941" />
         <source>Öffnen in</source>
-        <translation type="unfinished">Öffnen in</translation>
+        <translation>Öffnen in</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="585"/>
-        <location filename="../src/sidebar.cpp" line="1473"/>
-        <location filename="../src/sidebar.cpp" line="1687"/>
+        <location filename="../src/sidebar.cpp" line="750" />
+        <location filename="../src/sidebar.cpp" line="1899" />
+        <location filename="../src/sidebar.cpp" line="1944" />
         <source>Linke Pane</source>
-        <translation type="unfinished">Linke Pane</translation>
+        <translation>Linke Pane</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="587"/>
-        <location filename="../src/sidebar.cpp" line="1475"/>
-        <location filename="../src/sidebar.cpp" line="1689"/>
+        <location filename="../src/sidebar.cpp" line="751" />
+        <location filename="../src/sidebar.cpp" line="1900" />
+        <location filename="../src/sidebar.cpp" line="1945" />
         <source>Rechte Pane</source>
-        <translation type="unfinished">Rechte Pane</translation>
+        <translation>Rechte Pane</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="607"/>
-        <location filename="../src/sidebar.cpp" line="610"/>
-        <location filename="../src/sidebar.cpp" line="1563"/>
-        <location filename="../src/sidebar.cpp" line="1566"/>
+        <location filename="../src/sidebar.cpp" line="798" />
+        <location filename="../src/sidebar.cpp" line="801" />
+        <location filename="../src/sidebar.cpp" line="1806" />
+        <location filename="../src/sidebar.cpp" line="1809" />
         <source>Umbenennen</source>
-        <translation type="unfinished">Umbenennen</translation>
+        <translation>Umbenennen</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="610"/>
-        <location filename="../src/sidebar.cpp" line="1569"/>
+        <location filename="../src/sidebar.cpp" line="801" />
+        <location filename="../src/sidebar.cpp" line="1813" />
         <source>Anzeigename:</source>
-        <translation type="unfinished">Anzeigename:</translation>
+        <translation>Anzeigename:</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="637"/>
+        <location filename="../src/sidebar.cpp" line="808" />
         <source>Zu Laufwerken hinzufügen</source>
-        <translation type="unfinished">Zu Laufwerken hinzufügen</translation>
+        <translation>Zu Laufwerken hinzufügen</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="664"/>
-        <location filename="../src/sidebar.cpp" line="1584"/>
+        <location filename="../src/sidebar.cpp" line="760" />
+        <location filename="../src/sidebar.cpp" line="1828" />
         <source>Aus Laufwerken entfernen</source>
-        <translation type="unfinished">Aus Laufwerken entfernen</translation>
+        <translation>Aus Laufwerken entfernen</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="726"/>
+        <location filename="../src/sidebar.cpp" line="767" />
         <source>Trennen</source>
-        <translation type="unfinished">Trennen</translation>
+        <translation>Trennen</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="731"/>
-        <location filename="../src/sidebar.cpp" line="1612"/>
+        <location filename="../src/sidebar.cpp" line="817" />
+        <location filename="../src/sidebar.cpp" line="1918" />
         <source>Pfad kopieren</source>
-        <translation type="unfinished">Pfad kopieren</translation>
+        <translation>Pfad kopieren</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="741"/>
+        <location filename="../src/sidebar.cpp" line="885" />
         <source>Box umbenennen …</source>
-        <translation type="unfinished">Box umbenennen …</translation>
+        <translation>Box umbenennen …</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="743"/>
+        <location filename="../src/sidebar.cpp" line="833" />
         <source>Box umbenennen</source>
-        <translation type="unfinished">Box umbenennen</translation>
+        <translation>Box umbenennen</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="744"/>
-        <location filename="../src/sidebargroups.cpp" line="873"/>
+        <location filename="../src/sidebar.cpp" line="550" />
+        <source>Laufwerke</source>
+        <translation>Laufwerke</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebar.cpp" line="833" />
+        <location filename="../src/sidebargroups.cpp" line="1217" />
         <source>Name:</source>
-        <translation type="unfinished">Name:</translation>
+        <translation>Name:</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="755"/>
+        <location filename="../src/sidebar.cpp" line="892" />
         <source>Alles aktualisieren</source>
-        <translation type="unfinished">Alles aktualisieren</translation>
+        <translation>Alles aktualisieren</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="760"/>
+        <location filename="../src/sidebar.cpp" line="899" />
         <source>Netzwerklaufwerk verbinden</source>
-        <translation type="unfinished">Netzwerklaufwerk verbinden</translation>
+        <translation>Netzwerklaufwerk verbinden</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="763"/>
+        <location filename="../src/sidebar.cpp" line="904" />
         <source>SMB Laufwerke verbinden</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="861"/>
+        <location filename="../src/sidebar.cpp" line="979" />
         <source>+ Neue Gruppe</source>
-        <translation type="unfinished">+ Neue Gruppe</translation>
+        <translation>+ Neue Gruppe</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1072"/>
         <source>TAGS</source>
-        <translation type="unfinished">TAGS</translation>
+        <translation type="vanished">TAGS</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1125"/>
+        <location filename="../src/sidebar.cpp" line="1250" />
         <source>Neuer Tag</source>
-        <translation type="unfinished">Neuer Tag</translation>
+        <translation>Neuer Tag</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1125"/>
+        <location filename="../src/sidebar.cpp" line="1250" />
         <source>Tag-Name:</source>
-        <translation type="unfinished">Tag-Name:</translation>
+        <translation>Tag-Name:</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1130"/>
-        <location filename="../src/sidebargroups.cpp" line="857"/>
+        <location filename="../src/sidebar.cpp" line="1257" />
+        <location filename="../src/sidebargroups.cpp" line="1191" />
         <source>Farbe wählen</source>
-        <translation type="unfinished">Farbe wählen</translation>
+        <translation>Farbe wählen</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1171"/>
+        <location filename="../src/sidebar.cpp" line="1356" />
         <source>Über</source>
-        <translation type="unfinished">Über</translation>
+        <translation>Über</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1172"/>
+        <location filename="../src/sidebar.cpp" line="1357" />
         <source>Suchen</source>
-        <translation type="unfinished">Suchen</translation>
+        <translation>Suchen</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1173"/>
+        <location filename="../src/sidebar.cpp" line="1358" />
         <source>Drucken</source>
-        <translation type="unfinished">Drucken</translation>
+        <translation>Drucken</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1174"/>
+        <location filename="../src/sidebar.cpp" line="1359" />
         <source>Nachricht</source>
-        <translation type="unfinished">Nachricht</translation>
+        <translation>Nachricht</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1482"/>
-        <location filename="../src/sidebar.cpp" line="1534"/>
+        <location filename="../src/sidebar.cpp" line="1726" />
+        <location filename="../src/sidebar.cpp" line="1752" />
         <source>Aushängen</source>
-        <translation type="unfinished">Aushängen</translation>
+        <translation>Aushängen</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1490"/>
+        <location filename="../src/sidebar.cpp" line="1761" />
         <source>Auswerfen</source>
-        <translation type="unfinished">Auswerfen</translation>
+        <translation>Auswerfen</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1538"/>
+        <location filename="../src/sidebar.cpp" line="1733" />
         <source>Einhängen</source>
-        <translation type="unfinished">Einhängen</translation>
+        <translation>Einhängen</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1610"/>
+        <location filename="../src/sidebar.cpp" line="1201" />
+        <source>Tags</source>
+        <translation />
+    </message>
+    <message>
+        <location filename="../src/sidebar.cpp" line="1915" />
         <source>Kopieren</source>
-        <translation type="unfinished">Kopieren</translation>
+        <translation>Kopieren</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1615"/>
+        <location filename="../src/sidebar.cpp" line="1919" />
         <source>Name kopieren</source>
-        <translation type="unfinished">Name kopieren</translation>
+        <translation>Name kopieren</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1622"/>
+        <location filename="../src/sidebar.cpp" line="1854" />
         <source>Verknüpfung erstellen</source>
-        <translation type="unfinished">Verknüpfung erstellen</translation>
+        <translation>Verknüpfung erstellen</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="1643"/>
+        <location filename="../src/sidebar.cpp" line="1870" />
         <source>Eigenschaften</source>
-        <translation type="unfinished">Eigenschaften</translation>
+        <translation>Eigenschaften</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="69"/>
+        <location filename="../src/sidebargroups.cpp" line="211" />
         <source>Neue Gruppe</source>
-        <translation type="unfinished">Neue Gruppe</translation>
+        <translation>Neue Gruppe</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="76"/>
         <source>Gruppenname:</source>
-        <translation type="unfinished">Gruppenname:</translation>
+        <translation type="vanished">Gruppenname:</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="78"/>
         <source>Mein Ordner...</source>
-        <translation type="unfinished">Mein Ordner...</translation>
+        <translation type="vanished">Mein Ordner...</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="81"/>
         <source>Inhalt:</source>
-        <translation type="unfinished">Inhalt:</translation>
+        <translation type="vanished">Inhalt:</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="83"/>
         <source>Leere Gruppe</source>
-        <translation type="unfinished">Leere Gruppe</translation>
+        <translation type="vanished">Leere Gruppe</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="84"/>
         <source>Home-Favoriten</source>
-        <translation type="unfinished">Home-Favoriten</translation>
+        <translation type="vanished">Home-Favoriten</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="86"/>
-        <source>Git Repositories</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/sidebargroups.cpp" line="107"/>
-        <source>Es existiert bereits eine Git-Box</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/sidebargroups.cpp" line="343"/>
-        <location filename="../src/sidebargroups.cpp" line="346"/>
-        <location filename="../src/sidebargroups.cpp" line="566"/>
-        <location filename="../src/sidebargroups.cpp" line="569"/>
+        <location filename="../src/sidebargroups.cpp" line="277" />
+        <location filename="../src/sidebargroups.cpp" line="370" />
+        <location filename="../src/sidebargroups.cpp" line="653" />
+        <location filename="../src/sidebargroups.cpp" line="701" />
         <source>Gruppe umbenennen</source>
-        <translation type="unfinished">Gruppe umbenennen</translation>
+        <translation>Gruppe umbenennen</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="346"/>
-        <location filename="../src/sidebargroups.cpp" line="569"/>
+        <location filename="../src/sidebargroups.cpp" line="277" />
+        <location filename="../src/sidebargroups.cpp" line="701" />
         <source>Neuer Name:</source>
-        <translation type="unfinished">Neuer Name:</translation>
+        <translation>Neuer Name:</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="380"/>
+        <location filename="../src/sidebargroups.cpp" line="399" />
         <source>Lösen</source>
-        <translation type="unfinished">Lösen</translation>
+        <translation>Lösen</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="380"/>
+        <location filename="../src/sidebargroups.cpp" line="399" />
         <source>An Position verankern</source>
-        <translation type="unfinished">An Position verankern</translation>
+        <translation>An Position verankern</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="392"/>
-        <location filename="../src/sidebargroups.cpp" line="590"/>
+        <location filename="../src/sidebargroups.cpp" line="411" />
+        <location filename="../src/sidebargroups.cpp" line="660" />
         <source>Nach oben</source>
-        <translation type="unfinished">Nach oben</translation>
+        <translation>Nach oben</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="393"/>
-        <location filename="../src/sidebargroups.cpp" line="591"/>
+        <location filename="../src/sidebargroups.cpp" line="412" />
+        <location filename="../src/sidebargroups.cpp" line="661" />
         <source>Nach unten</source>
-        <translation type="unfinished">Nach unten</translation>
+        <translation>Nach unten</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="397"/>
-        <location filename="../src/sidebargroups.cpp" line="594"/>
+        <location filename="../src/sidebargroups.cpp" line="385" />
+        <location filename="../src/sidebargroups.cpp" line="665" />
         <source>Gruppe löschen</source>
-        <translation type="unfinished">Gruppe löschen</translation>
+        <translation>Gruppe löschen</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="720"/>
+        <location filename="../src/sidebargroups.cpp" line="238" />
+        <location filename="../src/sidebargroups.cpp" line="592" />
+        <source>Orte</source>
+        <translation>Orte</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="239" />
+        <location filename="../src/sidebargroups.cpp" line="593" />
+        <source>Favoriten</source>
+        <translation>Favoriten</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="240" />
+        <location filename="../src/sidebargroups.cpp" line="594" />
+        <source>Repos</source>
+        <translation>Repos</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="241" />
+        <location filename="../src/sidebargroups.cpp" line="595" />
+        <source>Repo</source>
+        <translation>Repo</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="972" />
         <source>Papierkorb</source>
-        <translation type="unfinished">Papierkorb</translation>
+        <translation>Papierkorb</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="721"/>
+        <location filename="../src/sidebargroups.cpp" line="976" />
         <source>Zuletzt verwendet</source>
-        <translation type="unfinished">Zuletzt verwendet</translation>
+        <translation>Zuletzt verwendet</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="722"/>
+        <location filename="../src/sidebargroups.cpp" line="980" />
         <source>Netzwerk</source>
-        <translation type="unfinished">Netzwerk</translation>
+        <translation>Netzwerk</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="723"/>
+        <location filename="../src/sidebargroups.cpp" line="984" />
         <source>Persönlicher Ordner</source>
-        <translation type="unfinished">Persönlicher Ordner</translation>
+        <translation>Persönlicher Ordner</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="854"/>
+        <location filename="../src/sidebargroups.cpp" line="1126" />
+        <source>Wichtig</source>
+        <translation>Wichtig</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="1127" />
+        <source>Arbeit</source>
+        <translation>Arbeit</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="1128" />
+        <source>Schule</source>
+        <translation>Schule</translation>
+    </message>
+    <message>
+        <location filename="../src/sidebargroups.cpp" line="1169" />
         <source>Farbe ändern …</source>
-        <translation type="unfinished">Farbe ändern …</translation>
+        <translation>Farbe ändern …</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="870"/>
+        <location filename="../src/sidebargroups.cpp" line="1174" />
         <source>Umbenennen …</source>
-        <translation type="unfinished">Umbenennen …</translation>
+        <translation>Umbenennen …</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="873"/>
+        <location filename="../src/sidebargroups.cpp" line="1217" />
         <source>Tag umbenennen</source>
-        <translation type="unfinished">Tag umbenennen</translation>
+        <translation>Tag umbenennen</translation>
     </message>
     <message>
-        <location filename="../src/sidebargroups.cpp" line="878"/>
+        <location filename="../src/sidebargroups.cpp" line="1180" />
         <source>Löschen</source>
-        <translation type="unfinished">Löschen</translation>
+        <translation>Löschen</translation>
     </message>
 </context>
 <context>
     <name>SidebarHandle</name>
     <message>
-        <location filename="../src/panecomponents.cpp" line="180"/>
+        <location filename="../src/panecomponents.cpp" line="180" />
         <source>Layout wählen</source>
-        <translation type="unfinished">Layout wählen</translation>
+        <translation>Layout wählen</translation>
     </message>
 </context>
 <context>
@@ -2709,14 +2205,14 @@ Inspiriert von OneCommander.</source>
         <translation type="vanished">Neue Dateien hervorheben (&lt; 2 Tage)</translation>
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="96"/>
-        <location filename="../src/sidebargroups.cpp" line="46"/>
+        <location filename="../src/sidebar.cpp" line="90" />
+        <location filename="../src/sidebargroups.cpp" line="45" />
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/sidebar.cpp" line="99"/>
-        <location filename="../src/sidebargroups.cpp" line="47"/>
+        <location filename="../src/sidebar.cpp" line="91" />
+        <location filename="../src/sidebargroups.cpp" line="46" />
         <source>Abbrechen</source>
         <translation>Abbrechen</translation>
     </message>
@@ -3205,221 +2701,207 @@ Inspiriert von OneCommander.</source>
         <translation type="vanished">Überall</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="144"/>
-        <location filename="../src/previewpanel.cpp" line="181"/>
-        <location filename="../src/previewpanel.cpp" line="198"/>
+        <location filename="../src/filepane.cpp" line="143" />
         <source>Name</source>
         <translation>Name</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="145"/>
-        <location filename="../src/previewpanel.cpp" line="137"/>
-        <location filename="../src/previewpanel.cpp" line="169"/>
-        <location filename="../src/previewpanel.cpp" line="182"/>
-        <location filename="../src/previewpanel.cpp" line="199"/>
+        <location filename="../src/filepane.cpp" line="144" />
         <source>Typ</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="146"/>
+        <location filename="../src/filepane.cpp" line="145" />
         <source>Alter</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="148"/>
-        <location filename="../src/previewpanel.cpp" line="172"/>
-        <location filename="../src/previewpanel.cpp" line="186"/>
+        <location filename="../src/filepane.cpp" line="147" />
         <source>Erstellt</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="149"/>
+        <location filename="../src/filepane.cpp" line="148" />
         <source>Letzter Zugriff</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="150"/>
-        <location filename="../src/previewpanel.cpp" line="138"/>
-        <location filename="../src/previewpanel.cpp" line="170"/>
-        <location filename="../src/previewpanel.cpp" line="184"/>
+        <location filename="../src/filepane.cpp" line="149" />
         <source>Größe</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="151"/>
+        <location filename="../src/filepane.cpp" line="150" />
         <source>Rechte</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="152"/>
+        <location filename="../src/filepane.cpp" line="151" />
         <source>Eigentümer</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="152"/>
-        <location filename="../src/filepane.cpp" line="153"/>
-        <location filename="../src/filepane.cpp" line="154"/>
-        <location filename="../src/filepane.cpp" line="155"/>
+        <location filename="../src/filepane.cpp" line="151" />
+        <location filename="../src/filepane.cpp" line="152" />
+        <location filename="../src/filepane.cpp" line="153" />
+        <location filename="../src/filepane.cpp" line="154" />
         <source>Weitere</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="153"/>
+        <location filename="../src/filepane.cpp" line="152" />
         <source>Benutzergruppe</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="154"/>
+        <location filename="../src/filepane.cpp" line="153" />
         <source>Pfad</source>
         <translation>Pfad</translation>
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="155"/>
+        <location filename="../src/filepane.cpp" line="154" />
         <source>Dateierweiterung</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="156"/>
+        <location filename="../src/filepane.cpp" line="155" />
         <source>Tags</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="157"/>
+        <location filename="../src/filepane.cpp" line="156" />
         <source>Datum der Aufnahme</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="157"/>
-        <location filename="../src/filepane.cpp" line="158"/>
-        <location filename="../src/filepane.cpp" line="159"/>
-        <location filename="../src/filepane.cpp" line="160"/>
-        <location filename="../src/filepane.cpp" line="161"/>
+        <location filename="../src/filepane.cpp" line="156" />
+        <location filename="../src/filepane.cpp" line="157" />
+        <location filename="../src/filepane.cpp" line="158" />
+        <location filename="../src/filepane.cpp" line="159" />
+        <location filename="../src/filepane.cpp" line="160" />
         <source>Bild</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="158"/>
+        <location filename="../src/filepane.cpp" line="157" />
         <source>Abmessungen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="159"/>
+        <location filename="../src/filepane.cpp" line="158" />
         <source>Breite</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="160"/>
+        <location filename="../src/filepane.cpp" line="159" />
         <source>Höhe</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="161"/>
+        <location filename="../src/filepane.cpp" line="160" />
         <source>Ausrichtung</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="162"/>
+        <location filename="../src/filepane.cpp" line="161" />
         <source>Künstler</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="162"/>
-        <location filename="../src/filepane.cpp" line="163"/>
-        <location filename="../src/filepane.cpp" line="164"/>
-        <location filename="../src/filepane.cpp" line="165"/>
-        <location filename="../src/filepane.cpp" line="166"/>
-        <location filename="../src/filepane.cpp" line="167"/>
+        <location filename="../src/filepane.cpp" line="161" />
+        <location filename="../src/filepane.cpp" line="162" />
+        <location filename="../src/filepane.cpp" line="163" />
+        <location filename="../src/filepane.cpp" line="164" />
+        <location filename="../src/filepane.cpp" line="165" />
+        <location filename="../src/filepane.cpp" line="166" />
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="163"/>
+        <location filename="../src/filepane.cpp" line="162" />
         <source>Genre</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="164"/>
+        <location filename="../src/filepane.cpp" line="163" />
         <source>Album</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="165"/>
-        <location filename="../src/filepane.cpp" line="170"/>
+        <location filename="../src/filepane.cpp" line="164" />
+        <location filename="../src/filepane.cpp" line="169" />
         <source>Dauer</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="166"/>
+        <location filename="../src/filepane.cpp" line="165" />
         <source>Bitrate</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="167"/>
+        <location filename="../src/filepane.cpp" line="166" />
         <source>Stück</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="168"/>
+        <location filename="../src/filepane.cpp" line="167" />
         <source>Seitenverhältnis</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="168"/>
-        <location filename="../src/filepane.cpp" line="169"/>
-        <location filename="../src/filepane.cpp" line="170"/>
+        <location filename="../src/filepane.cpp" line="167" />
+        <location filename="../src/filepane.cpp" line="168" />
+        <location filename="../src/filepane.cpp" line="169" />
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="169"/>
+        <location filename="../src/filepane.cpp" line="168" />
         <source>Bildwiederholrate</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="171"/>
+        <location filename="../src/filepane.cpp" line="170" />
         <source>Titel</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="171"/>
-        <location filename="../src/filepane.cpp" line="172"/>
-        <location filename="../src/filepane.cpp" line="173"/>
-        <location filename="../src/filepane.cpp" line="174"/>
-        <location filename="../src/filepane.cpp" line="175"/>
-        <location filename="../src/filepane.cpp" line="176"/>
+        <location filename="../src/filepane.cpp" line="170" />
+        <location filename="../src/filepane.cpp" line="171" />
+        <location filename="../src/filepane.cpp" line="172" />
+        <location filename="../src/filepane.cpp" line="173" />
+        <location filename="../src/filepane.cpp" line="174" />
+        <location filename="../src/filepane.cpp" line="175" />
         <source>Dokument</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="172"/>
+        <location filename="../src/filepane.cpp" line="171" />
         <source>Autor</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="173"/>
+        <location filename="../src/filepane.cpp" line="172" />
         <source>Herausgeber</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="174"/>
+        <location filename="../src/filepane.cpp" line="173" />
         <source>Seitenanzahl</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="175"/>
+        <location filename="../src/filepane.cpp" line="174" />
         <source>Wortanzahl</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="176"/>
+        <location filename="../src/filepane.cpp" line="175" />
         <source>Zeilenanzahl</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/filepane.cpp" line="147"/>
-        <location filename="../src/previewpanel.cpp" line="148"/>
-        <location filename="../src/previewpanel.cpp" line="171"/>
-        <location filename="../src/previewpanel.cpp" line="185"/>
+        <location filename="../src/filepane.cpp" line="146" />
         <source>Geändert</source>
         <translation>Geändert</translation>
     </message>
@@ -3436,74 +2918,16 @@ Inspiriert von OneCommander.</source>
         <translation type="vanished">%1 ausgewählt</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="126"/>
-        <source>Graustufen 8-bit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/previewpanel.cpp" line="127"/>
-        <source>Graustufen 16-bit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/previewpanel.cpp" line="129"/>
-        <source>RGB 24-bit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/previewpanel.cpp" line="131"/>
-        <source>RGBA 32-bit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/previewpanel.cpp" line="132"/>
-        <source>%1-bit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/previewpanel.cpp" line="139"/>
-        <source>Aufl.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/previewpanel.cpp" line="140"/>
-        <source>Format</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/previewpanel.cpp" line="141"/>
-        <source>Tiefe</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/previewpanel.cpp" line="143"/>
-        <source>DPI</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/previewpanel.cpp" line="146"/>
-        <source>Maße</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/previewpanel.cpp" line="182"/>
         <source>Ordner</source>
-        <translation>Ordner</translation>
-    </message>
-    <message>
-        <location filename="../src/previewpanel.cpp" line="200"/>
-        <source>Protokoll</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Ordner</translation>
     </message>
     <message>
         <source>…</source>
         <translation type="vanished">…</translation>
     </message>
     <message>
-        <location filename="../src/previewpanel.cpp" line="136"/>
-        <location filename="../src/previewpanel.cpp" line="168"/>
         <source>Datei</source>
-        <translation>Datei</translation>
+        <translation type="vanished">Datei</translation>
     </message>
     <message>
         <source>-Datei</source>
@@ -3721,261 +3145,261 @@ Inspiriert von OneCommander.</source>
 <context>
     <name>ThemeCreatorDialog</name>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="15"/>
+        <location filename="../src/themecreatordialog.cpp" line="15" />
         <source>SplitCommander - Design Designer</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="41"/>
+        <location filename="../src/themecreatordialog.cpp" line="60" />
         <source>Erstelle dein persönliches Design</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="49"/>
+        <location filename="../src/themecreatordialog.cpp" line="71" />
         <source>Farben anpassen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="55"/>
+        <location filename="../src/themecreatordialog.cpp" line="79" />
         <source>App-Hintergrund</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="56"/>
+        <location filename="../src/themecreatordialog.cpp" line="80" />
         <source>Dateiliste</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="57"/>
+        <location filename="../src/themecreatordialog.cpp" line="81" />
         <source>Eingabefelder</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="58"/>
+        <location filename="../src/themecreatordialog.cpp" line="82" />
         <source>Karten/Favoriten</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="59"/>
+        <location filename="../src/themecreatordialog.cpp" line="83" />
         <source>Sidebar/Panel</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="60"/>
+        <location filename="../src/themecreatordialog.cpp" line="84" />
         <source>Akzentfarbe</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="61"/>
+        <location filename="../src/themecreatordialog.cpp" line="85" />
         <source>Akzent-Hover</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="62"/>
+        <location filename="../src/themecreatordialog.cpp" line="86" />
         <source>Selektion/Markierung</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="63"/>
+        <location filename="../src/themecreatordialog.cpp" line="87" />
         <source>Hover-Effekt</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="64"/>
+        <location filename="../src/themecreatordialog.cpp" line="88" />
         <source>Rahmen (Standard)</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="65"/>
+        <location filename="../src/themecreatordialog.cpp" line="89" />
         <source>Rahmen (Alternativ)</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="66"/>
+        <location filename="../src/themecreatordialog.cpp" line="90" />
         <source>Splitter/Trenner</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="67"/>
+        <location filename="../src/themecreatordialog.cpp" line="91" />
         <source>Haupttext</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="68"/>
+        <location filename="../src/themecreatordialog.cpp" line="92" />
         <source>Text (Kontrast/Hell)</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="69"/>
+        <location filename="../src/themecreatordialog.cpp" line="93" />
         <source>Text (Akzent)</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="70"/>
+        <location filename="../src/themecreatordialog.cpp" line="94" />
         <source>Text (Dezent)</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="71"/>
+        <location filename="../src/themecreatordialog.cpp" line="95" />
         <source>Inaktive Elemente</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="72"/>
+        <location filename="../src/themecreatordialog.cpp" line="96" />
         <source>Horiz. Trenner</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="107"/>
+        <location filename="../src/themecreatordialog.cpp" line="146" />
         <source>Name deines Designs (z.B. My Dark Blue)</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="111"/>
+        <location filename="../src/themecreatordialog.cpp" line="150" />
         <source>Design speichern &amp; schließen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="127"/>
+        <location filename="../src/themecreatordialog.cpp" line="167" />
         <source>Farbe für %1 wählen</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="155"/>
+        <location filename="../src/themecreatordialog.cpp" line="195" />
         <source>Ungültiger Name</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="155"/>
+        <location filename="../src/themecreatordialog.cpp" line="195" />
         <source>Bitte gib einen eindeutigen Namen für dein Design ein.</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="166"/>
+        <location filename="../src/themecreatordialog.cpp" line="206" />
         <source>Gespeichert</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="166"/>
-        <source>Dein Design &apos;%1&apos; wurde erfolgreich gespeichert und angewendet!</source>
-        <translation type="unfinished"></translation>
+        <location filename="../src/themecreatordialog.cpp" line="206" />
+        <source>Dein Design '%1' wurde erfolgreich gespeichert und angewendet!</source>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="169"/>
+        <location filename="../src/themecreatordialog.cpp" line="209" />
         <source>Fehler</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../src/themecreatordialog.cpp" line="169"/>
+        <location filename="../src/themecreatordialog.cpp" line="209" />
         <source>Konnte das Design nicht speichern.</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
 </context>
 <context>
     <name>ThemeDialog</name>
     <message>
         <source>Theme auswählen</source>
-        <translation type="obsolete">Theme auswählen</translation>
+        <translation type="vanished">Theme auswählen</translation>
     </message>
     <message>
         <source>System-Theme</source>
-        <translation type="obsolete">System-Theme</translation>
+        <translation type="vanished">System-Theme</translation>
     </message>
     <message>
         <source>KDE Global Theme verwenden</source>
-        <translation type="obsolete">KDE Global Theme verwenden</translation>
+        <translation type="vanished">KDE Global Theme verwenden</translation>
     </message>
     <message>
         <source>Übernimmt Farben und Stil des aktiven KDE Global Themes.</source>
-        <translation type="obsolete">Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
+        <translation type="vanished">Übernimmt Farben und Stil des aktiven KDE Global Themes.</translation>
     </message>
     <message>
         <source>Eigenes Theme</source>
-        <translation type="obsolete">Eigenes Theme</translation>
+        <translation type="vanished">Eigenes Theme</translation>
     </message>
     <message>
         <source>Abbrechen</source>
-        <translation type="obsolete">Abbrechen</translation>
+        <translation type="vanished">Abbrechen</translation>
     </message>
     <message>
         <source>Übernehmen</source>
-        <translation type="obsolete">Übernehmen</translation>
+        <translation type="vanished">Übernehmen</translation>
     </message>
     <message>
         <source>Neustart erforderlich</source>
-        <translation type="obsolete">Neustart erforderlich</translation>
+        <translation type="vanished">Neustart erforderlich</translation>
     </message>
     <message>
         <source>Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</source>
-        <translation type="obsolete">Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</translation>
+        <translation type="vanished">Das Theme wurde erfolgreich importiert und wird nach einem Neustart von SplitCommander vollständig angewendet.</translation>
     </message>
 </context>
 <context>
     <name>ThemePreviewWidget</name>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="27"/>
+        <location filename="../src/themepreviewwidget.cpp" line="27" />
         <source>Live-Vorschau (SplitCommander Mockup)</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="59"/>
+        <location filename="../src/themepreviewwidget.cpp" line="72" />
         <source>FAVORITEN</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="69"/>
+        <location filename="../src/themepreviewwidget.cpp" line="82" />
         <source>☁️ Google Drive</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="84"/>
+        <location filename="../src/themepreviewwidget.cpp" line="105" />
         <source>💾 SATA-SSD (/)</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="106"/>
+        <location filename="../src/themepreviewwidget.cpp" line="127" />
         <source>240 GB frei von 512 GB</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="124"/>
+        <location filename="../src/themepreviewwidget.cpp" line="146" />
         <source>📁 /home/user/Dokumente</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="129"/>
+        <location filename="../src/themepreviewwidget.cpp" line="151" />
         <source>📄 bericht_2026.pdf</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="139"/>
+        <location filename="../src/themepreviewwidget.cpp" line="161" />
         <source>📁 SplitCommander Project</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="156"/>
+        <location filename="../src/themepreviewwidget.cpp" line="181" />
         <source>📁 /run/media/usb</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="161"/>
+        <location filename="../src/themepreviewwidget.cpp" line="186" />
         <source>🖼️ urlaub_foto.png</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="166"/>
+        <location filename="../src/themepreviewwidget.cpp" line="191" />
         <source>📄 notizen.txt</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="189"/>
+        <location filename="../src/themepreviewwidget.cpp" line="215" />
         <source>gdrive://google18/Dokumente/</source>
-        <translation type="unfinished"></translation>
+        <translation />
     </message>
     <message>
-        <location filename="../src/themepreviewwidget.cpp" line="200"/>
+        <location filename="../src/themepreviewwidget.cpp" line="226" />
         <source>Neuer Ordner</source>
-        <translation type="unfinished">Neuer Ordner</translation>
+        <translation>Neuer Ordner</translation>
     </message>
 </context>
 </TS>

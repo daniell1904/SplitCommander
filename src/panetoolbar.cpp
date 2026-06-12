@@ -122,9 +122,9 @@ void PaneToolbar::buildRow3(QVBoxLayout *vlay)
     connect(m_viewGroup, &QButtonGroup::idClicked, this, &PaneToolbar::viewModeChanged);
 
     int modeId = 0;
-    for (auto &v : {std::pair<const char *, const char *>{"view-list-tree", "Details"},
-                    {"view-list-details", "Kompakt"},
-                    {"view-list-icons", "Symbole"}})
+    for (auto &v : {std::pair<const char *, QString>{"view-list-tree", tr("Details")},
+                    {"view-list-details", tr("Kompakt")},
+                    {"view-list-icons", tr("Symbole")}})
     {
         auto *b = new QToolButton();
         b->setIcon(QIcon::fromTheme(v.first));

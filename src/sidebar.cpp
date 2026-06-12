@@ -544,7 +544,11 @@ void Sidebar::buildDrivesHeader(QVBoxLayout *vbox, QLabel *&lbl, QPushButton *&m
     hLay->setSpacing(0);
 
     auto driveBoxSettings = Config::group("UI");
-    const QString driveBoxLabel = driveBoxSettings.readEntry("driveBoxLabel", tr("Laufwerke"));
+    QString driveBoxLabel = driveBoxSettings.readEntry("driveBoxLabel", QStringLiteral("Laufwerke"));
+    if (driveBoxLabel == QStringLiteral("Laufwerke"))
+    {
+        driveBoxLabel = tr("Laufwerke");
+    }
     lbl = new QLabel(driveBoxLabel);
     Q_ASSERT(lbl != nullptr);
     lbl->setStyleSheet(QStringLiteral("font-size:14px;font-weight:normal;background:transparent;color:%1;")

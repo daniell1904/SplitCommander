@@ -58,7 +58,14 @@ public:
         p.setPen(Qt::NoPen);
         p.setBrush(grad);
         p.drawRoundedRect(2, 8, w, 22, 4, 4);
-        const QStringList lbl = {tr("1 Std"), tr("1 Tag"), tr("7 Tage"), tr("1 Monat"), tr("1 Jahr"), tr(">1 Jahr")};
+        const QStringList lbl = {
+            QCoreApplication::translate("SettingsDialog", "1 Std"),
+            QCoreApplication::translate("SettingsDialog", "1 Tag"),
+            QCoreApplication::translate("SettingsDialog", "7 Tage"),
+            QCoreApplication::translate("SettingsDialog", "1 Monat"),
+            QCoreApplication::translate("SettingsDialog", "1 Jahr"),
+            QCoreApplication::translate("SettingsDialog", ">1 Jahr")
+        };
         QFont f = p.font();
         f.setPixelSize(10);
         p.setFont(f);
