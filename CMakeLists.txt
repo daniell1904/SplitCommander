@@ -141,6 +141,7 @@ qt6_add_translations(splitcommander
     TS_FILES ${TS_FILES}
     QM_FILES_OUTPUT_VARIABLE QM_FILES
 )
+target_sources(splitcommander PRIVATE ${QM_FILES})
 
 install(FILES ${QM_FILES} DESTINATION ${CMAKE_INSTALL_DATADIR}/splitcommander/translations)
 
