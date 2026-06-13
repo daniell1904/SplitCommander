@@ -32,6 +32,15 @@
 
 A native KDE file manager with a dual-pane layout, inspired by OneCommander. Built with Qt6 and KDE Frameworks 6.
 
+### Key Features
+
+* **Dual-Pane & Miller Columns** — Side-by-side browsing and fast tree-navigation.
+* **Smart Sidebar** — Devices, bookmarks, custom groups, and a color-coded file tagging system.
+* **Cloud & Network Integration** — Native Google Drive (kio-gdrive) and auto-detected network mounts (SMB, SFTP, NFS, WebDAV, MTP).
+* **Power Tools** — Batch Renamer, built-in Terminal integration, and fully configurable shortcuts.
+* **Optional Plugins** — Git Manager (repository status/actions in sidebar), Paperless-ngx document upload, ISO mounting, and Makefile actions.
+* **Custom Themes** — Modern built-in themes (Nord, Catppuccin, Gruvbox), custom theme creator, and KDE Global Theme sync.
+
 ### 🚀 Installation & Build
 
 **Using the Installer Script (Recommended):**
@@ -62,6 +71,15 @@ sudo cmake --install build-release
 ## 🇩🇪 Deutsch
 
 Ein nativer KDE-Dateimanager mit Dual-Pane-Layout, inspiriert von OneCommander. Entwickelt mit Qt6 und KDE Frameworks 6.
+
+### Hauptmerkmale
+
+* **Dual-Pane & Miller Columns** — Paralleles Browsen und schnelle Navigation im Verzeichnisbaum.
+* **Intelligente Sidebar** — Geräte, Lesezeichen, eigene Gruppen und ein farbiges Datei-Tag-System.
+* **Cloud- & Netzwerk-Integration** — Direktes Google Drive (kio-gdrive) sowie automatische Netzwerklaufwerke (SMB, SFTP, NFS, WebDAV, MTP).
+* **Power-Tools** — Batch-Umbenenner, integriertes Terminal und frei konfigurierbare Tastenkürzel.
+* **Optionale Plugins** — Git Manager (Sidebar-Repository-Status & Aktionen), Paperless-ngx Dokumenten-Upload, ISO einbinden und Makefile-Aktionen.
+* **Eigene Themes** — Moderne integrierte Themes (Nord, Catppuccin, Gruvbox), Theme-Creator und Synchronisation mit KDE-System-Themes.
 
 ### 🚀 Installation & Build
 
