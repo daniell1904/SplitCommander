@@ -68,7 +68,7 @@ void ThumbnailManager::requestThumbnail(const QString &path, int size)
     KFileItemList items;
     items << item;
 
-    const QStringList plugins = KIO::PreviewJob::availablePlugins();
+    static const QStringList plugins = KIO::PreviewJob::availablePlugins();
     auto *job = KIO::filePreview(items, QSize(size, size), &plugins);
     Q_ASSERT(job != nullptr);
     job->setIgnoreMaximumSize(true);

@@ -216,7 +216,24 @@ GitFileStatus GitStatusManager::statusFor(const QString &repoPath, const QString
     QString rel = filePath;
     if (rel.startsWith(repoPath))
     {
-        rel = rel.mid(repoPath.size()).remove(QRegularExpression(QStringLiteral("^/+")));
+        rel = rel.mid(repoPath.size());
+        int leadingSlashes = 0;
+        const int len = rel.length();
+        for (int i = 0; i < len; ++i)
+        {
+            if (rel.at(i) == QLatin1Char('/'))
+            {
+                leadingSlashes++;
+            }
+            else
+            {
+                break;
+            }
+        }
+        if (leadingSlashes > 0)
+        {
+            rel.remove(0, leadingSlashes);
+        }
     }
     auto fileIt = it->find(rel);
     if (fileIt == it->end())

@@ -732,9 +732,10 @@ void PaneWidget::navigateTo(const QString &path, bool clearForward,
 
   const QString cur = currentPath();
   if (!cur.isEmpty() && cur != path) {
-    if (clearForward)
+    if (clearForward) {
       m_histFwd.clear();
-    m_histBack.push(cur);
+      m_histBack.push(cur);
+    }
   }
   m_toolbar->setNavState(!m_histBack.isEmpty(), !m_histFwd.isEmpty());
 
