@@ -66,7 +66,9 @@ set(SC_SOURCES
 if(SC_PLUGIN_GIT)
     list(APPEND SC_SOURCES
         src/plugins/git/gitmanagerdialog.cpp
+        src/plugins/git/gitmanagerdialog.h
         src/plugins/git/gitstatusmanager.cpp
+        src/plugins/git/gitstatusmanager.h
     )
 endif()
 
@@ -80,12 +82,14 @@ endif()
 if(SC_PLUGIN_MOUNTISO)
     list(APPEND SC_SOURCES
         src/plugins/mountiso/mountiso.cpp
+        src/plugins/mountiso/mountiso.h
     )
 endif()
 
 if(SC_PLUGIN_MAKEFILEACTIONS)
     list(APPEND SC_SOURCES
         src/plugins/makefileactions/makefileactions.cpp
+        src/plugins/makefileactions/makefileactions.h
     )
 endif()
 

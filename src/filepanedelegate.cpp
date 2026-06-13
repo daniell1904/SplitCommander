@@ -193,7 +193,7 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
       p->setFont(f);
     }
   } else {
-    p->setPen(col == FP_GROESSE ? tc : dc);
+    p->setPen((col == FP_GROESSE || col == FP_TYP || col == FP_DATUM || col == FP_RECHTE) ? tc : dc);
     if (col == FP_RECHTE) {
       QFont fm = f;
       fm.setFamily(QStringLiteral("monospace"));
