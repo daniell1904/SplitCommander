@@ -141,6 +141,25 @@ void FilePane::showHeaderMenu(const QPoint &pos) {
     connect(act, &QAction::toggled, this,
             [this, id = d.id](bool v) { setColumnVisible(id, v); });
   }
+  menu.addSeparator();
+  menu.addAction(QIcon::fromTheme(QStringLiteral("view-size-equal")), tr("Spalten optimal anpassen"), this, [this]() {
+    auto *hdr = m_view->header();
+    const QList<FPCol> &visCols = m_proxy->visibleCols();
+    QFontMetrics fm(m_view->font());
+    for (int i = 0; i < visCols.size(); ++i) {
+      FPCol colId = visCols.at(i);
+      if (colId == FP_NAME) continue;
+      int maxW = hdr->sectionSizeHint(i);
+      const int rows = m_proxy->rowCount(m_view->rootIndex());
+      for (int r = 0; r < qMin(rows, 500); ++r) {
+        const QString t = m_proxy->index(r, i, m_view->rootIndex()).data(Qt::DisplayRole).toString();
+        if (!t.isEmpty()) {
+          maxW = qMax(maxW, fm.horizontalAdvance(t) + 32);
+        }
+      }
+      hdr->resizeSection(i, qMax(maxW, 40));
+    }
+  });
   menu.exec(m_view->header()->mapToGlobal(pos));
 }
 

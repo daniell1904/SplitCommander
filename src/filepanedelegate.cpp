@@ -16,16 +16,16 @@ QString FilePaneDelegate::formatAge(qint64 s) {
   if (s < 0)
     return {};
   if (s < 60)
-    return QString("%1s").arg(s);
+    return QString::number(s) + QLatin1Char('s');
   if (s < 3600)
-    return QString("%1m").arg(s / 60);
+    return QString::number(s / 60) + QLatin1Char('m');
   if (s < 86400)
-    return QString("%1h").arg(s / 3600);
+    return QString::number(s / 3600) + QLatin1Char('h');
   if (s < 86400 * 30)
-    return QString("%1t").arg(s / 86400);
+    return QString::number(s / 86400) + QLatin1Char('t');
   if (s < 86400 * 365)
-    return QString("%1M").arg(s / 86400 / 30);
-  return QString("%1J").arg(s / 86400 / 365);
+    return QString::number(s / 86400 / 30) + QLatin1Char('M');
+  return QString::number(s / 86400 / 365) + QLatin1Char('J');
 }
 
 QColor FilePaneDelegate::ageColor(qint64 s) {
@@ -118,18 +118,23 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
     }
 
     if (hasThumb) {
+        QPixmap scaledPm = pm.scaled(ic, ic, Qt::KeepAspectRatio, Qt::SmoothTransformation);
         p->drawPixmap(
-            r.left(), r.top() + (r.height() - ic) / 2,
-            pm.scaled(ic, ic, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+            r.left() + (ic - scaledPm.width()) / 2,
+            r.top() + (r.height() - scaledPm.height()) / 2,
+            scaledPm);
     } else {
         QIcon icon = qvariant_cast<QIcon>(idx.data(Qt::DecorationRole));
         if (!icon.isNull()) {
             QPixmap icpm = icon.pixmap(QSize(32, 32));
             if (icpm.isNull()) icpm = icon.pixmap(QSize(16, 16));
-            if (!icpm.isNull())
+            if (!icpm.isNull()) {
+                QPixmap scaledIc = icpm.scaled(ic, ic, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                 p->drawPixmap(
-                    r.left(), r.top() + (r.height() - ic) / 2,
-                    icpm.scaled(ic, ic, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+                    r.left() + (ic - scaledIc.width()) / 2,
+                    r.top() + (r.height() - scaledIc.height()) / 2,
+                    scaledIc);
+            }
         }
     }
     r.setLeft(r.left() + ic + 4);
