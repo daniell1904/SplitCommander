@@ -73,8 +73,8 @@ void FilePaneDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt,
   QColor tc = (sel || hov) ? QColor(TM().colors().textLight)
                            : QColor(TM().colors().textPrimary);
 
-  // Dateityp-Farben (nur wenn nicht selektiert/gehovert)
-  if (!sel && !hov) {
+  // Dateityp-Farben (nur wenn Name-Spalte und nicht selektiert/gehovert)
+  if (col == FP_NAME && !sel && !hov) {
       const KFileItem item = idx.data(Qt::UserRole + 1).value<KFileItem>();
       if (!item.isNull()) {
           QString ext = "." + item.suffix().toLower();

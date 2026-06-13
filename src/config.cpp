@@ -302,8 +302,16 @@ void Config::setMaxThumbnailSize(int i)
     g.config()->sync();
 }
 
+static QStringList s_cachedFileTypeColors;
+static bool s_fileTypeColorsCached = false;
+
 QStringList Config::fileTypeColors()
 {
+    if (s_fileTypeColorsCached)
+    {
+        return s_cachedFileTypeColors;
+    }
+
     auto g = appearanceGroup();
     Q_ASSERT(g.isValid());
     Q_ASSERT(g.config() != nullptr);
@@ -315,7 +323,9 @@ QStringList Config::fileTypeColors()
              << QStringLiteral(".png:#bd93f9") << QStringLiteral(".jpg:#bd93f9") << QStringLiteral(".svg:#bd93f9")
              << QStringLiteral(".mp4:#ff79c6") << QStringLiteral(".mp3:#ff79c6");
 
-    return g.readEntry("fileTypeColors", defaults);
+    s_cachedFileTypeColors = g.readEntry("fileTypeColors", defaults);
+    s_fileTypeColorsCached = true;
+    return s_cachedFileTypeColors;
 }
 
 void Config::setFileTypeColors(const QStringList &list)
@@ -325,6 +335,8 @@ void Config::setFileTypeColors(const QStringList &list)
     Q_ASSERT(g.config() != nullptr);
     g.writeEntry("fileTypeColors", list);
     g.config()->sync();
+    s_cachedFileTypeColors = list;
+    s_fileTypeColorsCached = true;
 }
 
 KConfigGroup Config::group(const QString &name)
