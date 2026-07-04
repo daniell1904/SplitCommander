@@ -130,9 +130,10 @@ static void setupTranslations(QApplication &app)
 #endif
 
     if (!loaded) {
-        // Fallback für Entwicklung: .qm neben der Binary suchen (build/ und build-release/)
+        // Fallback für Entwicklung/Installation: relative Pfade und neben der Binary suchen
         const QString binDir = QCoreApplication::applicationDirPath();
         loaded = appTranslator->load(locale, "splitcommander", "_", binDir + "/translations")
+              || appTranslator->load(locale, "splitcommander", "_", binDir + "/../share/splitcommander/translations")
               || appTranslator->load(locale, "splitcommander", "_", binDir);
     }
 

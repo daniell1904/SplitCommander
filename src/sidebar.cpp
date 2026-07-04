@@ -7,6 +7,7 @@
 #include "hoverfader.h"
 #include "scglobal.h"
 #include "thememanager.h"
+#include "tagmanager.h"
 #ifdef SC_PLUGIN_GIT
 #include "plugins/git/gitstatusmanager.h"
 #endif
@@ -289,6 +290,7 @@ Sidebar::Sidebar(QWidget *parent)
     buildTagsSection(outerLay);
 
     setupTags();
+    connect(&TagManager::instance(), &TagManager::tagsChanged, this, &Sidebar::setupTags);
     loadUserPlaces();
     DriveManager::instance()->refreshAll();
     connectDriveList();
@@ -1266,17 +1268,7 @@ void Sidebar::connectTagsAddButton(QPushButton *addBtn)
         {
             return;
         }
-        addTagItem(name.trimmed(), col.name());
-        adjustListHeight(m_tagList);
-        if (m_tagsBox != nullptr)
-        {
-            m_tagsBox->updateGeometry();
-        }
-        if (m_tagsWrap != nullptr)
-        {
-            m_tagsWrap->updateGeometry();
-        }
-        saveTags();
+        TagManager::instance().addTag(name.trimmed(), col.name());
     });
 }
 

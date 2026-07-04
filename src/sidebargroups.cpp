@@ -1196,17 +1196,7 @@ void Sidebar::handleTagColorChange(QListWidgetItem *item)
         QColor col = dlg.currentColor();
         if (col.isValid())
         {
-            item->setData(Qt::UserRole, col.name());
-            QPixmap pix(14, 14);
-            pix.fill(Qt::transparent);
-            QPainter p(&pix);
-            p.setRenderHint(QPainter::Antialiasing);
-            p.setBrush(col);
-            p.setPen(Qt::NoPen);
-            p.drawEllipse(0, 0, 14, 14);
-            p.end();
-            item->setIcon(QIcon(pix));
-            saveTags();
+            TagManager::instance().updateTag(item->text(), item->text(), col.name());
         }
     }
 }
@@ -1216,43 +1206,18 @@ void Sidebar::handleTagRename(QListWidgetItem *item)
     bool ok;
     QString name = sc_getText(this, tr("Tag umbenennen"), tr("Name:"), item->text());
     ok = !name.isNull();
-    if (ok && !name.isEmpty())
+    if (ok && !name.isEmpty() && name != item->text())
     {
-        item->setText(name);
-        saveTags();
+        TagManager::instance().updateTag(item->text(), name, item->data(Qt::UserRole).toString());
     }
 }
 
 void Sidebar::handleTagDelete(QListWidgetItem *item)
 {
-    delete m_tagList->takeItem(m_tagList->row(item));
-    adjustListHeight(m_tagList);
-    if (m_tagsBox != nullptr)
-    {
-        m_tagsBox->updateGeometry();
-    }
-    if (m_tagsWrap != nullptr)
-    {
-        m_tagsWrap->updateGeometry();
-    }
-    saveTags();
+    TagManager::instance().removeTag(item->text());
 }
 
 void Sidebar::saveTags()
 {
-    Q_ASSERT(m_tagList != nullptr);
-    auto s = Config::group("Tags");
-    KConfigGroup(s.config(), s.name() + "/tags").deleteGroup();
-    KConfigGroup tagsG(s.config(), s.name() + "/tags");
-    tagsG.writeEntry(QStringLiteral("size"), m_tagList->count());
-    for (int i = 0; i < m_tagList->count(); ++i)
-    {
-        auto *item = m_tagList->item(i);
-        Q_ASSERT(item != nullptr);
-        KConfigGroup tG(tagsG.config(), tagsG.name() + "/" + QString::number(i + 1));
-        tG.writeEntry(QStringLiteral("name"), item->text());
-        tG.writeEntry(QStringLiteral("color"), item->data(Qt::UserRole).toString());
-        tG.writeEntry(QStringLiteral("font"), item->data(Qt::UserRole + 1).toString());
-    }
-    s.config()->sync();
+    // Keine Aktion erforderlich, da TagManager die Tags verwaltet und speichert.
 }

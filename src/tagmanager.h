@@ -18,6 +18,7 @@ public:
     [[nodiscard]] const QList<QPair<QString, QString>>& tags() const;
     void addTag(const QString &name, const QString &color);
     void removeTag(const QString &name);
+    void updateTag(const QString &oldName, const QString &newName, const QString &newColor);
 
     void setFileTag(const QString &path, const QString &tag);
     void setFileTags(const QStringList &paths, const QString &tag);

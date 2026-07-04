@@ -142,6 +142,38 @@ void TagManager::removeTag(const QString &name)
     emit tagsChanged();
 }
 
+void TagManager::updateTag(const QString &oldName, const QString &newName, const QString &newColor)
+{
+    Q_ASSERT(!oldName.isEmpty());
+    Q_ASSERT(!newName.isEmpty());
+    Q_ASSERT(!newColor.isEmpty());
+
+    {
+        QMutexLocker lock(&m_mutex);
+        for (auto &t : m_tags)
+        {
+            if (t.first == oldName)
+            {
+                t.first = newName;
+                t.second = newColor;
+                break;
+            }
+        }
+        if (oldName != newName)
+        {
+            for (auto it = m_fileTags.begin(); it != m_fileTags.end(); ++it)
+            {
+                if (it.value() == oldName)
+                {
+                    it.value() = newName;
+                }
+            }
+        }
+    }
+    save();
+    emit tagsChanged();
+}
+
 void TagManager::clearFileTag(const QString &path)
 {
     Q_ASSERT(!path.isEmpty());
